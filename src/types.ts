@@ -17,6 +17,10 @@ export interface User {
     emailNotif: boolean;
     privateAccount: boolean;
 
+    followers?: number;
+    following?: number;
+    posts?: number;
+
     createdAt: Date;
     updatedAt: Date;
 

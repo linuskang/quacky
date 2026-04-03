@@ -64,24 +64,75 @@ export async function GET(
         );
     }
 
+    const posts = await prisma.post.findMany({
+        where: {
+            authorId: user.id,
+            isHidden: false,
+            isDeleted: false,
+        },
+        select: {
+            id: true,
+            content: true,
+            createdAt: true,
+            attachments: true,
+            readOnly: true,
+            author: {
+                select: {
+                    id: true,
+                    name: true,
+                    handle: true,
+                    image: true,
+                    verified: true,
+                }
+            }
+        }
+    });
+
     if (user.banned) {
         return NextResponse.json(
             {
-                banned: user.banned,
-                name: user.name,
-                handle: user.handle,
-                createdAt: user.createdAt,
+                user: {
+                    banned: user.banned,
+                    name: user.name,
+                    handle: user.handle,
+                    createdAt: user.createdAt,
+                },
+                posts: [],
             },
-            { status: 403 }
+            { status: 200 }
         );
     }
 
     if (user.privateAccount) {
         return NextResponse.json(
             {
+                user: {
+                    id: user.id,
+                    name: user.name,
+                    handle: user.handle,
+                    image: user.image,
+                    verified: user.verified,
+                    privateAccount: user.privateAccount,
+                    createdAt: user.createdAt,
+                    followers: user.followers.length,
+                    following: user.following.length,
+                    banned: user.banned,
+                    role: user.role,
+                    posts: posts.length,
+                },
+                posts: [],
+            },
+            { status: 200 }
+        );
+    }
+
+    return NextResponse.json(
+        {
+            user: {
                 id: user.id,
                 name: user.name,
                 handle: user.handle,
+                bio: user.bio,
                 image: user.image,
                 verified: user.verified,
                 privateAccount: user.privateAccount,
@@ -90,25 +141,9 @@ export async function GET(
                 following: user.following.length,
                 banned: user.banned,
                 role: user.role,
+                posts: posts.length,
             },
-            { status: 200 }
-        );
-    }
-
-    return NextResponse.json(
-        {
-            id: user.id,
-            name: user.name,
-            handle: user.handle,
-            bio: user.bio,
-            image: user.image,
-            verified: user.verified,
-            privateAccount: user.privateAccount,
-            createdAt: user.createdAt,
-            followers: user.followers.length,
-            following: user.following.length,
-            banned: user.banned,
-            role: user.role,
+            posts: posts,
         },
         { status: 200 }
     );

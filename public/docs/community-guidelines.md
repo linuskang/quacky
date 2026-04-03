@@ -110,8 +110,4 @@ You'll be notified of actions taken and can appeal through our support system.
 
 ## 16. Contact & Support
 
-Have questions or need help?
-
-- Report violations using the in-app report feature
-- Contact our support team at support@quacky.local
-- Appeal moderation decisions through your account settings
+Have questions or need help? Contact support@kang.software for general enquiries. For account appeals, contact us at account.appeals@kang.software.
