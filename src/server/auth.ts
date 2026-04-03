@@ -43,8 +43,8 @@ export const auth = betterAuth({
                         },
                     };
                 }
-            }
-        }
+            },
+        },
     },
 
     appName: "Quacky",
@@ -64,5 +64,9 @@ export const auth = betterAuth({
         ipAddress: {
             ipAddressHeaders: ["cf-connecting-ip", "x-forwarded-for"],
         }
+    },
+
+    rateLimit: {
+        enabled: true,
     }
 });
