@@ -14,12 +14,16 @@ import Account from "@/components/quacky/account";
 
 // Types
 interface Props {
-    name: string;
-    handle: string;
-    image?: string | null;
+    session: {
+        user: {
+            name: string;
+            handle: string;
+            image?: string | null;
+        }
+    }
 }
 
-export default function Sidebar({ name, handle, image }: Props) {
+export default function Sidebar({ session }: Props) {
     return (
         <>
             <aside className="sticky top-0 z-50 w-60 shrink-0 hidden lg:flex flex-col gap-4 pt-8 lg:h-screen">
@@ -65,7 +69,7 @@ export default function Sidebar({ name, handle, image }: Props) {
                         variant="ghost"
                         className="justify-start gap-3 px-4 py-6 rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer"
                     >
-                        <Link href={`/${handle}`}>
+                        <Link href={`/${session.user.handle}`}>
                             <User size={28} strokeWidth={3} />
                             <span>Profile</span>
                         </Link>
@@ -83,9 +87,9 @@ export default function Sidebar({ name, handle, image }: Props) {
 
                 <div className="mt-auto mb-8">
                     <Account
-                        username={handle}
-                        displayName={name}
-                        avatarUrl={image || ""}
+                        username={session.user.handle}
+                        displayName={session.user.name}
+                        avatarUrl={session.user.image || ""}
                     />
                 </div>
             </aside>
@@ -120,7 +124,7 @@ export default function Sidebar({ name, handle, image }: Props) {
                     </Button>
 
                     <Button asChild variant="ghost" className="flex-1">
-                        <Link href={`/${handle}`} className="flex flex-col items-center gap-1 py-2 text-xs text-muted-foreground">
+                        <Link href={`/${session.user.handle}`} className="flex flex-col items-center gap-1 py-2 text-xs text-muted-foreground">
                             <User size={20} />
                             <span>Profile</span>
                         </Link>

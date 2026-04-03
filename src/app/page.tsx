@@ -54,9 +54,7 @@ export default function Homepage() {
         <main className="min-h-screen w-full flex justify-center bg-background dark:bg-background">
             <div className="flex w-full max-w-[1200px] gap-4 px-4 pb-24 lg:pb-8">
                 <Sidebar
-                    name={session.user.name}
-                    handle={session.user.handle}
-                    image={session.user.image}
+                    session={session}
                 />
 
                 <div className="flex-1 flex flex-col gap-4 pt-8 w-full min-w-0 lg:max-w-2xl">

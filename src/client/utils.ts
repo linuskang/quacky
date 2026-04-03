@@ -40,3 +40,24 @@ export async function getPosts() {
         return [];
     }
 }
+
+// Get post
+
+export async function getPost(postId: string): Promise<Post | null> {
+    try {
+        // fetch
+        const res = await fetch(`/api/v1/posts/${postId}`);
+        const data = await res.json();
+        const post = data.post;
+
+        // 404
+        if (!post) {
+            return null;
+        }
+
+        return post;
+
+    } catch (err) {
+        return null;
+    }
+}
