@@ -80,12 +80,12 @@ export default function Login() {
                                 <a href="/community-guidelines" className="underline">Community Guidelines</a>.
                             </p>
 
-                            <p className="text-xs text-muted-foreground text-center">
+                            {/* <p className="text-xs text-muted-foreground text-center">
                                 Don't have an account?{" "}
                                 <a href="/onboarding" className="underline">
                                     Sign up
                                 </a>
-                            </p>
+                            </p> */}
 
                             <p className="mt-8 text-xs text-muted-foreground text-center">
                                 {appInfo.version} ({appInfo.build})
