@@ -22,8 +22,7 @@ const MAX_CHARS = 280;
 const MAX_FILES = 3;
 
 interface NewPost {
-    success: boolean;
-    post?: { id: string };
+    id: string;
 }
 
 interface Props {
