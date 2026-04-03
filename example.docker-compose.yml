@@ -5,11 +5,15 @@ services:
     restart: always
     env_file:
       - .env
+    environment:
+      DATABASE_URL: postgresql://quacky:quacky@db:5432/quackydb
     depends_on:
       - db
       - cdn
+    networks:
+      - quacky_network
     ports:
-      - "3001:3000"
+      - "3001:3001"
 
   db:
     container_name: quackydb
