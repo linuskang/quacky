@@ -242,7 +242,7 @@ function PostCard(
                 <div className="mt-1 flex items-center gap-2 rounded-md border border-red-200 bg-red-50 p-3">
                     <EyeOff size={16} className="shrink-0 text-red-700" />
                     <p className="text-sm text-red-700">
-                        This post has been unlisted due to a violation of our community guidelines. <a href="/legal/terms" className="underline">Learn More</a>
+                        This post has been unlisted due to a violation of our community guidelines. <a href="/help/unlisted" className="underline">Learn More</a>
                     </p>
                 </div>
             )}
