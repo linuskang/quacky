@@ -137,7 +137,14 @@ function PostCard(
     const [isOpen, setIsOpen] = useState(false);
 
     async function report(type: string, reason: string) {
-        console.log("Reporting post", {type, reason });
+        fetch(`/api/v1/posts/${post.id}/report`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                type,
+                reason,
+            }),
+        });
     }
 
     return (
