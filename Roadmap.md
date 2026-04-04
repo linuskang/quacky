@@ -11,7 +11,6 @@ Features that are planned and development progress so far.
 
 ### Todo
 
-- Settings (redo)
 - Commenting
 - Likes
 - Admin panel
