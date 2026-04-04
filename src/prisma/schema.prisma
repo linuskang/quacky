@@ -37,13 +37,14 @@ model User {
   banReason  String?
   banExpires DateTime?
 
-  sessions  Session[]
-  accounts  Account[]
-  posts     Post[]
-  likes     Like[]    @relation("UserLikes")
-  replies   Reply[]
-  following Follow[]  @relation("UserFollowing")
-  followers Follow[]  @relation("UserFollowers")
+  sessions      Session[]
+  accounts      Account[]
+  posts         Post[]
+  likes         Like[]         @relation("UserLikes")
+  replies       Reply[]
+  following     Follow[]       @relation("UserFollowing")
+  followers     Follow[]       @relation("UserFollowers")
+  notifications Notification[]
 
   @@unique([email])
 }
@@ -109,6 +110,23 @@ model Follow {
 
   @@id([followerId, followingId])
   @@index([followingId])
+  @@index([createdAt])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  actorId   String
+  postId    String?
+  replyId   String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  message   String
+
+  actor User @relation(fields: [actorId], references: [id])
+
+  @@index([userId])
   @@index([createdAt])
 }
 
