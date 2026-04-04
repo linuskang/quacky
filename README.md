@@ -4,6 +4,8 @@ Quacky is a bootstrapped social media platform built in Next.js, designed for te
 
 We are currently in the development phase. Expect bugs and APIs to change overtime with little to no warning.
 
+### Try quacky at https://quacky.linus.my
+
 ## Tech stack
 
 Quacky is built with:
@@ -21,7 +23,13 @@ Quacky is built with:
 
 ## Self-host
 
-You can self-host Quacky using this ``docker-compose.yml`` file:
+1. Pull the image
+
+```bash
+docker pull linuskang/quacky:latest
+```
+
+2. Self-host Quacky using this ``docker-compose.yml`` file:
 
 ```yml
 services:
@@ -110,3 +118,36 @@ DISCORD_WEBHOOK_URL=""
 APP_VERSION="0.0.1"
 APP_BUILD="production"
 ```
+
+You can now start Quacky:
+
+```bash
+docker compose up
+```
+
+Next, you will need to apply database migrations, add a config entry, and create the default **@quacky** user.
+
+```bash
+npx prisma migrate dev
+```
+
+2. Create a new entry in ``Config`` table, key as ``reserved_handles`` with ``value`` being this structure:
+
+```json
+{
+    "handles": [
+        "quacky",
+        #  Add your reserved handle names here
+    ]
+}
+```
+
+3. Create the Quacky admin user with ``userId``, ``name``, and ``handle`` set to ``quacky``.
+
+Lastly, login to RustFS, create a bucket & access key. Add it into your ``.env`` configuration.
+
+And.. your done! Access Quacky at [localhost:3001](http://localhost:3001) and create an account.
+
+### Updating Quacky
+
+All you have to do when updating your Quacky instance is to pull the image, and restart the docker containers.
