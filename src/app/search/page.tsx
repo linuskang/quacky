@@ -6,7 +6,7 @@
 
 // Libraries
 import Link from "next/link";
-import { startTransition, useDeferredValue, useEffect, useState } from "react";
+import { Suspense, startTransition, useDeferredValue, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authClient } from "@/client/auth";
 
@@ -40,6 +40,14 @@ interface SearchResponse {
 }
 
 export default function SearchPage() {
+    return (
+        <Suspense fallback={<Loading />}>
+            <SearchPageContent />
+        </Suspense>
+    );
+}
+
+function SearchPageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const currentUrlQuery = searchParams.get("q") ?? "";

@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import "./globals.css"
 
 import { TooltipProvider } from "@/components/ui/tooltip"
+import ThemeProvider from "@/components/ui/theme-provider"
 import { Lexend } from "next/font/google";
 const lexend = Lexend({ subsets: ["latin"] });
 
@@ -20,13 +21,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${lexend.className} antialiased`}
       >
-        <TooltipProvider>
-          {children}
-        </TooltipProvider>
+        <ThemeProvider>
+          <TooltipProvider>
+            {children}
+          </TooltipProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

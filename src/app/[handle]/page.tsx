@@ -157,12 +157,7 @@ export default function ProfilePage(
                             </div>
                         )}
 
-                        {user.privateAccount && (
-                            <div className="rounded-xl border border-border -mt-1 p-4 mb-4 text-center">
-                                <h2 className="text-xl font-bold text-primary mb-2">Private Account</h2>
-                                <p className="text-muted-foreground">This user account is private</p>
-                            </div>
-                        )}
+
 
                         {user.bio && (
                             <p className="text-base text-primary leading-relaxed mb-4 whitespace-pre-line">
@@ -187,6 +182,12 @@ export default function ProfilePage(
 
 
                     </div>
+                    {user.privateAccount && (
+                        <div className="rounded-xl border border-border p-4 mb-4 text-center">
+                            <h2 className="text-xl font-bold text-primary mb-2">Private Account</h2>
+                            <p className="text-muted-foreground">This user account is private</p>
+                        </div>
+                    )}
                     {!user.banned && !user.privateAccount && (
                         posts.length > 0 ? (
                             <Posts posts={posts} />

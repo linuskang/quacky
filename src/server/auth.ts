@@ -24,6 +24,20 @@ export const auth = betterAuth({
                 type: "string",
                 required: true,
                 default: "Member",
+            },
+            bio: {
+                type: "string",
+                required: false,
+            },
+            privateAccount: {
+                type: "boolean",
+                required: true,
+                default: false,
+            },
+            emailNotif: {
+                type: "boolean",
+                required: true,
+                default: true,
             }
         },
     },
