@@ -135,6 +135,11 @@ function PostCard(
 ) {
     // states
     const [isOpen, setIsOpen] = useState(false);
+    const [isPinned, setIsPinned] = useState(post.pinned);
+    const [isHidden, setIsHidden] = useState(post.isHidden);
+    const [isReadOnly, setIsReadOnly] = useState(post.readOnly);
+    const [isDeleted, setIsDeleted] = useState(post.isDeleted);
+    const [isModerating, setIsModerating] = useState(false);
     const initialHasLiked = post.hasLiked ?? post.likes?.some((like) => like.user.id === session?.user?.id) ?? false;
     const initialHasCommented = post.hasReplied ?? post.replies?.some((reply) => reply.author.id === session?.user?.id) ?? false;
     const [hasLiked, setHasLiked] = useState(initialHasLiked);
@@ -172,7 +177,39 @@ function PostCard(
         }
     }
 
+    async function moderate(action: "pin" | "unpin" | "list" | "unlist" | "readonly" | "unreadonly" | "delete") {
+        if (!session || session.user?.role !== "Admin" || isModerating) {
+            return;
+        }
+
+        setIsModerating(true);
+
+        try {
+            const response = await fetch(`/api/v1/posts/${post.id}/${action}`, {
+                method: "POST",
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            if (action === "pin") setIsPinned(true);
+            if (action === "unpin") setIsPinned(false);
+            if (action === "list") setIsHidden(false);
+            if (action === "unlist") setIsHidden(true);
+            if (action === "readonly") setIsReadOnly(true);
+            if (action === "unreadonly") setIsReadOnly(false);
+            if (action === "delete") setIsDeleted(true);
+        } finally {
+            setIsModerating(false);
+        }
+    }
+
     const hasCommented = initialHasCommented;
+
+    if (isDeleted) {
+        return null;
+    }
 
     return (
         <div className="rounded-xl border border-border bg-[var(--lynt)] p-4 flex flex-col gap-2">
@@ -188,7 +225,7 @@ function PostCard(
                 </div>
             )} */}
 
-            {post.pinned && (
+            {isPinned && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Pin fill="currentColor" size={16} className="text-primary" />
                     <span className="font-bold">Pinned by an admin</span>
@@ -223,7 +260,7 @@ function PostCard(
                 </span>
 
                 <div className="ml-auto flex items-center gap-2">
-                    {post.readOnly && (
+                    {isReadOnly && (
                         <div className="flex items-center gap-1 text-muted-foreground text-sm">
                             <Lock size={16} className="text-muted-foreground" />
                             <span className="font-bold">Read Only</span>
@@ -246,21 +283,29 @@ function PostCard(
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem
                                             className="cursor-pointer"
+                                            onClick={() => moderate(isPinned ? "unpin" : "pin")}
+                                            disabled={isModerating}
                                         >
-                                            <span>{post.pinned ? "Unpin" : "Pin"}</span>
+                                            <span>{isPinned ? "Unpin" : "Pin"}</span>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
                                             className="cursor-pointer"
+                                            onClick={() => moderate(isHidden ? "list" : "unlist")}
+                                            disabled={isModerating}
                                         >
-                                            <span>{post.isHidden ? "List Post" : "Unlist"}</span>
+                                            <span>{isHidden ? "List Post" : "Unlist"}</span>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
                                             className="cursor-pointer"
+                                            onClick={() => moderate(isReadOnly ? "unreadonly" : "readonly")}
+                                            disabled={isModerating}
                                         >
-                                            <span>{post.readOnly ? "Disable Read Only" : "Read Only"}</span>
+                                            <span>{isReadOnly ? "Disable Read Only" : "Read Only"}</span>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
                                             className="cursor-pointer"
+                                            onClick={() => moderate("delete")}
+                                            disabled={isModerating}
                                         >
                                             <span>Delete Post</span>
                                         </DropdownMenuItem>
@@ -272,7 +317,7 @@ function PostCard(
                 </div>
             </div>
 
-            {post.isHidden && (
+            {isHidden && (
                 <div className="mt-1 flex items-center gap-2 rounded-md border border-red-200 bg-red-50 p-3">
                     <EyeOff size={16} className="shrink-0 text-red-700" />
                     <p className="text-sm text-red-700">
@@ -324,7 +369,7 @@ function PostCard(
                 </div>
             )}
 
-            {!post.readOnly && (
+            {!isReadOnly && (
                 <div className="flex justify-between pt-2">
                     <div className="flex gap-3">
                         <Action
