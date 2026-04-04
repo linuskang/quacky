@@ -39,6 +39,7 @@ export async function GET(request: NextRequest) {
                 select: {
                     user: {
                         select: {
+                            id: true,
                             handle: true,
                         },
                     },
@@ -52,6 +53,7 @@ export async function GET(request: NextRequest) {
                 select: {
                     author: {
                         select: {
+                            id: true,
                             name: true,
                             handle: true,
                             image: true,

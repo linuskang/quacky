@@ -35,7 +35,42 @@ export async function GET(request: NextRequest) {
             isHidden: false,
             isDeleted: false,
         },
-        include: {
+        select: {
+            id: true,
+            content: true,
+            createdAt: true,
+            attachments: true,
+            pinned: true,
+            readOnly: true,
+            likes: {
+                select: {
+                    user: {
+                        select: {
+                            id: true,
+                            handle: true,
+                        },
+                    },
+                },
+            },
+            replies: {
+                where: {
+                    isHidden: false,
+                    isDeleted: false,
+                },
+                select: {
+                    author: {
+                        select: {
+                            id: true,
+                            name: true,
+                            handle: true,
+                            image: true,
+                            verified: true,
+                        },
+                    },
+                    content: true,
+                    createdAt: true,
+                },
+            },
             author: {
                 select: {
                     id: true,
@@ -45,6 +80,8 @@ export async function GET(request: NextRequest) {
                     verified: true,
                 },
             },
+            isHidden: true,
+            isDeleted: true,
         },
     });
 

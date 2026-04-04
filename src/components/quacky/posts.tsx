@@ -135,6 +135,10 @@ function PostCard(
 ) {
     // states
     const [isOpen, setIsOpen] = useState(false);
+    const initialHasLiked = post.hasLiked ?? post.likes?.some((like) => like.user.id === session?.user?.id) ?? false;
+    const initialHasCommented = post.hasReplied ?? post.replies?.some((reply) => reply.author.id === session?.user?.id) ?? false;
+    const [hasLiked, setHasLiked] = useState(initialHasLiked);
+    const [likeCount, setLikeCount] = useState(post.likes?.length ?? 0);
 
     async function report(type: string, reason: string) {
         fetch(`/api/v1/posts/${post.id}/report`, {
@@ -146,6 +150,29 @@ function PostCard(
             }),
         });
     }
+
+
+    async function toggleLike() {
+        if (!session) {
+            router.push("/login");
+            return;
+        }
+
+        const nextHasLiked = !hasLiked;
+        setHasLiked(nextHasLiked);
+        setLikeCount((current) => current + (nextHasLiked ? 1 : -1));
+
+        const response = await fetch(`/api/v1/posts/${post.id}/${hasLiked ? "unlike" : "like"}`, {
+            method: "POST",
+        });
+
+        if (!response.ok) {
+            setHasLiked(!nextHasLiked);
+            setLikeCount((current) => current + (nextHasLiked ? -1 : 1));
+        }
+    }
+
+    const hasCommented = initialHasCommented;
 
     return (
         <div className="rounded-xl border border-border bg-[var(--lynt)] p-4 flex flex-col gap-2">
@@ -305,6 +332,7 @@ function PostCard(
                             icon={<MessagesSquare strokeWidth={3} size={18} />}
                             count={post.replies?.length ?? 0}
                             activeClassName="border-primary text-card bg-primary"
+                            active={hasCommented}
                         />
                         {/* <Action
                             icon={<Repeat strokeWidth={3} size={18} />}
@@ -313,8 +341,10 @@ function PostCard(
                         /> */}
                         <Action
                             icon={<Heart strokeWidth={3} size={18} />}
-                            count={post.likes?.length ?? 0}
+                            count={likeCount}
                             activeClassName="border-primary text-card bg-primary"
+                            onClick={toggleLike}
+                            active={hasLiked}
                         />
                     </div>
 
