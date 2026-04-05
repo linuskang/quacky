@@ -11,8 +11,7 @@ Features that are planned and development progress so far.
 
 ### Todo
 
-- Commenting
-- Likes
-- Admin panel
 - DMs
 - Following/followers
+- Reels
+- Report abuse users/replies
