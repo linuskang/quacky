@@ -77,6 +77,7 @@ export async function POST(
     });
 
     if (!aiResponse.ok) {
+        console.log(`AI moderation failed for post ${post.id}:`, await aiResponse.text());
         await webhook.send({
             content: `AI Moderation is currently not available: ${post.id}`,
             embeds: [
