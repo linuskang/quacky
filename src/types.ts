@@ -91,3 +91,17 @@ export interface PostAttachment {
     size: number;
     kind: "image" | "video" | "file";
 }
+
+export interface Short {
+    id: string;
+    url: string;
+    description: string;
+    createdAt: string | Date;
+    author: {
+        id: string;
+        name: string;
+        handle: string;
+        image?: string;
+        verified: boolean;
+    }
+}
