@@ -23,6 +23,8 @@ export const env = createEnv({
 
     DISCORD_WEBHOOK_URL: z.string(),
 
+    AI_SERVICES_URL: z.string(),
+
     APP_VERSION: z.string().default("dev"),
     APP_BUILD: z.string().default("dev build"),
   },
