@@ -6,18 +6,17 @@
 // access it at /admin.
 // only users with the "Admin" role can access this page.
 
+"use client";
+
 // Libraries
-import { headers } from "next/headers";
-import { auth } from "@/server/auth";
+import { authClient } from "@/client/auth";
 
 // Components
 import Login from "@/components/login";
 import AdminPanel from "@/components/quacky/admin/panel";
 
-export default async function Administration() {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+export default function Administration() {
+    const { data: session } = authClient.useSession()
 
     // admins only. otherwise login
     if (!session || session.user.role !== "Admin") {
