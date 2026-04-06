@@ -77,7 +77,7 @@ export async function POST(
     });
 
     if (!aiResponse.ok) {
-        console.log(`AI moderation failed for post ${post.id}:`, await aiResponse.text());
+        console.log(await aiResponse.text());
         await webhook.send({
             content: `AI Moderation is currently not available: ${post.id}`,
             embeds: [
@@ -94,8 +94,6 @@ export async function POST(
     }
 
     const aiJudge = await aiResponse.json();
-
-    console.log(`AI Judge for post ${post.id}:`, aiJudge);
 
     if (aiJudge.is_inappropriate) {
         await prisma.post.update({
