@@ -107,12 +107,11 @@ export async function POST(
         });
 
         await webhook.send({
-            content: `Post Automatically Hidden by AI: ${post.id}`,
+            content: `Post Automatically Hidden: ${post.id}`,
             embeds: [
                 {
                     title: "Post automatically unlisted due to flagged content",
-                    description: `The post
-    has been automatically hidden and made read-only by the AI moderation system.\n\n**Reason:** The content was flagged as inappropriate by AI: ${aiJudge.reason}\n\n[View Post](https://quacky.linus.my/post/${post.id})`,
+                    description: `**Reason:** The content was flagged as inappropriate by AI: ${aiJudge.reason}\n\n[View Post](https://quacky.linus.my/post/${post.id})`,
                     fields: [
                         { name: "Post ID", value: post.id, inline: true },
                     ],

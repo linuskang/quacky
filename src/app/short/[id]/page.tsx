@@ -59,7 +59,7 @@ export default function Homepage(
                         videoUrl="https://cdn.lkang.au/quacky/shorts/20000940-hd_1080_1920_30fps.mp4"
                         name="Linus Kang"
                         handle="linuskang"
-                        description="if u think about it seagulls are actually really cool..."
+                        description="cats are actually so cute bro..."
                         verified={false}
                         avatarUrl={session.user.image || ""}
                     />
