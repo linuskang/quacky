@@ -16,21 +16,22 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${lexend.className} antialiased`}
-      >
-        <ThemeProvider>
-          <TooltipProvider>
-            {children}
-          </TooltipProvider>
-        </ThemeProvider>
-      </body>
-    </html>
-  );
+    return (
+        <html lang="en" suppressHydrationWarning>
+            <script defer src="https://analytics.lkang.au/script.js" data-website-id="93d61a24-4b64-4c06-afab-8178505d2612"></script>
+            <body
+                className={`${lexend.className} antialiased`}
+            >
+                <ThemeProvider>
+                    <TooltipProvider>
+                        {children}
+                    </TooltipProvider>
+                </ThemeProvider>
+            </body>
+        </html>
+    );
 }
