@@ -122,6 +122,16 @@ export async function POST(
                 },
             ],
         })
+
+        await prisma.notification.create({
+            data: {
+                type: "system:message",
+                message: `Hello,\nYour post (ID: ${post.id}) has been unlisted because it was flagged as inappropriate by our community.\n\nReason provided: ${aiJudge.reason}\n\nIf you believe this was a mistake, please contact our support team for further assistance.`,
+                actorId: "quacky",
+                postId: post.id,
+                userId: post.authorId,
+            }
+        })
     } else {
         await webhook.send({
             content: `Post Cleared by AI: ${post.id}`,
