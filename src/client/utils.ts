@@ -10,6 +10,10 @@ export function formatTimestamp(createdAt?: string | Date) {
 
     const date = new Date(createdAt);
 
+    if (Number.isNaN(date.getTime())) {
+        return "just now";
+    }
+
     if (differenceInDays(new Date(), date) > 3) {
         return format(date, 'MMM d, yyyy');
     }
