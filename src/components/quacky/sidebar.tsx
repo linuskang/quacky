@@ -31,7 +31,7 @@ export default function Sidebar({ session }: Props) {
                 <div className="p-0 text-center mb-1.5">
                     <h1 className="text-6xl font-extrabold tracking-tight text-primary dark:text-primary-dark">Quacky</h1>
                 </div>
-                <div className="rounded-lg p-2 flex flex-col gap-1 bg-[var(--lynt)] border border-border">
+                <div className="rounded-lg p-2 flex flex-col bg-[var(--lynt)] border border-border">
                     <Button
                         asChild
                         variant="ghost"
