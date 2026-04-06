@@ -74,8 +74,8 @@ const normalizePost = (p: RawPost): PostEditor => ({
 
 function SwitchRow({ label, checked, onChange, wide }: { label: string; checked: boolean; onChange: (v: boolean) => void; wide?: boolean }) {
     return (
-        <div className={`flex items-center justify-between border border-white/10 px-4 py-3 ${wide ? "col-span-2" : ""}`}>
-            <span className="text-sm text-white/70">{label}</span>
+        <div className={`flex items-center justify-between border border-border bg-background/60 px-4 py-3 ${wide ? "col-span-2" : ""}`}>
+            <span className="text-sm text-muted-foreground">{label}</span>
             <Switch checked={checked} onCheckedChange={onChange} />
         </div>
     );
@@ -84,7 +84,7 @@ function SwitchRow({ label, checked, onChange, wide }: { label: string; checked:
 function Field({ id, label, children }: { id: string; label: string; children: React.ReactNode }) {
     return (
         <div className="space-y-2">
-            <label className="text-sm text-white/65" htmlFor={id}>{label}</label>
+            <label className="text-sm text-muted-foreground" htmlFor={id}>{label}</label>
             {children}
         </div>
     );
@@ -208,14 +208,14 @@ export default function AdminPanel() {
     // ── Render ─────────────────────────────────────────────────────────────────
 
     return (
-        <main className="min-h-screen text-white">
+        <main className="min-h-screen bg-background text-foreground">
             <div className="mx-auto flex w-full max-w-2xl flex-col px-4 py-6 sm:px-6 lg:px-8">
 
                 {/* Tab bar */}
-                <div className="grid border-l border-r border-t sm:grid-cols-2">
+                <div className="grid overflow-hidden border-t border-r border-l bg-card shadow-sm sm:grid-cols-2">
                     {(["users", "posts"] as const).map((t) => (
                         <Button key={t} type="button" variant={tab === t ? "default" : "ghost"}
-                            className="h-12 justify-start px-4 text-left capitalize rounded-none"
+                            className="h-12 justify-start rounded-none px-4 text-left capitalize"
                             onClick={() => setTab(t)}>
                             {t}
                         </Button>
@@ -226,15 +226,15 @@ export default function AdminPanel() {
                     <section className="grid gap-4">
 
                         {/* Search sidebar */}
-                        <aside className="space-y-6 border border-white/10 p-5 shadow-xl shadow-black/10">
+                        <aside className="space-y-6 border border-border bg-card p-5 shadow-sm">
                             <div>
-                                <h2 className="text-xl font-bold text-primary">Find a user</h2>
-                                <p className="mt-1 text-sm text-white/60">Search by name, handle, or email.</p>
+                                <h2 className="text-xl font-bold text-foreground">Find a user</h2>
+                                <p className="mt-1 text-sm text-muted-foreground">Search by name, handle, or email.</p>
                             </div>
                             <form className="flex gap-2" onSubmit={onSubmit(() => searchUsers())}>
                                 <Input value={userQuery} onChange={(e) => setUserQuery(e.target.value)}
                                     placeholder="Search users..."
-                                    className="h-11 text-primary placeholder:text-primary" />
+                                    className="h-11 bg-background" />
                                 <Button type="submit" disabled={userSearching} className="h-11 px-5">
                                     <Search className="h-4 w-4" />
                                 </Button>
@@ -242,17 +242,17 @@ export default function AdminPanel() {
                             <div className="space-y-2">
                                 {userResults.map((user) => (
                                     <button key={user.id} type="button" onClick={() => loadUser(user.id)}
-                                        className="flex w-full cursor-pointer gap-3 border border-white/10 p-3 text-left">
-                                        <div className="min-w-0 flex-1">
+                                        className="flex w-full cursor-pointer gap-3 rounded-lg border border-border bg-background/60 p-3 text-left transition-colors hover:bg-accent">
+                                        <div className="min-w-0 flex-1 space-y-1">
                                             <Avatar className="h-12 w-12 shrink-0">
                                                 <AvatarImage src={user.image || ""} />
                                                 <AvatarFallback className="bg-primary/10 font-bold text-primary">
                                                     {user.handle[0].toUpperCase()}
                                                 </AvatarFallback>
                                             </Avatar>
-                                            <p className="truncate text-sm text-white/60">{user.name}</p>
-                                            <p className="truncate text-sm text-white/60">@{user.handle}</p>
-                                            <p className="truncate text-xs text-white/40">{user.email}</p>
+                                            <p className="truncate text-sm text-foreground">{user.name}</p>
+                                            <p className="truncate text-sm text-muted-foreground">@{user.handle}</p>
+                                            <p className="truncate text-xs text-muted-foreground">{user.email}</p>
                                         </div>
                                     </button>
                                 ))}
@@ -261,8 +261,8 @@ export default function AdminPanel() {
 
                         {/* User editor */}
                         {selectedUser && (
-                            <form className="border border-white/10 p-4" onSubmit={onSubmit(saveUser)}>
-                                <div className="mb-4 flex items-start gap-4 border p-4">
+                            <form className="rounded-xl border border-border bg-card p-4 shadow-sm" onSubmit={onSubmit(saveUser)}>
+                                <div className="mb-4 flex items-start gap-4 rounded-lg border border-border bg-background/60 p-4">
                                     <Avatar className="h-14 w-14 shrink-0">
                                         <AvatarImage src={selectedUser.image || ""} />
                                         <AvatarFallback className="bg-primary/10 font-bold text-primary">
@@ -271,8 +271,8 @@ export default function AdminPanel() {
                                     </Avatar>
                                     <div className="min-w-0 flex-1">
                                         <h3 className="text-2xl font-black tracking-tight">{selectedUser.name}</h3>
-                                        <p className="mt-1 text-sm font-medium text-white/70">@{selectedUser.handle}</p>
-                                        <p className="mt-2 text-xs text-white/45">ID: <span className="font-mono">{selectedUser.id}</span></p>
+                                        <p className="mt-1 text-sm font-medium text-muted-foreground">@{selectedUser.handle}</p>
+                                        <p className="mt-2 text-xs text-muted-foreground">ID: <span className="font-mono">{selectedUser.id}</span></p>
                                     </div>
                                 </div>
 
@@ -285,13 +285,13 @@ export default function AdminPanel() {
                                         <Field key={key} id={`user-${key}`} label={key[0].toUpperCase() + key.slice(1)}>
                                             <Input id={`user-${key}`} value={(selectedUser[key] as string) ?? ""}
                                                 onChange={(e) => setSelectedUser({ ...selectedUser, [key]: e.target.value })}
-                                                className="bg-black/25 text-white" />
+                                                className="bg-background" />
                                         </Field>
                                     ))}
                                     <Field id="user-bio" label="Bio">
                                         <Textarea id="user-bio" value={selectedUser.bio ?? ""}
                                             onChange={(e) => setSelectedUser({ ...selectedUser, bio: e.target.value })}
-                                            className="min-h-28 resize-none bg-black/25 text-white" />
+                                            className="min-h-28 resize-none bg-background" />
                                     </Field>
                                 </div>
 
@@ -303,7 +303,7 @@ export default function AdminPanel() {
                                     <SwitchRow label="Banned" checked={!!selectedUser.banned} onChange={(v) => setSelectedUser({ ...selectedUser, banned: v })} wide />
                                 </div>
 
-                                <div className="mt-4 space-y-1 text-sm text-white/60">
+                                <div className="mt-4 space-y-1 text-sm text-muted-foreground">
                                     <p>Updated: {formatTimestamp(selectedUser.updatedAt)}</p>
                                     <p>Joined: {formatTimestamp(selectedUser.createdAt)}</p>
                                 </div>
@@ -313,15 +313,15 @@ export default function AdminPanel() {
 
                 ) : (
                     <section className="grid gap-6">
-                        <aside className="space-y-6 border border-white/10 p-5">
+                        <aside className="space-y-6 border border-border bg-card p-5 shadow-sm">
                             <div>
-                                <h2 className="text-xl font-bold">Find a post</h2>
-                                <p className="mt-1 text-sm text-white/60">Search by content, author, or post id.</p>
+                                <h2 className="text-xl font-bold text-foreground">Find a post</h2>
+                                <p className="mt-1 text-sm text-muted-foreground">Search by content, author, or post id.</p>
                             </div>
                             <form className="flex gap-2" onSubmit={onSubmit(() => searchPosts())}>
                                 <Input value={postQuery} onChange={(e) => setPostQuery(e.target.value)}
                                     placeholder="Search posts..."
-                                    className="h-11 bg-black/25 text-white placeholder:text-white" />
+                                    className="h-11 bg-background" />
                                 <Button type="submit" disabled={postSearching} className="h-11 px-5">
                                     <Search />
                                 </Button>
@@ -329,7 +329,7 @@ export default function AdminPanel() {
                             <div className="space-y-2">
                                 {postResults.map((post) => (
                                     <button key={post.id} type="button" onClick={() => loadPost(post.id)}
-                                        className="flex w-full cursor-pointer items-start gap-3 border border-white/10 p-3 text-left ">
+                                        className="flex w-full cursor-pointer items-start gap-3 rounded-lg border border-border bg-background/60 p-3 text-left transition-colors hover:bg-accent">
                                         <div className="min-w-0 flex-1 space-y-1">
                                             <div className="flex flex-wrap items-center gap-2">
                                                 <Avatar className="h-5 w-5 shrink-0">
@@ -340,8 +340,8 @@ export default function AdminPanel() {
                                                 </Avatar>
                                                 <p>@{post.author.handle}</p>
                                             </div>
-                                            <p className="line-clamp-2 text-sm text-white/60">{post.content}</p>
-                                            <p className="text-xs text-white/40">
+                                            <p className="line-clamp-2 text-sm text-muted-foreground">{post.content}</p>
+                                            <p className="text-xs text-muted-foreground">
                                                 {formatTimestamp(post.createdAt)} · {post._count.likes} likes · {post._count.replies} replies
                                             </p>
                                         </div>
@@ -352,7 +352,7 @@ export default function AdminPanel() {
 
                         {/* Post editor */}
                         {selectedPost && (
-                            <form className="border border-white/10 p-4" onSubmit={onSubmit(savePost)}>
+                            <form className="rounded-xl border border-border bg-card p-4 shadow-sm" onSubmit={onSubmit(savePost)}>
                                 <Button type="submit" disabled={postSaving} className="mb-4">
                                     {postSaving ? "Saving..." : "Save"}
                                 </Button>
@@ -361,20 +361,20 @@ export default function AdminPanel() {
                                     <Field id="post-content" label="Content">
                                         <Textarea id="post-content" value={selectedPost.content}
                                             onChange={(e) => setSelectedPost({ ...selectedPost, content: e.target.value })}
-                                            className="col-span-2 max-h-64 min-h-36 resize-y overflow-auto bg-black/25 text-white" />
+                                            className="col-span-2 max-h-64 min-h-36 resize-y overflow-auto bg-background" />
                                     </Field>
                                     <Field id="post-attachments" label="Attachments JSON">
                                         <Textarea id="post-attachments" value={selectedPost.attachmentsText}
                                             onChange={(e) => setSelectedPost({ ...selectedPost, attachmentsText: e.target.value })}
-                                            className="col-span-2 max-h-64 min-h-36 resize-y overflow-auto bg-black/25 font-mono text-sm text-white" />
+                                            className="col-span-2 max-h-64 min-h-36 resize-y overflow-auto bg-background font-mono text-sm" />
                                     </Field>
                                     <Field id="post-author" label="Author handle">
                                         <Input id="post-author" value={selectedPost.authorHandle}
                                             onChange={(e) => setSelectedPost({ ...selectedPost, authorHandle: e.target.value.replace(/^@+/, "") })}
-                                            className="bg-black/25 text-white" />
+                                            className="bg-background" />
                                     </Field>
                                     <Field id="post-author-id" label="Author ID">
-                                        <Input id="post-author-id" value={selectedPost.authorId} readOnly className="bg-black/20 text-white/70" />
+                                        <Input id="post-author-id" value={selectedPost.authorId} readOnly className="bg-background text-muted-foreground" />
                                     </Field>
                                 </div>
 
@@ -385,7 +385,7 @@ export default function AdminPanel() {
                                     <SwitchRow label="Deleted" checked={selectedPost.isDeleted} onChange={(v) => setSelectedPost({ ...selectedPost, isDeleted: v })} />
                                 </div>
 
-                                <div className="mt-4 space-y-1 text-sm text-white/60">
+                                <div className="mt-4 space-y-1 text-sm text-muted-foreground">
                                     <p>Updated: {formatTimestamp(selectedPost.updatedAt)}</p>
                                     <p>Created: {formatTimestamp(selectedPost.createdAt)}</p>
                                 </div>

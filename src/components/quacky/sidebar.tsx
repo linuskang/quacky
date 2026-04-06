@@ -8,7 +8,7 @@
 import Link from "next/link";
 
 // UI Components
-import { Home, Search, Bell, User, Plus } from "lucide-react";
+import { Home, Search, Bell, User, Plus, ShieldCheck, MessagesSquare, Clapperboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Account from "@/components/quacky/account";
 
@@ -19,6 +19,7 @@ interface Props {
             name: string;
             handle: string;
             image?: string | null;
+            role: string;
         }
     }
 }
@@ -58,6 +59,28 @@ export default function Sidebar({ session }: Props) {
                         variant="ghost"
                         className="justify-start gap-3 px-4 py-6 rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer"
                     >
+                        <Link href="/messages">
+                            <MessagesSquare size={28} strokeWidth={3} />
+                            <span>Messages</span>
+                        </Link>
+                    </Button>
+
+                    <Button
+                        asChild
+                        variant="ghost"
+                        className="justify-start gap-3 px-4 py-6 rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer"
+                    >
+                        <Link href="/shorts">
+                            <Clapperboard size={28} strokeWidth={3} />
+                            <span>Shorts</span>
+                        </Link>
+                    </Button>
+
+                    <Button
+                        asChild
+                        variant="ghost"
+                        className="justify-start gap-3 px-4 py-6 rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer"
+                    >
                         <Link href="/notifications">
                             <Bell size={28} strokeWidth={3} />
                             <span>Notifications</span>
@@ -74,6 +97,19 @@ export default function Sidebar({ session }: Props) {
                             <span>Profile</span>
                         </Link>
                     </Button>
+
+                    {session.user.role == "Admin" && (
+                        <Button
+                            asChild
+                            variant="ghost"
+                            className="justify-start gap-3 px-4 py-6 rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer"
+                        >
+                            <Link href="/admin">
+                                <ShieldCheck size={28} strokeWidth={3} />
+                                <span>Admin Portal</span>
+                            </Link>
+                        </Button>
+                    )}
                 </div>
 
                 <Button
