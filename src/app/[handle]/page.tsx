@@ -6,11 +6,13 @@
 
 // Libraries
 import { format } from "date-fns";
+import { useRouter } from "next/navigation";
 import { useState, useEffect, use } from "react";
 
 // UI Components
 import { BadgeCheck, Ban, CalendarClock, Shield } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import RightSidebar from "@/components/quacky/discover";
 import Sidebar from "@/components/quacky/sidebar";
 import Posts from "@/components/quacky/posts";
@@ -31,6 +33,8 @@ interface Params {
 export default function ProfilePage(
     { params }: Params
 ) {
+    const router = useRouter();
+
     // Param
     const { handle } = use(params);
 
@@ -61,6 +65,22 @@ export default function ProfilePage(
         return (
             <Login />
         )
+    }
+
+    async function messageUser(targetUserId: string) {
+        const res = await fetch("/api/v1/messages/conversations", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ targetUserId }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data?.success && data?.conversation?.id) {
+            router.push(`/messages?c=${data.conversation.id}`);
+        }
     }
 
     if (!user) {
@@ -126,7 +146,15 @@ export default function ProfilePage(
 
                                 <div className="flex gap-3">
                                     {/* <FollowButton targetUserHandle={user.handle} /> */}
-                                    {/* <Button variant="outline" className="rounded-lg font-bold cursor-pointer">Message</Button> */}
+                                    {session.user.id !== user.id && !user.banned && (
+                                        <Button
+                                            variant="outline"
+                                            className="rounded-lg font-bold cursor-pointer"
+                                            onClick={() => void messageUser(user.id)}
+                                        >
+                                            Message
+                                        </Button>
+                                    )}
                                 </div>
                             </div>
                         </div>

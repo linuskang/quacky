@@ -45,6 +45,8 @@ model User {
   following     Follow[]       @relation("UserFollowing")
   followers     Follow[]       @relation("UserFollowers")
   notifications Notification[]
+  dmParticipants DMParticipant[]
+  dmMessages     DMMessage[]    @relation("DMSender")
 
   @@unique([email])
 }
@@ -127,6 +129,50 @@ model Notification {
   actor User @relation(fields: [actorId], references: [id])
 
   @@index([userId])
+  @@index([createdAt])
+}
+
+model DMConversation {
+  id            String          @id @default(cuid())
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  lastMessageAt DateTime?
+
+  participants DMParticipant[]
+  messages     DMMessage[]
+
+  @@index([lastMessageAt])
+  @@index([createdAt])
+}
+
+model DMParticipant {
+  conversationId String
+  userId         String
+  joinedAt       DateTime       @default(now())
+  lastReadAt     DateTime?
+
+  conversation DMConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([conversationId, userId])
+  @@index([userId])
+  @@index([joinedAt])
+}
+
+model DMMessage {
+  id             String         @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deleted        Boolean        @default(false)
+
+  conversation DMConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User           @relation("DMSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([senderId])
   @@index([createdAt])
 }
 

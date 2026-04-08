@@ -105,3 +105,36 @@ export interface Short {
         verified: boolean;
     }
 }
+
+export interface DMUserPreview {
+    id: string;
+    name: string;
+    handle: string;
+    image: string | null;
+    verified: boolean;
+    bio?: string | null;
+}
+
+export interface DMMessage {
+    id: string;
+    content: string;
+    createdAt: string;
+    updatedAt: string;
+    senderId: string;
+    sender: DMUserPreview;
+}
+
+export interface DMConversation {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    lastMessageAt: string | null;
+    unreadCount: number;
+    participant: DMUserPreview | null;
+    lastMessage: {
+        id: string;
+        content: string;
+        createdAt: string;
+        senderId: string;
+    } | null;
+}

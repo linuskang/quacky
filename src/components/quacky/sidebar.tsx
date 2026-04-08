@@ -131,7 +131,7 @@ export default function Sidebar({ session }: Props) {
             </aside>
 
             <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[var(--lynt)] border-t border-border p-2 lg:hidden">
-                <div className="max-w-[1200px] mx-auto px-4 grid grid-cols-5 items-center gap-2">
+                <div className="max-w-[1200px] mx-auto px-4 grid grid-cols-6 items-center gap-2">
                     <Button asChild variant="ghost" className="flex-1">
                         <Link href="/" className="flex flex-col items-center gap-1 py-2 text-xs text-muted-foreground">
                             <Home size={20} />
@@ -143,6 +143,13 @@ export default function Sidebar({ session }: Props) {
                         <Link href="/search" className="flex flex-col items-center gap-1 py-2 text-xs text-muted-foreground">
                             <Search size={20} />
                             <span>Search</span>
+                        </Link>
+                    </Button>
+
+                    <Button asChild variant="ghost" className="flex-1">
+                        <Link href="/messages" className="flex flex-col items-center gap-1 py-2 text-xs text-muted-foreground">
+                            <MessagesSquare size={20} />
+                            <span>DMs</span>
                         </Link>
                     </Button>
 
