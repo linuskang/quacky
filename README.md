@@ -1,4 +1,4 @@
-# Quacky: Simple and Open Social Media, For Teens.
+# Quacky (beta): Simple and Open Social Media, For Teens.
 
 Quacky is a bootstrapped social media platform built in Next.js, designed for teens.
 
