@@ -357,7 +357,6 @@ function MessagesPageContent() {
                         <aside className={`w-full md:w-[340px] md:block border-r border-border ${isMobileThreadOpen ? "hidden" : "block"}`}>
                             <div className="p-4 border-b border-border">
                                 <h1 className="text-xl font-bold text-primary">Messages</h1>
-                                <p className="text-sm text-muted-foreground mt-1">Direct messages, X-style.</p>
                             </div>
 
                             <div className="p-4 border-b border-border">
