@@ -11,7 +11,6 @@ export async function GET() {
         {
             status: "ok",
             version: env.APP_VERSION,
-            build: env.APP_BUILD,
             api: [
                 {
                     version: "1",
