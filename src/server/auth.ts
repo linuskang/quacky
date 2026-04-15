@@ -1,86 +1,82 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { Resend } from "resend";
 
 import prisma from "@/server/db";
 import { env } from "@/env"
 
-const resend = new Resend(env.RESEND_API_KEY);
-
-export const auth = betterAuth({
-    database: prismaAdapter(prisma,
-        {
+export const auth = betterAuth(
+    {
+        database: prismaAdapter(prisma, {
             provider: "postgresql"
-        }
-    ),
+        }),
 
-    user: {
-        additionalFields: {
-            handle: {
-                type: "string",
-                required: true,
-            },
-            role: {
-                type: "string",
-                required: true,
-                default: "Member",
-            },
-            bio: {
-                type: "string",
-                required: false,
-            },
-            privateAccount: {
-                type: "boolean",
-                required: true,
-                default: false,
-            },
-            emailNotif: {
-                type: "boolean",
-                required: true,
-                default: true,
-            }
-        },
-    },
-
-    databaseHooks: {
         user: {
-            create: {
-                before: async (user) => {
-                    const randomId = Math.floor(1000000 + Math.random() * 9000000);
-                    const defaultHandle = `user-${randomId}`;
-
-                    return {
-                        data: {
-                            ...user,
-                            name: user.name || defaultHandle,
-                            handle: defaultHandle,
-                        },
-                    };
+            additionalFields: {
+                handle: {
+                    type: "string",
+                    required: true,
+                },
+                role: {
+                    type: "string",
+                    required: true,
+                    default: "Member",
+                },
+                bio: {
+                    type: "string",
+                    required: false,
+                },
+                privateAccount: {
+                    type: "boolean",
+                    required: true,
+                    default: false,
+                },
+                emailNotif: {
+                    type: "boolean",
+                    required: true,
+                    default: true,
                 }
             },
         },
-    },
 
-    appName: "Quacky",
+        databaseHooks: {
+            user: {
+                create: {
+                    before: async (user) => {
+                        const randomId = Math.floor(1000000 + Math.random() * 9000000);
+                        const defaultHandle = `user-${randomId}`;
 
-    baseURL: env.BETTER_AUTH_URL,
-    secret: env.BETTER_AUTH_SECRET,
-    trustedOrigins: env.BETTER_AUTH_TRUSTED_ORIGINS,
+                        return {
+                            data: {
+                                ...user,
+                                name: user.name || defaultHandle,
+                                handle: defaultHandle,
+                            },
+                        };
+                    }
+                },
+            },
+        },
 
-    socialProviders: {
-        github: {
-            clientId: env.GITHUB_CLIENT_ID,
-            clientSecret: env.GITHUB_CLIENT_SECRET
+        appName: "Quacky",
+
+        baseURL: env.BETTER_AUTH_URL,
+        secret: env.BETTER_AUTH_SECRET,
+
+        socialProviders: {
+            github: {
+                clientId: env.GITHUB_CLIENT_ID,
+                clientSecret: env.GITHUB_CLIENT_SECRET
+            },
+        },
+
+        advanced: {
+            ipAddress: {
+                ipAddressHeaders: ["cf-connecting-ip", "x-forwarded-for"],
+            }
+        },
+
+        rateLimit: {
+            enabled: true,
         }
-    },
-
-    advanced: {
-        ipAddress: {
-            ipAddressHeaders: ["cf-connecting-ip", "x-forwarded-for"],
-        }
-    },
-
-    rateLimit: {
-        enabled: true,
     }
-});
+);

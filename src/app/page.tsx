@@ -70,6 +70,10 @@ export default function Homepage() {
                 <Discover
                     session={session}
                 />
+
+                <footer className="absolute bottom-0 left-0 right-0 py-4 text-center text-xs text-muted-foreground">
+                    (c) Linus Kang 2026. All Rights Reserved.
+                </footer>
             </div>
         </main>
     );
