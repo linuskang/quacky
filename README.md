@@ -2,11 +2,17 @@
 
 Quacky is a bootstrapped social media platform built in Next.js, designed for teens.
 
-We are currently in the development phase. Expect bugs and APIs to change overtime with little to no warning.
+It comes with:
 
-### Try quacky at https://quacky.linus.my. It runs development beta versions!
+- A social media platform
+- Moderation resources for admins
+- Cyber Safety games built in
+- Warm Fuzzies (app)
+- AI tooling for moderation
+- Messages
+- Video shorts
 
-You can find the API reference at https://quacky.linus.my/docs. We host it using swagger.
+### Try out quacky at https://quacky.linus.my
 
 ## Tech stack
 
@@ -24,8 +30,6 @@ Quacky is built with:
 - Github OAuth
 - Ollama (optional)
 - ``linuskang/quacky-ai`` (optional)
-
-I host the official Quacky image on my private registry, at ``registry.linus.my``.
 
 ## Origins
 
@@ -56,7 +60,7 @@ Quacky, and it's suite of games & apps are built around this key mechanic.
 1. Pull the image off my registry
 
 ```bash
-docker pull registry.linus.my/quacky:latest
+docker pull linuskang/quacky:latest
 ```
 
 2. Self-host Quacky using this ``docker-compose.yml`` file:
@@ -65,7 +69,7 @@ docker pull registry.linus.my/quacky:latest
 services:
   quacky:
     container_name: quacky
-    image: registry.linus.my/quacky:latest
+    image: linuskang/quacky:latest
     restart: always
     env_file:
       - .env
@@ -119,7 +123,6 @@ volumes:
     driver: local
   quacky_cdn_data:
     driver: local
-
 ```
 
 Create a ``.env`` with:
@@ -178,67 +181,6 @@ Lastly, login to RustFS, create a bucket & access key. Add it into your ``.env``
 
 ### And.. your done! Access Quacky at [localhost:3001](http://localhost:3001) and create an account.
 
-#### Updating Quacky
-
-All you have to do when updating your Quacky instance is to pull the image, and restart the docker containers.
-
-Current pages:
-
-```
-┌ /
-├ /[handle]
-├ /admin
-├ /api
-├ /api/auth/[...all]
-├ /api/v1/account
-├ /api/v1/account/avatar
-├ /api/v1/account/sessions
-├ /api/v1/admin/posts/[id]
-├ /api/v1/admin/posts/search
-├ /api/v1/admin/users/[id]
-├ /api/v1/admin/users/search
-├ /api/v1/notifications
-├ /api/v1/posts
-├ /api/v1/posts/[id]
-├ /api/v1/posts/[id]/delete
-├ /api/v1/posts/[id]/like
-├ /api/v1/posts/[id]/list
-├ /api/v1/posts/[id]/pin
-├ /api/v1/posts/[id]/readonly
-├ /api/v1/posts/[id]/reply
-├ /api/v1/posts/[id]/report
-├ /api/v1/posts/[id]/unlike
-├ /api/v1/posts/[id]/unlist
-├ /api/v1/posts/[id]/unpin
-├ /api/v1/posts/[id]/unreadonly
-├ /api/v1/posts/upload
-├ /api/v1/search
-├ /api/v1/users
-├ /api/v1/users/[handle]
-├ /api/v1/users/[handle]/follow
-├ /api/v1/users/[handle]/report
-├ /api/v1/users/[handle]/unfollow
-├ /api/v1/users/search
-├ /community-guidelines
-├ /dev/example-page
-├ /dev/posts
-├ /dev/replies
-├ /help/banned
-├ /help/unlisted
-├ /login
-├ /logout
-├ /notifications
-├ /post
-├ /post/[id]
-├ /privacy
-├ /search
-├ /settings
-├ /short/[id]
-└ /terms
-```
-
-### Extra features: Guide
-
 There are several more services Quacky uses, but isn't required. This guide will show you how to install and use:
 
 - Auto AI post moderation
@@ -248,7 +190,7 @@ There are several more services Quacky uses, but isn't required. This guide will
 You will need to install these using our separate docker image & repository ``quacky-ai``:
 
 ```bash
-docker pull registry.linus.my/quacky-ai:latest
+docker pull linuskang/quacky-ai:latest
 ```
 
 ``docker-compose.yml``:
@@ -257,7 +199,7 @@ docker pull registry.linus.my/quacky-ai:latest
 services:
   quacky:
     container_name: quacky-ai
-    image: registry.linus.my/quacky-ai:latest
+    image: linuskang/quacky-ai:latest
     restart: always
     env_file:
       - .env
