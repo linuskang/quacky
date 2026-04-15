@@ -31,6 +31,7 @@ export default function RootLayout({
                         {children}
                     </TooltipProvider>
                 </ThemeProvider>
+
                 <Script
                     src="https://analytics.lkang.au/script.js"
                     data-website-id="93d61a24-4b64-4c06-afab-8178505d2612"

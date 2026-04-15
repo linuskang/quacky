@@ -146,8 +146,8 @@ function SearchPageContent() {
     const hasResults = users.length > 0 || posts.length > 0;
 
     return (
-        <main className="min-h-screen w-full flex justify-center bg-background dark:bg-background">
-            <div className="flex w-full max-w-[1200px] gap-4 px-4">
+        <main className="min-h-screen w-full flex flex-col items-center bg-background dark:bg-background">
+            <div className="flex w-full max-w-[1200px] flex-1 gap-4 px-4">
                 <Sidebar
                     session={session}
                 />
@@ -252,6 +252,10 @@ function SearchPageContent() {
                     session={session}
                 />
             </div>
+
+            <footer className="w-full py-4 text-center text-xs text-muted-foreground">
+                (c) Linus Kang 2026. All Rights Reserved.
+            </footer>
         </main>
     );
 }

@@ -8,7 +8,7 @@
 import Link from "next/link";
 
 // UI Components
-import { Home, Search, Bell, User, Plus, ShieldCheck, MessagesSquare, Clapperboard } from "lucide-react";
+import { Home, Search, Bell, User, Plus, ShieldCheck, MessagesSquare, Clapperboard, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Account from "@/components/quacky/account";
 
@@ -95,6 +95,17 @@ export default function Sidebar({ session }: Props) {
                         <Link href={`/${session.user.handle}`}>
                             <User size={28} strokeWidth={3} />
                             <span>Profile</span>
+                        </Link>
+                    </Button>
+
+                    <Button
+                        asChild
+                        variant="ghost"
+                        className="justify-start gap-3 px-4 py-6 rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer"
+                    >
+                        <Link href={`/settings`}>
+                            <Settings size={28} strokeWidth={3} />
+                            <span>Settings</span>
                         </Link>
                     </Button>
 

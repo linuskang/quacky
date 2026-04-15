@@ -51,8 +51,8 @@ export default function SettingsPage() {
     };
 
     return (
-        <main className="min-h-screen w-full flex justify-center bg-background dark:bg-background">
-            <div className="flex w-full max-w-[1200px] gap-4 px-4 flex-col lg:flex-row">
+        <main className="min-h-screen w-full flex flex-col items-center bg-background dark:bg-background">
+            <div className="flex w-full max-w-[1200px] flex-1 gap-4 px-4 flex-col lg:flex-row">
                 <Sidebar
                     session={effectiveSession}
                 />
@@ -74,6 +74,10 @@ export default function SettingsPage() {
                     session={effectiveSession}
                 />
             </div>
+
+            <footer className="w-full py-4 text-center text-xs text-muted-foreground">
+                (c) Linus Kang 2026. All Rights Reserved.
+            </footer>
         </main>
     )
 }

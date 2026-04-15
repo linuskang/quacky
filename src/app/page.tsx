@@ -51,8 +51,8 @@ export default function Homepage() {
     }
 
     return (
-        <main className="min-h-screen w-full flex justify-center bg-background dark:bg-background">
-            <div className="flex w-full max-w-[1200px] gap-4 px-4 pb-24 lg:pb-8">
+        <main className="min-h-screen w-full flex flex-col items-center bg-background dark:bg-background">
+            <div className="flex w-full max-w-[1200px] flex-1 gap-4 px-4 pb-24 lg:pb-8">
                 <Sidebar
                     session={session}
                 />
@@ -70,11 +70,11 @@ export default function Homepage() {
                 <Discover
                     session={session}
                 />
-
-                <footer className="absolute bottom-0 left-0 right-0 py-4 text-center text-xs text-muted-foreground">
-                    (c) Linus Kang 2026. All Rights Reserved.
-                </footer>
             </div>
+
+            <footer className="w-full py-4 text-center text-xs text-muted-foreground">
+                (c) Linus Kang 2026. All Rights Reserved.
+            </footer>
         </main>
     );
 }

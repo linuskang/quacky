@@ -13,7 +13,6 @@ import Sidebar from "@/components/quacky/sidebar";
 import Discover from "@/components/quacky/discover";
 import Loading from "@/components/loading";
 import Short from "@/components/quacky/shorts";
-import { Short as ShortType } from "@/types";
 
 import { use } from "react";
 

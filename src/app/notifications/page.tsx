@@ -119,11 +119,12 @@ export default function NotificationsPage() {
     }
 
     return (
-        <main className="min-h-screen w-full flex justify-center bg-background dark:bg-background">
-            <div className="flex w-full max-w-[1200px] gap-4 px-4">
+        <main className="min-h-screen w-full flex flex-col items-center bg-background dark:bg-background">
+            <div className="flex w-full max-w-[1200px] flex-1 gap-4 px-4">
                 <Sidebar
                     session={session}
                 />
+
                 <div className="flex-1 flex flex-col pt-8 max-w-2xl">
                     <div className="mb-4 p-4">
                         <div className="flex items-center justify-between gap-3">
@@ -142,10 +143,15 @@ export default function NotificationsPage() {
                         onMarkAllRead={handleMarkAllRead}
                     />
                 </div>
+
                 <RightSidebar
                     session={session}
                 />
             </div>
+
+            <footer className="w-full py-4 text-center text-xs text-muted-foreground">
+                (c) Linus Kang 2026. All Rights Reserved.
+            </footer>
         </main>
     );
 }
