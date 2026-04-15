@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -48,6 +48,14 @@ interface ConversationCreateResponse {
 }
 
 export default function MessagesPage() {
+    return (
+        <Suspense fallback={<Loading />}>
+            <MessagesPageContent />
+        </Suspense>
+    );
+}
+
+function MessagesPageContent() {
     const { data: session, isPending } = authClient.useSession();
     const router = useRouter();
     const searchParams = useSearchParams();
