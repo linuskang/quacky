@@ -2,15 +2,19 @@
 
 Quacky is a bootstrapped social media platform built in Next.js, designed for teens.
 
-It comes with:
+Features include:
 
-- A social media platform
-- Moderation resources for admins
-- Cyber Safety games built in
-- Warm Fuzzies (app)
-- AI tooling for moderation
+- Moderation & AI tooling for admins
+- Full suite of features for posting
+- User profiles, including full customisations.
 - Messages
 - Video shorts
+- Powerful user & post searching tools
+- Bookmarks
+- Trending algorithms, & a For You page
+- Most importantly, it's designed with teens in mind.
+
+If there is a feature missing for your usecase, you can easily create new custom pages by using our custom app template in ``dev/examples``.
 
 ### Try out quacky at https://quacky.linus.my
 
@@ -23,13 +27,8 @@ Quacky is built with:
 - Prisma ORM
 - Postgresql
 - RustFS
-
-3rd party services:
-
+- Ollama
 - Resend
-- Github OAuth
-- Ollama (optional)
-- ``linuskang/quacky-ai`` (optional)
 
 ## Origins
 
@@ -57,13 +56,13 @@ Quacky, and it's suite of games & apps are built around this key mechanic.
 
 ## Self-host
 
-1. Pull the image off my registry
+1. Pull the image
 
 ```bash
 docker pull linuskang/quacky:latest
 ```
 
-2. Self-host Quacky using this ``docker-compose.yml`` file:
+2. Edit this ``docker-compose.yml`` file:
 
 ```yml
 services:
@@ -128,17 +127,16 @@ volumes:
 Create a ``.env`` with:
 
 ```env
-DATABASE_URL=""
+DATABASE_URL="postgresql://quacky:quacky@localhost:15432/quackydb"
 
-S3_ENDPOINT=""
-S3_BUCKET_NAME=""
-S3_ACCESS_KEY_ID=""
-S3_SECRET_ACCESS_KEY=""
-S3_REGION=""
+S3_ENDPOINT=http://localhost:9000
+S3_BUCKET_NAME=quacky
+S3_ACCESS_KEY_ID=
+S3_SECRET_ACCESS_KEY=
+S3_REGION=
 
 BETTER_AUTH_SECRET=""
-BETTER_AUTH_URL=""
-BETTER_AUTH_TRUSTED_ORIGINS=""
+BETTER_AUTH_URL="http://localhost:3000"
 
 GITHUB_CLIENT_ID=""
 GITHUB_CLIENT_SECRET=""
@@ -148,8 +146,9 @@ EMAIL_FROM=""
 
 DISCORD_WEBHOOK_URL=""
 
-APP_VERSION="0.0.1"
-APP_BUILD="production"
+AI_SERVICES_URL=""
+
+APP_VERSION="0.0.2"
 ```
 
 Start Quacky:
@@ -223,4 +222,4 @@ Quacky is under the CC BY-NC 4.0 license. See [LICENSE](LICENSE) for more detail
 
 ## Credits
 
-All source code is written by Linus Kang and is governed under the repository license. Images, assets, and any other artworks displayed in Quacky are drawn by [Josephine Kang](mailto:sushi@kang.software) for my project.
+All source code is written by Linus Kang and is governed under the repository license. Images, assets, and any other artworks displayed in Quacky are drawn by [Josephine](mailto:sushi@kang.software) for my project.
