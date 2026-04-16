@@ -7,7 +7,7 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/client/auth";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 import {
     BadgeCheck, MoreHorizontal, Pin, Lock, Heart, Repeat2,
@@ -15,6 +15,8 @@ import {
     MessageSquareQuote, Bookmark, BarChart2
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -39,9 +41,116 @@ import { Post } from "@/types";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Render text with #hashtags and links as clickable links. */
+interface UserCardData {
+    name: string;
+    handle: string;
+    image: string | null;
+    bio?: string | null;
+    verified: boolean;
+    followers: number;
+    following: number;
+}
+
+/** @username mention with a Twitter-style hover user card. */
+function MentionLink({ handle }: { handle: string }) {
+    const [userData, setUserData] = useState<UserCardData | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const hasFetched = useRef(false);
+
+    const fetchUser = async () => {
+        if (hasFetched.current) return;
+        hasFetched.current = true;
+        setIsLoading(true);
+        try {
+            const res = await fetch(`/api/v1/users/${handle}/card`);
+            if (res.ok) setUserData(await res.json());
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <HoverCard openDelay={300} closeDelay={150}>
+            <HoverCardTrigger asChild>
+                <Link
+                    href={`/${handle}`}
+                    onClick={(e) => e.stopPropagation()}
+                    onMouseEnter={fetchUser}
+                    className="text-primary font-semibold hover:underline"
+                >
+                    @{handle}
+                </Link>
+            </HoverCardTrigger>
+            <HoverCardContent
+                className="w-72 p-4"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {isLoading || !userData ? (
+                    <div className="flex items-start gap-3">
+                        <Skeleton className="w-12 h-12 rounded-full shrink-0" />
+                        <div className="flex flex-col gap-2 flex-1 pt-1">
+                            <Skeleton className="w-28 h-4 rounded" />
+                            <Skeleton className="w-20 h-3 rounded" />
+                            <Skeleton className="w-full h-3 rounded" />
+                        </div>
+                    </div>
+                ) : (
+                    <div className="flex flex-col gap-3">
+                        <div className="flex items-start justify-between gap-2">
+                            <Avatar className="w-12 h-12 shrink-0">
+                                <AvatarImage src={userData.image || ""} />
+                                <AvatarFallback className="bg-primary/10 text-primary font-bold text-lg">
+                                    {userData.name.charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                            </Avatar>
+                            <Link
+                                href={`/${handle}`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="shrink-0 px-3 py-1 rounded-full border-2 border-primary text-primary text-xs font-bold hover:bg-primary hover:text-[var(--lynt)] transition"
+                            >
+                                View Profile
+                            </Link>
+                        </div>
+
+                        <div className="flex flex-col gap-0.5">
+                            <div className="flex items-center gap-1">
+                                <span className="font-bold text-primary leading-tight">{userData.name}</span>
+                                {userData.verified && (
+                                    <BadgeCheck
+                                        className="text-primary shrink-0"
+                                        size={15}
+                                        fill="currentColor"
+                                        stroke="var(--lynt)"
+                                    />
+                                )}
+                            </div>
+                            <span className="text-muted-foreground text-sm">@{userData.handle}</span>
+                        </div>
+
+                        {userData.bio && (
+                            <p className="text-sm text-primary/90 leading-relaxed line-clamp-3">{userData.bio}</p>
+                        )}
+
+                        <div className="flex gap-4 text-sm">
+                            <span>
+                                <strong className="text-primary">{userData.followers}</strong>{" "}
+                                <span className="text-muted-foreground">Followers</span>
+                            </span>
+                            <span>
+                                <strong className="text-primary">{userData.following}</strong>{" "}
+                                <span className="text-muted-foreground">Following</span>
+                            </span>
+                        </div>
+                    </div>
+                )}
+            </HoverCardContent>
+        </HoverCard>
+    );
+}
+
+/** Render text with #hashtags, @mentions, and URLs as interactive elements. */
 function RichContent({ text, className }: { text: string; className?: string }) {
-    const parts = text.split(/(#[\w]+|https?:\/\/[^\s]+)/g);
+    const parts = text.split(/(#[\w]+|@[\w]+|https?:\/\/[^\s]+)/g);
     return (
         <span className={className}>
             {parts.map((part, i) => {
@@ -56,6 +165,9 @@ function RichContent({ text, className }: { text: string; className?: string }) 
                             {part}
                         </Link>
                     );
+                }
+                if (part.startsWith("@")) {
+                    return <MentionLink key={i} handle={part.slice(1)} />;
                 }
                 if (part.match(/^https?:\/\/[^\s]+/)) {
                     return (

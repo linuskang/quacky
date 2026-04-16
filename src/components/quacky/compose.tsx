@@ -5,12 +5,13 @@
 "use client";
 
 // Libraries
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { authClient } from "@/client/auth";
 
 // UI Components
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { CharacterCounter } from "@/components/quacky/character-counter";
+import { BadgeCheck } from "lucide-react";
 
 // Utilities
 import { formatSize } from "@/client/utils";
@@ -36,7 +37,54 @@ export default function Compose({ onPost }: Props) {
     const [isUploading, setIsUploading] = useState(false);
     const [attachments, setAttachments] = useState<PostAttachment[]>([]);
 
+    // @mention autocomplete
+    const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+    const [mentionResults, setMentionResults] = useState<Array<{
+        id: string; name: string; handle: string; image: string | null; verified: boolean;
+    }>>([]);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
     const { data: session } = authClient.useSession();
+
+    useEffect(() => {
+        if (mentionQuery === null || mentionQuery.length === 0) {
+            setMentionResults([]);
+            return;
+        }
+        const controller = new AbortController();
+        fetch(`/api/v1/users/search?q=${encodeURIComponent(mentionQuery)}`, { signal: controller.signal })
+            .then((r) => r.json())
+            .then((data) => setMentionResults((data.users ?? []).slice(0, 5)))
+            .catch(() => {});
+        return () => controller.abort();
+    }, [mentionQuery]);
+
+    const handleContentChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+        const val = e.target.value;
+        setContent(val);
+        const cursorPos = e.target.selectionStart ?? val.length;
+        const textBeforeCursor = val.substring(0, cursorPos);
+        const mentionMatch = textBeforeCursor.match(/(?:^|\s)@(\w*)$/);
+        if (mentionMatch) {
+            setMentionQuery(mentionMatch[1]);
+        } else {
+            setMentionQuery(null);
+            setMentionResults([]);
+        }
+    };
+
+    const insertMention = (handle: string) => {
+        const ta = textareaRef.current;
+        if (!ta) return;
+        const cursorPos = ta.selectionStart ?? content.length;
+        const before = content.substring(0, cursorPos);
+        const after = content.substring(cursorPos);
+        const updated = before.replace(/(?:^|(\s))@\w*$/, (_match, space) => `${space ?? ""}@${handle} `);
+        setContent(updated + after);
+        setMentionQuery(null);
+        setMentionResults([]);
+        ta.focus();
+    };
 
     const getErrorMessage = async (res: Response, fallback: string) => {
         try {
@@ -128,15 +176,49 @@ export default function Compose({ onPost }: Props) {
                 </Avatar>
 
                 <div className="flex-1 flex flex-col">
-                    <textarea
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        onFocus={() => setIsFocused(true)}
-                        onBlur={() => setIsFocused(false)}
-                        placeholder={`What's happening, ${session?.user.name?.split(" ")[0]}?`}
-                        className="w-full bg-transparent text-primary placeholder:text-muted-foreground resize-none outline-none text-lg font-medium min-h-[60px] py-1"
-                        rows={isFocused || content ? 3 : 2}
-                    />
+                    <div className="relative">
+                        <textarea
+                            ref={textareaRef}
+                            value={content}
+                            onChange={handleContentChange}
+                            onFocus={() => setIsFocused(true)}
+                            onBlur={() => {
+                                setIsFocused(false);
+                                // Delay so clicks on mention results register first
+                                setTimeout(() => {
+                                    setMentionQuery(null);
+                                    setMentionResults([]);
+                                }, 150);
+                            }}
+                            placeholder={`What's happening, ${session?.user.name?.split(" ")[0]}?`}
+                            className="w-full bg-transparent text-primary placeholder:text-muted-foreground resize-none outline-none text-lg font-medium min-h-[60px] py-1"
+                            rows={isFocused || content ? 3 : 2}
+                        />
+                        {mentionResults.length > 0 && (
+                            <div className="absolute left-0 right-0 top-full z-50 mt-1 bg-[var(--lynt)] border border-border rounded-xl shadow-lg overflow-hidden">
+                                {mentionResults.map((user) => (
+                                    <button
+                                        key={user.id}
+                                        type="button"
+                                        onMouseDown={(e) => { e.preventDefault(); insertMention(user.handle); }}
+                                        className="flex items-center gap-2.5 w-full px-3 py-2 hover:bg-primary/10 transition text-left"
+                                    >
+                                        <Avatar className="w-7 h-7 shrink-0">
+                                            <AvatarImage src={user.image || ""} />
+                                            <AvatarFallback className="text-xs bg-primary/10 text-primary font-bold">
+                                                {user.name.charAt(0)}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <span className="font-semibold text-sm text-primary">{user.name}</span>
+                                        {user.verified && (
+                                            <BadgeCheck className="text-primary shrink-0" size={14} fill="currentColor" stroke="var(--lynt)" />
+                                        )}
+                                        <span className="text-muted-foreground text-sm">@{user.handle}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
 
                     {attachments.length > 0 && (
                         <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
