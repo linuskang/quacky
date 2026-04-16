@@ -25,6 +25,39 @@ export const auth = betterAuth(
                     type: "string",
                     required: false,
                 },
+                website: {
+                    type: "string",
+                    required: false,
+                },
+                location: {
+                    type: "string",
+                    required: false,
+                },
+                pronouns: {
+                    type: "string",
+                    required: false,
+                },
+                banner: {
+                    type: "string",
+                    required: false,
+                },
+                accentColor: {
+                    type: "string",
+                    required: false,
+                    default: "#1d9bf0",
+                },
+                github: {
+                    type: "string",
+                    required: false,
+                },
+                twitter: {
+                    type: "string",
+                    required: false,
+                },
+                discord: {
+                    type: "string",
+                    required: false,
+                },
                 privateAccount: {
                     type: "boolean",
                     required: true,

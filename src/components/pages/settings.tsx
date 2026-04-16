@@ -28,6 +28,14 @@ interface SettingsMenuProps {
     handle: string;
     image?: string;
     bio?: string;
+    website?: string;
+    location?: string;
+    pronouns?: string;
+    banner?: string;
+    accentColor?: string;
+    github?: string;
+    twitter?: string;
+    discord?: string;
     email: string;
 
     privateAccount: boolean;
@@ -36,6 +44,14 @@ interface SettingsMenuProps {
         name: string;
         handle: string;
         bio: string;
+        website: string | null;
+        location: string | null;
+        pronouns: string | null;
+        banner: string | null;
+        accentColor: string | null;
+        github: string | null;
+        twitter: string | null;
+        discord: string | null;
         image: string | null;
         privateAccount: boolean;
         emailNotif: boolean;
@@ -49,9 +65,18 @@ export default function Settings(props: SettingsMenuProps) {
     const [name, setNameValue] = useState(props.displayName || "");
     const [handle, setHandleValue] = useState(props.handle || "");
     const [bio, setBioValue] = useState(props.bio || "");
+    const [website, setWebsiteValue] = useState(props.website || "");
+    const [location, setLocationValue] = useState(props.location || "");
+    const [pronouns, setPronouns] = useState(props.pronouns || "");
+    const [accentColor, setAccentColor] = useState(props.accentColor || "#1d9bf0");
+    const [github, setGithub] = useState(props.github || "");
+    const [twitter, setTwitter] = useState(props.twitter || "");
+    const [discord, setDiscord] = useState(props.discord || "");
     const [email] = useState(props.email || "");
     const [avatarUrl, setAvatarUrl] = useState<string | undefined>(props.image || undefined);
+    const [bannerUrl, setBannerUrl] = useState<string | undefined>(props.banner || undefined);
     const fileRef = useRef<HTMLInputElement | null>(null);
+    const bannerFileRef = useRef<HTMLInputElement | null>(null);
     const [emailNotifications, setEmailNotifications] = useState(props.emailNotif);
     const [privateAccount, setPrivateAccount] = useState(!!props.privateAccount);
 
@@ -63,10 +88,18 @@ export default function Settings(props: SettingsMenuProps) {
         setNameValue(props.displayName || "");
         setHandleValue(props.handle || "");
         setBioValue(props.bio || "");
+        setWebsiteValue(props.website || "");
+        setLocationValue(props.location || "");
+        setPronouns(props.pronouns || "");
+        setAccentColor(props.accentColor || "#1d9bf0");
+        setGithub(props.github || "");
+        setTwitter(props.twitter || "");
+        setDiscord(props.discord || "");
         setAvatarUrl(props.image || undefined);
+        setBannerUrl(props.banner || undefined);
         setEmailNotifications(!!props.emailNotif);
         setPrivateAccount(!!props.privateAccount);
-    }, [props.displayName, props.handle, props.bio, props.image, props.emailNotif, props.privateAccount]);
+    }, [props.displayName, props.handle, props.bio, props.website, props.location, props.pronouns, props.accentColor, props.github, props.twitter, props.discord, props.image, props.banner, props.emailNotif, props.privateAccount]);
 
     const save = async () => {
         setSaving(true);
@@ -78,6 +111,13 @@ export default function Settings(props: SettingsMenuProps) {
                     name,
                     handle,
                     bio,
+                    website,
+                    location,
+                    pronouns,
+                    accentColor,
+                    github,
+                    twitter,
+                    discord,
                     privateAccount,
                     emailNotif: emailNotifications,
                 }),
@@ -128,6 +168,30 @@ export default function Settings(props: SettingsMenuProps) {
         }
     };
 
+    const updBanner = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            const fd = new FormData();
+            fd.append("file", file);
+
+            const res = await fetch("/api/v1/account/banner", { method: "POST", body: fd });
+            const data = await res.json();
+
+            if (!res.ok) {
+                alert(data?.error || "Failed to upload banner");
+                return;
+            }
+
+            setBannerUrl(data.user.banner);
+            alert("Banner uploaded");
+        } catch (err) {
+            console.error(err);
+            alert("Failed to upload banner");
+        }
+    };
+
     return (
         <section className="w-full rounded-xl">
             <div className="flex items-center justify-between gap-3">
@@ -174,6 +238,22 @@ export default function Settings(props: SettingsMenuProps) {
                         </div>
 
                     </div>
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <p className="font-semibold text-primary">Profile Accent Color</p>
+                            <p className="text-sm text-muted-foreground">
+                                Choose a hex color code to override the theme on your profile.
+                            </p>
+                        </div>
+                        <div className="w-10 h-10 rounded-full border-2 border-border overflow-hidden cursor-pointer" >
+                            <input
+                                type="color"
+                                value={accentColor}
+                                onChange={(e) => setAccentColor(e.target.value)}
+                                className="w-[150%] h-[150%] -translate-x-1/4 -translate-y-1/4 cursor-pointer"
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 <div className="rounded-lg border border-black/10 dark:border-border bg-white dark:bg-background/30 p-4">
@@ -181,6 +261,17 @@ export default function Settings(props: SettingsMenuProps) {
                         <h2 className="text-lg font-bold text-primary">Profile</h2>
                     </div>
                     <div className="space-y-4">
+                        <div className="flex flex-col gap-4">
+                            <Label>Banner</Label>
+                            {bannerUrl && (
+                                <div className="w-full h-32 rounded-lg bg-cover bg-center" style={{ backgroundImage: `url(${bannerUrl})` }}></div>
+                            )}
+                            <div>
+                                <input ref={bannerFileRef} id="banner-file" type="file" accept="image/*" className="hidden" onChange={updBanner} />
+                                <Button type="button" onClick={() => bannerFileRef.current?.click()} className="font-bold cursor-pointer" variant="secondary">Change Banner</Button>
+                            </div>
+                        </div>
+
                         <div className="flex items-center gap-4">
                             <Avatar>
                                 {avatarUrl ? (
@@ -206,6 +297,16 @@ export default function Settings(props: SettingsMenuProps) {
                             />
                         </div>
                         <div className="space-y-2">
+                            <Label htmlFor="pronouns">Pronouns</Label>
+                            <Input
+                                id="pronouns"
+                                value={pronouns}
+                                onChange={(e) => setPronouns(e.target.value)}
+                                placeholder="they/them"
+                                className="bg-background dark:bg-[var(--lynt)]"
+                            />
+                        </div>
+                        <div className="space-y-2">
                             <Label htmlFor="bio">Bio</Label>
                             <Textarea
                                 id="bio"
@@ -213,6 +314,56 @@ export default function Settings(props: SettingsMenuProps) {
                                 onChange={(e) => setBioValue(e.target.value)}
                                 placeholder="Tell us about yourself"
                                 className="bg-background dark:bg-[var(--lynt)] resize-none min-h-24"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="website">Website</Label>
+                            <Input
+                                id="website"
+                                value={website}
+                                onChange={(e) => setWebsiteValue(e.target.value)}
+                                placeholder="https://example.com"
+                                className="bg-background dark:bg-[var(--lynt)]"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="location">Location</Label>
+                            <Input
+                                id="location"
+                                value={location}
+                                onChange={(e) => setLocationValue(e.target.value)}
+                                placeholder="Earth"
+                                className="bg-background dark:bg-[var(--lynt)]"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="github">GitHub</Label>
+                            <Input
+                                id="github"
+                                value={github}
+                                onChange={(e) => setGithub(e.target.value)}
+                                placeholder="GitHub Username"
+                                className="bg-background dark:bg-[var(--lynt)]"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="twitter">Twitter</Label>
+                            <Input
+                                id="twitter"
+                                value={twitter}
+                                onChange={(e) => setTwitter(e.target.value)}
+                                placeholder="Username"
+                                className="bg-background dark:bg-[var(--lynt)]"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="discord">Discord</Label>
+                            <Input
+                                id="discord"
+                                value={discord}
+                                onChange={(e) => setDiscord(e.target.value)}
+                                placeholder="Discord Username"
+                                className="bg-background dark:bg-[var(--lynt)]"
                             />
                         </div>
                         <div className="space-y-2">

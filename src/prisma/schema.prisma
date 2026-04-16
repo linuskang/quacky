@@ -30,6 +30,16 @@ model User {
   privateAccount Boolean @default(false)
   emailNotif     Boolean @default(true)
 
+  website  String?
+  location String?
+
+  pronouns    String?
+  banner      String?
+  accentColor String? @default("#1d9bf0")
+  github      String?
+  twitter     String?
+  discord     String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

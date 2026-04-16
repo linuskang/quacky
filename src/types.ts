@@ -17,6 +17,16 @@ export interface User {
     emailNotif: boolean;
     privateAccount: boolean;
 
+    website?: string;
+    location?: string;
+
+    pronouns?: string;
+    banner?: string;
+    accentColor?: string;
+    github?: string;
+    twitter?: string;
+    discord?: string;
+
     followers?: number;
     following?: number;
     posts?: number;

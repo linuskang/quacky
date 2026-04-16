@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect, use } from "react";
 
 // UI Components
-import { BadgeCheck, Ban, CalendarClock, Shield } from "lucide-react";
+import { BadgeCheck, Ban, CalendarClock, Shield, LinkIcon, MapPin, Github, Twitter, MessageCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -65,7 +65,7 @@ export default function ProfilePage(
 
     useEffect(() => {
         const fetchUser = async () => {
-            const res = await fetch(`/api/v1/users/${handle}`);
+            const res = await fetch(`/api/v1/users/${handle}`, { cache: "no-store" });
             if (res.ok) {
                 const userData = await res.json();
                 setUser(userData.user as User);
@@ -150,37 +150,46 @@ export default function ProfilePage(
                     session={session}
                 />
 
-                <div className="flex-1 flex flex-col gap-4 pt-8 max-w-2xl">
+                <div
+                    className="flex-1 flex flex-col gap-4 pt-8 max-w-2xl"
+                    style={{ ...(user.accentColor && user.accentColor !== "#1d9bf0" ? { '--primary': user.accentColor } as React.CSSProperties : {}) }}
+                >
+                    <div className="rounded-xl border border-border bg-[var(--lynt)] overflow-hidden">
+                        {user.banner && (
+                            <div className="h-32 w-full bg-cover bg-center" style={{ backgroundImage: `url(${user.banner})` }}></div>
+                        )}
+                        <div className="p-6">
+                            <div className="flex items-start gap-4 mb-6">
+                                <Avatar className={`size-20 border-4 border-border flex-shrink-0 ${user.banner ? '-mt-12' : ''}`}>
+                                    <AvatarImage src={user.image || ""} alt={`${user.handle} avatar`} className="bg-background"/>
+                                    <AvatarFallback className="bg-primary text-background text-xl font-bold">
+                                        {(user.name || user.handle || "?").charAt(0).toUpperCase()}
+                                    </AvatarFallback>
+                                </Avatar>
 
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                                        <h1 className="text-2xl font-bold text-primary">{user.name}</h1>
+                                        {user.pronouns && (
+                                            <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-primary/10 text-primary">
+                                                {user.pronouns}
+                                            </span>
+                                        )}
+                                        {user.verified && (
+                                            <BadgeCheck
+                                                className="text-primary flex-shrink-0"
+                                                size={20}
+                                                fill="currentColor"
+                                                stroke="var(--lynt)"
+                                            />
+                                        )}
+                                    </div>
 
-                    <div className="rounded-xl border border-border bg-[var(--lynt)] p-6">
-                        <div className="flex items-start gap-4 mb-6">
-
-                            <Avatar className="size-20 border-4 border-[var(--lynt)] flex-shrink-0">
-                                <AvatarImage src={user.image || ""} alt={`${user.handle} avatar`} />
-                                <AvatarFallback className="bg-primary text-background text-xl font-bold">
-                                    {(user.name || user.handle || "?").charAt(0).toUpperCase()}
-                                </AvatarFallback>
-                            </Avatar>
-
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap mb-1">
-                                    <h1 className="text-2xl font-bold text-primary">{user.name}</h1>
-                                    {user.verified && (
-                                        <BadgeCheck
-                                            className="text-primary flex-shrink-0"
-                                            size={20}
-                                            fill="currentColor"
-                                            stroke="var(--lynt)"
-                                        />
+                                    {user.handle && (
+                                        <p className="text-muted-foreground font-bold text-sm mb-3">
+                                            @{user.handle}
+                                        </p>
                                     )}
-                                </div>
-
-                                {user.handle && (
-                                    <p className="text-muted-foreground font-bold text-sm mb-3">
-                                        @{user.handle}
-                                    </p>
-                                )}
 
                                 <div className="flex gap-3">
                                     {session.user.id !== user.id && !user.banned && (
@@ -239,7 +248,46 @@ export default function ProfilePage(
                             </p>
                         )}
 
+                        <div className="flex flex-wrap gap-4 text-sm font-bold text-muted-foreground mb-4">
+                            {user.github && (
+                                <span className="flex items-center gap-1.5">
+                                    <Github size={16} strokeWidth={2.5} />
+                                    <a href={`https://github.com/${user.github}`} target="_blank" rel="noopener noreferrer" className="hover:underline text-primary">
+                                        {user.github}
+                                    </a>
+                                </span>
+                            )}
+                            {user.twitter && (
+                                <span className="flex items-center gap-1.5">
+                                    <Twitter size={16} strokeWidth={2.5} />
+                                    <a href={`https://x.com/${user.twitter}`} target="_blank" rel="noopener noreferrer" className="hover:underline text-primary">
+                                        {user.twitter}
+                                    </a>
+                                </span>
+                            )}
+                            {user.discord && (
+                                <span className="flex items-center gap-1.5">
+                                    <MessageCircle size={16} strokeWidth={2.5} />
+                                    <span>{user.discord}</span>
+                                </span>
+                            )}
+                        </div>
+
                         <div className="flex flex-wrap gap-4 text-sm font-bold text-muted-foreground">
+                            {user.location && (
+                                <span className="flex items-center gap-1.5">
+                                    <MapPin size={16} strokeWidth={2.5} />
+                                    {user.location}
+                                </span>
+                            )}
+                            {user.website && (
+                                <span className="flex items-center gap-1.5">
+                                    <LinkIcon size={16} strokeWidth={2.5} />
+                                    <a href={user.website.startsWith('http') ? user.website : `https://${user.website}`} target="_blank" rel="noopener noreferrer" className="hover:underline text-primary">
+                                        {user.website.replace(/^https?:\/\//, '')}
+                                    </a>
+                                </span>
+                            )}
                             {user.createdAt && (
                                 <span className="flex items-center gap-1.5">
                                     <CalendarClock size={16} strokeWidth={2.5} />
@@ -254,7 +302,7 @@ export default function ProfilePage(
                             )}
                         </div>
 
-
+                        </div>
                     </div>
                     {user.privateAccount && (
                         <div className="rounded-xl border border-border p-4 mb-4 text-center">

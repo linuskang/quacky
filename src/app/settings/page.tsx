@@ -19,6 +19,14 @@ type UpdatedSettingsUser = {
     name: string;
     handle: string;
     bio: string;
+    website: string | null;
+    location: string | null;
+    pronouns: string | null;
+    banner: string | null;
+    accentColor: string | null;
+    github: string | null;
+    twitter: string | null;
+    discord: string | null;
     image: string | null;
     privateAccount: boolean;
     emailNotif: boolean;
@@ -63,6 +71,14 @@ export default function SettingsPage() {
                         handle={effectiveUser.handle}
                         image={effectiveUser.image || ""}
                         bio={effectiveUser.bio || ""}
+                        website={effectiveUser.website ?? undefined}
+                        location={effectiveUser.location ?? undefined}
+                        pronouns={effectiveUser.pronouns ?? undefined}
+                        banner={effectiveUser.banner ?? undefined}
+                        accentColor={effectiveUser.accentColor ?? undefined}
+                        github={effectiveUser.github ?? undefined}
+                        twitter={effectiveUser.twitter ?? undefined}
+                        discord={effectiveUser.discord ?? undefined}
                         email={effectiveUser.email}
                         privateAccount={effectiveUser.privateAccount}
                         emailNotif={effectiveUser.emailNotif}
