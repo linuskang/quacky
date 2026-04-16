@@ -37,9 +37,9 @@ interface NotificationsListProps {
 function NotificationIcon({ type }: { type: string }) {
     switch (type) {
         case "post:like":
-            return <Heart size={16} className="text-red-500" fill="currentColor" />;
+            return <Heart size={16} className="text-primary" fill="currentColor" />;
         case "post:repost":
-            return <Repeat2 size={16} className="text-green-500" />;
+            return <Repeat2 size={16} className="text-primary" />;
         case "post:reply":
             return <MessagesSquare size={16} className="text-blue-500" />;
         case "post:quote":

@@ -39,25 +39,40 @@ import { Post } from "@/types";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Render text with #hashtags as clickable links. */
+/** Render text with #hashtags and links as clickable links. */
 function RichContent({ text, className }: { text: string; className?: string }) {
-    const parts = text.split(/(#[\w]+)/g);
+    const parts = text.split(/(#[\w]+|https?:\/\/[^\s]+)/g);
     return (
         <span className={className}>
-            {parts.map((part, i) =>
-                part.startsWith("#") ? (
-                    <Link
-                        key={i}
-                        href={`/hashtag/${part.slice(1).toLowerCase()}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-primary font-semibold hover:underline"
-                    >
-                        {part}
-                    </Link>
-                ) : (
-                    <span key={i}>{part}</span>
-                )
-            )}
+            {parts.map((part, i) => {
+                if (part.startsWith("#")) {
+                    return (
+                        <Link
+                            key={i}
+                            href={`/hashtag/${part.slice(1).toLowerCase()}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-primary font-semibold hover:underline"
+                        >
+                            {part}
+                        </Link>
+                    );
+                }
+                if (part.match(/^https?:\/\/[^\s]+/)) {
+                    return (
+                        <a
+                            key={i}
+                            href={part}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-primary font-semibold hover:underline"
+                        >
+                            {part}
+                        </a>
+                    );
+                }
+                return <span key={i}>{part}</span>;
+            })}
         </span>
     );
 }
@@ -75,7 +90,7 @@ function Action({
     count,
     onClick,
     active,
-    activeClassName = "border-red-500 text-red-500",
+    activeClassName = "border-primary bg-primary text-[var(--lynt)]",
     defaultClassName = "border-primary text-primary hover:bg-primary",
     hoverTextClassName = "group-hover:text-[var(--lynt)]",
 }: {
@@ -314,23 +329,15 @@ export function PostCard({
             {/* ── Repost banner ─────────────────────────────────────────────── */}
             {post.type === "repost" && (
                 <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-semibold">
-                    <Repeat2 size={13} className="text-green-500" />
+                    <Repeat2 size={13} className="text-primary" />
                     <Link
                         href={`/${post.author.handle}`}
-                        className="text-green-600 hover:underline"
+                        className="text-primary hover:underline"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {post.author.name}
                     </Link>
                     <span>reposted</span>
-                </div>
-            )}
-
-            {/* ── Quote banner ──────────────────────────────────────────────── */}
-            {post.type === "quote" && (
-                <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-semibold">
-                    <MessageSquareQuote size={13} className="text-primary" />
-                    <span>Quote post</span>
                 </div>
             )}
 
@@ -532,7 +539,7 @@ export function PostCard({
                                             onClick={(e) => e.stopPropagation()}
                                             className={`cursor-pointer group flex items-center gap-1 px-2 py-1 rounded-lg border-2 transition ${
                                                 hasReposted
-                                                    ? "border-green-500 text-green-600 bg-green-50"
+                                                    ? "border-primary bg-primary text-[var(--lynt)]"
                                                     : "border-primary text-primary hover:bg-primary hover:text-[var(--lynt)]"
                                             }`}
                                         >
@@ -556,13 +563,16 @@ export function PostCard({
                                 <Action
                                     icon={<Heart strokeWidth={3} size={16} />}
                                     count={likeCount}
-                                    activeClassName="border-red-500 text-red-500 bg-red-50"
+                                    activeClassName="border-primary bg-primary text-[var(--lynt)]"
                                     defaultClassName="border-primary text-primary hover:bg-primary"
                                     hoverTextClassName="group-hover:text-[var(--lynt)]"
                                     onClick={toggleLike}
                                     active={hasLiked}
                                 />
+                            </div>
 
+                            {/* Views + Bookmark + Share */}
+                            <div className="flex items-center gap-1.5">
                                 {/* Views (non-interactive) */}
                                 <Action
                                     icon={<BarChart2 strokeWidth={3} size={16} />}
@@ -571,15 +581,12 @@ export function PostCard({
                                     hoverTextClassName="group-hover:text-[var(--lynt)]"
                                     onClick={(e) => { e.preventDefault(); }}
                                 />
-                            </div>
 
-                            {/* Bookmark + Share */}
-                            <div className="flex items-center gap-1.5">
                                 <button
                                     onClick={(e) => { e.stopPropagation(); toggleBookmark(); }}
                                     className={`cursor-pointer p-1.5 rounded-lg border-2 transition ${
                                         hasBookmarked
-                                            ? "border-yellow-500 text-yellow-500 bg-yellow-50"
+                                            ? "border-primary bg-primary text-[var(--lynt)]"
                                             : "border-primary text-primary hover:bg-primary hover:text-[var(--lynt)]"
                                     }`}
                                     title={hasBookmarked ? "Remove bookmark" : "Bookmark"}
