@@ -32,11 +32,17 @@ interface SearchUserResult {
     privateAccount: boolean;
 }
 
+interface HashtagSearchResult {
+    id: string;
+    tag: string;
+}
+
 interface SearchResponse {
     success: boolean;
     error?: string;
     users?: SearchUserResult[];
     posts?: Post[];
+    hashtags?: HashtagSearchResult[];
 }
 
 export default function SearchPage() {
@@ -58,6 +64,7 @@ function SearchPageContent() {
     const deferredQuery = useDeferredValue(query.trim());
     const [users, setUsers] = useState<SearchUserResult[]>([]);
     const [posts, setPosts] = useState<Post[]>([]);
+    const [hashtags, setHashtags] = useState<HashtagSearchResult[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -88,6 +95,7 @@ function SearchPageContent() {
         if (!deferredQuery) {
             setUsers([]);
             setPosts([]);
+            setHashtags([]);
             setError("");
             setIsLoading(false);
             return;
@@ -109,12 +117,14 @@ function SearchPageContent() {
                 if (!response.ok || !data.success) {
                     setUsers([]);
                     setPosts([]);
+                    setHashtags([]);
                     setError(data.error ?? "Search failed");
                     return;
                 }
 
                 setUsers(data.users ?? []);
                 setPosts(data.posts ?? []);
+                setHashtags(data.hashtags ?? []);
             } catch (fetchError) {
                 if (fetchError instanceof Error && fetchError.name === "AbortError") {
                     return;
@@ -122,6 +132,7 @@ function SearchPageContent() {
 
                 setUsers([]);
                 setPosts([]);
+                setHashtags([]);
                 setError("Search failed");
             } finally {
                 if (!controller.signal.aborted) {
@@ -143,7 +154,7 @@ function SearchPageContent() {
         return <Login />
     }
 
-    const hasResults = users.length > 0 || posts.length > 0;
+    const hasResults = users.length > 0 || posts.length > 0 || hashtags.length > 0;
 
     return (
         <main className="min-h-screen w-full flex flex-col items-center bg-background dark:bg-background">
@@ -202,6 +213,23 @@ function SearchPageContent() {
                                 Nothing matched &ldquo;{deferredQuery}&rdquo;. Try a broader search term.
                             </p>
                         </div>
+                    )}
+
+                    {hashtags.length > 0 && (
+                        <section className="flex flex-col gap-3">
+                            <h2 className="text-lg font-bold text-primary">Hashtags</h2>
+                            <div className="flex flex-wrap gap-2">
+                                {hashtags.map((hashtag) => (
+                                    <Link
+                                        key={hashtag.id}
+                                        href={`/hashtag/${hashtag.tag}`}
+                                        className="rounded-lg border border-border bg-[var(--lynt)] px-4 py-2 text-sm font-bold text-primary hover:bg-primary/5 transition"
+                                    >
+                                        #{hashtag.tag}
+                                    </Link>
+                                ))}
+                            </div>
+                        </section>
                     )}
 
                     {users.length > 0 && (

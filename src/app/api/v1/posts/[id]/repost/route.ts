@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
+import { linkHashtagsToPost } from "@/lib/hashtags";
 
 // POST /api/v1/posts/[id]/repost
 //   body: {}                          → toggle silent repost
@@ -39,6 +40,8 @@ export async function POST(
             data: { type: "quote", content, authorId: userId, parentId },
             select: { id: true },
         });
+
+        await linkHashtagsToPost(prisma, quote.id, content);
 
         if (original.authorId !== userId) {
             await prisma.notification.create({

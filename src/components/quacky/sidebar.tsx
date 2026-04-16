@@ -44,7 +44,7 @@ export default function Sidebar({ session }: Props) {
         fetch("/api/v1/notifications/count")
             .then((r) => r.json())
             .then((d) => setUnreadCount(d.count ?? 0))
-            .catch(() => {});
+            .catch(() => { });
     }, []);
 
     return (
@@ -114,15 +114,13 @@ export default function Sidebar({ session }: Props) {
                         variant="ghost"
                         className="justify-start gap-3 px-4 py-6 rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer"
                     >
-                        <Link href="/notifications" className="relative flex items-center gap-3">
-                            <span className="relative">
-                                <Bell size={28} strokeWidth={3} />
-                                {unreadCount > 0 && (
-                                    <span className="absolute -top-1 -right-1 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white px-0.5">
-                                        {unreadCount > 99 ? "99+" : unreadCount}
-                                    </span>
-                                )}
-                            </span>
+                        <Link href="/notifications">
+                            <Bell size={28} strokeWidth={3} />
+                            {unreadCount > 0 && (
+                                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white px-0.5">
+                                    {unreadCount > 99 ? "99+" : unreadCount}
+                                </span>
+                            )}
                             <span>Notifications</span>
                         </Link>
                     </Button>

@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
+import { linkHashtagsToPost } from "@/lib/hashtags";
 
 const authorSelect = {
     id: true,
@@ -62,7 +63,7 @@ export async function GET(request: NextRequest) {
             // Children for reply/repost counts
             children: {
                 where: { isDeleted: false, isHidden: false },
-                select: { id: true, type: true },
+                select: { id: true, type: true, authorId: true },
             },
         },
         orderBy: { createdAt: "desc" },
@@ -91,6 +92,7 @@ export async function GET(request: NextRequest) {
         const hasLiked = post.likes.some((l) => l.userId === userId);
         const hasReposted = repostedIds.has(post.id);
         const hasBookmarked = bookmarkedIds.has(post.id);
+        const hasReplied = post.children.some((c) => c.type === "reply" && c.authorId === userId);
 
         return {
             id: post.id,
@@ -112,6 +114,7 @@ export async function GET(request: NextRequest) {
             hasLiked,
             hasReposted,
             hasBookmarked,
+            hasReplied,
         };
     });
 
@@ -161,6 +164,8 @@ export async function POST(request: NextRequest) {
             },
             select: { id: true },
         });
+
+        await linkHashtagsToPost(prisma, result.id, content);
 
         return NextResponse.json({ result }, { status: 201 });
     } catch (err: any) {

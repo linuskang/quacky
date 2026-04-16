@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
+import { linkHashtagsToPost } from "@/lib/hashtags";
 
 export async function POST(
     request: NextRequest,
@@ -38,6 +39,8 @@ export async function POST(
         },
         select: { id: true },
     });
+
+    await linkHashtagsToPost(prisma, reply.id, content);
 
     // Notify parent post author (skip if replying to own post)
     if (parent.authorId !== session.user.id) {

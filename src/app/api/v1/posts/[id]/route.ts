@@ -32,7 +32,7 @@ const postNodeSelect = {
     likes: { select: { userId: true } },
     children: {
         where: { isDeleted: false, isHidden: false },
-        select: { id: true, type: true },
+        select: { id: true, type: true, authorId: true },
     },
     // Include one level of parent so reposts/quotes display the original post
     parent: {
@@ -55,6 +55,7 @@ function enrichPost(post: any, userId: string) {
     const replyCount = post.children?.filter((c: any) => c.type === "reply").length ?? 0;
     const repostCount = post.children?.filter((c: any) => c.type === "repost").length ?? 0;
     const hasLiked = post.likes?.some((l: any) => l.userId === userId) ?? false;
+    const hasReplied = post.children?.some((c: any) => c.type === "reply" && c.authorId === userId) ?? false;
     return {
         ...post,
         replyCount,

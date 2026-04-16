@@ -1,10 +1,10 @@
 "use client";
 
-// UI Components
-import { TrendingUp, Flame } from "lucide-react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { TrendingUp, Hash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// Types
 interface Props {
     session: {
         user: {
@@ -15,7 +15,21 @@ interface Props {
     }
 }
 
+interface TrendingTag {
+    tag: string;
+    count: number;
+}
+
 export default function Discover({ session }: Props) {
+    const [trending, setTrending] = useState<TrendingTag[]>([]);
+
+    useEffect(() => {
+        if (!session) return;
+        fetch("/api/v1/hashtags/trending")
+            .then((r) => r.json())
+            .then((d) => setTrending(d.trending ?? []))
+            .catch(() => {});
+    }, [session]);
 
     if (!session) {
         return (
@@ -44,20 +58,26 @@ export default function Discover({ session }: Props) {
             <div className="rounded-xl bg-[var(--lynt)] border border-border p-4">
                 <h2 className="text-xl font-bold text-primary mb-4 flex items-center gap-2">
                     <TrendingUp size={24} strokeWidth={3} />
-                    Latest News
+                    Trending
                 </h2>
-                <div className="flex flex-col gap-3">
-                    <p>Temporarily disabled</p>
-                </div>
-            </div>
-
-            <div className="rounded-xl bg-[var(--lynt)] border border-border p-4">
-                <h2 className="text-xl font-bold text-primary mb-4 flex items-center gap-2">
-                    <Flame size={24} strokeWidth={3} fill="currentColor" />
-                    What's Happening
-                </h2>
-                <div className="flex flex-col gap-3">
-                    <p>Temporarily disabled</p>
+                <div className="flex flex-col gap-1">
+                    {trending.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">No trending hashtags yet.</p>
+                    ) : (
+                        trending.map(({ tag, count }) => (
+                            <Link
+                                key={tag}
+                                href={`/hashtag/${tag}`}
+                                className="flex items-center justify-between rounded-lg px-2 py-2 hover:bg-primary/5 transition group"
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Hash size={15} className="text-muted-foreground shrink-0" />
+                                    <span className="font-bold text-primary text-sm group-hover:underline">{tag}</span>
+                                </div>
+                                <span className="text-xs text-muted-foreground font-medium">{count} post{count !== 1 ? "s" : ""}</span>
+                            </Link>
+                        ))
+                    )}
                 </div>
             </div>
         </aside>

@@ -12,7 +12,7 @@ import { useState } from "react";
 import {
     BadgeCheck, MoreHorizontal, Pin, Lock, Heart, Repeat2,
     Share2, Copy, MessagesSquare, EyeOff, Eye, Quote as QuoteIcon,
-    MessageSquareQuote, Bookmark,
+    MessageSquareQuote, Bookmark, BarChart2
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -38,6 +38,29 @@ import { formatSize, formatTimestamp } from "@/client/utils";
 import { Post } from "@/types";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Render text with #hashtags as clickable links. */
+function RichContent({ text, className }: { text: string; className?: string }) {
+    const parts = text.split(/(#[\w]+)/g);
+    return (
+        <span className={className}>
+            {parts.map((part, i) =>
+                part.startsWith("#") ? (
+                    <Link
+                        key={i}
+                        href={`/hashtag/${part.slice(1).toLowerCase()}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-primary font-semibold hover:underline"
+                    >
+                        {part}
+                    </Link>
+                ) : (
+                    <span key={i}>{part}</span>
+                )
+            )}
+        </span>
+    );
+}
 
 function formatCount(n: number): string {
     if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -109,7 +132,7 @@ function EmbeddedPost({ post }: { post: Post }) {
 
             {/* Content */}
             {post.content && (
-                <p className="text-sm whitespace-pre-wrap line-clamp-3 text-primary/90">{post.content}</p>
+                <RichContent text={post.content} className="text-sm whitespace-pre-wrap line-clamp-3 text-primary/90" />
             )}
 
             {/* Attachments hint */}
@@ -440,7 +463,7 @@ export function PostCard({
                             onClick={navigateToPost}
                             className="cursor-pointer rounded-md p-1 -mx-1 hover:bg-white/5 transition"
                         >
-                            <p className="whitespace-pre-wrap leading-relaxed">{displayPost.content}</p>
+                            <RichContent text={displayPost.content} className="whitespace-pre-wrap leading-relaxed" />
                         </div>
                     )}
 
@@ -497,7 +520,7 @@ export function PostCard({
                                         onClick={navigateToPost}
                                         icon={<MessagesSquare strokeWidth={3} size={16} />}
                                         count={replyCount}
-                                        activeClassName="border-blue-500 text-blue-500 bg-blue-50"
+                                        activeClassName="border-primary bg-primary text-[var(--lynt)]"
                                         active={post.hasReplied}
                                     />
                                 )}
@@ -541,10 +564,13 @@ export function PostCard({
                                 />
 
                                 {/* Views (non-interactive) */}
-                                <div className="flex items-center gap-1 px-1.5 py-1 text-muted-foreground text-xs font-medium">
-                                    <Eye size={14} strokeWidth={2} />
-                                    <span>{formatCount(viewCount)}</span>
-                                </div>
+                                <Action
+                                    icon={<BarChart2 strokeWidth={3} size={16} />}
+                                    count={viewCount}
+                                    defaultClassName="border-primary text-primary hover:bg-primary"
+                                    hoverTextClassName="group-hover:text-[var(--lynt)]"
+                                    onClick={(e) => { e.preventDefault(); }}
+                                />
                             </div>
 
                             {/* Bookmark + Share */}
@@ -565,7 +591,7 @@ export function PostCard({
                                 <DialogTrigger asChild>
                                     <button
                                         onClick={(e) => e.stopPropagation()}
-                                        className="cursor-pointer group flex items-center gap-1 px-2 py-1 rounded-lg border-2 border-primary text-primary hover:bg-primary hover:text-[var(--lynt)] transition"
+                                        className="cursor-pointer group flex items-center justify-center p-1.5 rounded-lg border-2 border-primary text-primary hover:bg-primary hover:text-[var(--lynt)] transition"
                                     >
                                         <Share2 strokeWidth={3} size={16} />
                                     </button>

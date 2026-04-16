@@ -105,8 +105,24 @@ export async function GET(request: NextRequest) {
         },
     });
 
+    const cleanQuery = query.startsWith("#") ? query.slice(1) : query;
+
+    const hashtags = await prisma.hashtag.findMany({
+        where: {
+            tag: {
+                contains: cleanQuery,
+                mode: "insensitive"
+            }
+        },
+        select: {
+            id: true,
+            tag: true
+        },
+        take: 5
+    });
+
     return NextResponse.json(
-        { success: true, posts, users },
+        { success: true, posts, users, hashtags },
         { status: 200 }
     );
 

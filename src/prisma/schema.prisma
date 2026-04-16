@@ -79,14 +79,34 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  likes     Like[]     @relation("PostLikes")
+  likes     Like[]        @relation("PostLikes")
   bookmarks Bookmark[]
   views     PostView[]
+  hashtags  PostHashtag[]
 
   @@index([authorId])
   @@index([createdAt])
   @@index([parentId])
   @@index([type])
+}
+
+model Hashtag {
+  id   String @id @default(cuid())
+  tag  String @unique
+
+  posts PostHashtag[]
+
+  @@index([tag])
+}
+
+model PostHashtag {
+  postId    String
+  hashtagId String
+  post      Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  hashtag   Hashtag @relation(fields: [hashtagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, hashtagId])
+  @@index([hashtagId])
 }
 
 model PostView {
