@@ -68,24 +68,29 @@ export async function GET(request: NextRequest) {
         orderBy: { createdAt: "desc" },
     });
 
-    // Batch check which posts the current user has reposted
     const postIds = posts.map((p) => p.id);
-    const userReposts = await prisma.post.findMany({
-        where: {
-            type: "repost",
-            authorId: session.user.id,
-            parentId: { in: postIds },
-        },
-        select: { parentId: true },
-    });
-    const repostedIds = new Set(userReposts.map((r) => r.parentId));
-
     const userId = session.user.id;
+
+    // Batch check reposts and bookmarks in parallel
+    const [userReposts, userBookmarks] = await Promise.all([
+        prisma.post.findMany({
+            where: { type: "repost", authorId: userId, parentId: { in: postIds } },
+            select: { parentId: true },
+        }),
+        prisma.bookmark.findMany({
+            where: { userId, postId: { in: postIds } },
+            select: { postId: true },
+        }),
+    ]);
+    const repostedIds = new Set(userReposts.map((r) => r.parentId));
+    const bookmarkedIds = new Set(userBookmarks.map((b) => b.postId));
+
     const enriched = posts.map((post) => {
         const replyCount = post.children.filter((c) => c.type === "reply").length;
         const repostCount = post.children.filter((c) => c.type === "repost").length;
         const hasLiked = post.likes.some((l) => l.userId === userId);
         const hasReposted = repostedIds.has(post.id);
+        const hasBookmarked = bookmarkedIds.has(post.id);
 
         return {
             id: post.id,
@@ -106,6 +111,7 @@ export async function GET(request: NextRequest) {
             repostCount,
             hasLiked,
             hasReposted,
+            hasBookmarked,
         };
     });
 

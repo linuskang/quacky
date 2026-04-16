@@ -11,10 +11,7 @@ export async function POST(
     { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await auth.api.getSession(request);
-
-    if (!session) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const parentId = (await params).id;
     const body = await request.json();
@@ -24,28 +21,36 @@ export async function POST(
         return NextResponse.json({ error: "Invalid format" }, { status: 400 });
     }
 
-    // Verify the parent post exists and isn't read-only
     const parent = await prisma.post.findUnique({
         where: { id: parentId, isDeleted: false },
-        select: { id: true, readOnly: true },
+        select: { id: true, readOnly: true, authorId: true },
     });
 
-    if (!parent) {
-        return NextResponse.json({ error: "Post not found" }, { status: 404 });
-    }
+    if (!parent) return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    if (parent.readOnly) return NextResponse.json({ error: "Post is read-only" }, { status: 403 });
 
-    if (parent.readOnly) {
-        return NextResponse.json({ error: "Post is read-only" }, { status: 403 });
-    }
-
-    await prisma.post.create({
+    const reply = await prisma.post.create({
         data: {
             type: "reply",
             content,
             authorId: session.user.id,
             parentId,
         },
+        select: { id: true },
     });
+
+    // Notify parent post author (skip if replying to own post)
+    if (parent.authorId !== session.user.id) {
+        await prisma.notification.create({
+            data: {
+                userId: parent.authorId,
+                actorId: session.user.id,
+                type: "post:reply",
+                postId: reply.id,
+                message: "replied to your post.",
+            },
+        });
+    }
 
     return NextResponse.json({ success: true }, { status: 201 });
 }

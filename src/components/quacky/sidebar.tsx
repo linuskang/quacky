@@ -6,6 +6,7 @@
 
 // Libraries
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
 // UI Components
 import {
@@ -18,7 +19,8 @@ import {
     MessagesSquare,
     Clapperboard,
     Settings,
-    Briefcase
+    Briefcase,
+    Bookmark,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Account from "@/components/quacky/account";
@@ -36,6 +38,15 @@ interface Props {
 }
 
 export default function Sidebar({ session }: Props) {
+    const [unreadCount, setUnreadCount] = useState(0);
+
+    useEffect(() => {
+        fetch("/api/v1/notifications/count")
+            .then((r) => r.json())
+            .then((d) => setUnreadCount(d.count ?? 0))
+            .catch(() => {});
+    }, []);
+
     return (
         <>
             <aside className="sticky top-0 z-50 w-60 shrink-0 hidden lg:flex flex-col gap-4 pt-8 lg:h-screen">
@@ -103,9 +114,27 @@ export default function Sidebar({ session }: Props) {
                         variant="ghost"
                         className="justify-start gap-3 px-4 py-6 rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer"
                     >
-                        <Link href="/notifications">
-                            <Bell size={28} strokeWidth={3} />
+                        <Link href="/notifications" className="relative flex items-center gap-3">
+                            <span className="relative">
+                                <Bell size={28} strokeWidth={3} />
+                                {unreadCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white px-0.5">
+                                        {unreadCount > 99 ? "99+" : unreadCount}
+                                    </span>
+                                )}
+                            </span>
                             <span>Notifications</span>
+                        </Link>
+                    </Button>
+
+                    <Button
+                        asChild
+                        variant="ghost"
+                        className="justify-start gap-3 px-4 py-6 rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer"
+                    >
+                        <Link href="/bookmarks">
+                            <Bookmark size={28} strokeWidth={3} />
+                            <span>Bookmarks</span>
                         </Link>
                     </Button>
 

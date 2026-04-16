@@ -41,6 +41,7 @@ model User {
   accounts       Account[]
   posts          Post[]
   likes          Like[]          @relation("UserLikes")
+  bookmarks      Bookmark[]
   postViews      PostView[]
   following      Follow[]        @relation("UserFollowing")
   followers      Follow[]        @relation("UserFollowers")
@@ -78,8 +79,9 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  likes Like[]     @relation("PostLikes")
-  views PostView[]
+  likes     Like[]     @relation("PostLikes")
+  bookmarks Bookmark[]
+  views     PostView[]
 
   @@index([authorId])
   @@index([createdAt])
@@ -106,6 +108,18 @@ model Like {
   post   Post   @relation("PostLikes", fields: [postId], references: [id], onDelete: Cascade)
 
   @@id([userId, postId])
+}
+
+model Bookmark {
+  postId    String
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([postId, userId])
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model Follow {

@@ -12,7 +12,7 @@ import { useState } from "react";
 import {
     BadgeCheck, MoreHorizontal, Pin, Lock, Heart, Repeat2,
     Share2, Copy, MessagesSquare, EyeOff, Eye, Quote as QuoteIcon,
-    MessageSquareQuote,
+    MessageSquareQuote, Bookmark,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -198,6 +198,7 @@ export function PostCard({
     const [likeCount, setLikeCount] = useState(post.likes?.length ?? 0);
     const [hasReposted, setHasReposted] = useState(post.hasReposted ?? false);
     const [repostCount, setRepostCount] = useState(post.repostCount ?? 0);
+    const [hasBookmarked, setHasBookmarked] = useState(post.hasBookmarked ?? false);
 
     const replyCount = post.replyCount ?? post.children?.filter((c) => c.type === "reply").length ?? 0;
     const viewCount = (displayPost as any)?.viewCount ?? post.viewCount ?? 0;
@@ -244,6 +245,14 @@ export function PostCard({
         } finally {
             setIsQuoting(false);
         }
+    }
+
+    async function toggleBookmark() {
+        if (!session) { router.push("/login"); return; }
+        const next = !hasBookmarked;
+        setHasBookmarked(next);
+        const res = await fetch(`/api/v1/posts/${targetId}/bookmark`, { method: "POST" });
+        if (!res.ok) setHasBookmarked(!next);
     }
 
     async function report(type: string, reason: string) {
@@ -538,7 +547,20 @@ export function PostCard({
                                 </div>
                             </div>
 
-                            {/* Share */}
+                            {/* Bookmark + Share */}
+                            <div className="flex items-center gap-1.5">
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); toggleBookmark(); }}
+                                    className={`cursor-pointer p-1.5 rounded-lg border-2 transition ${
+                                        hasBookmarked
+                                            ? "border-yellow-500 text-yellow-500 bg-yellow-50"
+                                            : "border-primary text-primary hover:bg-primary hover:text-[var(--lynt)]"
+                                    }`}
+                                    title={hasBookmarked ? "Remove bookmark" : "Bookmark"}
+                                >
+                                    <Bookmark strokeWidth={3} size={16} fill={hasBookmarked ? "currentColor" : "none"} />
+                                </button>
+
                             <Dialog>
                                 <DialogTrigger asChild>
                                     <button
@@ -573,6 +595,7 @@ export function PostCard({
                                     </div>
                                 </DialogContent>
                             </Dialog>
+                            </div>
                         </div>
                     )}
                 </>

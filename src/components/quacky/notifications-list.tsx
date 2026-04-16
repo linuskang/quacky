@@ -7,7 +7,7 @@
 import Link from "next/link";
 import { formatDistanceToNow, format, differenceInDays } from "date-fns";
 
-import { BadgeCheck, Bell, Check } from "lucide-react";
+import { BadgeCheck, Bell, Check, Heart, Repeat2, MessagesSquare, Quote, UserPlus, MessageSquareQuote } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 export interface NotificationItem {
@@ -32,6 +32,23 @@ interface NotificationsListProps {
     notifications: NotificationItem[];
     onMarkRead?: (id: string) => void;
     onMarkAllRead?: () => void;
+}
+
+function NotificationIcon({ type }: { type: string }) {
+    switch (type) {
+        case "post:like":
+            return <Heart size={16} className="text-red-500" fill="currentColor" />;
+        case "post:repost":
+            return <Repeat2 size={16} className="text-green-500" />;
+        case "post:reply":
+            return <MessagesSquare size={16} className="text-blue-500" />;
+        case "post:quote":
+            return <MessageSquareQuote size={16} className="text-primary" />;
+        case "user:follow":
+            return <UserPlus size={16} className="text-primary" />;
+        default:
+            return <Bell size={16} className="text-primary" />;
+    }
 }
 
 export default function NotificationsList({
@@ -70,6 +87,9 @@ export default function NotificationsList({
                             key={notification.id}
                             className={`rounded-xl border p-4 flex gap-3 transition-all duration-200 bg-[var(--lynt)] border-border`}
                         >
+                            <div className="mt-0.5 shrink-0">
+                                <NotificationIcon type={notification.type} />
+                            </div>
                             <div className="flex-1 min-w-0">
 
                                 <div className="flex items-center gap-2 mb-2">

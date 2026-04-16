@@ -93,11 +93,28 @@ export async function GET(
     });
 
     const userId = session.user.id;
+    const postIds = posts.map((p) => p.id);
+
+    const [userReposts, userBookmarks] = await Promise.all([
+        prisma.post.findMany({
+            where: { type: "repost", authorId: userId, parentId: { in: postIds } },
+            select: { parentId: true },
+        }),
+        prisma.bookmark.findMany({
+            where: { userId, postId: { in: postIds } },
+            select: { postId: true },
+        }),
+    ]);
+    const repostedIds = new Set(userReposts.map((r) => r.parentId));
+    const bookmarkedIds = new Set(userBookmarks.map((b) => b.postId));
+
     const enriched = posts.map((post) => ({
         ...post,
         replyCount: post.children.filter((c) => c.type === "reply").length,
         repostCount: post.children.filter((c) => c.type === "repost").length,
         hasLiked: post.likes.some((l) => l.userId === userId),
+        hasReposted: repostedIds.has(post.id),
+        hasBookmarked: bookmarkedIds.has(post.id),
     }));
 
     if (user.banned) {

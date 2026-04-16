@@ -128,11 +128,21 @@ export default function NotificationsPage() {
                 <div className="flex-1 flex flex-col pt-8 max-w-2xl">
                     <div className="mb-4 p-4">
                         <div className="flex items-center justify-between gap-3">
-                            <h1 className="text-2xl font-bold text-primary">My Notifications</h1>
+                            <div className="flex items-center gap-3">
+                                <h1 className="text-2xl font-bold text-primary">Notifications</h1>
+                                {unreadCount > 0 && (
+                                    <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-background">
+                                        {unreadCount} unread
+                                    </span>
+                                )}
+                            </div>
                             {unreadCount > 0 && (
-                                <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-background">
-                                    {unreadCount} unread
-                                </span>
+                                <button
+                                    onClick={handleMarkAllRead}
+                                    className="text-xs font-bold text-primary hover:underline cursor-pointer"
+                                >
+                                    Mark all read
+                                </button>
                             )}
                         </div>
                     </div>

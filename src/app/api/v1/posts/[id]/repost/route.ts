@@ -14,27 +14,21 @@ export async function POST(
     { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await auth.api.getSession(request);
-
-    if (!session) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const parentId = (await params).id;
     const userId = session.user.id;
 
-    // Verify the original post exists
     const original = await prisma.post.findUnique({
         where: { id: parentId, isDeleted: false },
-        select: { id: true },
+        select: { id: true, authorId: true },
     });
 
-    if (!original) {
-        return NextResponse.json({ error: "Post not found" }, { status: 404 });
-    }
+    if (!original) return NextResponse.json({ error: "Post not found" }, { status: 404 });
 
     const body = await request.json().catch(() => ({}));
 
-    // Quote post
+    // ── Quote post ────────────────────────────────────────────────────────────
     if (body.quote === true) {
         const content = typeof body.content === "string" ? body.content.trim() : "";
         if (!content || content.length > 280) {
@@ -42,38 +36,51 @@ export async function POST(
         }
 
         const quote = await prisma.post.create({
-            data: {
-                type: "quote",
-                content,
-                authorId: userId,
-                parentId,
-            },
+            data: { type: "quote", content, authorId: userId, parentId },
             select: { id: true },
         });
+
+        if (original.authorId !== userId) {
+            await prisma.notification.create({
+                data: {
+                    userId: original.authorId,
+                    actorId: userId,
+                    type: "post:quote",
+                    postId: quote.id,
+                    message: "quoted your post.",
+                },
+            });
+        }
 
         return NextResponse.json({ success: true, id: quote.id }, { status: 201 });
     }
 
-    // Silent repost — toggle
+    // ── Silent repost (toggle) ─────────────────────────────────────────────────
     const existing = await prisma.post.findFirst({
         where: { type: "repost", authorId: userId, parentId },
         select: { id: true },
     });
 
     if (existing) {
-        // Undo repost
         await prisma.post.delete({ where: { id: existing.id } });
         return NextResponse.json({ success: true, reposted: false }, { status: 200 });
-    } else {
-        // Create repost
-        await prisma.post.create({
+    }
+
+    await prisma.post.create({
+        data: { type: "repost", content: "", authorId: userId, parentId },
+    });
+
+    if (original.authorId !== userId) {
+        await prisma.notification.create({
             data: {
-                type: "repost",
-                content: "",
-                authorId: userId,
-                parentId,
+                userId: original.authorId,
+                actorId: userId,
+                type: "post:repost",
+                postId: parentId,
+                message: "reposted your post.",
             },
         });
-        return NextResponse.json({ success: true, reposted: true }, { status: 201 });
     }
+
+    return NextResponse.json({ success: true, reposted: true }, { status: 201 });
 }

@@ -13,15 +13,31 @@ import { useState, useEffect, use } from "react";
 import { BadgeCheck, Ban, CalendarClock, Shield } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import RightSidebar from "@/components/quacky/discover";
 import Sidebar from "@/components/quacky/sidebar";
 import Posts from "@/components/quacky/posts";
+import FollowButton from "@/components/quacky/follow-button";
 import Loading from "@/components/loading";
 import Login from "@/components/login";
 
 // Types
 import { Post, User } from "@/types";
 import { authClient } from "@/client/auth";
+
+interface FollowUser {
+    id: string;
+    name: string;
+    handle: string;
+    image?: string | null;
+    verified: boolean;
+    isFollowedByMe: boolean;
+}
 
 
 interface Params {
@@ -42,6 +58,10 @@ export default function ProfilePage(
     const { data: session, isPending } = authClient.useSession();
     const [user, setUser] = useState<User | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
+    const [followersOpen, setFollowersOpen] = useState(false);
+    const [followingOpen, setFollowingOpen] = useState(false);
+    const [followers, setFollowers] = useState<FollowUser[]>([]);
+    const [following, setFollowing] = useState<FollowUser[]>([]);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -65,6 +85,24 @@ export default function ProfilePage(
         return (
             <Login />
         )
+    }
+
+    async function loadFollowers() {
+        if (followers.length > 0) return;
+        const res = await fetch(`/api/v1/users/${handle}/followers`);
+        if (res.ok) {
+            const d = await res.json();
+            setFollowers(d.users ?? d.followers ?? []);
+        }
+    }
+
+    async function loadFollowing() {
+        if (following.length > 0) return;
+        const res = await fetch(`/api/v1/users/${handle}/following`);
+        if (res.ok) {
+            const d = await res.json();
+            setFollowing(d.users ?? d.following ?? []);
+        }
     }
 
     async function messageUser(targetUserId: string) {
@@ -145,15 +183,17 @@ export default function ProfilePage(
                                 )}
 
                                 <div className="flex gap-3">
-                                    {/* <FollowButton targetUserHandle={user.handle} /> */}
                                     {session.user.id !== user.id && !user.banned && (
-                                        <Button
-                                            variant="outline"
-                                            className="rounded-lg font-bold cursor-pointer"
-                                            onClick={() => void messageUser(user.id)}
-                                        >
-                                            Message
-                                        </Button>
+                                        <>
+                                            <FollowButton handle={user.handle} />
+                                            <Button
+                                                variant="outline"
+                                                className="rounded-lg font-bold cursor-pointer"
+                                                onClick={() => void messageUser(user.id)}
+                                            >
+                                                Message
+                                            </Button>
+                                        </>
                                     )}
                                 </div>
                             </div>
@@ -161,14 +201,20 @@ export default function ProfilePage(
 
                         {!user.banned && (
                             <div className="flex gap-6 text-sm mb-4">
-                                <div className="text-center">
+                                <button
+                                    className="text-center cursor-pointer hover:underline"
+                                    onClick={() => { setFollowingOpen(true); loadFollowing(); }}
+                                >
                                     <div className="font-bold text-primary">{user.following}</div>
                                     <div className="text-muted-foreground">Following</div>
-                                </div>
-                                <div className="text-center">
+                                </button>
+                                <button
+                                    className="text-center cursor-pointer hover:underline"
+                                    onClick={() => { setFollowersOpen(true); loadFollowers(); }}
+                                >
                                     <div className="font-bold text-primary">{user.followers}</div>
                                     <div className="text-muted-foreground">Followers</div>
-                                </div>
+                                </button>
                                 <div className="text-center">
                                     <div className="font-bold text-primary">{user.posts}</div>
                                     <div className="text-muted-foreground">Posts</div>
@@ -232,6 +278,68 @@ export default function ProfilePage(
                     session={session}
                 />
             </div>
+
+            {/* Followers dialog */}
+            <Dialog open={followersOpen} onOpenChange={setFollowersOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Followers</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-3 max-h-[60vh] overflow-y-auto pr-1">
+                        {followers.length === 0 ? (
+                            <p className="text-muted-foreground text-sm text-center py-4">No followers yet.</p>
+                        ) : followers.map((u) => (
+                            <a key={u.id} href={`/${u.handle}`} className="flex items-center gap-3 hover:bg-primary/5 rounded-lg p-2 transition">
+                                <Avatar className="w-9 h-9 shrink-0">
+                                    <AvatarImage src={u.image || ""} />
+                                    <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">{u.name.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-1">
+                                        <span className="font-bold text-primary text-sm truncate">{u.name}</span>
+                                        {u.verified && <BadgeCheck size={14} className="text-primary shrink-0" fill="currentColor" stroke="var(--lynt)" />}
+                                    </div>
+                                    <span className="text-muted-foreground text-xs">@{u.handle}</span>
+                                </div>
+                                {u.isFollowedByMe && (
+                                    <span className="text-xs font-semibold text-muted-foreground border border-border rounded-full px-2 py-0.5">Following</span>
+                                )}
+                            </a>
+                        ))}
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Following dialog */}
+            <Dialog open={followingOpen} onOpenChange={setFollowingOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Following</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-3 max-h-[60vh] overflow-y-auto pr-1">
+                        {following.length === 0 ? (
+                            <p className="text-muted-foreground text-sm text-center py-4">Not following anyone yet.</p>
+                        ) : following.map((u) => (
+                            <a key={u.id} href={`/${u.handle}`} className="flex items-center gap-3 hover:bg-primary/5 rounded-lg p-2 transition">
+                                <Avatar className="w-9 h-9 shrink-0">
+                                    <AvatarImage src={u.image || ""} />
+                                    <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">{u.name.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-1">
+                                        <span className="font-bold text-primary text-sm truncate">{u.name}</span>
+                                        {u.verified && <BadgeCheck size={14} className="text-primary shrink-0" fill="currentColor" stroke="var(--lynt)" />}
+                                    </div>
+                                    <span className="text-muted-foreground text-xs">@{u.handle}</span>
+                                </div>
+                                {u.isFollowedByMe && (
+                                    <span className="text-xs font-semibold text-muted-foreground border border-border rounded-full px-2 py-0.5">Following</span>
+                                )}
+                            </a>
+                        ))}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </main>
     );
 }

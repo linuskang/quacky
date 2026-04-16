@@ -69,6 +69,7 @@ export interface Post {
     hasLiked?: boolean;
     hasReposted?: boolean;
     hasReplied?: boolean;
+    hasBookmarked?: boolean;
 }
 
 export interface Likes {
