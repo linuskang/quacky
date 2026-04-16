@@ -9,8 +9,14 @@ export default function PostPage() {
                     replies={[
                         {
                             id: "1",
+                            type: "reply",
                             createdAt: new Date().toISOString(),
                             content: "Hello this is a test reply. There isn't much to say, but I just wanted to test the reply component. I hope it works well!\n\n#testing #quacky",
+                            viewCount: 0,
+                            readOnly: false,
+                            pinned: false,
+                            isHidden: false,
+                            isDeleted: false,
                             author: {
                                 id: "1",
                                 name: "Linus Kang",

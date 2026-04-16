@@ -4,23 +4,18 @@
 
 "use client";
 
-// Libraries
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { authClient } from "@/client/auth";
+import { PostCard } from "@/components/quacky/posts";
+import { type Post } from "@/types";
 
-// UI Components
-import { BadgeCheck } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-// Utilities
-import { formatTimestamp } from "@/client/utils"
-
-// Types
-import { type Replies } from "@/types";
 interface Props {
-    replies: Replies[];
+    replies: Post[];
 }
 
 export default function Replies({ replies }: Props) {
+    const router = useRouter();
+    const { data: session } = authClient.useSession();
 
     if (replies.length === 0) {
         return (
@@ -32,49 +27,9 @@ export default function Replies({ replies }: Props) {
 
     return (
         <div className="flex flex-col gap-4">
-            {replies.map((reply) => {
-                return (
-                    <div
-                        key={reply.id}
-                        className="rounded-xl bg-[var(--lynt)] dark:bg-[var(--lynt)] border border-border p-4 flex flex-col gap-2"
-                    >
-                        <div className="flex items-center gap-2 mb-2">
-
-                            <Avatar className="w-7 h-7">
-                                <AvatarImage src={reply.author?.image || ""} />
-                                <AvatarFallback className="bg-primary/10 text-primary font-bold">
-                                    {reply.author.name.charAt(0).toUpperCase()}
-                                </AvatarFallback>
-                            </Avatar>
-
-                            <Link href={`/${reply.author?.handle}`} className="font-bold ml-0 text-primary hover:underline">
-                                {reply.author.name}
-                            </Link>
-
-                            {reply.author.verified && (
-                                <div className="p-0 -ml-1">
-                                    <BadgeCheck
-                                        className="text-primary"
-                                        size={23}
-                                        fill="currentColor"
-                                        stroke="var(--lynt)"
-                                    />
-                                </div>
-                            )}
-
-                            <span className="text-muted-foreground text-sm -ml-1 font-bold">
-                                @{reply.author.handle} • {formatTimestamp(reply.createdAt)}
-                            </span>
-
-                        </div>
-
-                        <div className="flex flex-col gap-1 text-base rounded-md p-1 -m-1">
-                            <span className="whitespace-pre-wrap">{reply.content}</span>
-                        </div>
-
-                    </div>
-                );
-            })}
+            {replies.map((reply) => (
+                <PostCard key={reply.id} post={reply} session={session} router={router} />
+            ))}
         </div>
     );
 }

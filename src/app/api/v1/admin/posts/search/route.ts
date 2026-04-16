@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
             _count: {
                 select: {
                     likes: true,
-                    replies: true,
+                    children: true,
                 },
             },
         },

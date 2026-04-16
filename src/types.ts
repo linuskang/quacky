@@ -29,21 +29,11 @@ export interface User {
     banReason?: string;
 }
 
-export interface Replies {
-    id: string;
-    content: string;
-    createdAt: string | Date;
-    author: {
-        id: string;
-        name: string;
-        handle: string;
-        image?: string;
-        verified: boolean;
-    };
-}
+export type PostType = "post" | "reply" | "repost" | "quote";
 
 export interface Post {
     id: string;
+    type: PostType;
 
     author: {
         id: string;
@@ -56,6 +46,17 @@ export interface Post {
     content: string;
     attachments?: PostAttachment[];
 
+    // Self-referencing: parent post for replies, reposts, and quotes
+    parentId?: string | null;
+    parent?: Post | null;
+
+    // Direct replies to this post
+    children?: Post[];
+
+    viewCount: number;
+    replyCount?: number;
+    repostCount?: number;
+
     createdAt: string | Date;
 
     readOnly: boolean;
@@ -64,7 +65,6 @@ export interface Post {
     isDeleted: boolean;
 
     likes?: Likes[];
-    replies?: Replies[];
 
     hasLiked?: boolean;
     hasReposted?: boolean;

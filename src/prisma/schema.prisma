@@ -37,51 +37,40 @@ model User {
   banReason  String?
   banExpires DateTime?
 
-  sessions      Session[]
-  accounts      Account[]
-  posts         Post[]
-  likes         Like[]         @relation("UserLikes")
-  replies       Reply[]
-  following     Follow[]       @relation("UserFollowing")
-  followers     Follow[]       @relation("UserFollowers")
-  notifications Notification[]
+  sessions       Session[]
+  accounts       Account[]
+  posts          Post[]
+  likes          Like[]          @relation("UserLikes")
+  postViews      PostView[]
+  following      Follow[]        @relation("UserFollowing")
+  followers      Follow[]        @relation("UserFollowers")
+  notifications  Notification[]
   dmParticipants DMParticipant[]
-  dmMessages     DMMessage[]    @relation("DMSender")
+  dmMessages     DMMessage[]     @relation("DMSender")
 
   @@unique([email])
 }
 
 model Post {
-  id          String  @id @default(cuid())
-  authorId    String
-  author      User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  content     String
-  attachments Json?
-  readOnly    Boolean @default(false)
-  pinned      Boolean @default(false)
-
-  isHidden  Boolean @default(false)
-  isDeleted Boolean @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  likes   Like[]  @relation("PostLikes")
-  replies Reply[]
-
-  @@index([authorId])
-  @@index([createdAt])
-}
-
-model Reply {
   id       String @id @default(cuid())
   authorId String
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  postId String
-  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  // "post" | "reply" | "repost" | "quote"
+  type String @default("post")
 
-  content String
+  // Self-referencing: replies point to their parent, reposts/quotes point to the original
+  parentId String?
+  parent   Post?   @relation("PostChildren", fields: [parentId], references: [id], onDelete: SetNull)
+  children Post[]  @relation("PostChildren")
+
+  content     String @default("")
+  attachments Json?
+
+  viewCount Int @default(0)
+
+  readOnly Boolean @default(false)
+  pinned   Boolean @default(false)
 
   isHidden  Boolean @default(false)
   isDeleted Boolean @default(false)
@@ -89,8 +78,25 @@ model Reply {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  likes Like[]     @relation("PostLikes")
+  views PostView[]
+
   @@index([authorId])
   @@index([createdAt])
+  @@index([parentId])
+  @@index([type])
+}
+
+model PostView {
+  postId String
+  userId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([postId, userId])
+  @@index([postId])
 }
 
 model Like {
@@ -121,7 +127,6 @@ model Notification {
   type      String
   actorId   String
   postId    String?
-  replyId   String?
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
   message   String
@@ -133,9 +138,9 @@ model Notification {
 }
 
 model DMConversation {
-  id            String          @id @default(cuid())
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  id            String    @id @default(cuid())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   lastMessageAt DateTime?
 
   participants DMParticipant[]
@@ -148,7 +153,7 @@ model DMConversation {
 model DMParticipant {
   conversationId String
   userId         String
-  joinedAt       DateTime       @default(now())
+  joinedAt       DateTime  @default(now())
   lastReadAt     DateTime?
 
   conversation DMConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
@@ -160,13 +165,13 @@ model DMParticipant {
 }
 
 model DMMessage {
-  id             String         @id @default(cuid())
+  id             String   @id @default(cuid())
   conversationId String
   senderId       String
   content        String
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  deleted        Boolean        @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deleted        Boolean  @default(false)
 
   conversation DMConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   sender       User           @relation("DMSender", fields: [senderId], references: [id], onDelete: Cascade)

@@ -87,11 +87,12 @@ export async function GET(
             _count: {
                 select: {
                     likes: true,
-                    replies: true,
+                    children: true,
                 },
             },
-            replies: {
+            children: {
                 where: {
+                    type: "reply",
                     isHidden: false,
                     isDeleted: false,
                 },
@@ -131,8 +132,8 @@ export async function GET(
             post: {
                 ...post,
                 likeCount: post._count.likes,
-                replyCount: post._count.replies,
-                recentReplies: post.replies,
+                replyCount: post._count.children,
+                recentReplies: post.children,
             },
         },
         { status: 200 }
@@ -310,11 +311,12 @@ export async function PATCH(
             _count: {
                 select: {
                     likes: true,
-                    replies: true,
+                    children: true,
                 },
             },
-            replies: {
+            children: {
                 where: {
+                    type: "reply",
                     isHidden: false,
                     isDeleted: false,
                 },
@@ -394,8 +396,8 @@ export async function PATCH(
             post: {
                 ...updatedPost,
                 likeCount: updatedPost._count.likes,
-                replyCount: updatedPost._count.replies,
-                recentReplies: updatedPost.replies,
+                replyCount: updatedPost._count.children,
+                recentReplies: updatedPost.children,
             },
         },
         { status: 200 }

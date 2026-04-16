@@ -13,35 +13,39 @@ export async function POST(
     const session = await auth.api.getSession(request);
 
     if (!session) {
-        return NextResponse.json(
-            { error: "Unauthorized" },
-            { status: 401 }
-        );
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const postId = (await params).id;
-
+    const parentId = (await params).id;
     const body = await request.json();
+    const content = typeof body.content === "string" ? body.content.trim() : "";
 
-    if (!body.content || body.content.length > 280) {
-        return NextResponse.json(
-            { error: "Invalid format" },
-            { status: 400 }
-        );
+    if (!content || content.length > 280) {
+        return NextResponse.json({ error: "Invalid format" }, { status: 400 });
     }
 
-    await prisma.reply.create(
-        {
-            data: {
-                content: body.content.trim(),
-                authorId: session.user.id,
-                postId: postId,
-            }
-        }
-    );
+    // Verify the parent post exists and isn't read-only
+    const parent = await prisma.post.findUnique({
+        where: { id: parentId, isDeleted: false },
+        select: { id: true, readOnly: true },
+    });
 
-    return NextResponse.json(
-        { success: true },
-        { status: 201 }
-    );
+    if (!parent) {
+        return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
+
+    if (parent.readOnly) {
+        return NextResponse.json({ error: "Post is read-only" }, { status: 403 });
+    }
+
+    await prisma.post.create({
+        data: {
+            type: "reply",
+            content,
+            authorId: session.user.id,
+            parentId,
+        },
+    });
+
+    return NextResponse.json({ success: true }, { status: 201 });
 }

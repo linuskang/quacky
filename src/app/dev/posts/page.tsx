@@ -9,11 +9,13 @@ export default function PostPage() {
                     posts={[
                         {
                             id: "1",
+                            type: "post",
                             createdAt: new Date().toISOString(),
                             readOnly: false,
                             pinned: true,
                             isHidden: false,
                             isDeleted: false,
+                            viewCount: 0,
                             content: "Hello this is a test post. There isn't much to say, but I just wanted to test the post component. I hope it works well!\n\n#testing #quacky",
                             author: {
                                 id: "1",

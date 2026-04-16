@@ -52,23 +52,15 @@ export async function GET(request: NextRequest) {
                     },
                 },
             },
-            replies: {
+            children: {
                 where: {
+                    type: "reply",
                     isHidden: false,
                     isDeleted: false,
                 },
                 select: {
-                    author: {
-                        select: {
-                            id: true,
-                            name: true,
-                            handle: true,
-                            image: true,
-                            verified: true,
-                        },
-                    },
-                    content: true,
-                    createdAt: true,
+                    id: true,
+                    type: true,
                 },
             },
             author: {

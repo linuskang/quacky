@@ -14,16 +14,11 @@ export async function GET(
     const params = await context.params;
 
     if (!session) {
-        return NextResponse.json(
-            { error: "Unauthorized" },
-            { status: 401 }
-        );
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const user = await prisma.user.findFirst({
-        where: {
-            handle: params.handle,
-        },
+        where: { handle: params.handle },
         select: {
             id: true,
             name: true,
@@ -33,89 +28,77 @@ export async function GET(
             verified: true,
             privateAccount: true,
             createdAt: true,
-            followers: {
-                select: {
-                    follower: {
-                        select: {
-                            handle: true,
-                        }
-                    }
-
-                }
-            },
-            following: {
-                select: {
-                    following: {
-                        select: {
-                            handle: true,
-                        }
-                    }
-                }
-            },
+            followers: { select: { follower: { select: { handle: true } } } },
+            following: { select: { following: { select: { handle: true } } } },
             banned: true,
             role: true,
-        }
+        },
     });
 
     if (!user) {
-        return NextResponse.json(
-            { error: "User not found" },
-            { status: 404 }
-        );
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
+
+    const authorSelect = {
+        id: true,
+        name: true,
+        handle: true,
+        image: true,
+        verified: true,
+    };
 
     const posts = await prisma.post.findMany({
         where: {
             authorId: user.id,
+            // Profile shows the user's original posts, reposts, and quotes — not raw replies
+            type: { in: ["post", "repost", "quote"] },
             isHidden: false,
             isDeleted: false,
         },
         select: {
             id: true,
+            type: true,
+            authorId: true,
+            author: { select: authorSelect },
             content: true,
-            createdAt: true,
             attachments: true,
+            viewCount: true,
+            pinned: true,
             readOnly: true,
-            likes: {
-                select: {
-                    user: {
-                        select: {
-                            id: true,
-                            handle: true,
-                        },
-                    },
-                },
-            },
-            replies: {
-                where: {
-                    isHidden: false,
-                    isDeleted: false,
-                },
-                select: {
-                    author: {
-                        select: {
-                            id: true,
-                            name: true,
-                            handle: true,
-                            image: true,
-                            verified: true,
-                        },
-                    },
-                    content: true,
-                    createdAt: true,
-                },
-            },
-            author: {
+            isHidden: true,
+            isDeleted: true,
+            createdAt: true,
+            parentId: true,
+            parent: {
                 select: {
                     id: true,
-                    name: true,
-                    handle: true,
-                    image: true,
-                    verified: true,
-                }
-            }
-        }
+                    type: true,
+                    authorId: true,
+                    author: { select: authorSelect },
+                    content: true,
+                    attachments: true,
+                    viewCount: true,
+                    createdAt: true,
+                    isDeleted: true,
+                    isHidden: true,
+                },
+            },
+            likes: { select: { userId: true } },
+            children: {
+                where: { isDeleted: false, isHidden: false },
+                select: { id: true, type: true },
+            },
+        },
+        orderBy: { createdAt: "desc" },
     });
+
+    const userId = session.user.id;
+    const enriched = posts.map((post) => ({
+        ...post,
+        replyCount: post.children.filter((c) => c.type === "reply").length,
+        repostCount: post.children.filter((c) => c.type === "repost").length,
+        hasLiked: post.likes.some((l) => l.userId === userId),
+    }));
 
     if (user.banned) {
         return NextResponse.json(
@@ -172,7 +155,7 @@ export async function GET(
                 role: user.role,
                 posts: posts.length,
             },
-            posts: posts,
+            posts: enriched,
         },
         { status: 200 }
     );
