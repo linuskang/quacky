@@ -23,8 +23,11 @@ import {
     Settings,
     Briefcase,
     Bookmark,
+    ChevronLeft,
+    ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Account from "@/components/quacky/account";
 
 // Types
@@ -41,6 +44,20 @@ interface Props {
 
 export default function Sidebar({ session }: Props) {
     const [unreadCount, setUnreadCount] = useState(0);
+    const [collapsed, setCollapsed] = useState(false);
+
+    useEffect(() => {
+        const stored = localStorage.getItem("sidebar-collapsed");
+        if (stored === "true") setCollapsed(true);
+    }, []);
+
+    function toggleCollapsed() {
+        setCollapsed((prev) => {
+            const next = !prev;
+            localStorage.setItem("sidebar-collapsed", String(next));
+            return next;
+        });
+    }
 
     useEffect(() => {
         fetch("/api/v1/notifications/count")
@@ -69,179 +86,157 @@ export default function Sidebar({ session }: Props) {
     const isAdmin = matchPath("/admin");
     const isPost = matchPath("/post");
 
+    const navButtonClass = (active: boolean) => cn(
+        "rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer transition-all duration-200",
+        collapsed ? "justify-center px-0 py-5 w-full" : "justify-start gap-3 px-4 py-6",
+        active && "bg-white/10"
+    );
+
     return (
         <>
-            <aside className="sticky top-0 z-50 w-60 shrink-0 hidden lg:flex flex-col gap-4 pt-8 lg:h-screen">
-                <div className="p-0 text-center mb-1.5">
-                    <h1 className="text-6xl font-extrabold tracking-tight text-primary dark:text-primary-dark">Quacky</h1>
+            <aside className={cn(
+                "sticky top-0 z-50 shrink-0 hidden lg:flex flex-col gap-4 pt-8 lg:h-screen transition-all duration-200",
+                collapsed ? "w-16" : "w-60"
+            )}>
+                {/* Logo */}
+                <div className="text-center mb-1.5">
+                    <h1 className={cn(
+                        "font-extrabold tracking-tight text-primary dark:text-primary-dark transition-all duration-200",
+                        collapsed ? "text-3xl" : "text-6xl"
+                    )}>
+                        {collapsed ? "Q" : "Quacky"}
+                    </h1>
                 </div>
+
+                {/* Nav */}
                 <div className="rounded-lg p-2 flex flex-col bg-[var(--lynt)] border border-border">
-                    <Button
-                        asChild
-                        variant="ghost"
-                        className={cn(
-                            "justify-start gap-3 px-4 py-6 rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer",
-                            isHome && "bg-white/10"
-                        )}
-                    >
-                        <Link href="/" aria-current={isHome ? "page" : undefined}>
+                    <Button asChild variant="ghost" className={navButtonClass(isHome)}>
+                        <Link href="/" aria-current={isHome ? "page" : undefined} title={collapsed ? "Home" : undefined}>
                             <Home size={28} strokeWidth={3} />
-                            <span>Home</span>
+                            {!collapsed && <span>Home</span>}
                         </Link>
                     </Button>
 
-                    <Button
-                        asChild
-                        variant="ghost"
-                        className={cn(
-                            "justify-start gap-3 px-4 py-6 rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer",
-                            isSearch && "bg-white/10"
-                        )}
-                    >
-                        <Link href="/search" aria-current={isSearch ? "page" : undefined}>
+                    <Button asChild variant="ghost" className={navButtonClass(isSearch)}>
+                        <Link href="/search" aria-current={isSearch ? "page" : undefined} title={collapsed ? "Search" : undefined}>
                             <Search size={28} strokeWidth={3} />
-                            <span>Search</span>
+                            {!collapsed && <span>Search</span>}
                         </Link>
                     </Button>
 
-                    <Button
-                        asChild
-                        variant="ghost"
-                        className={cn(
-                            "justify-start gap-3 px-4 py-6 rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer",
-                            isMessages && "bg-white/10"
-                        )}
-                    >
-                        <Link href="/messages" aria-current={isMessages ? "page" : undefined}>
+                    <Button asChild variant="ghost" className={navButtonClass(isMessages)}>
+                        <Link href="/messages" aria-current={isMessages ? "page" : undefined} title={collapsed ? "Messages" : undefined}>
                             <MessagesSquare size={28} strokeWidth={3} />
-                            <span>Messages</span>
+                            {!collapsed && <span>Messages</span>}
                         </Link>
                     </Button>
 
-                    <Button
-                        asChild
-                        variant="ghost"
-                        className={cn(
-                            "justify-start gap-3 px-4 py-6 rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer",
-                            isFuzzies && "bg-white/10"
-                        )}
-                    >
-                        <Link href={`/fuzzies`} aria-current={isFuzzies ? "page" : undefined}>
+                    <Button asChild variant="ghost" className={navButtonClass(isFuzzies)}>
+                        <Link href="/fuzzies" aria-current={isFuzzies ? "page" : undefined} title={collapsed ? "Warm Fuzzies" : undefined}>
                             <Briefcase size={28} strokeWidth={3} />
-                            <span>Warm Fuzzies</span>
+                            {!collapsed && <span>Warm Fuzzies</span>}
                         </Link>
                     </Button>
 
-                    <Button
-                        asChild
-                        variant="ghost"
-                        className={cn(
-                            "justify-start gap-3 px-4 py-6 rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer",
-                            isShorts && "bg-white/10"
-                        )}
-                    >
-                        <Link href="/shorts" aria-current={isShorts ? "page" : undefined}>
+                    <Button asChild variant="ghost" className={navButtonClass(isShorts)}>
+                        <Link href="/shorts" aria-current={isShorts ? "page" : undefined} title={collapsed ? "Shorts" : undefined}>
                             <Clapperboard size={28} strokeWidth={3} />
-                            <span>Shorts</span>
+                            {!collapsed && <span>Shorts</span>}
                         </Link>
                     </Button>
 
-                    <Button
-                        asChild
-                        variant="ghost"
-                        className={cn(
-                            "justify-start gap-3 px-4 py-6 rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer",
-                            isNotifications && "bg-white/10"
-                        )}
-                    >
-                        <Link href="/notifications" aria-current={isNotifications ? "page" : undefined} className="relative">
+                    <Button asChild variant="ghost" className={navButtonClass(isNotifications)}>
+                        <Link href="/notifications" aria-current={isNotifications ? "page" : undefined} title={collapsed ? "Notifications" : undefined} className="relative">
                             <Bell size={28} strokeWidth={3} />
                             {unreadCount > 0 && (
                                 <span className="absolute -top-1 -right-1 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white px-0.5">
                                     {unreadCount > 99 ? "99+" : unreadCount}
                                 </span>
                             )}
-                            <span>Notifications</span>
+                            {!collapsed && <span>Notifications</span>}
                         </Link>
                     </Button>
 
-                    <Button
-                        asChild
-                        variant="ghost"
-                        className={cn(
-                            "justify-start gap-3 px-4 py-6 rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer",
-                            isBookmarks && "bg-white/10"
-                        )}
-                    >
-                        <Link href="/bookmarks" aria-current={isBookmarks ? "page" : undefined}>
+                    <Button asChild variant="ghost" className={navButtonClass(isBookmarks)}>
+                        <Link href="/bookmarks" aria-current={isBookmarks ? "page" : undefined} title={collapsed ? "Bookmarks" : undefined}>
                             <Bookmark size={28} strokeWidth={3} />
-                            <span>Bookmarks</span>
+                            {!collapsed && <span>Bookmarks</span>}
                         </Link>
                     </Button>
 
-                    <Button
-                        asChild
-                        variant="ghost"
-                        className={cn(
-                            "justify-start gap-3 px-4 py-6 rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer",
-                            isProfile && "bg-white/10"
-                        )}
-                    >
-                        <Link href={`/${session.user.handle}`} aria-current={isProfile ? "page" : undefined}>
+                    <Button asChild variant="ghost" className={navButtonClass(isProfile)}>
+                        <Link href={`/${session.user.handle}`} aria-current={isProfile ? "page" : undefined} title={collapsed ? "Profile" : undefined}>
                             <User size={28} strokeWidth={3} />
-                            <span>Profile</span>
+                            {!collapsed && <span>Profile</span>}
                         </Link>
                     </Button>
 
-                    <Button
-                        asChild
-                        variant="ghost"
-                        className={cn(
-                            "justify-start gap-3 px-4 py-6 rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer",
-                            isSettings && "bg-white/10"
-                        )}
-                    >
-                        <Link href={`/settings`} aria-current={isSettings ? "page" : undefined}>
+                    <Button asChild variant="ghost" className={navButtonClass(isSettings)}>
+                        <Link href="/settings" aria-current={isSettings ? "page" : undefined} title={collapsed ? "Settings" : undefined}>
                             <Settings size={28} strokeWidth={3} />
-                            <span>Settings</span>
+                            {!collapsed && <span>Settings</span>}
                         </Link>
                     </Button>
 
-                    {session.user.role == "Admin" && (
-                        <Button
-                            asChild
-                            variant="ghost"
-                            className={cn(
-                                "justify-start gap-3 px-4 py-6 rounded-lg bg-transparent hover:bg-white/10 text-base font-bold text-primary cursor-pointer",
-                                isAdmin && "bg-white/10"
-                            )}
-                        >
-                            <Link href="/admin" aria-current={isAdmin ? "page" : undefined}>
+                    {session.user.role === "Admin" && (
+                        <Button asChild variant="ghost" className={navButtonClass(isAdmin)}>
+                            <Link href="/admin" aria-current={isAdmin ? "page" : undefined} title={collapsed ? "Admin Portal" : undefined}>
                                 <ShieldCheck size={28} strokeWidth={3} />
-                                <span>Admin Portal</span>
+                                {!collapsed && <span>Admin Portal</span>}
                             </Link>
                         </Button>
                     )}
+
+                    {/* Collapse toggle */}
+                    <button
+                        onClick={toggleCollapsed}
+                        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                        className={cn(
+                            "mt-1 flex items-center rounded-lg py-2 text-xs font-semibold text-muted-foreground hover:bg-white/10 transition-colors",
+                            collapsed ? "justify-center px-0" : "justify-end gap-1 px-3"
+                        )}
+                    >
+                        {collapsed
+                            ? <ChevronRight size={16} />
+                            : <><ChevronLeft size={16} /><span>Collapse</span></>
+                        }
+                    </button>
                 </div>
 
+                {/* Post button */}
                 <Button
                     asChild
                     className={cn(
-                        "justify-center px-4 py-6 rounded-lg bg-primary hover:bg-primary/90 text-base font-bold text-background w-full cursor-pointer",
-                        isPost && "ring-2 ring-white/20"
+                        "rounded-lg bg-primary hover:bg-primary/90 text-base font-bold text-background w-full cursor-pointer transition-all duration-200",
+                        isPost && "ring-2 ring-white/20",
+                        collapsed ? "justify-center px-0 py-6" : "justify-center px-4 py-6"
                     )}
                 >
-                    <Link href="/post" aria-current={isPost ? "page" : undefined}>
-                        <span>Post</span>
+                    <Link href="/post" aria-current={isPost ? "page" : undefined} title={collapsed ? "Post" : undefined}>
+                        {collapsed ? <Plus size={24} strokeWidth={3} /> : <span>Post</span>}
                     </Link>
                 </Button>
 
+                {/* Account */}
                 <div className="mt-auto mb-8">
-                    <Account
-                        username={session.user.handle}
-                        displayName={session.user.name}
-                        avatarUrl={session.user.image || ""}
-                    />
+                    {collapsed ? (
+                        <Link href="/settings" title="Settings">
+                            <div className="flex justify-center p-2 rounded-full hover:bg-[var(--lynt)] transition-colors cursor-pointer">
+                                <Avatar className="w-10 h-10">
+                                    <AvatarImage src={session.user.image || ""} alt="Avatar" />
+                                    <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                                        {(session.user.name || session.user.handle || "").charAt(0).toUpperCase()}
+                                    </AvatarFallback>
+                                </Avatar>
+                            </div>
+                        </Link>
+                    ) : (
+                        <Account
+                            username={session.user.handle}
+                            displayName={session.user.name}
+                            avatarUrl={session.user.image || ""}
+                        />
+                    )}
                 </div>
             </aside>
 
