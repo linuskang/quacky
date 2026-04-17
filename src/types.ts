@@ -117,6 +117,13 @@ export interface Short {
     }
 }
 
+export interface WarmFuzzy {
+    id: string;
+    message: string;
+    createdAt: string;
+    isReported: boolean;
+}
+
 export interface DMUserPreview {
     id: string;
     name: string;

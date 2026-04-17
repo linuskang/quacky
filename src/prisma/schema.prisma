@@ -47,17 +47,19 @@ model User {
   banReason  String?
   banExpires DateTime?
 
-  sessions       Session[]
-  accounts       Account[]
-  posts          Post[]
-  likes          Like[]          @relation("UserLikes")
-  bookmarks      Bookmark[]
-  postViews      PostView[]
-  following      Follow[]        @relation("UserFollowing")
-  followers      Follow[]        @relation("UserFollowers")
-  notifications  Notification[]
-  dmParticipants DMParticipant[]
-  dmMessages     DMMessage[]     @relation("DMSender")
+  sessions            Session[]
+  accounts            Account[]
+  posts               Post[]
+  likes               Like[]          @relation("UserLikes")
+  bookmarks           Bookmark[]
+  postViews           PostView[]
+  following           Follow[]        @relation("UserFollowing")
+  followers           Follow[]        @relation("UserFollowers")
+  notifications       Notification[]
+  dmParticipants      DMParticipant[]
+  dmMessages          DMMessage[]     @relation("DMSender")
+  warmFuzziesSent     WarmFuzzy[]     @relation("WarmFuzzySender")
+  warmFuzziesReceived WarmFuzzy[]     @relation("WarmFuzzyRecipient")
 
   @@unique([email])
 }
@@ -221,6 +223,23 @@ model DMMessage {
   sender       User           @relation("DMSender", fields: [senderId], references: [id], onDelete: Cascade)
 
   @@index([conversationId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+model WarmFuzzy {
+  id          String   @id @default(cuid())
+  senderId    String
+  recipientId String
+  message     String
+  isReported  Boolean  @default(false)
+  isHidden    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  sender    User @relation("WarmFuzzySender", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient User @relation("WarmFuzzyRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId])
   @@index([senderId])
   @@index([createdAt])
 }

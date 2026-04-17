@@ -5,7 +5,7 @@
 "use client";
 
 // Libraries
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // UI Components
 import {
@@ -21,45 +21,99 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
 // Types
+interface ReportReasonOption {
+    value: string;
+    label: string;
+}
+
 interface Props {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (type: string, reason: string) => void;
+    onSubmit: (type: string, reason: string) => void | Promise<void>;
+    title?: string;
+    description?: string;
+    submitLabel?: string;
+    successTitle?: string;
+    successDescription?: string;
+    reasons?: ReadonlyArray<ReportReasonOption>;
+    defaultType?: string;
 }
+
+const DEFAULT_REASONS: ReportReasonOption[] = [
+    { value: "spam", label: "Spam" },
+    { value: "harassment", label: "Harassment" },
+    { value: "self-harm", label: "Self-Harm Content" },
+    { value: "impersonation", label: "Impersonation" },
+    { value: "illegal", label: "Illegal Activity" },
+    { value: "scam", label: "Scam or Fraud" },
+    { value: "other", label: "Other (specify below)" },
+];
 
 export function ReportAbuse(
     {
         isOpen,
         onClose,
-        onSubmit
+        onSubmit,
+        title = "Report Abuse",
+        description = "Tell us why you're reporting this. Our team will review your report and take appropriate action.",
+        submitLabel = "Submit",
+        successTitle = "Report filed",
+        successDescription = "Thanks for keeping our community safe.",
+        reasons = DEFAULT_REASONS,
+        defaultType,
     }: Props
 ) {
     // states
-    const [reportType, setReportType] = useState("");
+    const [reportType, setReportType] = useState(defaultType ?? reasons[0]?.value ?? "");
     const [reportReason, setReportReason] = useState("");
     const [isSuccess, setIsSuccess] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!isOpen) return;
+
+        setReportType(defaultType ?? reasons[0]?.value ?? "");
+        setReportReason("");
+        setIsSuccess(false);
+        setIsSubmitting(false);
+        setError(null);
+    }, [defaultType, isOpen, reasons]);
 
     // submit to function
-    function submit() {
-        onSubmit(reportType, reportReason);
-        setIsSuccess(true);
+    async function submit() {
+        if (!reportType || isSubmitting) return;
+
+        setIsSubmitting(true);
+        setError(null);
+
+        try {
+            await Promise.resolve(onSubmit(reportType, reportReason));
+            setIsSuccess(true);
+        } catch (submitError) {
+            setError(submitError instanceof Error ? submitError.message : "Could not submit report.");
+        } finally {
+            setIsSubmitting(false);
+        }
     }
 
     // reset everything
     function close() {
-        setReportType("");
+        setReportType(defaultType ?? reasons[0]?.value ?? "");
         setReportReason("");
         setIsSuccess(false);
+        setIsSubmitting(false);
+        setError(null);
         onClose();
     }
 
     return (
-        <Dialog open={isOpen} onOpenChange={close}>
+        <Dialog open={isOpen} onOpenChange={(open) => { if (!open) close(); }}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Report Abuse</DialogTitle>
+                    <DialogTitle>{title}</DialogTitle>
                     <DialogDescription>
-                        Tell us why you're reporting this. Our team will review your report and take appropriate action.
+                        {description}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -67,41 +121,12 @@ export function ReportAbuse(
 
                     <div className="space-y-2">
                         <RadioGroup value={reportType} onValueChange={setReportType}>
-                            <div className="flex items-center gap-2 p-2">
-                                <RadioGroupItem value="spam" id="spam" />
-                                <label htmlFor="spam" className="cursor-pointer font-medium">Spam</label>
-                            </div>
-
-                            <div className="flex items-center gap-2 p-2">
-                                <RadioGroupItem value="harassment" id="harassment" />
-                                <label htmlFor="harassment" className="cursor-pointer font-medium">Harassment</label>
-                            </div>
-
-                            <div className="flex items-center gap-2 p-2">
-                                <RadioGroupItem value="self-harm" id="self-harm" />
-                                <label htmlFor="self-harm" className="cursor-pointer font-medium">Self-Harm Content</label>
-                            </div>
-
-                            <div className="flex items-center gap-2 p-2">
-                                <RadioGroupItem value="impersonation" id="impersonation" />
-                                <label htmlFor="impersonation" className="cursor-pointer font-medium">Impersonation</label>
-                            </div>
-
-                            <div className="flex items-center gap-2 p-2">
-                                <RadioGroupItem value="illegal" id="illegal" />
-                                <label htmlFor="illegal" className="cursor-pointer font-medium">Illegal Activity</label>
-                            </div>
-
-                            <div className="flex items-center gap-2 p-2">
-                                <RadioGroupItem value="scam" id="scam" />
-                                <label htmlFor="scam" className="cursor-pointer font-medium">Scam or Fraud</label>
-                            </div>
-
-                            <div className="flex items-center gap-2 p-2">
-                                <RadioGroupItem value="other" id="other" />
-                                <label htmlFor="other" className="cursor-pointer font-medium">Other (specify below)</label>
-                            </div>
-
+                            {reasons.map((reason) => (
+                                <div key={reason.value} className="flex items-center gap-2 p-2">
+                                    <RadioGroupItem value={reason.value} id={reason.value} />
+                                    <label htmlFor={reason.value} className="cursor-pointer font-medium">{reason.label}</label>
+                                </div>
+                            ))}
                         </RadioGroup>
 
                         <Textarea
@@ -110,22 +135,26 @@ export function ReportAbuse(
                             onChange={(e) => setReportReason(e.target.value)}
                         />
 
+                        {error && (
+                            <p className="text-sm text-red-500">{error}</p>
+                        )}
+
                         <DialogFooter>
-                            <Button variant="outline" className="cursor-pointer" onClick={close}>Cancel</Button>
+                            <Button variant="outline" className="cursor-pointer" onClick={close} disabled={isSubmitting}>Cancel</Button>
                             <Button
                                 onClick={submit}
-                                disabled={!reportType}
+                                disabled={!reportType || isSubmitting}
                                 className="cursor-pointer"
                             >
-                                Submit
+                                {isSubmitting ? "Submitting..." : submitLabel}
                             </Button>
                         </DialogFooter>
 
                     </div>
                 ) : (
                     <div className="text-center py-4">
-                        <p className="font-bold text-lg">Report filed</p>
-                        <p className="text-sm text-muted-foreground mb-4">Thanks for keeping our community safe.</p>
+                        <p className="font-bold text-lg">{successTitle}</p>
+                        <p className="text-sm text-muted-foreground mb-4">{successDescription}</p>
                         <Button onClick={close} className="cursor-pointer">
                             Close
                         </Button>
