@@ -45,7 +45,7 @@ However, as a teen, I firmly believe that the current edutainment industry focus
 
 Ironically, the strongest evidence of *education through play* has occured through the gaming entertainment industry. These educational games are effective because they don't place teaching as the main objective. Instead, they are so effective because: when a player loses themselves in Minecraft's redstone circuitry or Roblox's endless game library, they naturally learn from play. Cultural phenomena like these games have become the entertainment sector's most compelling argument for what educational software & games have long promised but struggled to deliver.
 
-A great quote believe summarises the entire state of edutainment that *"We contend that educational games fail to deliver because the incentives of this market sector contradict the very nature of what a game should be." - Hackclub*
+A great quote believe summarises the entire state of edutainment that ***"We contend that educational games fail to deliver because the incentives of this market sector contradict the very nature of what a game should be." - Hackclub***
 
 Quacky, and it's suite of games & apps are built around the key mechanic of *learning through play*. We have built a fully functional social media game for teens to play around and learn from.
 
