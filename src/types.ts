@@ -41,6 +41,10 @@ export interface User {
 
 export type PostType = "post" | "reply" | "repost" | "quote";
 
+export interface PollData {
+    options: string[];
+}
+
 export interface Post {
     id: string;
     type: PostType;
@@ -55,6 +59,7 @@ export interface Post {
 
     content: string;
     attachments?: PostAttachment[];
+    poll?: PollData | null;
 
     // Self-referencing: parent post for replies, reposts, and quotes
     parentId?: string | null;
@@ -80,6 +85,9 @@ export interface Post {
     hasReposted?: boolean;
     hasReplied?: boolean;
     hasBookmarked?: boolean;
+
+    pollVoteCounts?: number[];
+    userVote?: number | null;
 }
 
 export interface Likes {

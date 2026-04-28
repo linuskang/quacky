@@ -49,6 +49,7 @@ export async function GET(request: NextRequest) {
             author: { select: authorSelect },
             content: true,
             attachments: true,
+            poll: true,
             viewCount: true,
             pinned: true,
             readOnly: true,
@@ -65,6 +66,8 @@ export async function GET(request: NextRequest) {
                 where: { isDeleted: false, isHidden: false },
                 select: { id: true, type: true, authorId: true },
             },
+            // Poll votes for counts and user vote
+            pollVotes: { select: { userId: true, optionIndex: true } },
         },
         orderBy: { createdAt: "desc" },
     });
@@ -94,12 +97,20 @@ export async function GET(request: NextRequest) {
         const hasBookmarked = bookmarkedIds.has(post.id);
         const hasReplied = post.children.some((c) => c.type === "reply" && c.authorId === userId);
 
+        const poll = post.poll as { options: string[] } | null;
+        const pollVoteCounts = poll
+            ? poll.options.map((_, i) => post.pollVotes.filter((v) => v.optionIndex === i).length)
+            : undefined;
+        const userVoteRecord = post.pollVotes.find((v) => v.userId === userId);
+        const userVote = userVoteRecord ? userVoteRecord.optionIndex : null;
+
         return {
             id: post.id,
             type: post.type,
             author: post.author,
             content: post.content,
             attachments: post.attachments,
+            poll: post.poll,
             viewCount: post.viewCount,
             pinned: post.pinned,
             readOnly: post.readOnly,
@@ -115,6 +126,8 @@ export async function GET(request: NextRequest) {
             hasReposted,
             hasBookmarked,
             hasReplied,
+            pollVoteCounts,
+            userVote,
         };
     });
 
@@ -144,7 +157,23 @@ export async function POST(request: NextRequest) {
 
         const content = typeof body.content === "string" ? body.content.trim() : "";
 
-        if (content.length > 280 || (!content && attachments.length === 0)) {
+        // Validate poll if provided
+        let poll: { options: string[] } | null = null;
+        if (body.poll) {
+            const rawOptions = Array.isArray(body.poll.options) ? body.poll.options : [];
+            const options = rawOptions
+                .map((o: any) => (typeof o === "string" ? o.trim() : ""))
+                .filter((o: string) => o.length > 0);
+            if (options.length < 2 || options.length > 4) {
+                return NextResponse.json(
+                    { success: false, error: "A poll must have 2 to 4 options" },
+                    { status: 400 }
+                );
+            }
+            poll = { options };
+        }
+
+        if (content.length > 280 || (!content && attachments.length === 0 && !poll)) {
             return NextResponse.json({ success: false, error: "Invalid format" }, { status: 400 });
         }
 
@@ -161,6 +190,7 @@ export async function POST(request: NextRequest) {
                 content,
                 authorId: session.user.id,
                 attachments,
+                ...(poll ? { poll } : {}),
             },
             select: { id: true },
         });
