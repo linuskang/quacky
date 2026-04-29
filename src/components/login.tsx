@@ -17,6 +17,12 @@ export default function Login() {
     const [isPending, setIsPending] = useState(false);
     const [appInfo, setAppInfo] = useState<{ version: string }>({ version: "dev" });
 
+    // Magic link states
+    const [email, setEmail] = useState("");
+    const [emailSent, setEmailSent] = useState(false);
+    const [emailPending, setEmailPending] = useState(false);
+    const [emailError, setEmailError] = useState<string | null>(null);
+
     // Get version metadata
     useEffect(() => {
         const fetchAppInfo = async () => {
@@ -47,6 +53,30 @@ export default function Login() {
         }
     };
 
+    // Magic link login
+    const handleMagicLink = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!email.trim() || emailPending) return;
+        setEmailError(null);
+        setEmailPending(true);
+
+        try {
+            const result = await authClient.signIn.magicLink({
+                email: email.trim(),
+                callbackURL: "/",
+            });
+            if (result?.error) {
+                setEmailError(result.error.message ?? "Failed to send link. Please try again.");
+            } else {
+                setEmailSent(true);
+            }
+        } catch (err: any) {
+            setEmailError(err.message ?? "Failed to send link. Please try again.");
+        } finally {
+            setEmailPending(false);
+        }
+    };
+
     return (
         <div className="min-h-screen w-full flex items-center justify-center bg-background relative px-4 py-8 sm:py-0">
             <div className="w-full max-w-sm">
@@ -74,6 +104,53 @@ export default function Login() {
                             </svg>
                             {isPending ? "Redirecting..." : "Continue with GitHub"}
                         </Button>
+
+                        {/* Divider */}
+                        <div className="flex items-center gap-3">
+                            <div className="flex-1 h-px bg-border" />
+                            <span className="text-xs text-muted-foreground font-medium">or</span>
+                            <div className="flex-1 h-px bg-border" />
+                        </div>
+
+                        {/* Magic link */}
+                        {emailSent ? (
+                            <div className="rounded-xl bg-primary/10 border border-primary/20 px-4 py-4 text-center">
+                                <p className="text-sm font-semibold text-primary mb-1">Check your email</p>
+                                <p className="text-xs text-muted-foreground">
+                                    We sent a sign-in link to <span className="font-medium text-primary">{email}</span>
+                                </p>
+                                <button
+                                    onClick={() => { setEmailSent(false); setEmail(""); }}
+                                    className="mt-3 text-xs text-muted-foreground hover:text-primary underline underline-offset-2 transition-colors"
+                                >
+                                    Use a different email
+                                </button>
+                            </div>
+                        ) : (
+                            <form onSubmit={handleMagicLink} className="space-y-2">
+                                {emailError && (
+                                    <div className="rounded bg-red-100 px-3 py-2 text-xs text-red-700">
+                                        {emailError}
+                                    </div>
+                                )}
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="Email address"
+                                    required
+                                    className="w-full h-11 rounded-lg border border-border bg-background px-3.5 text-sm text-primary placeholder:text-muted-foreground outline-none focus:border-primary/50 transition-colors"
+                                />
+                                <Button
+                                    type="submit"
+                                    disabled={emailPending || !email.trim()}
+                                    variant="outline"
+                                    className="w-full h-11 cursor-pointer"
+                                >
+                                    {emailPending ? "Sending link..." : "Continue with Email"}
+                                </Button>
+                            </form>
+                        )}
 
                         <div>
                             <p className="text-xs text-muted-foreground text-center">
