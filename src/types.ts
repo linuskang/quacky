@@ -114,7 +114,12 @@ export interface Short {
         handle: string;
         image?: string;
         verified: boolean;
-    }
+    };
+    likeCount: number;
+    hasLiked: boolean;
+    commentCount: number;
+    viewCount: number;
+    isOwn: boolean;
 }
 
 export interface WarmFuzzy {
