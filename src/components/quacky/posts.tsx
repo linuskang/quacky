@@ -12,7 +12,7 @@ import { useState, useRef } from "react";
 import {
     BadgeCheck, MoreHorizontal, Pin, Lock, Heart, Repeat2,
     Share2, Copy, MessagesSquare, EyeOff, Eye, Quote as QuoteIcon,
-    MessageSquareQuote, Bookmark, BarChart2
+    MessageSquareQuote, Bookmark, BarChart2, CheckCircle2
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
@@ -268,6 +268,134 @@ function EmbeddedPost({ post }: { post: Post }) {
                     📎 {post.attachments.length} attachment{post.attachments.length > 1 ? "s" : ""}
                 </p>
             )}
+        </div>
+    );
+}
+
+// ─── Poll Block ───────────────────────────────────────────────────────────────
+
+function PollBlock({
+    postId,
+    poll,
+    initialVoteCounts,
+    initialUserVote,
+    isAuthor,
+    session,
+}: {
+    postId: string;
+    poll: { options: string[] };
+    initialVoteCounts: number[];
+    initialUserVote: number | null;
+    isAuthor: boolean;
+    session: any;
+}) {
+    const [voteCounts, setVoteCounts] = useState<number[]>(initialVoteCounts);
+    const [userVote, setUserVote] = useState<number | null>(initialUserVote);
+    const [isVoting, setIsVoting] = useState(false);
+
+    const hasVoted = userVote !== null;
+    const showResults = hasVoted || isAuthor;
+    const totalVotes = voteCounts.reduce((a, b) => a + b, 0);
+
+    async function castVote(optionIndex: number) {
+        if (!session || isVoting) return;
+        if (userVote === optionIndex) return; // already voted for this option
+
+        const prevVote = userVote;
+        const prevCounts = [...voteCounts];
+
+        // Optimistic update
+        const next = [...voteCounts];
+        if (prevVote !== null) next[prevVote] = Math.max(0, next[prevVote] - 1);
+        next[optionIndex] = next[optionIndex] + 1;
+        setVoteCounts(next);
+        setUserVote(optionIndex);
+        setIsVoting(true);
+
+        try {
+            const res = await fetch(`/api/v1/posts/${postId}/vote`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ optionIndex }),
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setVoteCounts(data.pollVoteCounts);
+                setUserVote(data.userVote);
+            } else {
+                // Revert on error
+                setVoteCounts(prevCounts);
+                setUserVote(prevVote);
+            }
+        } catch {
+            setVoteCounts(prevCounts);
+            setUserVote(prevVote);
+        } finally {
+            setIsVoting(false);
+        }
+    }
+
+    return (
+        <div
+            className="flex flex-col gap-2 mt-1"
+            onClick={(e) => e.stopPropagation()}
+        >
+            {poll.options.map((option, i) => {
+                const count = voteCounts[i] ?? 0;
+                const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
+                const isSelected = userVote === i;
+
+                if (showResults) {
+                    return (
+                        <button
+                            key={i}
+                            type="button"
+                            disabled={isVoting || !session}
+                            onClick={() => castVote(i)}
+                            className={`relative w-full rounded-lg border-2 overflow-hidden text-left transition ${
+                                isSelected
+                                    ? "border-primary"
+                                    : "border-border hover:border-primary/50"
+                            } ${isVoting ? "cursor-wait" : "cursor-pointer"}`}
+                        >
+                            {/* Progress bar fill */}
+                            <div
+                                className={`absolute inset-y-0 left-0 transition-all duration-500 ${
+                                    isSelected ? "bg-primary/20" : "bg-primary/8"
+                                }`}
+                                style={{ width: `${pct}%` }}
+                            />
+                            <div className="relative flex items-center justify-between px-3 py-2 gap-2">
+                                <div className="flex items-center gap-2 min-w-0">
+                                    {isSelected && (
+                                        <CheckCircle2 size={14} className="text-primary shrink-0" fill="currentColor" stroke="var(--lynt)" />
+                                    )}
+                                    <span className={`text-sm font-medium truncate ${isSelected ? "text-primary font-semibold" : "text-primary/90"}`}>
+                                        {option}
+                                    </span>
+                                </div>
+                                <span className="text-xs font-bold text-primary shrink-0">{pct}%</span>
+                            </div>
+                        </button>
+                    );
+                }
+
+                return (
+                    <button
+                        key={i}
+                        type="button"
+                        disabled={isVoting || !session}
+                        onClick={() => castVote(i)}
+                        className="w-full rounded-lg border-2 border-primary text-primary font-semibold py-2 px-3 text-sm text-left hover:bg-primary hover:text-[var(--lynt)] transition disabled:opacity-50"
+                    >
+                        {option}
+                    </button>
+                );
+            })}
+            <p className="text-xs text-muted-foreground">
+                {totalVotes} {totalVotes === 1 ? "vote" : "votes"}
+                {!session && " · Sign in to vote"}
+            </p>
         </div>
     );
 }
@@ -584,6 +712,21 @@ export function PostCard({
                         >
                             <RichContent text={displayPost.content} className="whitespace-pre-wrap leading-relaxed" />
                         </div>
+                    )}
+
+                    {/* Poll */}
+                    {displayPost.poll && (displayPost.poll as any).options && (
+                        <PollBlock
+                            postId={displayPost.id}
+                            poll={displayPost.poll as { options: string[] }}
+                            initialVoteCounts={
+                                (displayPost as any).pollVoteCounts ??
+                                Array((displayPost.poll as any).options.length).fill(0)
+                            }
+                            initialUserVote={(displayPost as any).userVote ?? null}
+                            isAuthor={displayPost.author.id === session?.user?.id}
+                            session={session}
+                        />
                     )}
 
                     {/* Quoted post embedded card (only for type="quote") */}
