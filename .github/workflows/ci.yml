@@ -2,9 +2,6 @@ name: CI - Pull Request Checks
 
 on:
   pull_request:
-    branches:
-      - stable
-      - v5
 
 jobs:
   ci-checks:
