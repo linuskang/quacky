@@ -289,7 +289,7 @@ function ShortsPageContent() {
                                 className="snap-start flex-shrink-0 h-screen w-full flex items-center justify-center py-4"
                             >
                                 {/* Phone-aspect container */}
-                                <div className="h-full w-full max-w-[420px] rounded-2xl overflow-hidden shadow-2xl relative">
+                                <div className="h-[calc(100vh-2rem)] aspect-[9/16] max-w-full rounded-2xl overflow-hidden shadow-2xl relative">
                                     <Short
                                         id={short.id}
                                         videoUrl={short.url}
