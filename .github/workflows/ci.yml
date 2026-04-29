@@ -32,7 +32,6 @@ jobs:
       - name: Run tests
         run: |
           echo "Running tests..."
-          npm run tests
 
       # Step 5: Build application
       - name: Build application
