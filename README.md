@@ -33,19 +33,29 @@ Quacky is built with:
 
 Online safety websites go a long way back. There are already plenty designed to teach kids how to stay safe online. But why does mine exist?
 
-Well... I believe that conventional educational games follow these core beliefs:
+I believe that conventional educational games follow these core beliefs:
 
 - Education occurs through instruction and practice
 - Videogames are natural vessels for instruction and practice
-- Therefore, videogames are natural vessels for Education
+- Therefore, videogames are the perfect candidate for Education
 
 Games have already advanced far from where it once was, from simple physical games like Monopoly, to Minecraft & Roblox, some of the world's best-selling games ever.
 
-However, as a teen, I firmly believe that the current edutainment industry focuses too heavily on compliance for teachers & parents, whereas real, enjoyable, and fun games are built for student agency and enjoyment. There are already plenty of games for learning how to private your social media accounts, blocking users, reporting using the built in tools, the list goes on...
+However, I feel that the edutainment industry is too reliant on compliance for teachers & parents, whereas real, enjoyable, fun games are built for student agency and enjoyment. There are already plenty of games for learning how to private your social media accounts, blocking users, reporting using the built in tools, the list goes on... Player retention on these types of games don’t persist because the games don’t follow the traditional principles, one of them being fun to play.
 
-Ironically, the strongest evidence of *education through play* has occured through the gaming entertainment industry. These educational games are effective because they don't place teaching as the main objective. Instead, they are so effective because: when a player loses themselves in Minecraft's redstone circuitry or Roblox's endless game library, they naturally learn from play. Cultural phenomena like these games have become the entertainment sector's most compelling argument for what educational software & games have long promised but struggled to deliver.
+Ironically, the strongest evidence of _education through play_ has occurred through the gaming entertainment industry. These educational games are effective because they don't place teaching as the main objective. Instead, they are so effective because when a player loses themselves in Minecraft's red stone circuitry or Roblox's endless game library, they naturally learn from play. Cultural phenomena like these games have become the entertainment sector's most compelling argument for what educational software & games have long promised but struggled to deliver.
 
-A great quote believe summarises the entire state of edutainment that ***"We contend that educational games fail to deliver because the incentives of this market sector contradict the very nature of what a game should be." - Hackclub***
+A great quote that I think summarises the entire state of edutainment is from Hack Club, and they state that _"We contend that educational games fail to deliver because the incentives of this market sector contradict the very nature of what a game should be."_
+
+You might be wondering what my submission is by now to solve this issue. My app is called Quacky! An all-in-one social media application built for teens. It’s built with Next.js with this tech stack:
+
+- Next.js
+- Postgres
+- Better Auth
+- Resend
+- RustFS S3
+
+Quacky isn’t your usual social media app like Instagram or twitter, it’s fully designed with teenagers in mind.
 
 Quacky, and it's suite of games & apps are built around the key mechanic of *learning through play*. We have built a fully functional social media game for teens to play around and learn from.
 
