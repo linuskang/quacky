@@ -22,6 +22,7 @@ const postNodeSelect = {
     author: { select: authorSelect },
     content: true,
     attachments: true,
+    poll: true,
     viewCount: true,
     pinned: true,
     readOnly: true,
@@ -30,6 +31,7 @@ const postNodeSelect = {
     createdAt: true,
     parentId: true,
     likes: { select: { userId: true } },
+    pollVotes: { select: { userId: true, optionIndex: true } },
     children: {
         where: { isDeleted: false, isHidden: false },
         select: { id: true, type: true, authorId: true },
@@ -43,6 +45,7 @@ const postNodeSelect = {
             author: { select: authorSelect },
             content: true,
             attachments: true,
+            poll: true,
             viewCount: true,
             createdAt: true,
             isDeleted: true,
@@ -56,11 +59,23 @@ function enrichPost(post: any, userId: string) {
     const repostCount = post.children?.filter((c: any) => c.type === "repost").length ?? 0;
     const hasLiked = post.likes?.some((l: any) => l.userId === userId) ?? false;
     const hasReplied = post.children?.some((c: any) => c.type === "reply" && c.authorId === userId) ?? false;
+
+    const poll = post.poll as { options: string[] } | null;
+    const pollVotes: { userId: string; optionIndex: number }[] = post.pollVotes ?? [];
+    const pollVoteCounts = poll
+        ? poll.options.map((_: string, i: number) => pollVotes.filter((v) => v.optionIndex === i).length)
+        : undefined;
+    const userVoteRecord = pollVotes.find((v) => v.userId === userId);
+    const userVote = userVoteRecord ? userVoteRecord.optionIndex : null;
+
     return {
         ...post,
         replyCount,
         repostCount,
         hasLiked,
+        hasReplied,
+        pollVoteCounts,
+        userVote,
     };
 }
 
@@ -90,6 +105,7 @@ export async function GET(
                     author: { select: authorSelect },
                     content: true,
                     attachments: true,
+                    poll: true,
                     viewCount: true,
                     pinned: true,
                     readOnly: true,
@@ -98,6 +114,7 @@ export async function GET(
                     createdAt: true,
                     parentId: true,
                     likes: { select: { userId: true } },
+                    pollVotes: { select: { userId: true, optionIndex: true } },
                     _count: { select: { children: true } },
                 },
                 orderBy: { createdAt: "asc" },
@@ -135,12 +152,22 @@ export async function GET(
     }
 
     // Enrich replies
-    const enrichedReplies = (post.children as any[]).map((reply) => ({
-        ...reply,
-        replyCount: reply._count?.children ?? 0,
-        repostCount: 0,
-        hasLiked: reply.likes?.some((l: any) => l.userId === userId) ?? false,
-    }));
+    const enrichedReplies = (post.children as any[]).map((reply) => {
+        const replyPoll = reply.poll as { options: string[] } | null;
+        const replyPollVotes: { userId: string; optionIndex: number }[] = reply.pollVotes ?? [];
+        const replyPollVoteCounts = replyPoll
+            ? replyPoll.options.map((_: string, i: number) => replyPollVotes.filter((v) => v.optionIndex === i).length)
+            : undefined;
+        const replyUserVoteRecord = replyPollVotes.find((v) => v.userId === userId);
+        return {
+            ...reply,
+            replyCount: reply._count?.children ?? 0,
+            repostCount: 0,
+            hasLiked: reply.likes?.some((l: any) => l.userId === userId) ?? false,
+            pollVoteCounts: replyPollVoteCounts,
+            userVote: replyUserVoteRecord ? replyUserVoteRecord.optionIndex : null,
+        };
+    });
 
     // Check hasReposted for the main post
     const userRepost = await prisma.post.findFirst({

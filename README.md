@@ -1,6 +1,6 @@
-# Quacky (beta): Simple and Open Social Media, For Teens.
+# Quacky: Simple and Open Social Media, with some quirks..
 
-Quacky is a bootstrapped social media platform built in Next.js, designed for teens.
+Quacky is a bootstrapped social media platform built in Next.js, built from scratch, designed for teens.
 
 Features include:
 
@@ -12,11 +12,10 @@ Features include:
 - Powerful user & post searching tools
 - Bookmarks
 - Trending algorithms, & a For You page
-- Most importantly, it's designed with teens in mind.
+- Custom pages
+- Custom bots
 
-If there is a feature missing for your usecase, you can easily create new custom pages by using our custom app template in ``dev/examples``.
-
-### Try out quacky at https://quacky.linus.my
+### Try out Quacky at https://quacky.linus.my
 
 ## Tech stack
 
@@ -25,34 +24,40 @@ Quacky is built with:
 - Next.js
 - Better Auth
 - Prisma ORM
-- Postgresql
+- Postgres
 - RustFS
 - Ollama
 - Resend
 
-## Origins
+## Why does Quacky even exist?
 
 Online safety websites go a long way back. There are already plenty designed to teach kids how to stay safe online. But why does mine exist?
 
-Well... I believe that conventional educational games follow these core beliefs:
+I believe that conventional educational games follow these core beliefs:
 
 - Education occurs through instruction and practice
 - Videogames are natural vessels for instruction and practice
-- Therefore, videogames are natural vessels for Education
+- Therefore, videogames are the perfect candidate for Education
 
-Games have already advanced extremely far from where it once was, from simple physical games like Monopoly, to Minecraft, one of the world's best-selling games in history.
+Games have already advanced far from where it once was, from simple physical games like Monopoly, to Minecraft & Roblox, some of the world's best-selling games ever.
 
-As a teen, I firmly believe that the current edutainment industry focuses too heavily on compliance for teachers & parents, whereas real, enjoyable, and fun games are built for student agency and enjoyment. There are already plenty of games for learning how to private your social media accounts, blocking users, reporting using the built in tools, the list goes on...
+However, I feel that the edutainment industry is too reliant on compliance for teachers & parents, whereas real, enjoyable, fun games are built for student agency and enjoyment. There are already plenty of games for learning how to private your social media accounts, blocking users, reporting using the built in tools, the list goes on... Player retention on these types of games don’t persist because the games don’t follow the traditional principles, one of them being fun to play.
 
-However,
+Ironically, the strongest evidence of _education through play_ has occurred through the gaming entertainment industry. These educational games are effective because they don't place teaching as the main objective. Instead, they are so effective because when a player loses themselves in Minecraft's red stone circuitry or Roblox's endless game library, they naturally learn from play. Cultural phenomena like these games have become the entertainment sector's most compelling argument for what educational software & games have long promised but struggled to deliver.
 
-A great quote by Hackclub states *"We contend that educational games fail to deliver because the incentives of this market sector contradict the very nature of what a game should be."*
+A great quote that I think summarises the entire state of edutainment is from Hack Club, and they state that _"We contend that educational games fail to deliver because the incentives of this market sector contradict the very nature of what a game should be."_
 
-Current educational curriculums like ACARA in australia ...
+You might be wondering what my submission is by now to solve this issue. My app is called Quacky! An all-in-one social media application built for teens. It’s built with Next.js with this tech stack:
 
-Ironically, the strongest evidence for the effectiveness of educational through play has come from the entertainment industry. These educational games teach best when teaching isn't the main objective. When a player loses themselves in Minecraft's redstone circuitry or Roblox's endless game library, they naturally learn from play. Cultural phenomena like these games have become the entertainment sector's most compelling argument for what educational software has long promised but struggled to deliver.
+- Next.js
+- Postgres
+- Better Auth
+- Resend
+- RustFS S3
 
-Quacky, and it's suite of games & apps are built around this key mechanic.
+Quacky isn’t your usual social media app like Instagram or twitter, it’s fully designed with teenagers in mind.
+
+Quacky, and it's suite of games & apps are built around the key mechanic of *learning through play*. We have built a fully functional social media game for teens to play around and learn from.
 
 ## Self-host
 
@@ -179,42 +184,6 @@ docker exec -it quacky npx prisma migrate deploy
 Lastly, login to RustFS, create a bucket & access key. Add it into your ``.env`` configuration.
 
 ### And.. your done! Access Quacky at [localhost:3001](http://localhost:3001) and create an account.
-
-There are several more services Quacky uses, but isn't required. This guide will show you how to install and use:
-
-- Auto AI post moderation
-
-- Algorithms for posts & shorts using AI
-
-You will need to install these using our separate docker image & repository ``quacky-ai``:
-
-```bash
-docker pull linuskang/quacky-ai:latest
-```
-
-``docker-compose.yml``:
-
-```yml
-services:
-  quacky:
-    container_name: quacky-ai
-    image: linuskang/quacky-ai:latest
-    restart: always
-    env_file:
-      - .env
-    networks:
-      - quacky_network
-    ports:
-      - "8000:8000"
-```
-
-``.env``:
-
-```
-OLLAMA_API_URL=""
-OLLAMA_API_TOKEN=""
-API_TOKEN=""
-```
 
 ## License
 

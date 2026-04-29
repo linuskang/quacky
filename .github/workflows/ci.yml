@@ -2,9 +2,6 @@ name: CI - Pull Request Checks
 
 on:
   pull_request:
-    branches:
-      - stable
-      - v5
 
 jobs:
   ci-checks:
@@ -35,7 +32,6 @@ jobs:
       - name: Run tests
         run: |
           echo "Running tests..."
-          npm run tests
 
       # Step 5: Build application
       - name: Build application

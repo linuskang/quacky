@@ -11,7 +11,7 @@ import { authClient } from "@/client/auth";
 // UI Components
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { CharacterCounter } from "@/components/quacky/character-counter";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, BarChart2, X, Plus } from "lucide-react";
 
 // Utilities
 import { formatSize } from "@/client/utils";
@@ -36,6 +36,10 @@ export default function Compose({ onPost }: Props) {
     const [isPosting, setIsPosting] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [attachments, setAttachments] = useState<PostAttachment[]>([]);
+
+    // Poll state
+    const [pollEnabled, setPollEnabled] = useState(false);
+    const [pollOptions, setPollOptions] = useState(["", ""]);
 
     // @mention autocomplete
     const [mentionQuery, setMentionQuery] = useState<string | null>(null);
@@ -141,12 +145,19 @@ export default function Compose({ onPost }: Props) {
         const trimmed = content.trim();
         if (trimmed.length > MAX_CHARS) return alert(`Post exceeds ${MAX_CHARS} characters`);
 
+        let poll: { options: string[] } | null = null;
+        if (pollEnabled) {
+            const validOptions = pollOptions.map((o) => o.trim()).filter((o) => o.length > 0);
+            if (validOptions.length < 2) return alert("A poll needs at least 2 options");
+            poll = { options: validOptions };
+        }
+
         setIsPosting(true);
         try {
             const res = await fetch("/api/v1/posts", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ content: trimmed, attachments }),
+                body: JSON.stringify({ content: trimmed, attachments, ...(poll ? { poll } : {}) }),
             });
 
             const data = await res.json();
@@ -154,6 +165,8 @@ export default function Compose({ onPost }: Props) {
 
             setContent("");
             setAttachments([]);
+            setPollEnabled(false);
+            setPollOptions(["", ""]);
             onPost?.(data.result);
         } catch (err: any) {
             alert(err.message);
@@ -162,7 +175,9 @@ export default function Compose({ onPost }: Props) {
         }
     };
 
-    const isInvalid = (content.trim().length === 0 && attachments.length === 0) ||
+    const validPollOptions = pollOptions.map((o) => o.trim()).filter((o) => o.length > 0);
+    const isInvalid = (content.trim().length === 0 && attachments.length === 0 && !pollEnabled) ||
+        (pollEnabled && validPollOptions.length < 2) ||
         content.length > MAX_CHARS || isPosting || isUploading;
 
     return (
@@ -247,7 +262,73 @@ export default function Compose({ onPost }: Props) {
                         </div>
                     )}
 
+                    {/* Poll builder */}
+                    {pollEnabled && (
+                        <div className="mt-3 flex flex-col gap-2 rounded-xl border border-border p-3 bg-background/40">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-bold text-primary flex items-center gap-1.5">
+                                    <BarChart2 size={15} />
+                                    Poll Options
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => { setPollEnabled(false); setPollOptions(["", ""]); }}
+                                    className="text-muted-foreground hover:text-primary transition"
+                                >
+                                    <X size={15} />
+                                </button>
+                            </div>
+                            {pollOptions.map((opt, i) => (
+                                <div key={i} className="flex items-center gap-2">
+                                    <input
+                                        type="text"
+                                        value={opt}
+                                        onChange={(e) => {
+                                            const next = [...pollOptions];
+                                            next[i] = e.target.value;
+                                            setPollOptions(next);
+                                        }}
+                                        placeholder={`Option ${i + 1}`}
+                                        maxLength={80}
+                                        className="flex-1 bg-transparent border border-border rounded-lg px-3 py-1.5 text-sm text-primary placeholder:text-muted-foreground outline-none focus:border-primary transition"
+                                    />
+                                    {pollOptions.length > 2 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setPollOptions(pollOptions.filter((_, idx) => idx !== i))}
+                                            className="text-muted-foreground hover:text-primary transition shrink-0"
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                            {pollOptions.length < 4 && (
+                                <button
+                                    type="button"
+                                    onClick={() => setPollOptions([...pollOptions, ""])}
+                                    className="flex items-center gap-1.5 text-sm text-primary font-semibold hover:underline self-start"
+                                >
+                                    <Plus size={14} />
+                                    Add option
+                                </button>
+                            )}
+                        </div>
+                    )}
+
                     <div className="flex items-center justify-end pt-3 mt-2 gap-2">
+                        {!pollEnabled && (
+                            <button
+                                type="button"
+                                onClick={() => setPollEnabled(true)}
+                                className="px-3 py-2 rounded-full border border-border hover:bg-accent cursor-pointer text-sm font-semibold flex items-center gap-1.5"
+                                title="Add a poll"
+                            >
+                                <BarChart2 size={15} />
+                                Poll
+                            </button>
+                        )}
+
                         <label className="px-3 py-2 rounded-full border border-border hover:bg-accent cursor-pointer text-sm font-semibold">
                             {isUploading ? "Uploading..." : `Attach (${attachments.length}/${MAX_FILES})`}
                             <input
