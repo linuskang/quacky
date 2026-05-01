@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
+import Discord from "@/server/utilities/discord";
 
 const authorSelect = {
     id: true,
@@ -94,6 +95,19 @@ export async function DELETE(
     await prisma.post.update({
         where: { id },
         data: { isDeleted: true },
+    });
+
+    void new Discord().send({
+        embeds: [{
+            title: "Short Deleted",
+            color: 0xED4245,
+            author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+            fields: [
+                { name: "Short ID", value: id, inline: true },
+                { name: "By", value: isAdmin && short.authorId !== session.user.id ? "Admin" : "Author", inline: true },
+            ],
+            timestamp: new Date().toISOString(),
+        }],
     });
 
     return NextResponse.json({ success: true });

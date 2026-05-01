@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
+import Discord from "@/server/utilities/discord";
 
 export async function GET(
     request: NextRequest,
@@ -90,6 +91,16 @@ export async function POST(
         data: {
             isHidden: true,
         }
+    });
+
+    void new Discord().send({
+        embeds: [{
+            title: "Post Unlisted",
+            color: 0xE74C3C,
+            author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+            fields: [{ name: "Post ID", value: postId, inline: true }],
+            timestamp: new Date().toISOString(),
+        }],
     });
 
     return NextResponse.json(

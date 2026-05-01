@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
 import Config from "@/server/utilities/config";
+import Discord from "@/server/utilities/discord";
 
 export async function GET(request: NextRequest) {
     const session = await auth.api.getSession(request);
@@ -124,6 +125,24 @@ export async function PATCH(request: NextRequest) {
             }
         }
     );
+
+    void new Discord().send({
+        embeds: [{
+            title: "Profile Updated",
+            color: 0x3498DB,
+            author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+            fields: [
+                { name: "Name", value: name ?? "(unchanged)", inline: true },
+                { name: "Handle", value: handle ?? "(unchanged)", inline: true },
+                { name: "Bio", value: bio ? (bio.length > 80 ? bio.slice(0, 80) + "…" : bio) : "(cleared)", inline: false },
+                { name: "Website", value: website || "(none)", inline: true },
+                { name: "Location", value: location || "(none)", inline: true },
+                { name: "Pronouns", value: pronouns || "(none)", inline: true },
+                { name: "Private", value: String(privateAccount), inline: true },
+            ],
+            timestamp: new Date().toISOString(),
+        }],
+    });
 
     return NextResponse.json(
         { success: true, user: updatedUser },

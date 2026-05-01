@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
+import Discord from "@/server/utilities/discord";
 
 const authorSelect = {
     id: true,
@@ -108,6 +109,17 @@ export async function POST(request: NextRequest) {
                 ],
             },
             select: { id: true },
+        });
+
+        void new Discord().send({
+            embeds: [{
+                title: "Short Created",
+                description: content || undefined,
+                color: 0xE91E63,
+                author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+                fields: [{ name: "Short ID", value: short.id, inline: true }],
+                timestamp: new Date().toISOString(),
+            }],
         });
 
         return NextResponse.json({ success: true, short }, { status: 201 });

@@ -59,6 +59,7 @@ export type PostSearchResult = {
 
 export type PostEditor = {
     id: string;
+    type: string;
     content: string;
     attachmentsText: string;
     authorId: string;
@@ -73,6 +74,7 @@ export type PostEditor = {
     isDeleted: boolean;
     createdAt: string | Date;
     updatedAt: string | Date;
+    editedAt: string | Date | null;
     likeCount: number;
     replyCount: number;
 };

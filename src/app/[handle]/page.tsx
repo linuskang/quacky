@@ -23,6 +23,7 @@ import RightSidebar from "@/components/quacky/discover";
 import Sidebar from "@/components/quacky/sidebar";
 import Posts from "@/components/quacky/posts";
 import FollowButton from "@/components/quacky/follow-button";
+import { ReportAbuse } from "@/components/quacky/report";
 import Loading from "@/components/loading";
 import Login from "@/components/login";
 
@@ -60,6 +61,7 @@ export default function ProfilePage(
     const [posts, setPosts] = useState<Post[]>([]);
     const [followersOpen, setFollowersOpen] = useState(false);
     const [followingOpen, setFollowingOpen] = useState(false);
+    const [reportOpen, setReportOpen] = useState(false);
     const [followers, setFollowers] = useState<FollowUser[]>([]);
     const [following, setFollowing] = useState<FollowUser[]>([]);
 
@@ -118,6 +120,21 @@ export default function ProfilePage(
 
         if (res.ok && data?.success && data?.conversation?.id) {
             router.push(`/messages?c=${data.conversation.id}`);
+        }
+    }
+
+    async function reportUser(type: string, reason: string) {
+        const res = await fetch(`/api/v1/users/${handle}/report`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ type, reason }),
+        });
+
+        if (!res.ok) {
+            const data = await res.json().catch(() => null);
+            throw new Error(data?.error || "Failed to report user");
         }
     }
 
@@ -201,6 +218,13 @@ export default function ProfilePage(
                                                 onClick={() => void messageUser(user.id)}
                                             >
                                                 Message
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                className="rounded-lg font-bold cursor-pointer"
+                                                onClick={() => setReportOpen(true)}
+                                            >
+                                                Report
                                             </Button>
                                         </>
                                     )}
@@ -332,6 +356,18 @@ export default function ProfilePage(
                     </div>
                 </DialogContent>
             </Dialog>
+
+            <ReportAbuse
+                isOpen={reportOpen}
+                onClose={() => setReportOpen(false)}
+                onSubmit={reportUser}
+                title={`Report @${user.handle}`}
+                description={`Tell us why you're reporting @${user.handle}. This will be sent to the moderation team for review.`}
+                submitLabel="Send Report"
+                successTitle="Report sent"
+                successDescription="Thanks for the report. We'll review it as soon as possible."
+                defaultType="harassment"
+            />
 
             {/* Following dialog */}
             <Dialog open={followingOpen} onOpenChange={setFollowingOpen}>

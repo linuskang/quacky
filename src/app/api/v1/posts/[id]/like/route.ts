@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
+import Discord from "@/server/utilities/discord";
 
 // GET — check if current user has liked this post
 export async function GET(
@@ -42,6 +43,15 @@ export async function POST(
         await prisma.like.delete({
             where: { userId_postId: { userId, postId } },
         });
+        void new Discord().send({
+            embeds: [{
+                title: "Post Unliked",
+                color: 0x95A5A6,
+                author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+                fields: [{ name: "Post ID", value: postId, inline: true }],
+                timestamp: new Date().toISOString(),
+            }],
+        });
         return NextResponse.json({ success: true, liked: false }, { status: 200 });
     }
 
@@ -65,6 +75,16 @@ export async function POST(
             },
         });
     }
+
+    void new Discord().send({
+        embeds: [{
+            title: "Post Liked",
+            color: 0xE91E63,
+            author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+            fields: [{ name: "Post ID", value: postId, inline: true }],
+            timestamp: new Date().toISOString(),
+        }],
+    });
 
     return NextResponse.json({ success: true, liked: true }, { status: 200 });
 }

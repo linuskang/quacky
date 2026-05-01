@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
 import { linkHashtagsToPost } from "@/lib/hashtags";
+import Discord from "@/server/utilities/discord";
 
 // GET — fetch paginated comments (replies) for a short
 export async function GET(
@@ -120,6 +121,20 @@ export async function POST(
     });
 
     await linkHashtagsToPost(prisma, comment.id, content);
+
+    void new Discord().send({
+        embeds: [{
+            title: "Short Comment Posted",
+            description: content.length > 100 ? content.slice(0, 100) + "…" : content,
+            color: 0x5865F2,
+            author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+            fields: [
+                { name: "Comment ID", value: comment.id, inline: true },
+                { name: "Short ID", value: id, inline: true },
+            ],
+            timestamp: new Date().toISOString(),
+        }],
+    });
 
     if (short.authorId !== session.user.id) {
         await prisma.notification.create({

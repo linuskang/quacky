@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
 import { linkHashtagsToPost } from "@/lib/hashtags";
+import Discord from "@/server/utilities/discord";
 
 // POST /api/v1/posts/[id]/repost
 //   body: {}                          → toggle silent repost
@@ -55,6 +56,20 @@ export async function POST(
             });
         }
 
+        void new Discord().send({
+            embeds: [{
+                title: "Post Quoted",
+                description: content.length > 100 ? content.slice(0, 100) + "…" : content,
+                color: 0x9B59B6,
+                author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+                fields: [
+                    { name: "Quote ID", value: quote.id, inline: true },
+                    { name: "Original ID", value: parentId, inline: true },
+                ],
+                timestamp: new Date().toISOString(),
+            }],
+        });
+
         return NextResponse.json({ success: true, id: quote.id }, { status: 201 });
     }
 
@@ -66,6 +81,17 @@ export async function POST(
 
     if (existing) {
         await prisma.post.delete({ where: { id: existing.id } });
+
+        void new Discord().send({
+            embeds: [{
+                title: "Repost Undone",
+                color: 0x95A5A6,
+                author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+                fields: [{ name: "Original ID", value: parentId, inline: true }],
+                timestamp: new Date().toISOString(),
+            }],
+        });
+
         return NextResponse.json({ success: true, reposted: false }, { status: 200 });
     }
 
@@ -84,6 +110,16 @@ export async function POST(
             },
         });
     }
+
+    void new Discord().send({
+        embeds: [{
+            title: "Post Reposted",
+            color: 0x1ABC9C,
+            author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+            fields: [{ name: "Original ID", value: parentId, inline: true }],
+            timestamp: new Date().toISOString(),
+        }],
+    });
 
     return NextResponse.json({ success: true, reposted: true }, { status: 201 });
 }

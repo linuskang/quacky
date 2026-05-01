@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
+import Discord from "@/server/utilities/discord";
 
 // GET — check if post is bookmarked by current user
 export async function GET(
@@ -41,9 +42,27 @@ export async function POST(
 
     if (existing) {
         await prisma.bookmark.delete({ where: { postId_userId: { postId, userId } } });
+        void new Discord().send({
+            embeds: [{
+                title: "Bookmark Removed",
+                color: 0x95A5A6,
+                author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+                fields: [{ name: "Post ID", value: postId, inline: true }],
+                timestamp: new Date().toISOString(),
+            }],
+        });
         return NextResponse.json({ success: true, bookmarked: false }, { status: 200 });
     } else {
         await prisma.bookmark.create({ data: { postId, userId } });
+        void new Discord().send({
+            embeds: [{
+                title: "Post Bookmarked",
+                color: 0xF39C12,
+                author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+                fields: [{ name: "Post ID", value: postId, inline: true }],
+                timestamp: new Date().toISOString(),
+            }],
+        });
         return NextResponse.json({ success: true, bookmarked: true }, { status: 201 });
     }
 }

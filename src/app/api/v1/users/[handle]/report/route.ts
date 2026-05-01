@@ -43,7 +43,7 @@ export async function POST(
         );
     }
 
-    let body: { reason?: string };
+    let body: { type?: string; reason?: string };
 
     try {
         body = await request.json();
@@ -51,18 +51,23 @@ export async function POST(
         return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
     }
 
+    if (!body.type || body.type.trim().length === 0) {
+        return NextResponse.json({ error: "Type is required" }, { status: 400 });
+    }
+
     if (!body.reason || body.reason.trim().length === 0) {
         return NextResponse.json({ error: "Reason is required" }, { status: 400 });
     }
 
     const payload = {
-        content: `User @${user.handle} (${user.id}) has been reported by @${session.user.handle}.`,
+        content: `User Reported: @${user.handle}`,
         embeds: [
             {
-                title: "Report Details",
+                title: "User Reported",
                 fields: [
                     { name: "Reported User", value: `@${user.handle} (${user.id})`, inline: true },
                     { name: "Reporter", value: `@${session.user.handle} (${session.user.id})`, inline: true },
+                    { name: "Type", value: body.type },
                     { name: "Reason", value: body.reason },
                 ],
                 color: 0xff0000,

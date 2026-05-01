@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
 import { linkHashtagsToPost } from "@/lib/hashtags";
+import Discord from "@/server/utilities/discord";
 
 export async function POST(
     request: NextRequest,
@@ -41,6 +42,20 @@ export async function POST(
     });
 
     await linkHashtagsToPost(prisma, reply.id, content);
+
+    void new Discord().send({
+        embeds: [{
+            title: "Reply Created",
+            description: content.length > 100 ? content.slice(0, 100) + "…" : content,
+            color: 0x5865F2,
+            author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+            fields: [
+                { name: "Reply ID", value: reply.id, inline: true },
+                { name: "Parent ID", value: parentId, inline: true },
+            ],
+            timestamp: new Date().toISOString(),
+        }],
+    });
 
     // Notify parent post author (skip if replying to own post)
     if (parent.authorId !== session.user.id) {

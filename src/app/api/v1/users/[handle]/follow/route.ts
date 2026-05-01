@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
+import Discord from "@/server/utilities/discord";
 
 // GET — is the current user following this handle?
 export async function GET(
@@ -67,6 +68,16 @@ export async function POST(
                 },
             });
         }
+
+        void new Discord().send({
+            embeds: [{
+                title: "User Followed",
+                color: 0x2ECC71,
+                author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+                fields: [{ name: "Following", value: `@${handle}`, inline: true }],
+                timestamp: new Date().toISOString(),
+            }],
+        });
     }
 
     return NextResponse.json({ success: true, following: true }, { status: 200 });

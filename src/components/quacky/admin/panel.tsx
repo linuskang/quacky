@@ -5,7 +5,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Search } from "lucide-react";
+import { Search, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -36,6 +36,9 @@ type RawUser = Omit<UserEditor, "banExpires"> & {
     banExpires?: string | Date | null;
     recentPosts?: unknown;
     postCount?: number;
+    followers?: number;
+    following?: number;
+    sessions?: number;
 };
 
 type RawPost = Omit<PostEditor, "attachmentsText" | "authorHandle" | "authorName" | "authorImage" | "authorVerified" | "authorRole"> & {
@@ -44,6 +47,8 @@ type RawPost = Omit<PostEditor, "attachmentsText" | "authorHandle" | "authorName
     recentReplies?: unknown;
     likeCount?: number;
     replyCount?: number;
+    type?: string;
+    editedAt?: string | Date | null;
 };
 
 const normalizeUser = (u: RawUser): UserEditor => ({
@@ -54,6 +59,9 @@ const normalizeUser = (u: RawUser): UserEditor => ({
     banReason: u.banReason ?? "",
     banExpires: toDateTimeLocal(u.banExpires),
     postCount: u.postCount ?? 0,
+    followers: u.followers ?? 0,
+    following: u.following ?? 0,
+    sessions: u.sessions ?? 0,
 });
 
 const normalizePost = (p: RawPost): PostEditor => ({
@@ -68,6 +76,8 @@ const normalizePost = (p: RawPost): PostEditor => ({
     authorRole: p.author?.role ?? null,
     likeCount: p.likeCount ?? 0,
     replyCount: p.replyCount ?? 0,
+    type: p.type ?? "post",
+    editedAt: p.editedAt ?? null,
 });
 
 // ── Reusable bits ──────────────────────────────────────────────────────────────
@@ -90,6 +100,15 @@ function Field({ id, label, children }: { id: string; label: string; children: R
     );
 }
 
+function Stat({ label, value }: { label: string; value: number | string }) {
+    return (
+        <div className="flex flex-col items-center rounded-lg border border-border bg-background/60 px-3 py-2 text-center">
+            <span className="text-lg font-bold text-primary">{value}</span>
+            <span className="text-xs text-muted-foreground">{label}</span>
+        </div>
+    );
+}
+
 // ── Main component ─────────────────────────────────────────────────────────────
 
 export default function AdminPanel() {
@@ -100,16 +119,19 @@ export default function AdminPanel() {
     const [selectedUser, setSelectedUser] = useState<UserEditor | null>(null);
     const [userSearching, setUserSearching] = useState(false);
     const [userSaving, setUserSaving] = useState(false);
+    const [userError, setUserError] = useState<string | null>(null);
 
     const [postQuery, setPostQuery] = useState("");
     const [postResults, setPostResults] = useState<PostSearchResult[]>([]);
     const [selectedPost, setSelectedPost] = useState<PostEditor | null>(null);
     const [postSearching, setPostSearching] = useState(false);
     const [postSaving, setPostSaving] = useState(false);
+    const [postError, setPostError] = useState<string | null>(null);
 
     // ── User actions ───────────────────────────────────────────────────────────
 
     const loadUser = async (id: string) => {
+        setUserError(null);
         const { user } = await api<{ user: RawUser }>(`/api/v1/admin/users/${id}`);
         setSelectedUser(normalizeUser(user));
     };
@@ -117,6 +139,7 @@ export default function AdminPanel() {
     const searchUsers = async (q = userQuery) => {
         if (!q.trim()) return setUserResults([]);
         setUserSearching(true);
+        setUserError(null);
         try {
             const { users } = await api<{ users: UserSearchResult[] }>(`/api/v1/admin/users/search?q=${encodeURIComponent(q)}`);
             setUserResults(users ?? []);
@@ -129,6 +152,7 @@ export default function AdminPanel() {
     const saveUser = async (extra?: Record<string, unknown>) => {
         if (!selectedUser) return;
         setUserSaving(true);
+        setUserError(null);
         try {
             const { user } = await api<{ user: RawUser }>(`/api/v1/admin/users/${selectedUser.id}`, {
                 method: "PATCH",
@@ -145,13 +169,33 @@ export default function AdminPanel() {
                     privateAccount: selectedUser.privateAccount,
                     emailNotif: selectedUser.emailNotif,
                     banned: selectedUser.banned,
-                    banReason: selectedUser.banReason,
+                    banReason: selectedUser.banReason || null,
                     banExpires: selectedUser.banExpires || null,
                     ...extra,
                 }),
             });
             setSelectedUser(normalizeUser(user));
             if (userQuery.trim()) await searchUsers(userQuery);
+        } catch (err: any) {
+            setUserError(err.message);
+        } finally {
+            setUserSaving(false);
+        }
+    };
+
+    const quickUserAction = async (action: string) => {
+        if (!selectedUser) return;
+        setUserError(null);
+        setUserSaving(true);
+        try {
+            const { user } = await api<{ user: RawUser }>(`/api/v1/admin/users/${selectedUser.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action }),
+            });
+            setSelectedUser(normalizeUser(user));
+        } catch (err: any) {
+            setUserError(err.message);
         } finally {
             setUserSaving(false);
         }
@@ -160,6 +204,7 @@ export default function AdminPanel() {
     // ── Post actions ───────────────────────────────────────────────────────────
 
     const loadPost = async (id: string) => {
+        setPostError(null);
         const { post } = await api<{ post: RawPost }>(`/api/v1/admin/posts/${id}`);
         setSelectedPost(normalizePost(post));
     };
@@ -167,6 +212,7 @@ export default function AdminPanel() {
     const searchPosts = async (q = postQuery) => {
         if (!q.trim()) return setPostResults([]);
         setPostSearching(true);
+        setPostError(null);
         try {
             const { posts } = await api<{ posts: PostSearchResult[] }>(`/api/v1/admin/posts/search?q=${encodeURIComponent(q)}`);
             setPostResults(posts ?? []);
@@ -179,6 +225,7 @@ export default function AdminPanel() {
     const savePost = async (extra?: Record<string, unknown>) => {
         if (!selectedPost) return;
         setPostSaving(true);
+        setPostError(null);
         try {
             const { post } = await api<{ post: RawPost }>(`/api/v1/admin/posts/${selectedPost.id}`, {
                 method: "PATCH",
@@ -196,6 +243,8 @@ export default function AdminPanel() {
             });
             setSelectedPost(normalizePost(post));
             if (postQuery.trim()) await searchPosts(postQuery);
+        } catch (err: any) {
+            setPostError(err.message);
         } finally {
             setPostSaving(false);
         }
@@ -225,7 +274,7 @@ export default function AdminPanel() {
                 {tab === "users" ? (
                     <section className="grid gap-4">
 
-                        {/* Search sidebar */}
+                        {/* Search */}
                         <aside className="space-y-6 border border-border bg-card p-5 shadow-sm">
                             <div>
                                 <h2 className="text-xl font-bold text-foreground">Find a user</h2>
@@ -243,16 +292,21 @@ export default function AdminPanel() {
                                 {userResults.map((user) => (
                                     <button key={user.id} type="button" onClick={() => loadUser(user.id)}
                                         className="flex w-full cursor-pointer gap-3 rounded-lg border border-border bg-background/60 p-3 text-left transition-colors hover:bg-accent">
-                                        <div className="min-w-0 flex-1 space-y-1">
-                                            <Avatar className="h-12 w-12 shrink-0">
-                                                <AvatarImage src={user.image || ""} />
-                                                <AvatarFallback className="bg-primary/10 font-bold text-primary">
-                                                    {user.handle[0].toUpperCase()}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <p className="truncate text-sm text-foreground">{user.name}</p>
+                                        <Avatar className="h-12 w-12 shrink-0">
+                                            <AvatarImage src={user.image || ""} />
+                                            <AvatarFallback className="bg-primary/10 font-bold text-primary">
+                                                {user.handle[0].toUpperCase()}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div className="min-w-0 flex-1 space-y-0.5">
+                                            <p className="truncate text-sm font-semibold text-foreground">{user.name}</p>
                                             <p className="truncate text-sm text-muted-foreground">@{user.handle}</p>
                                             <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                                            <div className="flex gap-2 pt-0.5">
+                                                {user.role && <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">{user.role}</span>}
+                                                {user.banned && <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">Banned</span>}
+                                                {user.verified && <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-semibold text-blue-600">Verified</span>}
+                                            </div>
                                         </div>
                                     </button>
                                 ))}
@@ -262,6 +316,8 @@ export default function AdminPanel() {
                         {/* User editor */}
                         {selectedUser && (
                             <form className="rounded-xl border border-border bg-card p-4 shadow-sm" onSubmit={onSubmit(saveUser)}>
+
+                                {/* Header card */}
                                 <div className="mb-4 flex items-start gap-4 rounded-lg border border-border bg-background/60 p-4">
                                     <Avatar className="h-14 w-14 shrink-0">
                                         <AvatarImage src={selectedUser.image || ""} />
@@ -272,14 +328,49 @@ export default function AdminPanel() {
                                     <div className="min-w-0 flex-1">
                                         <h3 className="text-2xl font-black tracking-tight">{selectedUser.name}</h3>
                                         <p className="mt-1 text-sm font-medium text-muted-foreground">@{selectedUser.handle}</p>
-                                        <p className="mt-2 text-xs text-muted-foreground">ID: <span className="font-mono">{selectedUser.id}</span></p>
+                                        <p className="mt-1 text-xs text-muted-foreground">ID: <span className="font-mono">{selectedUser.id}</span></p>
+                                        <p className="text-xs text-muted-foreground">{selectedUser.email}</p>
                                     </div>
                                 </div>
 
-                                <Button type="submit" disabled={userSaving} className="mb-4">
-                                    {userSaving ? "Saving..." : "Save Changes"}
-                                </Button>
+                                {/* Stats */}
+                                <div className="mb-4 grid grid-cols-4 gap-2">
+                                    <Stat label="Followers" value={selectedUser.followers ?? 0} />
+                                    <Stat label="Following" value={selectedUser.following ?? 0} />
+                                    <Stat label="Posts" value={selectedUser.postCount ?? 0} />
+                                    <Stat label="Sessions" value={selectedUser.sessions ?? 0} />
+                                </div>
 
+                                {/* Error */}
+                                {userError && (
+                                    <p className="mb-3 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{userError}</p>
+                                )}
+
+                                <div className="mb-4 flex flex-wrap gap-2">
+                                    <Button type="submit" disabled={userSaving}>
+                                        {userSaving ? "Saving..." : "Save Changes"}
+                                    </Button>
+                                    <Button type="button" variant="outline" disabled={userSaving} onClick={() => quickUserAction("resetName")}>
+                                        Reset Name
+                                    </Button>
+                                    <Button type="button" variant="outline" disabled={userSaving} onClick={() => quickUserAction("resetHandle")}>
+                                        Reset Handle
+                                    </Button>
+                                    <Button type="button" variant="outline" disabled={userSaving} onClick={() => quickUserAction("clearBio")}>
+                                        Clear Bio
+                                    </Button>
+                                    {selectedUser.banned ? (
+                                        <Button type="button" variant="outline" disabled={userSaving} className="border-green-500 text-green-600 hover:bg-green-50" onClick={() => quickUserAction("unban")}>
+                                            Unban
+                                        </Button>
+                                    ) : (
+                                        <Button type="button" variant="outline" disabled={userSaving} className="border-red-500 text-red-600 hover:bg-red-50" onClick={() => quickUserAction("ban")}>
+                                            Ban
+                                        </Button>
+                                    )}
+                                </div>
+
+                                {/* Fields */}
                                 <div className="grid gap-4 md:grid-cols-2">
                                     {(["name", "handle", "email", "image", "role"] as const).map((key) => (
                                         <Field key={key} id={`user-${key}`} label={key[0].toUpperCase() + key.slice(1)}>
@@ -292,6 +383,17 @@ export default function AdminPanel() {
                                         <Textarea id="user-bio" value={selectedUser.bio ?? ""}
                                             onChange={(e) => setSelectedUser({ ...selectedUser, bio: e.target.value })}
                                             className="min-h-28 resize-none bg-background" />
+                                    </Field>
+                                    <Field id="user-banReason" label="Ban Reason">
+                                        <Input id="user-banReason" value={selectedUser.banReason ?? ""}
+                                            onChange={(e) => setSelectedUser({ ...selectedUser, banReason: e.target.value })}
+                                            placeholder="Reason for ban..."
+                                            className="bg-background" />
+                                    </Field>
+                                    <Field id="user-banExpires" label="Ban Expires">
+                                        <Input id="user-banExpires" type="datetime-local" value={selectedUser.banExpires ?? ""}
+                                            onChange={(e) => setSelectedUser({ ...selectedUser, banExpires: e.target.value })}
+                                            className="bg-background" />
                                     </Field>
                                 </div>
 
@@ -316,7 +418,7 @@ export default function AdminPanel() {
                         <aside className="space-y-6 border border-border bg-card p-5 shadow-sm">
                             <div>
                                 <h2 className="text-xl font-bold text-foreground">Find a post</h2>
-                                <p className="mt-1 text-sm text-muted-foreground">Search by content, author, or post id.</p>
+                                <p className="mt-1 text-sm text-muted-foreground">Search by content, author, or post ID.</p>
                             </div>
                             <form className="flex gap-2" onSubmit={onSubmit(() => searchPosts())}>
                                 <Input value={postQuery} onChange={(e) => setPostQuery(e.target.value)}
@@ -338,9 +440,13 @@ export default function AdminPanel() {
                                                         {post.author.handle[0].toUpperCase()}
                                                     </AvatarFallback>
                                                 </Avatar>
-                                                <p>@{post.author.handle}</p>
+                                                <p className="text-sm font-medium">@{post.author.handle}</p>
+                                                {post.isHidden && <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">Hidden</span>}
+                                                {post.isDeleted && <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">Deleted</span>}
+                                                {post.pinned && <span className="rounded bg-yellow-100 px-1.5 py-0.5 text-[10px] font-semibold text-yellow-700">Pinned</span>}
+                                                {post.readOnly && <span className="rounded bg-orange-100 px-1.5 py-0.5 text-[10px] font-semibold text-orange-600">Locked</span>}
                                             </div>
-                                            <p className="line-clamp-2 text-sm text-muted-foreground">{post.content}</p>
+                                            <p className="line-clamp-2 text-sm text-muted-foreground">{post.content || "(no content)"}</p>
                                             <p className="text-xs text-muted-foreground">
                                                 {formatTimestamp(post.createdAt)} · {post._count.likes} likes · {post._count.replies} replies
                                             </p>
@@ -353,6 +459,49 @@ export default function AdminPanel() {
                         {/* Post editor */}
                         {selectedPost && (
                             <form className="rounded-xl border border-border bg-card p-4 shadow-sm" onSubmit={onSubmit(savePost)}>
+
+                                {/* Post header */}
+                                <div className="mb-4 rounded-lg border border-border bg-background/60 p-4 space-y-2">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2 min-w-0">
+                                            <Avatar className="h-8 w-8 shrink-0">
+                                                <AvatarImage src={selectedPost.authorImage || ""} />
+                                                <AvatarFallback className="bg-primary/10 font-bold text-primary text-xs">
+                                                    {selectedPost.authorHandle[0]?.toUpperCase()}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-semibold text-foreground truncate">{selectedPost.authorName}</p>
+                                                <p className="text-xs text-muted-foreground truncate">@{selectedPost.authorHandle}</p>
+                                            </div>
+                                        </div>
+                                        <a
+                                            href={`/post/${selectedPost.id}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="shrink-0 flex items-center gap-1 text-xs text-primary hover:underline"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            View <ExternalLink size={11} />
+                                        </a>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                                        <span className="font-mono rounded bg-muted px-1.5 py-0.5">{selectedPost.id}</span>
+                                        <span className="rounded bg-primary/10 px-1.5 py-0.5 text-primary font-semibold capitalize">{(selectedPost as any).type ?? "post"}</span>
+                                    </div>
+                                </div>
+
+                                {/* Stats */}
+                                <div className="mb-4 grid grid-cols-2 gap-2">
+                                    <Stat label="Likes" value={selectedPost.likeCount} />
+                                    <Stat label="Replies" value={selectedPost.replyCount} />
+                                </div>
+
+                                {/* Error */}
+                                {postError && (
+                                    <p className="mb-3 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{postError}</p>
+                                )}
+
                                 <Button type="submit" disabled={postSaving} className="mb-4">
                                     {postSaving ? "Saving..." : "Save"}
                                 </Button>
@@ -388,6 +537,9 @@ export default function AdminPanel() {
                                 <div className="mt-4 space-y-1 text-sm text-muted-foreground">
                                     <p>Updated: {formatTimestamp(selectedPost.updatedAt)}</p>
                                     <p>Created: {formatTimestamp(selectedPost.createdAt)}</p>
+                                    {(selectedPost as any).editedAt && (
+                                        <p>Edited: {formatTimestamp((selectedPost as any).editedAt)}</p>
+                                    )}
                                 </div>
                             </form>
                         )}

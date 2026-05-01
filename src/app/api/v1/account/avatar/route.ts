@@ -7,6 +7,7 @@ import prisma from "@/server/db";
 import { auth } from "@/server/auth";
 import { uploadFile } from "@/server/utilities/storage";
 import { env } from "@/env";
+import Discord from "@/server/utilities/discord";
 
 export async function POST(request: NextRequest) {
     const session = await auth.api.getSession(request);
@@ -60,6 +61,17 @@ export async function POST(request: NextRequest) {
             handle: true,
             image: true,
         }
+    });
+
+    void new Discord().send({
+        embeds: [{
+            title: "Avatar Updated",
+            color: 0x3498DB,
+            author: { name: `${session.user.name} (@${updatedUser.handle})`, icon_url: avatarUrl },
+            thumbnail: { url: avatarUrl },
+            fields: [{ name: "User ID", value: session.user.id, inline: true }],
+            timestamp: new Date().toISOString(),
+        }],
     });
 
     return NextResponse.json(

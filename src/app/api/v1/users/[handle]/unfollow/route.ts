@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
+import Discord from "@/server/utilities/discord";
 
 export async function GET(
     request: NextRequest,
@@ -97,6 +98,16 @@ export async function POST(
                     followingId: target.id,
                 }
             }
+        });
+
+        void new Discord().send({
+            embeds: [{
+                title: "User Unfollowed",
+                color: 0xE67E22,
+                author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+                fields: [{ name: "Unfollowed", value: `@${params.handle}`, inline: true }],
+                timestamp: new Date().toISOString(),
+            }],
         });
     }
 

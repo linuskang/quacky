@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
+import Discord from "@/server/utilities/discord";
 
 // GET — fetch the current user's received warm fuzzies (anonymised — no sender info)
 export async function GET(request: NextRequest) {
@@ -72,6 +73,20 @@ export async function POST(request: NextRequest) {
             recipientId: recipient.id,
             message,
         },
+    });
+
+    void new Discord().send({
+        embeds: [{
+            title: "Warm Fuzzy Sent",
+            description: message.length > 100 ? message.slice(0, 100) + "…" : message,
+            color: 0xFEE75C,
+            author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+            fields: [
+                { name: "Fuzzy ID", value: fuzzy.id, inline: true },
+                { name: "To", value: `@${recipientHandle}`, inline: true },
+            ],
+            timestamp: new Date().toISOString(),
+        }],
     });
 
     // Notify the recipient — actor is "quacky" (system) to preserve anonymity

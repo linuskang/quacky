@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
 import { syncHashtagsForPost } from "@/lib/hashtags";
+import Discord from "@/server/utilities/discord";
 
 const authorSelect = {
     id: true,
@@ -256,6 +257,17 @@ export async function PATCH(
     });
 
     await syncHashtagsForPost(prisma, id, content);
+
+    void new Discord().send({
+        embeds: [{
+            title: "Post Edited",
+            description: content ? (content.length > 100 ? content.slice(0, 100) + "…" : content) : undefined,
+            color: 0xFEE75C,
+            author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+            fields: [{ name: "Post ID", value: id, inline: true }],
+            timestamp: new Date().toISOString(),
+        }],
+    });
 
     return NextResponse.json({ success: true, post: updatedPost }, { status: 200 });
 }

@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
+import Discord from "@/server/utilities/discord";
 
 export async function POST(
     request: NextRequest,
@@ -50,6 +51,19 @@ export async function POST(
         });
 
         const counts = poll.options.map((_, i) => votes.filter((v) => v.optionIndex === i).length);
+
+        void new Discord().send({
+            embeds: [{
+                title: "Poll Vote Cast",
+                color: 0x9B59B6,
+                author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+                fields: [
+                    { name: "Post ID", value: id, inline: true },
+                    { name: "Option", value: `#${optionIndex + 1}: ${poll.options[optionIndex]}`, inline: true },
+                ],
+                timestamp: new Date().toISOString(),
+            }],
+        });
 
         return NextResponse.json({ success: true, pollVoteCounts: counts, userVote: optionIndex });
     } catch (err: any) {

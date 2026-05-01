@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
+import Discord from "@/server/utilities/discord";
 
 export async function POST(
     request: NextRequest,
@@ -46,6 +47,19 @@ export async function POST(
     await prisma.post.update({
         where: { id: postId },
         data: { isDeleted: true }
+    });
+
+    void new Discord().send({
+        embeds: [{
+            title: "Post Deleted",
+            color: 0xED4245,
+            author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+            fields: [
+                { name: "Post ID", value: postId, inline: true },
+                { name: "By", value: isAdmin && !isAuthor ? "Admin" : "Author", inline: true },
+            ],
+            timestamp: new Date().toISOString(),
+        }],
     });
 
     return NextResponse.json(

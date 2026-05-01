@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
+import Discord from "@/server/utilities/discord";
 
 export async function POST(
     request: NextRequest,
@@ -42,6 +43,16 @@ export async function POST(
     await prisma.post.update({
         where: { id },
         data: { pinned: false },
+    });
+
+    void new Discord().send({
+        embeds: [{
+            title: "Post Unpinned",
+            color: 0x95A5A6,
+            author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+            fields: [{ name: "Post ID", value: id, inline: true }],
+            timestamp: new Date().toISOString(),
+        }],
     });
 
     return NextResponse.json(

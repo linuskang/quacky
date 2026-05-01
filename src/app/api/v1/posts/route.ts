@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
 import { linkHashtagsToPost } from "@/lib/hashtags";
+import Discord from "@/server/utilities/discord";
 
 const authorSelect = {
     id: true,
@@ -207,6 +208,17 @@ export async function POST(request: NextRequest) {
         });
 
         await linkHashtagsToPost(prisma, result.id, content);
+
+        void new Discord().send({
+            embeds: [{
+                title: "Post Created",
+                description: content ? (content.length > 100 ? content.slice(0, 100) + "…" : content) : undefined,
+                color: 0x57F287,
+                author: { name: `${session.user.name} (@${(session.user as any).handle})`, icon_url: session.user.image ?? undefined },
+                fields: [{ name: "Post ID", value: result.id, inline: true }],
+                timestamp: new Date().toISOString(),
+            }],
+        });
 
         return NextResponse.json({ result }, { status: 201 });
     } catch (err: any) {
