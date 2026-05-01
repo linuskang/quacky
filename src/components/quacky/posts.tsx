@@ -7,12 +7,14 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/client/auth";
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import {
     BadgeCheck, MoreHorizontal, Pin, Lock, Heart, Repeat2,
-    Share2, Copy, MessagesSquare, EyeOff, Eye, Quote as QuoteIcon,
-    MessageSquareQuote, Bookmark, BarChart2, CheckCircle2
+    Share2, Copy, MessagesSquare, EyeOff, Quote as QuoteIcon,
+    Bookmark, BarChart2, CheckCircle2, PencilLine
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
@@ -53,6 +55,7 @@ interface UserCardData {
 
 /** @username mention with a Twitter-style hover user card. */
 function MentionLink({ handle }: { handle: string }) {
+    const router = useRouter();
     const [userData, setUserData] = useState<UserCardData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const hasFetched = useRef(false);
@@ -72,14 +75,18 @@ function MentionLink({ handle }: { handle: string }) {
     return (
         <HoverCard openDelay={300} closeDelay={150}>
             <HoverCardTrigger asChild>
-                <Link
-                    href={`/${handle}`}
-                    onClick={(e) => e.stopPropagation()}
+                <button
+                    type="button"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/${handle}`);
+                    }}
                     onMouseEnter={fetchUser}
+                    onPointerEnter={fetchUser}
                     className="text-primary font-semibold hover:underline"
                 >
                     @{handle}
-                </Link>
+                </button>
             </HoverCardTrigger>
             <HoverCardContent
                 className="w-72 p-4"
@@ -148,44 +155,141 @@ function MentionLink({ handle }: { handle: string }) {
     );
 }
 
-/** Render text with #hashtags, @mentions, and URLs as interactive elements. */
-function RichContent({ text, className }: { text: string; className?: string }) {
+type MarkdownNode = {
+    type: string;
+    value?: string;
+    url?: string;
+    children?: MarkdownNode[];
+    [key: string]: any;
+};
+
+function splitMarkdownText(text: string): MarkdownNode[] {
     const parts = text.split(/(#[\w]+|@[\w]+|https?:\/\/[^\s]+)/g);
+
+    const nodes: MarkdownNode[] = [];
+
+    for (const part of parts) {
+        if (!part) continue;
+        if (part.startsWith("#")) {
+            nodes.push({
+                type: "link",
+                url: `/hashtag/${part.slice(1).toLowerCase()}`,
+                children: [{ type: "text", value: part }],
+            });
+            continue;
+        }
+        if (part.startsWith("@")) {
+            nodes.push({
+                type: "link",
+                url: `/${part.slice(1)}?mention=1`,
+                children: [{ type: "text", value: part }],
+            });
+            continue;
+        }
+        if (part.match(/^https?:\/\/[^\s]+/)) {
+            nodes.push({
+                type: "link",
+                url: part,
+                children: [{ type: "text", value: part }],
+            });
+            continue;
+        }
+
+        nodes.push({ type: "text", value: part });
+    }
+
+    return nodes;
+}
+
+function remarkPostLinks() {
+    return (tree: MarkdownNode) => {
+        const walk = (node: MarkdownNode) => {
+            if (!node.children) return;
+
+            if (node.type === "link" || node.type === "linkReference" || node.type === "inlineCode" || node.type === "code" || node.type === "html" || node.type === "image" || node.type === "imageReference") {
+                return;
+            }
+
+            const nextChildren: MarkdownNode[] = [];
+
+            for (const child of node.children) {
+                if (child.type === "text" && typeof child.value === "string") {
+                    nextChildren.push(...splitMarkdownText(child.value));
+                    continue;
+                }
+
+                walk(child);
+                nextChildren.push(child);
+            }
+
+            node.children = nextChildren;
+        };
+
+        walk(tree);
+    };
+}
+
+/** Render markdown while preserving #hashtags, @mentions, and URLs as interactive elements. */
+function RichContent({ text, className }: { text: string; className?: string }) {
     return (
-        <span className={className}>
-            {parts.map((part, i) => {
-                if (part.startsWith("#")) {
-                    return (
-                        <Link
-                            key={i}
-                            href={`/hashtag/${part.slice(1).toLowerCase()}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="text-primary font-semibold hover:underline"
-                        >
-                            {part}
-                        </Link>
-                    );
-                }
-                if (part.startsWith("@")) {
-                    return <MentionLink key={i} handle={part.slice(1)} />;
-                }
-                if (part.match(/^https?:\/\/[^\s]+/)) {
-                    return (
-                        <a
-                            key={i}
-                            href={part}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="text-primary font-semibold hover:underline"
-                        >
-                            {part}
-                        </a>
-                    );
-                }
-                return <span key={i}>{part}</span>;
-            })}
-        </span>
+        <div className={className}>
+            <ReactMarkdown
+                remarkPlugins={[remarkGfm, remarkPostLinks]}
+                components={{
+                    h1: ({ node, ...props }) => <h1 className="mt-3 mb-2 text-2xl font-extrabold tracking-tight text-primary" {...props} />,
+                    h2: ({ node, ...props }) => <h2 className="mt-3 mb-2 text-xl font-bold tracking-tight text-primary" {...props} />,
+                    h3: ({ node, ...props }) => <h3 className="mt-2 mb-1 text-lg font-semibold tracking-tight text-primary" {...props} />,
+                    h4: ({ node, ...props }) => <h4 className="mt-2 mb-1 text-base font-semibold text-primary" {...props} />,
+                    p: ({ node, ...props }) => <p className="my-0 leading-relaxed" {...props} />,
+                    a: ({ node, href, children, ...props }: any) => {
+                        if (typeof href === "string" && href.includes("?mention=1")) {
+                            return <MentionLink handle={href.split("?")[0].replace(/^\//, "")} />;
+                        }
+                        if (typeof href === "string" && href.startsWith("/hashtag/")) {
+                            const tag = href.slice("/hashtag/".length);
+                            return (
+                                <Link
+                                    href={`/hashtag/${tag}`}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="text-primary font-semibold hover:underline"
+                                >
+                                    {children}
+                                </Link>
+                            );
+                        }
+                        return (
+                            <a
+                                href={href}
+                                onClick={(e) => e.stopPropagation()}
+                                target={typeof href === "string" && href.startsWith("http") ? "_blank" : undefined}
+                                rel={typeof href === "string" && href.startsWith("http") ? "noopener noreferrer" : undefined}
+                                className="text-primary font-semibold hover:underline"
+                                {...props}
+                            >
+                                {children}
+                            </a>
+                        );
+                    },
+                    ul: ({ node, ...props }) => <ul className="list-disc list-inside space-y-1 my-2" {...props} />,
+                    ol: ({ node, ...props }) => <ol className="list-decimal list-inside space-y-1 my-2" {...props} />,
+                    li: ({ node, ...props }) => <li className="leading-relaxed" {...props} />,
+                    strong: ({ node, ...props }) => <strong className="font-semibold text-primary" {...props} />,
+                    em: ({ node, ...props }) => <em className="italic text-primary/90" {...props} />,
+                    blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-primary/70 pl-3 italic text-muted-foreground my-2" {...props} />,
+                    code: ({ node, className, ...props }: any) => (
+                        className ? (
+                            <code className="block rounded-lg bg-background/60 p-3 overflow-x-auto text-sm font-mono my-2 whitespace-pre" {...props} />
+                        ) : (
+                            <code className="rounded bg-background/60 px-1.5 py-0.5 text-sm font-mono" {...props} />
+                        )
+                    ),
+                    pre: ({ node, ...props }) => <pre className="my-2 overflow-x-auto rounded-lg bg-background/60" {...props} />,
+                    hr: ({ node, ...props }) => <hr className="my-3 border-border" {...props} />,
+                }}
+            >
+                {text}
+            </ReactMarkdown>
+        </div>
     );
 }
 
@@ -254,7 +358,14 @@ function EmbeddedPost({ post }: { post: Post }) {
                     <BadgeCheck className="text-primary shrink-0" size={13} fill="currentColor" stroke="var(--lynt)" />
                 )}
                 <span className="text-muted-foreground text-xs font-medium truncate">@{post.author.handle}</span>
-                <span className="text-muted-foreground text-xs ml-auto shrink-0">{formatTimestamp(post.createdAt)}</span>
+                <span className="text-muted-foreground text-xs ml-auto shrink-0 flex items-center gap-1">
+                    <span>{formatTimestamp(post.createdAt)}</span>
+                    {post.editedAt && (
+                        <span className="rounded-full border border-border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide">
+                            Edited
+                        </span>
+                    )}
+                </span>
             </div>
 
             {/* Content */}
@@ -405,9 +516,10 @@ function PollBlock({
 interface Props {
     posts: Post[];
     showActions?: boolean;
+    onChanged?: () => void;
 }
 
-export default function Posts({ posts, showActions = true }: Props) {
+export default function Posts({ posts, showActions = true, onChanged }: Props) {
     const router = useRouter();
     const { data: session } = authClient.useSession();
 
@@ -433,7 +545,7 @@ export default function Posts({ posts, showActions = true }: Props) {
     return (
         <div className="w-full flex flex-col gap-4">
             {sort(posts).map((post) => (
-                <PostCard key={post.id} post={post} session={session} router={router} showActions={showActions} />
+                <PostCard key={post.id} post={post} session={session} router={router} showActions={showActions} onChanged={onChanged} />
             ))}
         </div>
     );
@@ -446,15 +558,20 @@ export function PostCard({
     session,
     router,
     showActions = true,
+    onChanged,
 }: {
     post: Post;
     session: any;
     router: any;
     showActions?: boolean;
+    onChanged?: () => void;
 }) {
     const [isReportOpen, setIsReportOpen] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
     const [isQuoteOpen, setIsQuoteOpen] = useState(false);
+    const [editContent, setEditContent] = useState("");
     const [quoteContent, setQuoteContent] = useState("");
+    const [isSavingEdit, setIsSavingEdit] = useState(false);
     const [isQuoting, setIsQuoting] = useState(false);
 
     const [isPinned, setIsPinned] = useState(post.pinned);
@@ -470,6 +587,15 @@ export function PostCard({
     // The post whose content/author we display
     const displayPost = isRepost ? (post.parent ?? null) : post;
 
+    const [currentContent, setCurrentContent] = useState(displayPost?.content ?? "");
+    const [currentEditedAt, setCurrentEditedAt] = useState<string | Date | null>(displayPost?.editedAt ?? null);
+
+    useEffect(() => {
+        if (!displayPost) return;
+        setCurrentContent(displayPost.content ?? "");
+        setCurrentEditedAt(displayPost.editedAt ?? null);
+    }, [displayPost?.id, displayPost?.content, displayPost?.editedAt]);
+
     const [hasLiked, setHasLiked] = useState(
         post.hasLiked ?? post.likes?.some((l) => l.userId === session?.user?.id) ?? false
     );
@@ -480,6 +606,9 @@ export function PostCard({
 
     const replyCount = post.replyCount ?? post.children?.filter((c) => c.type === "reply").length ?? 0;
     const viewCount = (displayPost as any)?.viewCount ?? post.viewCount ?? 0;
+    const renderPost = displayPost ? { ...displayPost, content: currentContent, editedAt: currentEditedAt } : null;
+    const canManagePost = !!session && (session.user?.role === "Admin" || session.user?.id === post.author.id);
+    const canEditPost = !!renderPost && canManagePost && post.type !== "repost";
 
     if (isDeleted) return null;
 
@@ -541,7 +670,52 @@ export function PostCard({
         });
     }
 
-    async function moderate(action: "pin" | "unpin" | "list" | "unlist" | "readonly" | "unreadonly" | "delete") {
+    async function saveEdit() {
+        if (!renderPost || isSavingEdit) return;
+
+        const nextContent = editContent.trim();
+        if (!nextContent && !renderPost.attachments?.length && !renderPost.poll) return;
+
+        setIsSavingEdit(true);
+        try {
+            const res = await fetch(`/api/v1/posts/${post.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content: nextContent }),
+            });
+
+            if (!res.ok) return;
+
+            const data = await res.json().catch(() => null);
+            setCurrentContent(nextContent);
+            setCurrentEditedAt(data?.post?.editedAt ?? new Date().toISOString());
+            setIsEditOpen(false);
+            onChanged?.();
+        } finally {
+            setIsSavingEdit(false);
+        }
+    }
+
+    async function deletePost() {
+        if (!canManagePost || isModerating) return;
+
+        setIsModerating(true);
+        try {
+            const res = await fetch(`/api/v1/posts/${post.id}/delete`, { method: "POST" });
+            if (!res.ok) return;
+
+            setIsDeleted(true);
+            onChanged?.();
+
+            if (typeof window !== "undefined" && window.location.pathname.startsWith("/post/")) {
+                window.location.reload();
+            }
+        } finally {
+            setIsModerating(false);
+        }
+    }
+
+    async function moderate(action: "pin" | "unpin" | "list" | "unlist" | "readonly" | "unreadonly") {
         if (!session || session.user?.role !== "Admin" || isModerating) return;
         setIsModerating(true);
         try {
@@ -553,7 +727,6 @@ export function PostCard({
             if (action === "unlist") setIsHidden(true);
             if (action === "readonly") setIsReadOnly(true);
             if (action === "unreadonly") setIsReadOnly(false);
-            if (action === "delete") setIsDeleted(true);
         } finally {
             setIsModerating(false);
         }
@@ -630,8 +803,13 @@ export function PostCard({
                                 @{displayPost.author.handle}
                             </span>
 
-                            <span className="text-muted-foreground text-sm shrink-0">
-                                · {formatTimestamp(displayPost.createdAt)}
+                            <span className="text-muted-foreground text-sm shrink-0 flex items-center gap-1">
+                                <span>· {formatTimestamp(renderPost?.createdAt ?? displayPost.createdAt)}</span>
+                                {renderPost?.editedAt && (
+                                    <span>
+                                        · Edited
+                                    </span>
+                                )}
                             </span>
                         </div>
 
@@ -652,8 +830,27 @@ export function PostCard({
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuItem className="cursor-pointer" onClick={() => setIsReportOpen(true)}>
-                                        Report
+                                        Report Post
                                     </DropdownMenuItem>
+                                    {canEditPost && (
+                                        <>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem
+                                                className="cursor-pointer gap-2"
+                                                onClick={() => {
+                                                    setEditContent(currentContent);
+                                                    setIsEditOpen(true);
+                                                }}
+                                            >
+                                                Edit Post
+                                            </DropdownMenuItem>
+                                        </>
+                                    )}
+                                    {canManagePost && (
+                                        <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600 gap-2" onClick={deletePost} disabled={isModerating}>
+                                            Delete Post
+                                        </DropdownMenuItem>
+                                    )}
                                     {session?.user?.role === "Admin" && (
                                         <>
                                             <DropdownMenuSeparator />
@@ -665,9 +862,6 @@ export function PostCard({
                                             </DropdownMenuItem>
                                             <DropdownMenuItem className="cursor-pointer" onClick={() => moderate(isReadOnly ? "unreadonly" : "readonly")} disabled={isModerating}>
                                                 {isReadOnly ? "Unlock Replies" : "Lock Replies"}
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600" onClick={() => moderate("delete")} disabled={isModerating}>
-                                                Delete Post
                                             </DropdownMenuItem>
                                         </>
                                     )}
@@ -705,26 +899,26 @@ export function PostCard({
                     )}
 
                     {/* Content */}
-                    {displayPost.content && (
+                    {renderPost?.content && (
                         <div
                             onClick={navigateToPost}
                             className="cursor-pointer rounded-md p-1 -mx-1 hover:bg-white/5 transition"
                         >
-                            <RichContent text={displayPost.content} className="whitespace-pre-wrap leading-relaxed" />
+                            <RichContent text={renderPost.content} className="whitespace-pre-wrap leading-relaxed" />
                         </div>
                     )}
 
                     {/* Poll */}
-                    {displayPost.poll && (displayPost.poll as any).options && (
+                    {renderPost?.poll && (renderPost.poll as any).options && (
                         <PollBlock
-                            postId={displayPost.id}
-                            poll={displayPost.poll as { options: string[] }}
+                            postId={renderPost.id}
+                            poll={renderPost.poll as { options: string[] }}
                             initialVoteCounts={
-                                (displayPost as any).pollVoteCounts ??
-                                Array((displayPost.poll as any).options.length).fill(0)
+                                (renderPost as any).pollVoteCounts ??
+                                Array((renderPost.poll as any).options.length).fill(0)
                             }
-                            initialUserVote={(displayPost as any).userVote ?? null}
-                            isAuthor={displayPost.author.id === session?.user?.id}
+                            initialUserVote={(renderPost as any).userVote ?? null}
+                            isAuthor={renderPost.author.id === session?.user?.id}
                             session={session}
                         />
                     )}
@@ -735,9 +929,9 @@ export function PostCard({
                     )}
 
                     {/* Attachments */}
-                    {displayPost.attachments && displayPost.attachments.length > 0 && (
+                    {renderPost?.attachments && renderPost.attachments.length > 0 && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
-                            {displayPost.attachments.map((a) => (
+                            {renderPost.attachments.map((a) => (
                                 <div key={a.key} className="border rounded-lg overflow-hidden">
                                     {a.kind === "image" ? (
                                         <img
@@ -890,6 +1084,43 @@ export function PostCard({
             )}
 
             {/* ── Quote compose dialog ──────────────────────────────────────── */}
+            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                <DialogContent onClick={(e) => e.stopPropagation()} className="sm:max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <PencilLine size={18} />
+                            Edit Post
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-3">
+                        <Textarea
+                            value={editContent}
+                            onChange={(e) => setEditContent(e.target.value)}
+                            placeholder="Update your post..."
+                            maxLength={280}
+                            className="resize-none min-h-[140px]"
+                            autoFocus
+                        />
+                        <div className="flex justify-between items-center gap-3">
+                            <span className="text-xs text-muted-foreground">
+                                Markdown is supported.
+                            </span>
+                            <span className={`text-xs font-medium ${editContent.length > 260 ? "text-red-500" : "text-muted-foreground"}`}>
+                                {editContent.length}/280
+                            </span>
+                        </div>
+                        <div className="flex justify-end gap-2">
+                            <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)}>
+                                Cancel
+                            </Button>
+                            <Button onClick={saveEdit} disabled={isSavingEdit || (!editContent.trim() && !renderPost?.attachments?.length && !renderPost?.poll)} className="font-bold">
+                                {isSavingEdit ? "Saving..." : "Save Changes"}
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
             <Dialog open={isQuoteOpen} onOpenChange={setIsQuoteOpen}>
                 <DialogContent onClick={(e) => e.stopPropagation()} className="sm:max-w-lg">
                     <DialogHeader>

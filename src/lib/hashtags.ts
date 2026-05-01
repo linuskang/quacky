@@ -32,3 +32,13 @@ export async function linkHashtagsToPost(
         });
     }
 }
+
+/** Replace all hashtag links for a post with the tags currently present in content. */
+export async function syncHashtagsForPost(
+    prisma: PrismaClient,
+    postId: string,
+    content: string
+): Promise<void> {
+    await prisma.postHashtag.deleteMany({ where: { postId } });
+    await linkHashtagsToPost(prisma, postId, content);
+}

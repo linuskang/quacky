@@ -12,6 +12,7 @@ import { authClient } from "@/client/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import Footer from "./quacky/footer";
 
 const LOGIN_DRAFT_STORAGE_KEY = "quacky-login-draft";
 
@@ -226,7 +227,7 @@ export default function Login() {
                             </form>
                         ) : (
                             <div className="space-y-3">
-                                <div className="rounded-xl bg-primary/10 border border-primary/20 px-4 py-3 text-center">
+                                <div className="rounded-xl bg-card border border-primary/20 px-4 py-3 text-center">
                                     <p className="text-sm font-semibold text-primary mb-0.5">Check your email</p>
                                     <p className="text-xs text-muted-foreground">
                                         We sent a 6-digit code to <span className="font-medium text-primary">{email}</span>
@@ -248,12 +249,12 @@ export default function Login() {
                                         className="gap-2"
                                     >
                                         <InputOTPGroup>
-                                            <InputOTPSlot index={0} className="w-11 h-11 text-base" />
-                                            <InputOTPSlot index={1} className="w-11 h-11 text-base" />
-                                            <InputOTPSlot index={2} className="w-11 h-11 text-base" />
-                                            <InputOTPSlot index={3} className="w-11 h-11 text-base" />
-                                            <InputOTPSlot index={4} className="w-11 h-11 text-base" />
-                                            <InputOTPSlot index={5} className="w-11 h-11 text-base" />
+                                            <InputOTPSlot index={0} className="w-11 h-11 text-base bg-card" />
+                                            <InputOTPSlot index={1} className="w-11 h-11 text-base bg-card" />
+                                            <InputOTPSlot index={2} className="w-11 h-11 text-base bg-card" />
+                                            <InputOTPSlot index={3} className="w-11 h-11 text-base bg-card" />
+                                            <InputOTPSlot index={4} className="w-11 h-11 text-base bg-card" />
+                                            <InputOTPSlot index={5} className="w-11 h-11 text-base bg-card" />
                                         </InputOTPGroup>
                                     </InputOTP>
 
@@ -287,9 +288,9 @@ export default function Login() {
                 </div>
             </div>
 
-            <footer className="fixed bottom-4 left-0 right-0 text-center text-xs text-muted-foreground">
-                (c) Linus Kang 2026. All Rights Reserved.
-            </footer>
+            <div className="fixed bottom-4 left-0 right-0 text-center">
+                <Footer />
+            </div>
         </div>
     );
 }

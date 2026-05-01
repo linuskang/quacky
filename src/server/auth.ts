@@ -118,15 +118,13 @@ export const auth = betterAuth(
         },
 
         plugins: [
-            // kept for the /api/auth/magic-link/verify endpoint
             magicLink({
-                sendMagicLink: async () => { /* email is sent by emailOTP below */ },
+                sendMagicLink: async () => { /* email is sent by emailOTP */ },
             }),
             emailOTP({
                 sendVerificationOTP: async ({ email, otp, type }) => {
                     if (type !== "sign-in") return;
 
-                    // Generate a magic link token and store it so the verify endpoint can use it
                     const token = randomBytes(24).toString("base64url");
                     await prisma.verification.create({
                         data: {
@@ -142,24 +140,7 @@ export const auth = betterAuth(
                         from: env.EMAIL_FROM,
                         to: email,
                         subject: "Your Quacky sign-in code",
-                        html: `
-                            <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;background:#f5f0e8">
-                                <img src="https://quacky.space/assets/logo/sleepy.png" alt="Quacky" style="width:64px;height:64px;display:block;margin:0 auto 24px" />
-                                <h2 style="text-align:center;margin:0 0 8px;font-size:22px;color:#2d1200">Sign in to Quacky</h2>
-                                <p style="text-align:center;color:#6b5a4e;margin:0 0 28px;font-size:15px">Use the code below or click the button to sign in. Both expire in 5 minutes.</p>
-
-                                <div style="background:#fff;border:1px solid #d9c8b8;border-radius:12px;padding:20px 24px;text-align:center;margin-bottom:24px">
-                                    <p style="margin:0 0 4px;font-size:12px;color:#9c8070;letter-spacing:0.05em;text-transform:uppercase">Your sign-in code</p>
-                                    <p style="margin:0;font-size:36px;font-weight:800;letter-spacing:0.15em;color:#2d1200">${otp}</p>
-                                </div>
-
-                                <p style="text-align:center;color:#9c8070;font-size:13px;margin:0 0 16px">or click the button to sign in instantly</p>
-
-                                <a href="${magicLinkUrl}" style="display:block;text-align:center;background:#4a1500;color:#f5f0e8;text-decoration:none;padding:14px 24px;border-radius:10px;font-weight:700;font-size:15px">Sign in to Quacky</a>
-
-                                <p style="text-align:center;color:#b0a090;font-size:12px;margin-top:24px">If you didn't request this, you can safely ignore this email.</p>
-                            </div>
-                        `,
+                        text: `Your OTP code is ${otp}. Or click the link to sign in: ${magicLinkUrl}. If you did not request this, please contact us immediately at quacky@quacky.space`,
                     });
                 },
             }),

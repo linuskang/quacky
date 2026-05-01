@@ -70,12 +70,14 @@ export async function GET(
             author: { select: authorSelect },
             content: true,
             attachments: true,
+            poll: true,
             viewCount: true,
             pinned: true,
             readOnly: true,
             isHidden: true,
             isDeleted: true,
             createdAt: true,
+            editedAt: true,
             parentId: true,
             parent: {
                 select: {
@@ -87,11 +89,13 @@ export async function GET(
                     attachments: true,
                     viewCount: true,
                     createdAt: true,
+                    editedAt: true,
                     isDeleted: true,
                     isHidden: true,
                 },
             },
             likes: { select: { userId: true } },
+            pollVotes: { select: { userId: true, optionIndex: true } },
             children: {
                 where: { isDeleted: false, isHidden: false },
                 select: { id: true, type: true },

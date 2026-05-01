@@ -19,24 +19,27 @@ export async function POST(
         );
     }
 
-    if (session.user.role !== "Admin") {
-        return NextResponse.json(
-            { error: "Forbidden" },
-            { status: 403 }
-        );
-    }
-
     const postId = (await params).id;
 
     const post = await prisma.post.findUnique({
         where: { id: postId },
-        select: { authorId: true }
+        select: { authorId: true, isDeleted: true }
     });
 
     if (!post) {
         return NextResponse.json(
             { error: "Post not found" },
             { status: 404 }
+        );
+    }
+
+    const isAuthor = post.authorId === session.user.id;
+    const isAdmin = session.user.role === "Admin";
+
+    if (!isAuthor && !isAdmin) {
+        return NextResponse.json(
+            { error: "Forbidden" },
+            { status: 403 }
         );
     }
 

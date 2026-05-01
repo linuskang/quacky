@@ -24,6 +24,7 @@ const parentSelect = {
     attachments: true,
     viewCount: true,
     createdAt: true,
+    editedAt: true,
     isDeleted: true,
     isHidden: true,
 };
@@ -56,6 +57,7 @@ export async function GET(request: NextRequest) {
             isHidden: true,
             isDeleted: true,
             createdAt: true,
+            editedAt: true,
             parentId: true,
             // Parent post for reposts and quotes
             parent: { select: parentSelect },
@@ -117,6 +119,7 @@ export async function GET(request: NextRequest) {
             isHidden: post.isHidden,
             isDeleted: post.isDeleted,
             createdAt: post.createdAt,
+            editedAt: post.editedAt,
             parentId: post.parentId,
             parent: post.parent,
             likes: post.likes,
@@ -131,7 +134,15 @@ export async function GET(request: NextRequest) {
         };
     });
 
-    return NextResponse.json({ posts: enriched }, { status: 200 });
+    return NextResponse.json(
+        { posts: enriched },
+        {
+            status: 200,
+            headers: {
+                "Cache-Control": "no-store, max-age=0",
+            },
+        }
+    );
 }
 
 export async function POST(request: NextRequest) {

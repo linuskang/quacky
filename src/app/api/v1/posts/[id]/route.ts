@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
+import { syncHashtagsForPost } from "@/lib/hashtags";
 
 const authorSelect = {
     id: true,
@@ -29,6 +30,7 @@ const postNodeSelect = {
     isHidden: true,
     isDeleted: true,
     createdAt: true,
+    editedAt: true,
     parentId: true,
     likes: { select: { userId: true } },
     pollVotes: { select: { userId: true, optionIndex: true } },
@@ -48,6 +50,7 @@ const postNodeSelect = {
             poll: true,
             viewCount: true,
             createdAt: true,
+            editedAt: true,
             isDeleted: true,
             isHidden: true,
         },
@@ -112,6 +115,7 @@ export async function GET(
                     isHidden: true,
                     isDeleted: true,
                     createdAt: true,
+                    editedAt: true,
                     parentId: true,
                     likes: { select: { userId: true } },
                     pollVotes: { select: { userId: true, optionIndex: true } },
@@ -181,5 +185,77 @@ export async function GET(
         hasReposted: !!userRepost,
     };
 
-    return NextResponse.json({ post: enrichedPost, ancestors }, { status: 200 });
+    return NextResponse.json(
+        { post: enrichedPost, ancestors },
+        {
+            status: 200,
+            headers: {
+                "Cache-Control": "no-store, max-age=0",
+            },
+        }
+    );
+}
+
+export async function PATCH(
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    const session = await auth.api.getSession(request);
+    if (!session) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const body = await request.json().catch(() => ({}));
+    const content = typeof body.content === "string" ? body.content.trim() : null;
+
+    if (content === null) {
+        return NextResponse.json({ error: "Invalid content" }, { status: 400 });
+    }
+
+    const existing = await prisma.post.findUnique({
+        where: { id },
+        select: {
+            authorId: true,
+            type: true,
+            isDeleted: true,
+            attachments: true,
+            poll: true,
+        },
+    });
+
+    if (!existing || existing.isDeleted) {
+        return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
+
+    const isAuthor = existing.authorId === session.user.id;
+    const isAdmin = session.user.role === "Admin";
+    if (!isAuthor && !isAdmin) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    if (existing.type === "repost") {
+        return NextResponse.json({ error: "Reposts cannot be edited" }, { status: 400 });
+    }
+
+    if (content.length > 280) {
+        return NextResponse.json({ error: "Invalid content" }, { status: 400 });
+    }
+
+    if (!content && !existing.attachments && !existing.poll) {
+        return NextResponse.json({ error: "Invalid content" }, { status: 400 });
+    }
+
+    const updatedPost = await prisma.post.update({
+        where: { id },
+        data: {
+            content,
+            editedAt: new Date(),
+        },
+        select: { id: true, editedAt: true },
+    });
+
+    await syncHashtagsForPost(prisma, id, content);
+
+    return NextResponse.json({ success: true, post: updatedPost }, { status: 200 });
 }

@@ -81,6 +81,7 @@ model Post {
   content     String @default("")
   attachments Json?
   poll        Json?
+  editedAt    DateTime?
 
   viewCount Int @default(0)
 

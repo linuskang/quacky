@@ -6,6 +6,29 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/server/db";
 import { auth } from "@/server/auth";
 
+const authorSelect = {
+    id: true,
+    name: true,
+    handle: true,
+    image: true,
+    verified: true,
+};
+
+const parentSelect = {
+    id: true,
+    type: true,
+    authorId: true,
+    author: { select: authorSelect },
+    content: true,
+    attachments: true,
+    poll: true,
+    viewCount: true,
+    createdAt: true,
+    editedAt: true,
+    isDeleted: true,
+    isHidden: true,
+};
+
 export async function GET(request: NextRequest) {
     const session = await auth.api.getSession(request);
 
@@ -37,21 +60,22 @@ export async function GET(request: NextRequest) {
         },
         select: {
             id: true,
+            type: true,
+            authorId: true,
+            author: { select: authorSelect },
             content: true,
             createdAt: true,
+            editedAt: true,
             attachments: true,
+            poll: true,
+            viewCount: true,
             pinned: true,
             readOnly: true,
-            likes: {
-                select: {
-                    user: {
-                        select: {
-                            id: true,
-                            handle: true,
-                        },
-                    },
-                },
-            },
+            isHidden: true,
+            isDeleted: true,
+            parentId: true,
+            parent: { select: parentSelect },
+            likes: { select: { userId: true } },
             children: {
                 where: {
                     type: "reply",
@@ -61,19 +85,15 @@ export async function GET(request: NextRequest) {
                 select: {
                     id: true,
                     type: true,
+                    authorId: true,
                 },
             },
-            author: {
+            pollVotes: {
                 select: {
-                    id: true,
-                    name: true,
-                    handle: true,
-                    image: true,
-                    verified: true,
+                    userId: true,
+                    optionIndex: true,
                 },
             },
-            isHidden: true,
-            isDeleted: true,
         },
     });
 

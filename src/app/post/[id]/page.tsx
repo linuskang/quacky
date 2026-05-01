@@ -33,7 +33,7 @@ export default function PostPage({ params }: Props) {
 
     async function fetchPost() {
         try {
-            const res = await fetch(`/api/v1/posts/${id}`);
+            const res = await fetch(`/api/v1/posts/${id}`, { cache: "no-store" });
             if (!res.ok) { setPost(null); return; }
             const data = await res.json();
             setPost(data.post ?? null);

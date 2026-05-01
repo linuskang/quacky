@@ -60,6 +60,7 @@ export interface Post {
     content: string;
     attachments?: PostAttachment[];
     poll?: PollData | null;
+    editedAt?: string | Date | null;
 
     // Self-referencing: parent post for replies, reposts, and quotes
     parentId?: string | null;

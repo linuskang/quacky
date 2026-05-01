@@ -15,6 +15,7 @@ import Discover from "@/components/quacky/discover";
 import Loading from "@/components/loading";
 import Posts from "@/components/quacky/posts";
 import Compose from "@/components/quacky/compose";
+import Footer from "@/components/quacky/footer";
 
 // Utilities
 import { getPosts } from "@/client/utils";
@@ -64,6 +65,7 @@ export default function Homepage() {
 
                     <Posts
                         posts={posts}
+                        onChanged={loadPosts}
                     />
                 </div>
 
@@ -72,9 +74,7 @@ export default function Homepage() {
                 />
             </div>
 
-            <footer className="w-full py-4 text-center text-xs text-muted-foreground">
-                (c) Linus Kang 2026. All Rights Reserved.
-            </footer>
+            <Footer />
         </main>
     );
 }
