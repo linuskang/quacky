@@ -51,18 +51,6 @@ export const auth = betterAuth(
                     required: false,
                     default: "#1d9bf0",
                 },
-                github: {
-                    type: "string",
-                    required: false,
-                },
-                twitter: {
-                    type: "string",
-                    required: false,
-                },
-                discord: {
-                    type: "string",
-                    required: false,
-                },
                 privateAccount: {
                     type: "boolean",
                     required: true,

@@ -32,9 +32,6 @@ export async function GET(request: NextRequest) {
             pronouns: true,
             banner: true,
             accentColor: true,
-            github: true,
-            twitter: true,
-            discord: true,
             email: true,
             verified: true,
             privateAccount: true,
@@ -67,7 +64,7 @@ export async function PATCH(request: NextRequest) {
         );
     }
 
-    const { name, handle, bio, website, location, pronouns, accentColor, github, twitter, discord, privateAccount, emailNotif } = await request.json();
+    const { name, handle, bio, website, location, pronouns, accentColor, privateAccount, emailNotif } = await request.json();
 
     const reservedHandles: any = await Config.get("reserved_handles");
     const reservedHandleList = reservedHandles?.handles || [];
@@ -108,9 +105,6 @@ export async function PATCH(request: NextRequest) {
                 location,
                 pronouns,
                 accentColor,
-                github,
-                twitter,
-                discord,
                 privateAccount,
                 emailNotif,
             },
@@ -124,9 +118,6 @@ export async function PATCH(request: NextRequest) {
                 pronouns: true,
                 banner: true,
                 accentColor: true,
-                github: true,
-                twitter: true,
-                discord: true,
                 image: true,
                 privateAccount: true,
                 emailNotif: true,

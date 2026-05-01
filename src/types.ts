@@ -23,9 +23,6 @@ export interface User {
     pronouns?: string;
     banner?: string;
     accentColor?: string;
-    github?: string;
-    twitter?: string;
-    discord?: string;
 
     followers?: number;
     following?: number;

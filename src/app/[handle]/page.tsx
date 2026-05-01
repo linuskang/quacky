@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect, use } from "react";
 
 // UI Components
-import { BadgeCheck, Ban, CalendarClock, Shield, LinkIcon, MapPin, Github, Twitter, MessageCircle } from "lucide-react";
+import { BadgeCheck, Ban, CalendarClock, Shield, LinkIcon, MapPin } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -247,31 +247,6 @@ export default function ProfilePage(
                                 {user.bio}
                             </p>
                         )}
-
-                        <div className="flex flex-wrap gap-4 text-sm font-bold text-muted-foreground mb-4">
-                            {user.github && (
-                                <span className="flex items-center gap-1.5">
-                                    <Github size={16} strokeWidth={2.5} />
-                                    <a href={`https://github.com/${user.github}`} target="_blank" rel="noopener noreferrer" className="hover:underline text-primary">
-                                        {user.github}
-                                    </a>
-                                </span>
-                            )}
-                            {user.twitter && (
-                                <span className="flex items-center gap-1.5">
-                                    <Twitter size={16} strokeWidth={2.5} />
-                                    <a href={`https://x.com/${user.twitter}`} target="_blank" rel="noopener noreferrer" className="hover:underline text-primary">
-                                        {user.twitter}
-                                    </a>
-                                </span>
-                            )}
-                            {user.discord && (
-                                <span className="flex items-center gap-1.5">
-                                    <MessageCircle size={16} strokeWidth={2.5} />
-                                    <span>{user.discord}</span>
-                                </span>
-                            )}
-                        </div>
 
                         <div className="flex flex-wrap gap-4 text-sm font-bold text-muted-foreground">
                             {user.location && (

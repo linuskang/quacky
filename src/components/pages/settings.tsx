@@ -33,9 +33,6 @@ interface SettingsMenuProps {
     pronouns?: string;
     banner?: string;
     accentColor?: string;
-    github?: string;
-    twitter?: string;
-    discord?: string;
     email: string;
 
     privateAccount: boolean;
@@ -49,9 +46,6 @@ interface SettingsMenuProps {
         pronouns: string | null;
         banner: string | null;
         accentColor: string | null;
-        github: string | null;
-        twitter: string | null;
-        discord: string | null;
         image: string | null;
         privateAccount: boolean;
         emailNotif: boolean;
@@ -69,9 +63,6 @@ export default function Settings(props: SettingsMenuProps) {
     const [location, setLocationValue] = useState(props.location || "");
     const [pronouns, setPronouns] = useState(props.pronouns || "");
     const [accentColor, setAccentColor] = useState(props.accentColor || "#1d9bf0");
-    const [github, setGithub] = useState(props.github || "");
-    const [twitter, setTwitter] = useState(props.twitter || "");
-    const [discord, setDiscord] = useState(props.discord || "");
     const [email] = useState(props.email || "");
     const [avatarUrl, setAvatarUrl] = useState<string | undefined>(props.image || undefined);
     const [bannerUrl, setBannerUrl] = useState<string | undefined>(props.banner || undefined);
@@ -92,14 +83,11 @@ export default function Settings(props: SettingsMenuProps) {
         setLocationValue(props.location || "");
         setPronouns(props.pronouns || "");
         setAccentColor(props.accentColor || "#1d9bf0");
-        setGithub(props.github || "");
-        setTwitter(props.twitter || "");
-        setDiscord(props.discord || "");
         setAvatarUrl(props.image || undefined);
         setBannerUrl(props.banner || undefined);
         setEmailNotifications(!!props.emailNotif);
         setPrivateAccount(!!props.privateAccount);
-    }, [props.displayName, props.handle, props.bio, props.website, props.location, props.pronouns, props.accentColor, props.github, props.twitter, props.discord, props.image, props.banner, props.emailNotif, props.privateAccount]);
+    }, [props.displayName, props.handle, props.bio, props.website, props.location, props.pronouns, props.accentColor, props.image, props.banner, props.emailNotif, props.privateAccount]);
 
     const save = async () => {
         setSaving(true);
@@ -115,9 +103,6 @@ export default function Settings(props: SettingsMenuProps) {
                     location,
                     pronouns,
                     accentColor,
-                    github,
-                    twitter,
-                    discord,
                     privateAccount,
                     emailNotif: emailNotifications,
                 }),
@@ -333,36 +318,6 @@ export default function Settings(props: SettingsMenuProps) {
                                 value={location}
                                 onChange={(e) => setLocationValue(e.target.value)}
                                 placeholder="Earth"
-                                className="bg-background dark:bg-[var(--lynt)]"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="github">GitHub</Label>
-                            <Input
-                                id="github"
-                                value={github}
-                                onChange={(e) => setGithub(e.target.value)}
-                                placeholder="GitHub Username"
-                                className="bg-background dark:bg-[var(--lynt)]"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="twitter">Twitter</Label>
-                            <Input
-                                id="twitter"
-                                value={twitter}
-                                onChange={(e) => setTwitter(e.target.value)}
-                                placeholder="Username"
-                                className="bg-background dark:bg-[var(--lynt)]"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="discord">Discord</Label>
-                            <Input
-                                id="discord"
-                                value={discord}
-                                onChange={(e) => setDiscord(e.target.value)}
-                                placeholder="Discord Username"
                                 className="bg-background dark:bg-[var(--lynt)]"
                             />
                         </div>
