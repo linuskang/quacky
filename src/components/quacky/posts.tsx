@@ -511,6 +511,50 @@ function PollBlock({
     );
 }
 
+// ─── Post Skeleton ────────────────────────────────────────────────────────────
+
+function PostCardSkeleton() {
+    return (
+        <div className="rounded-xl border border-border bg-[var(--lynt)] p-4 flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+                <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+                <div className="flex items-center gap-2 flex-1">
+                    <Skeleton className="h-4 w-24 rounded" />
+                    <Skeleton className="h-3 w-16 rounded" />
+                </div>
+                <Skeleton className="h-3 w-10 rounded ml-auto" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+                <Skeleton className="h-3.5 w-full rounded" />
+                <Skeleton className="h-3.5 w-5/6 rounded" />
+                <Skeleton className="h-3.5 w-3/4 rounded" />
+            </div>
+            <div className="flex items-center justify-between pt-1">
+                <div className="flex items-center gap-1.5">
+                    <Skeleton className="h-8 w-14 rounded-lg" />
+                    <Skeleton className="h-8 w-14 rounded-lg" />
+                    <Skeleton className="h-8 w-14 rounded-lg" />
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <Skeleton className="h-8 w-14 rounded-lg" />
+                    <Skeleton className="h-8 w-8 rounded-lg" />
+                    <Skeleton className="h-8 w-8 rounded-lg" />
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export function PostsSkeleton({ count = 6 }: { count?: number }) {
+    return (
+        <div className="w-full flex flex-col gap-4">
+            {Array.from({ length: count }).map((_, i) => (
+                <PostCardSkeleton key={i} />
+            ))}
+        </div>
+    );
+}
+
 // ─── Posts list ───────────────────────────────────────────────────────────────
 
 interface Props {

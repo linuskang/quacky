@@ -7,18 +7,20 @@
 // Libraries
 import { authClient } from "@/client/auth";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 // UI Components
 import Login from "@/components/login";
 import Sidebar from "@/components/quacky/sidebar";
 import Discover from "@/components/quacky/discover";
 import Loading from "@/components/loading";
-import Posts from "@/components/quacky/posts";
+import Posts, { PostsSkeleton } from "@/components/quacky/posts";
 import Compose from "@/components/quacky/compose";
 import Footer from "@/components/quacky/footer";
 
 // Utilities
 import { getPosts } from "@/client/utils";
+import { useTheme } from "next-themes";
 
 // Types
 import { Post } from "@/types";
@@ -27,6 +29,8 @@ export default function Homepage() {
     // States
     const { data: session, isPending } = authClient.useSession();
     const [posts, setPosts] = useState<Post[]>([]);
+    const [postsLoading, setPostsLoading] = useState(true);
+    const { resolvedTheme } = useTheme();
 
     useEffect(() => {
         loadPosts();
@@ -48,12 +52,14 @@ export default function Homepage() {
 
     // Load helper
     async function loadPosts() {
+        setPostsLoading(true);
         setPosts(await getPosts());
+        setPostsLoading(false);
     }
 
     return (
-        <main className="min-h-screen w-full flex flex-col items-center bg-background dark:bg-background">
-            <div className="flex w-full max-w-[1200px] flex-1 gap-4 px-4 pb-24 lg:pb-8">
+        <main className="relative min-h-screen w-full flex flex-col items-center bg-background dark:bg-background">
+            <div className="relative z-10 flex w-full max-w-[1200px] flex-1 gap-4 px-4 pb-24 lg:pb-8">
                 <Sidebar
                     session={session}
                 />
@@ -63,10 +69,14 @@ export default function Homepage() {
                         onPost={loadPosts}
                     />
 
-                    <Posts
-                        posts={posts}
-                        onChanged={loadPosts}
-                    />
+                    {postsLoading ? (
+                        <PostsSkeleton />
+                    ) : (
+                        <Posts
+                            posts={posts}
+                            onChanged={loadPosts}
+                        />
+                    )}
                 </div>
 
                 <Discover
@@ -74,7 +84,24 @@ export default function Homepage() {
                 />
             </div>
 
-            <Footer />
+            <div className="relative z-10 w-full">
+                <Footer />
+            </div>
+
+            <div
+                aria-hidden="true"
+                className="pointer-events-none fixed inset-x-0 bottom-0 z-0"
+            >
+                <Image
+                    src={resolvedTheme === "dark" ? "/assets/bg/dark.png" : "/assets/bg/light.png"}
+                    alt=""
+                    width={0}
+                    height={0}
+                    sizes="100vw"
+                    priority
+                    className="w-full h-auto"
+                />
+            </div>
         </main>
     );
 }
