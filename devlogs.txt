@@ -1,0 +1,129 @@
+Big devlog incoming:
+•	Added bookmarks
+•	Following/Followers
+•	Notification system, notifies you if post likes, user following, moderation actions.
+•	Reposting reworked
+•	Post views
+•	Add extra user fields: Socials, website, country, gender
+•	Add profile banners & themes
+•	Add post quoting
+•	Add trending page w/ #hashtag support!
+•	Add rendering support for mentioning users in posts like @linus
+•	Significantly revamped the way posts are designed. I use to use a Post and Reply table, separated. Now, I’m following the design principles of twitter and i’ve transformed all replies to posts. You can now chain replies onto replies, and so on.
+•	Changed authentication to GitHub OAuth & Google instead of straight emails.
+•	Bunch of minor UI updates to sidebar, and posts to improve UX and flow.
+
+Ok so its been a while.
+•	Added Shorts: You can now post videos as content on Quacky! Go to /shorts to start doomscrolling 😎
+•	AI pre-moderation: Whenever a user reports a post, an AI model (currently gpt-oss:20b) will take a look at the post content. If it discovers that there is obvious inappropriate content, it will automatically unlist and make the post read-only until an administrator takes action. For privacy, the AI will only ever look at posts when someone reports. Check the attachments in my devlog to see it in action!
+•	Added another codebase (quacky-ai) for all algorithms and Ai stuff that I have planned. Didn’t want to bundle in that stuff in the main codebase because yeah.
+•	Added a administration panel for moderators: You can now directly edit posts, users, and replies at /admin if you have the administrator role on your account. It’s not the prettiest panel in the world but its just for me to moderate the server.
+•	Added a couple extra APIs for interfacing with admin stuff. Needs a admin session token in order to use. Endpoints are at /api/v1/admin
+
+This is the last cleanup i promise… ive learned how damn annoying types are..
+•	Cleaned up UI components, they are fully modular, which means its actually possible for people to mod quacky and create your own custom pages!
+•	Changed to GIthub OAuth (temp as i migrate to google, the app is being approved.)
+•	Added a markdown renderer to display a couple help pages, terms, privacy, and community guidelines.
+I’m working on DMs and a Instagram Reels/YT shorts clone next. Stay tuned.
+
+Revamped settings ui.
+Added administration panel for admins to manage settings.
+Added a config table to replace some env variables and json file that was previously packaged into docker image.
+MOST IMPORTANTLY: Cleaned up those nasty types omg merging v1 code with my new code is a disaster with ts it takes too long
+Updated email appearances. Looks nice now
+
+
+Added moderation actions, finished V2 of Post component.
+Not much else.
+
+Nothing really to show:
+Just did a bunch of backend work with the APIs, started creating extra DB tables like DMs & Admin stuff for features not yet complete.
+•	Deprecated legacy APIs with /api/v1
+•	Redo homepage UI. Big UX improvements & shorter loading times.
+Making the UI for new features is next.
+
+Been cleaning up a lot of code, getting it all nicely packaged up.
+•	Added OpenAPI and Swagger documentation for all API routes.
+•	Following / Followers and notifications now fully work.
+•	In the process of adding a “Shorts” feature like yt shorts.
+•	Fixed a bug where banning users wouldn’t revoke their access to existing signed in sessions.
+•	Terms and Privacy Policy have been added.
+
+
+Finally finished V1! It’s live at https://quacky.linus.my
+I hope you enjoy it. It’s only the beginning of this app as I’m using it as a framework for a competition I’m taking part in.
+Expect bugs, I’m already fixing some after V1 releases.
+
+Voter #10   104s · Opened Demo, Repo
+Originality 7/9 · Technicality 8/9 · Usability 7/9 · Storytelling 6/9
+nice! I would have appreciated more detailed commit messages on github. This is really cool and is really well built! <3
+Voter #9   324s · Opened Demo, Repo
+Originality 9/9 · Technicality 8/9 · Usability 8/9 · Storytelling 8/9
+so cute!! it works perfectly! everything works seamlessly and fastly! i hope u get more users! also i posted my cat pic, make sure to check it out TT
+Voter #8   218s · Opened Demo, Repo
+Originality 9/9 · Technicality 8/9 · Usability 8/9 · Storytelling 7/9
+Wow, just wow, this site is amazing. You made a full functioning social media site, that is so hard to do, and I am out here making single player games 👍!
+Voter #7   61s · Opened Demo, Repo
+Originality 8/9 · Technicality 7/9 · Usability 6/9 · Storytelling 7/9
+nice work, I love the UI, it looks amazing!! KEEP IT UP :)
+Voter #6   81s · Opened Demo, Repo
+Originality 6/9 · Technicality 6/9 · Usability 6/9 · Storytelling 6/9
+Any kind of social media remake / building i like, this included, nice work on this one
+Voter #5   342s · Opened Demo
+Originality 7/9 · Technicality 6/9 · Usability 7/9 · Storytelling 5/9
+From screenshots I liked the design and really wanted to use that. But couldnt sign in. Email link is invalid. Kanye West (@west) and King Von (@von) is me btw
+Voter #4   168s · Opened Demo
+Originality 7/9 · Technicality 6/9 · Usability 7/9 · Storytelling 4/9
+very cool project you should peach this to hackclub to make this thre social app just your devlogs are very small
+Voter #3   188s · Opened Demo, Repo
+Originality 7/9 · Technicality 7/9 · Usability 8/9 · Storytelling 7/9
+A really interesting project! Very comprehensive, with a beautiful UI. It has a complete authentication system and a fully-fledged social network. Excellent work!
+Voter #2   33s · Opened Demo, Repo
+Originality 5/9 · Technicality 6/9 · Usability 6/9 · Storytelling 6/9
+Very cool project I loved it try to add more features and keep it up
+Voter #1   36s · Opened Demo
+Originality 4/9 · Technicality 5/9 · Usability 4/9 · Storytelling 5/9
+OMG this is sooo cool ! I really like it! Great job! (but the signing in part was pretty annoying
+
+Finished welcome email, following/followers, search and post pages.
+
+Quick update
+You can now upload attachments on posts!
+All assets are stored using S3, and in my app’s case, I’m using my custom S3 storage server because minio has become deprecated :|
+
+Been cleaning up the codebase to get ready to ship. Made a new onboarding form.
+Gotta love cleaning code for 4 hours straight…
+Oh yea, and ive made new iterations of the mascot. looks pretty cute dont you think
+
+
+Revamped all of the Post and User routes, improved UI, designed app mascot called quacky.
+my next steps will be to finish all of the platform features and launch into beta. the only things remaining are:
+•	Reposting
+•	DMs
+•	Following
+•	Admin panel stuff
+•	Attachment uploading to posts.
+I’m getting very close!
+
+
+Cleaned up all the code, and added 2 new views: private and banned.
+Additionally, added proxy middleware to make content on the site viewable to only signed in users
+
+Added notification services.
+See the image for how it looks.
+
+Added replies to posts. APIs and module functions have been added.
+Additionally, theres now a new page for viewing and replying to posts at /post/[postId].
+
+Added profile page along with recent post activity.
+Additionally, I implemented the like/unlike functions for posts. There is an API and import module you can use eventually when I ship.
+
+Added ability for users to post. There are 3 types:
+•	Normal post (users will mostly be using this)
+•	Read-only (Useful for posting announcements where you want to disable comments or reactions)
+•	Pinned posts (Pin a post to the top of everyone’s feed)
+There will be a feature to upload pictures and files at a later stage.
+Additionally, I’ve started work on drafting UI for the profile page.
+
+Implemented authentication with better auth, started on UI design.
+
