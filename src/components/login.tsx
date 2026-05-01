@@ -17,35 +17,20 @@ import Footer from "./quacky/footer";
 const LOGIN_DRAFT_STORAGE_KEY = "quacky-login-draft";
 
 export default function Login() {
-    const getStoredDraft = () => {
-        if (typeof window === "undefined") return null;
-
-        try {
-            const stored = window.sessionStorage.getItem(LOGIN_DRAFT_STORAGE_KEY);
-            if (!stored) return null;
-
-            return JSON.parse(stored) as {
-                email?: string;
-                codeSent?: boolean;
-                otp?: string;
-            };
-        } catch {
-            return null;
-        }
-    };
-
     // States
     const [error, setError] = useState<string | null>(null);
     const [isPending, setIsPending] = useState(false);
     const [appInfo, setAppInfo] = useState<{ version: string }>({ version: "dev" });
+    const [selfRegister, setSelfRegister] = useState<boolean | null>(null);
+    const [selfRegisterError, setSelfRegisterError] = useState<string | null>(null);
+    const [draftReady, setDraftReady] = useState(false);
 
     // Email + OTP states
-    const storedDraft = getStoredDraft();
-    const [email, setEmail] = useState(storedDraft?.email ?? "");
-    const [codeSent, setCodeSent] = useState(storedDraft?.codeSent ?? false);
+    const [email, setEmail] = useState("");
+    const [codeSent, setCodeSent] = useState(false);
     const [emailPending, setEmailPending] = useState(false);
     const [emailError, setEmailError] = useState<string | null>(null);
-    const [otp, setOtp] = useState(storedDraft?.otp ?? "");
+    const [otp, setOtp] = useState("");
     const [otpPending, setOtpPending] = useState(false);
     const [otpError, setOtpError] = useState<string | null>(null);
 
@@ -67,6 +52,44 @@ export default function Login() {
 
     useEffect(() => {
         if (typeof window === "undefined") return;
+
+        try {
+            const stored = window.sessionStorage.getItem(LOGIN_DRAFT_STORAGE_KEY);
+            if (stored) {
+                const draft = JSON.parse(stored) as {
+                    email?: string;
+                    codeSent?: boolean;
+                    otp?: string;
+                };
+
+                setEmail(draft.email ?? "");
+                setCodeSent(draft.codeSent ?? false);
+                setOtp(draft.otp ?? "");
+            }
+        } catch {
+            window.sessionStorage.removeItem(LOGIN_DRAFT_STORAGE_KEY);
+        } finally {
+            setDraftReady(true);
+        }
+    }, []);
+
+    useEffect(() => {
+        const fetchLoginSettings = async () => {
+            try {
+                const response = await fetch("/api/v1/settings");
+                const data = await response.json();
+                setSelfRegister(typeof data.selfRegister === "boolean" ? data.selfRegister : true);
+            } catch (e: any) {
+                setSelfRegisterError(e?.message ?? "Failed to load sign-in settings.");
+                setSelfRegister(true);
+            }
+        };
+
+        fetchLoginSettings();
+    }, []);
+
+    useEffect(() => {
+        if (typeof window === "undefined" || !draftReady) return;
 
         if (!email && !codeSent && !otp) {
             window.sessionStorage.removeItem(LOGIN_DRAFT_STORAGE_KEY);
@@ -116,18 +139,40 @@ export default function Login() {
         setEmailPending(true);
 
         try {
+            if (selfRegister === false) {
+                const eligibilityResponse = await fetch("/api/v1/auth/email-exists", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: email.trim() }),
+                });
+
+                const eligibilityData = await eligibilityResponse.json();
+
+                if (!eligibilityResponse.ok) {
+                    throw new Error(eligibilityData?.error ?? "Failed to verify whether this account can sign in.");
+                }
+
+                if (!eligibilityData.exists) {
+                    setEmailError("Self-registration is currently disabled. That email does not match an existing account.");
+                    return;
+                }
+            }
+
             const result = await authClient.emailOtp.sendVerificationOtp({
                 email: email.trim(),
                 type: "sign-in",
             });
             if (result?.error) {
-                setEmailError(result.error.message ?? "Failed to send code. Please try again.");
+                // result.error is the parsed response body spread with { status, statusText }
+                const msg = (result.error as any).message ?? (result.error as any).error?.message;
+                setEmailError(msg ?? "Failed to send code. Please try again.");
             } else {
                 setCodeSent(true);
                 setOtp("");
             }
         } catch (err: any) {
-            setEmailError(err.message ?? "Failed to send code. Please try again.");
+            const msg = err?.error?.message ?? err?.message;
+            setEmailError(msg ?? "Failed to send code. Please try again.");
         } finally {
             setEmailPending(false);
         }
@@ -182,6 +227,13 @@ export default function Login() {
                             </div>
                         )}
 
+                        
+                        {selfRegisterError && (
+                            <div className="rounded-md border border-amber-400/40 bg-amber-500/10 px-3 py-2.5 text-sm text-amber-700 dark:text-amber-300">
+                                {selfRegisterError}
+                            </div>
+                        )}
+
                         <Button
                             onClick={handleGithubLogin}
                             disabled={isPending}
@@ -204,7 +256,7 @@ export default function Login() {
                         {!codeSent ? (
                             <form onSubmit={handleSendCode} className="space-y-2">
                                 {emailError && (
-                                    <div className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                                    <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2.5 text-sm text-destructive">
                                         {emailError}
                                     </div>
                                 )}
@@ -235,7 +287,7 @@ export default function Login() {
                                 </div>
 
                                 {otpError && (
-                                    <div className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive text-center">
+                                    <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2.5 text-sm text-destructive text-center">
                                         {otpError}
                                     </div>
                                 )}

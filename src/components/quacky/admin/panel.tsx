@@ -4,14 +4,14 @@
 
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { Search, ExternalLink } from "lucide-react";
+import { useState, useEffect, type FormEvent } from "react";
+import { Search, ExternalLink, Trash2, Send, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import type { UserSearchResult, UserEditor, PostSearchResult, PostEditor } from "./types";
+import type { UserSearchResult, UserEditor, PostSearchResult, PostEditor, InviteRecord } from "./types";
 import { formatTimestamp } from "@/client/utils";
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
@@ -112,8 +112,98 @@ function Stat({ label, value }: { label: string; value: number | string }) {
 // ── Main component ─────────────────────────────────────────────────────────────
 
 export default function AdminPanel() {
-    const [tab, setTab] = useState<"users" | "posts">("users");
+    const [tab, setTab] = useState<"users" | "posts" | "invites">("users");
 
+    // ── Invites state ──────────────────────────────────────────────────────────
+    const [selfRegister, setSelfRegister] = useState<boolean | null>(null);
+    const [selfRegisterSaving, setSelfRegisterSaving] = useState(false);
+    const [invites, setInvites] = useState<InviteRecord[]>([]);
+    const [invitesLoading, setInvitesLoading] = useState(false);
+    const [inviteError, setInviteError] = useState<string | null>(null);
+    const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
+    const [inviteEmail, setInviteEmail] = useState("");
+    const [inviteHandle, setInviteHandle] = useState("");
+    const [inviteDisplayName, setInviteDisplayName] = useState("");
+    const [inviteSending, setInviteSending] = useState(false);
+
+    const loadInviteSettings = async () => {
+        setInvitesLoading(true);
+        setInviteError(null);
+        try {
+            const [settingsRes, invitesRes] = await Promise.all([
+                api<{ selfRegister: boolean }>("/api/v1/admin/settings"),
+                api<{ invites: InviteRecord[] }>("/api/v1/admin/invites"),
+            ]);
+            setSelfRegister(settingsRes.selfRegister);
+            setInvites(invitesRes.invites ?? []);
+        } catch (err: any) {
+            setInviteError(err.message);
+        } finally {
+            setInvitesLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (tab === "invites" && selfRegister === null) {
+            loadInviteSettings();
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tab]);
+
+    const saveSelfRegister = async (value: boolean) => {
+        setSelfRegisterSaving(true);
+        try {
+            await api("/api/v1/admin/settings", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ selfRegister: value }),
+            });
+            setSelfRegister(value);
+        } catch (err: any) {
+            setInviteError(err.message);
+        } finally {
+            setSelfRegisterSaving(false);
+        }
+    };
+
+    const sendInvite = async (e: FormEvent) => {
+        e.preventDefault();
+        setInviteSending(true);
+        setInviteError(null);
+        setInviteSuccess(null);
+        try {
+            await api("/api/v1/admin/invites", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: inviteEmail.trim(),
+                    handle: inviteHandle.trim().replace(/^@+/, ""),
+                    displayName: inviteDisplayName.trim(),
+                }),
+            });
+            setInviteSuccess(`Invitation sent to ${inviteEmail.trim()}`);
+            setInviteEmail("");
+            setInviteHandle("");
+            setInviteDisplayName("");
+            await loadInviteSettings();
+        } catch (err: any) {
+            setInviteError(err.message);
+        } finally {
+            setInviteSending(false);
+        }
+    };
+
+    const revokeInvite = async (id: string) => {
+        setInviteError(null);
+        try {
+            await api(`/api/v1/admin/invites/${id}`, { method: "DELETE" });
+            setInvites((prev) => prev.filter((i) => i.id !== id));
+        } catch (err: any) {
+            setInviteError(err.message);
+        }
+    };
+
+    // ── Users state ────────────────────────────────────────────────────────────
     const [userQuery, setUserQuery] = useState("");
     const [userResults, setUserResults] = useState<UserSearchResult[]>([]);
     const [selectedUser, setSelectedUser] = useState<UserEditor | null>(null);
@@ -261,8 +351,8 @@ export default function AdminPanel() {
             <div className="mx-auto flex w-full max-w-2xl flex-col px-4 py-6 sm:px-6 lg:px-8">
 
                 {/* Tab bar */}
-                <div className="grid overflow-hidden border-t border-r border-l bg-card shadow-sm sm:grid-cols-2">
-                    {(["users", "posts"] as const).map((t) => (
+                <div className="grid overflow-hidden border-t border-r border-l bg-card shadow-sm grid-cols-3">
+                    {(["users", "posts", "invites"] as const).map((t) => (
                         <Button key={t} type="button" variant={tab === t ? "default" : "ghost"}
                             className="h-12 justify-start rounded-none px-4 text-left capitalize"
                             onClick={() => setTab(t)}>
@@ -271,7 +361,154 @@ export default function AdminPanel() {
                     ))}
                 </div>
 
-                {tab === "users" ? (
+                {tab === "invites" ? (
+                    <section className="grid gap-4">
+
+                        {/* Self-register toggle */}
+                        <aside className="border border-border bg-card p-5 shadow-sm space-y-3">
+                            <div>
+                                <h2 className="text-xl font-bold text-foreground">Registration Settings</h2>
+                                <p className="mt-1 text-sm text-muted-foreground">Control who can create an account.</p>
+                            </div>
+                            {inviteError && (
+                                <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{inviteError}</p>
+                            )}
+                            {inviteSuccess && (
+                                <p className="rounded border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">{inviteSuccess}</p>
+                            )}
+                            <div className="flex items-center justify-between border border-border bg-background/60 px-4 py-3">
+                                <div>
+                                    <p className="text-sm font-medium text-foreground">Allow self-registration</p>
+                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                        When off, only invited users can create an account.
+                                    </p>
+                                </div>
+                                <Switch
+                                    checked={selfRegister ?? true}
+                                    onCheckedChange={saveSelfRegister}
+                                    disabled={selfRegisterSaving || selfRegister === null}
+                                />
+                            </div>
+                        </aside>
+
+                        {/* Send invite form */}
+                        <aside className="border border-border bg-card p-5 shadow-sm space-y-4">
+                            <div>
+                                <h2 className="text-xl font-bold text-foreground">Invite a user</h2>
+                                <p className="mt-1 text-sm text-muted-foreground">Send an invitation email with a magic sign-in link.</p>
+                            </div>
+                            <form className="grid gap-3 md:grid-cols-2" onSubmit={sendInvite}>
+                                <Field id="invite-email" label="Email">
+                                    <Input
+                                        id="invite-email"
+                                        type="email"
+                                        value={inviteEmail}
+                                        onChange={(e) => setInviteEmail(e.target.value)}
+                                        placeholder="user@example.com"
+                                        required
+                                        className="bg-background"
+                                    />
+                                </Field>
+                                <Field id="invite-handle" label="Handle">
+                                    <Input
+                                        id="invite-handle"
+                                        value={inviteHandle}
+                                        onChange={(e) => setInviteHandle(e.target.value.replace(/^@+/, ""))}
+                                        placeholder="their-handle"
+                                        required
+                                        className="bg-background"
+                                    />
+                                </Field>
+                                <Field id="invite-displayname" label="Display name">
+                                    <Input
+                                        id="invite-displayname"
+                                        value={inviteDisplayName}
+                                        onChange={(e) => setInviteDisplayName(e.target.value)}
+                                        placeholder="Their Name"
+                                        required
+                                        className="bg-background"
+                                    />
+                                </Field>
+                                <div className="flex items-end">
+                                    <Button type="submit" disabled={inviteSending} className="w-full h-11 gap-2">
+                                        <Send className="h-4 w-4" />
+                                        {inviteSending ? "Sending..." : "Send Invite"}
+                                    </Button>
+                                </div>
+                            </form>
+                        </aside>
+
+                        {/* Invite list */}
+                        <aside className="border border-border bg-card p-5 shadow-sm space-y-3">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h2 className="text-xl font-bold text-foreground">Sent invitations</h2>
+                                    <p className="mt-1 text-sm text-muted-foreground">Recent invitations (newest first).</p>
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={loadInviteSettings}
+                                    disabled={invitesLoading}
+                                    className="gap-1.5"
+                                >
+                                    <RefreshCw className={`h-3.5 w-3.5 ${invitesLoading ? "animate-spin" : ""}`} />
+                                    Refresh
+                                </Button>
+                            </div>
+
+                            {invites.length === 0 && !invitesLoading && (
+                                <p className="text-sm text-muted-foreground text-center py-4">No invitations sent yet.</p>
+                            )}
+
+                            <div className="space-y-2">
+                                {invites.map((inv) => {
+                                    const expired = inv.expiresAt ? new Date(inv.expiresAt) < new Date() : false;
+                                    const statusLabel = inv.used ? "Used" : expired ? "Expired" : "Pending";
+                                    const statusColor = inv.used
+                                        ? "bg-green-100 text-green-700"
+                                        : expired
+                                        ? "bg-orange-100 text-orange-700"
+                                        : "bg-blue-100 text-blue-700";
+
+                                    return (
+                                        <div key={inv.id} className="flex items-center gap-3 rounded-lg border border-border bg-background/60 p-3">
+                                            <div className="min-w-0 flex-1 space-y-0.5">
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <p className="text-sm font-semibold text-foreground truncate">{inv.displayName}</p>
+                                                    <span className="text-sm text-muted-foreground">@{inv.handle}</span>
+                                                    <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${statusColor}`}>
+                                                        {statusLabel}
+                                                    </span>
+                                                </div>
+                                                <p className="text-xs text-muted-foreground truncate">{inv.email}</p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Sent {formatTimestamp(inv.createdAt)}
+                                                    {inv.expiresAt && !inv.used && ` · Expires ${formatTimestamp(inv.expiresAt)}`}
+                                                    {inv.used && inv.usedAt && ` · Accepted ${formatTimestamp(inv.usedAt)}`}
+                                                </p>
+                                            </div>
+                                            {!inv.used && !expired && (
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="shrink-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                    onClick={() => revokeInvite(inv.id)}
+                                                    title="Revoke invite"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </aside>
+                    </section>
+
+                ) : tab === "users" ? (
                     <section className="grid gap-4">
 
                         {/* Search */}

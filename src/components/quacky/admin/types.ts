@@ -78,3 +78,15 @@ export type PostEditor = {
     likeCount: number;
     replyCount: number;
 };
+
+export type InviteRecord = {
+    id: string;
+    email: string;
+    handle: string;
+    displayName: string;
+    used: boolean;
+    usedAt: string | Date | null;
+    expiresAt: string | Date | null;
+    createdAt: string | Date;
+    createdById: string;
+};

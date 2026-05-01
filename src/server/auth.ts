@@ -1,4 +1,4 @@
-import { betterAuth } from "better-auth";
+import { betterAuth, APIError } from "better-auth";
 import { magicLink, emailOTP } from "better-auth/plugins";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { Resend } from "resend";
@@ -68,6 +68,44 @@ export const auth = betterAuth(
             user: {
                 create: {
                     before: async (user) => {
+                        // Check for a valid pending invite for this email
+                        const invite = await prisma.invite.findFirst({
+                            where: {
+                                email: user.email,
+                                used: false,
+                                OR: [
+                                    { expiresAt: null },
+                                    { expiresAt: { gt: new Date() } },
+                                ],
+                            },
+                            orderBy: { createdAt: "desc" },
+                        });
+
+                        if (invite) {
+                            return {
+                                data: {
+                                    ...user,
+                                    name: invite.displayName,
+                                    handle: invite.handle,
+                                    role: "Member",
+                                },
+                            };
+                        }
+
+                        // No invite — check if self-registration is enabled
+                        const selfRegisterConfig = await prisma.config.findUnique({
+                            where: { key: "self_register" },
+                        });
+
+                        const selfRegisterEnabled =
+                            selfRegisterConfig == null ||
+                            (selfRegisterConfig.value as { enabled?: boolean })?.enabled !== false;
+
+                        if (!selfRegisterEnabled) {
+                            // Block creation — no invite and registration is closed
+                            return false;
+                        }
+
                         const randomId = Math.floor(1000000 + Math.random() * 9000000);
                         const defaultHandle = `user-${randomId}`;
 
@@ -76,9 +114,23 @@ export const auth = betterAuth(
                                 ...user,
                                 name: user.name || defaultHandle,
                                 handle: defaultHandle,
+                                role: "Member",
                             },
                         };
-                    }
+                    },
+                    after: async (user) => {
+                        // Mark any matching invite as used now that the account exists
+                        await prisma.invite.updateMany({
+                            where: {
+                                email: user.email,
+                                used: false,
+                            },
+                            data: {
+                                used: true,
+                                usedAt: new Date(),
+                            },
+                        });
+                    },
                 },
             },
         },
@@ -112,6 +164,42 @@ export const auth = betterAuth(
             emailOTP({
                 sendVerificationOTP: async ({ email, otp, type }) => {
                     if (type !== "sign-in") return;
+
+                    // Only block new accounts — existing users can always sign in
+                    const existingUser = await prisma.user.findUnique({
+                        where: { email },
+                        select: { id: true },
+                    });
+
+                    if (!existingUser) {
+                        const invite = await prisma.invite.findFirst({
+                            where: {
+                                email,
+                                used: false,
+                                OR: [
+                                    { expiresAt: null },
+                                    { expiresAt: { gt: new Date() } },
+                                ],
+                            },
+                            select: { id: true },
+                        });
+
+                        if (!invite) {
+                            const selfRegisterConfig = await prisma.config.findUnique({
+                                where: { key: "self_register" },
+                            });
+
+                            const selfRegisterEnabled =
+                                selfRegisterConfig == null ||
+                                (selfRegisterConfig.value as { enabled?: boolean })?.enabled !== false;
+
+                            if (!selfRegisterEnabled) {
+                                throw new APIError("FORBIDDEN", {
+                                    message: "Registration is currently closed. You need an invitation to join.",
+                                });
+                            }
+                        }
+                    }
 
                     const token = randomBytes(24).toString("base64url");
                     await prisma.verification.create({

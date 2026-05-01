@@ -304,3 +304,20 @@ model Verification {
 
   @@unique([identifier])
 }
+
+model Invite {
+  id          String    @id @default(cuid())
+  email       String
+  handle      String
+  displayName String
+  token       String    @unique
+  used        Boolean   @default(false)
+  usedAt      DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  createdById String
+
+  @@index([email])
+  @@index([token])
+  @@index([createdAt])
+}
