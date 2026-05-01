@@ -160,7 +160,7 @@ export default function ProfilePage(
                         )}
                         <div className="p-6">
                             <div className="flex items-start gap-4 mb-6">
-                                <Avatar className={`size-20 border-4 border-border flex-shrink-0 ${user.banner ? '-mt-12' : ''}`}>
+                                <Avatar className={`size-20 flex-shrink-0 ${user.banner ? '-mt-12' : ''}`}>
                                     <AvatarImage src={user.image || ""} alt={`${user.handle} avatar`} className="bg-background"/>
                                     <AvatarFallback className="bg-primary text-background text-xl font-bold">
                                         {(user.name || user.handle || "?").charAt(0).toUpperCase()}
