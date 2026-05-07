@@ -1,0 +1,162 @@
+import type { Level } from './types';
+
+export const cyberbullyingLevels: Level[] = [
+    {
+        id: 'cyber-1',
+        worldId: 'cyberbullying',
+        number: 1,
+        title: 'The Mean Comment',
+        subtitle: 'What do you do when you see it?',
+        intro: [
+            { text: "Alex just posted their first photo essay online. They worked on it for weeks." },
+            { text: "Within minutes, a mean comment appears. You can see Alex is online and has already read it." },
+        ],
+        challenge: {
+            type: 'choice',
+            situation: 'Alex posted their photography project and a comment reads: "this is SO bad lol who told you you were talented 😂". What do you do?',
+            post: {
+                username: 'Alex P.',
+                handle: '@alex.photography',
+                avatar: '📸',
+                content: 'Finally posted my first photo essay for school! Been working on this for weeks 🎨 So nervous but proud of how it turned out',
+                time: '10 min ago',
+                likes: 3,
+                reposts: 0,
+                comments: [
+                    { username: 'jake_m', text: 'this is SO bad lol who told you you were talented 😂' },
+                ],
+            },
+            options: [
+                {
+                    id: 'a',
+                    text: 'Reply to jake_m telling him off publicly',
+                    correct: false,
+                    outcome: "Now there's a public argument on Alex's post. Fighting fire with fire usually escalates things and draws more attention to the mean comment. 😬",
+                },
+                {
+                    id: 'b',
+                    text: 'Leave Alex a kind comment and report jake_m\'s comment',
+                    correct: true,
+                    outcome: "Perfect. You've made Alex feel supported and flagged the harmful comment for review. That's exactly what a good digital bystander does. ✅",
+                },
+                {
+                    id: 'c',
+                    text: 'Keep scrolling — not my problem',
+                    correct: false,
+                    outcome: "When we stay silent, we let cruelty continue. Alex can see who engaged with the post. Your silence feels like agreement. Small acts of support matter a lot.",
+                },
+                {
+                    id: 'd',
+                    text: 'Screenshot it and share it in your group chat for a laugh',
+                    correct: false,
+                    outcome: "That's participating in the bullying. Sharing to mock someone — even secondhand — spreads the harm further and makes you part of the problem.",
+                },
+            ],
+        },
+        lesson: "When you see cyberbullying: support the target (a kind comment goes far), report the harmful content, and don't engage with the bully. You don't have to fight — just be a positive presence.",
+        successMessage: "You were a great digital bystander for Alex.",
+    },
+    {
+        id: 'cyber-2',
+        worldId: 'cyberbullying',
+        number: 2,
+        title: 'The Exclusion',
+        subtitle: 'Online exclusion is bullying too.',
+        intro: [
+            { text: "Bullying isn't always insults — sometimes it's deliberate exclusion." },
+            { text: "Your friend group just made a new group chat and left Jordan out on purpose." },
+        ],
+        challenge: {
+            type: 'choice',
+            situation: "Your group just made a new chat without Jordan. Jordan texts you privately: 'Why wasn\'t I added to the group chat?' What do you say?",
+            options: [
+                {
+                    id: 'a',
+                    text: "Lie: 'I don't know anything about it'",
+                    correct: false,
+                    outcome: "Lying to protect the group usually backfires when the truth comes out — and it always does. Then Jordan loses trust in you too.",
+                },
+                {
+                    id: 'b',
+                    text: "Tell Jordan bluntly: 'They decided to leave you out'",
+                    correct: false,
+                    outcome: "Honesty matters, but this has zero context or care. Jordan deserves truth with kindness — not a blunt statement that deepens the hurt without any path forward.",
+                },
+                {
+                    id: 'c',
+                    text: "Tell Jordan there's been some tension, suggest they talk to the group, and raise it gently with your friends",
+                    correct: true,
+                    outcome: "This is the hard but right move. Jordan gets an honest (but kind) answer, and you're actually trying to fix the problem on both sides. That takes courage. ✅",
+                },
+                {
+                    id: 'd',
+                    text: "Add Jordan to the group yourself without asking anyone",
+                    correct: false,
+                    outcome: "This might feel like a fix, but it could create a bigger conflict in the group without addressing why they were excluded. Better to address the tension first.",
+                },
+            ],
+        },
+        lesson: "Online exclusion is a form of cyberbullying. If you're caught in the middle, be a bridge — encourage honesty, discourage exclusion, and support the person being left out.",
+        successMessage: "You handled a difficult situation with real care.",
+    },
+    {
+        id: 'cyber-3',
+        worldId: 'cyberbullying',
+        number: 3,
+        title: 'How to Report',
+        subtitle: 'Do it right and do it safely.',
+        intro: [
+            { text: "You've decided to report a bullying incident. Good call." },
+            { text: "But reporting effectively means more than just hitting a button. Let's check your process." },
+        ],
+        challenge: {
+            type: 'configure',
+            platform: 'Reporting Checklist',
+            context: "You're about to report a cyberbullying incident. Which of these steps should you take?",
+            settings: [
+                {
+                    id: 'screenshot',
+                    label: 'Take a screenshot before reporting',
+                    description: 'Save evidence in case the bully deletes the content',
+                    value: false,
+                    correctValue: true,
+                    explanation: 'Bullies often delete posts after being reported. A screenshot preserves the evidence in case you need it later.',
+                },
+                {
+                    id: 'report_platform',
+                    label: "Use the platform's report tool",
+                    description: 'Flag the content using the in-app report button',
+                    value: false,
+                    correctValue: true,
+                    explanation: "Platforms act on reports — that's how content gets reviewed and removed. Always use the official report feature.",
+                },
+                {
+                    id: 'tell_adult',
+                    label: 'Tell a trusted adult if the bullying is serious',
+                    description: 'Especially if it involves threats, personal info, or ongoing harassment',
+                    value: false,
+                    correctValue: true,
+                    explanation: "For serious incidents — threats, doxxing, relentless harassment — a trusted adult (parent, teacher, counsellor) can escalate in ways you can't.",
+                },
+                {
+                    id: 'fight_back',
+                    label: 'Reply to the bully publicly to tell them off',
+                    description: 'Engage directly and call out the bully in the comments',
+                    value: true,
+                    correctValue: false,
+                    explanation: 'Engaging publicly usually escalates things and can make you look like part of the conflict. Report and block instead.',
+                },
+                {
+                    id: 'block',
+                    label: 'Block or restrict the bully',
+                    description: 'Protect yourself from seeing their content',
+                    value: false,
+                    correctValue: true,
+                    explanation: "Blocking is not weakness — it's smart self-protection. It stops the bully from seeing your content too.",
+                },
+            ],
+        },
+        lesson: "Effective reporting: screenshot first, use the platform's report tool, block/restrict the bully, and involve a trusted adult for serious incidents. Don't engage publicly.",
+        successMessage: "You know exactly how to handle this safely.",
+    },
+];
