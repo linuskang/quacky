@@ -30,6 +30,7 @@ export default function Homepage() {
     const { data: session, isPending } = authClient.useSession();
     const [posts, setPosts] = useState<Post[]>([]);
     const [postsLoading, setPostsLoading] = useState(true);
+    const [isBinHovered, setIsBinHovered] = useState(false);
     const { resolvedTheme } = useTheme();
 
     useEffect(() => {
@@ -55,6 +56,10 @@ export default function Homepage() {
         setPostsLoading(true);
         setPosts(await getPosts());
         setPostsLoading(false);
+    }
+
+    function handleBinClick() {
+        // Add client-side behavior here.
     }
 
     return (
@@ -102,6 +107,40 @@ export default function Homepage() {
                     className="w-full h-auto"
                 />
             </div>
+
+            <button
+                type="button"
+                aria-label="Toggle corner asset"
+                className="fixed -bottom-10 -right-15 z-0 cursor-pointer pointer-events-auto transition-transform duration-200 hover:scale-110 active:scale-95"
+                onClick={handleBinClick}
+                onMouseEnter={() => setIsBinHovered(true)}
+                onMouseLeave={() => setIsBinHovered(false)}
+            >
+                <Image
+                    src={isBinHovered ? "/assets/bin/open.png" : "/assets/bin/close.png"}
+                    alt="Corner asset"
+                    width={220}
+                    height={220}
+                    sizes="220px"
+                    priority
+                    className="h-auto w-56"
+                />
+            </button>
+
+            {/* <div
+                aria-hidden="true"
+                className="pointer-events-none fixed right-40 top-[24%] z-0 -translate-y-1/2"
+            >
+                <Image
+                    src="/assets/qky/balloon.png"
+                    alt=""
+                    width={700}
+                    height={700}
+                    sizes="700px"
+                    priority
+                    className="h-auto w-80"
+                />
+            </div> */}
         </main>
     );
 }
