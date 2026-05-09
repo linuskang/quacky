@@ -10,6 +10,7 @@ import { authClient } from "@/client/auth";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import Footer from "@/components/quacky/footer";
+import Image from "next/image";
 
 type InviteInfo = {
     email: string;
@@ -34,6 +35,13 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
     const [otp, setOtp] = useState("");
     const [otpPending, setOtpPending] = useState(false);
     const [otpError, setOtpError] = useState<string | null>(null);
+
+    const handleBinClick = () => {
+        const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+        window.open(url, "_blank");
+    };
+
+    const [isBinHovered, setIsBinHovered] = useState(false);
 
     const otpRef = useRef<HTMLDivElement>(null);
 
@@ -92,6 +100,9 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
             otp: value,
             name: invite.displayName,
             handle: invite.handle,
+            role: "Member",
+            privateAccount: false,
+            emailNotif: true,
             callbackURL: "/",
         });
 
@@ -99,8 +110,9 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
             setOtpError(result.error.message ?? "Invalid code. Please try again.");
             setOtp("");
             setOtpPending(false);
+        } else {
+            window.location.href = "/";
         }
-        // On success, Better-Auth redirects via callbackURL
     };
 
     return (
@@ -137,10 +149,6 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
 
                             {!codeSent ? (
                                 <div className="space-y-3">
-                                    <p className="text-xs text-muted-foreground text-center">
-                                        A sign-in code will be sent to{" "}
-                                        <span className="font-medium text-foreground">{invite.email}</span>
-                                    </p>
                                     {sendError && (
                                         <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2.5 text-sm text-destructive text-center">
                                             {sendError}
@@ -221,6 +229,25 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
                     )}
                 </div>
             </div>
+
+            <button
+                type="button"
+                aria-label="Toggle corner asset"
+                className="fixed -bottom-10 -right-15 z-0 cursor-pointer pointer-events-auto transition-transform duration-200 hover:scale-110 active:scale-95"
+                onClick={handleBinClick}
+                onMouseEnter={() => setIsBinHovered(true)}
+                onMouseLeave={() => setIsBinHovered(false)}
+            >
+                <Image
+                    src={isBinHovered ? "/assets/bin/open.png" : "/assets/bin/close.png"}
+                    alt="Corner asset"
+                    width={220}
+                    height={220}
+                    sizes="220px"
+                    priority
+                    className="h-auto w-56"
+                />
+            </button>
 
             <div className="fixed bottom-4 left-0 right-0 text-center">
                 <Footer />
