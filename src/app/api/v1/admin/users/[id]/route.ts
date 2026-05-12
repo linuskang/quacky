@@ -3,7 +3,7 @@
 // This file is a part of the Quacky project. For more information, refer to https://kang.software/git/quacky
 
 import { NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
+import type { UserUpdateInput } from "@prisma/client";
 import { z } from "zod";
 
 import { auth } from "@/server/auth";
@@ -216,7 +216,7 @@ export async function PATCH(
 
     const body = parsedBody.data;
     const action = body.action ?? null;
-    const updates: Prisma.UserUpdateInput = {};
+    const updates: UserUpdateInput = {};
 
     if (body.name !== undefined) {
         const nextName = body.name.trim();

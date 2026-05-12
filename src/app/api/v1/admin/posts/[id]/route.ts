@@ -3,12 +3,14 @@
 // This file is a part of the Quacky project. For more information, refer to https://kang.software/git/quacky
 
 import { NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
+import type { PostUpdateInput } from "@prisma/client";
 import { z } from "zod";
 
 import { auth } from "@/server/auth";
 import prisma from "@/server/db";
 import Discord from "@/server/utilities/discord";
+
+type JsonArray = unknown[];
 
 const adminPostPatchSchema = z.object({
     content: z.string().optional(),
@@ -21,13 +23,13 @@ const adminPostPatchSchema = z.object({
     isDeleted: z.boolean().optional(),
 }).strict();
 
-function parseAttachments(value: string | unknown[] | null | undefined): Prisma.JsonArray | null {
+function parseAttachments(value: string | unknown[] | null | undefined): JsonArray | null {
     if (value === undefined || value === null) {
         return null;
     }
 
     if (Array.isArray(value)) {
-        return value as Prisma.JsonArray;
+        return value as JsonArray;
     }
 
     const trimmed = value.trim();
@@ -42,7 +44,7 @@ function parseAttachments(value: string | unknown[] | null | undefined): Prisma.
         throw new Error("Attachments must be a JSON array.");
     }
 
-    return parsed as Prisma.JsonArray;
+    return parsed as JsonArray;
 }
 
 export async function GET(
@@ -188,10 +190,10 @@ export async function PATCH(
     }
 
     const body = parsedBody.data;
-    const updates: Prisma.PostUpdateInput = {};
+    const updates: PostUpdateInput = {};
 
     let nextContent = post.content;
-    let nextAttachments: Prisma.JsonArray | null = Array.isArray(post.attachments) ? post.attachments : null;
+    let nextAttachments: JsonArray | null = Array.isArray(post.attachments) ? post.attachments : null;
 
     if (body.content !== undefined) {
         nextContent = body.content.trim();
