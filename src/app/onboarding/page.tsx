@@ -162,7 +162,7 @@ export default function OnboardingPage() {
                 {step === 1 && (
                     <div className="space-y-3">
                         <div>
-                            <h2 className="text-xl font-extrabold tracking-tight text-foreground">
+                            <h2 className="text-xl font-extrabold tracking-tight text-primary">
                                 Some ground rules.
                             </h2>
                             <p className="mt-1 text-sm text-muted-foreground">
@@ -209,7 +209,7 @@ export default function OnboardingPage() {
                 {step === 2 && (
                     <form onSubmit={createAccount} className="space-y-5">
                         <div>
-                            <h2 className="text-xl font-extrabold tracking-tight text-foreground">
+                            <h2 className="text-xl font-extrabold tracking-tight text-primary">
                                 Let's get you set up.
                             </h2>
                             <p className="mt-1 text-sm text-muted-foreground">
@@ -302,7 +302,7 @@ export default function OnboardingPage() {
                 {step === 3 && (
                     <div className="space-y-5">
                         <div>
-                            <h2 className="text-xl font-extrabold tracking-tight text-foreground">
+                            <h2 className="text-xl font-extrabold tracking-tight text-primary">
                                 Confirm your email.
                             </h2>
                             <p className="mt-1 text-sm text-muted-foreground">
