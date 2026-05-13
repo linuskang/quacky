@@ -1,6 +1,3 @@
 # Roadmap
 
-- Reels
-- Report abuse users/replies
-- Game (Folding Light)
-- Warm Fuzzies
+Moved to obsidian
