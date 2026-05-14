@@ -185,7 +185,7 @@ export async function POST(request: NextRequest) {
             poll = { options };
         }
 
-        if (content.length > 280 || (!content && attachments.length === 0 && !poll)) {
+        if (content.length > 400 || (!content && attachments.length === 0 && !poll)) {
             return NextResponse.json({ success: false, error: "Invalid format" }, { status: 400 });
         }
 

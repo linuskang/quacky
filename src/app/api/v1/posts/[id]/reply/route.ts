@@ -19,7 +19,7 @@ export async function POST(
     const body = await request.json();
     const content = typeof body.content === "string" ? body.content.trim() : "";
 
-    if (!content || content.length > 280) {
+    if (!content || content.length > 400) {
         return NextResponse.json({ error: "Invalid format" }, { status: 400 });
     }
 

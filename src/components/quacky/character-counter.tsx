@@ -5,7 +5,7 @@ interface CharCounterProps {
   maxLength?: number;
 }
 
-export function CharacterCounter({ length, maxLength = 280 }: CharCounterProps) {
+export function CharacterCounter({ length, maxLength = 400 }: CharCounterProps) {
   const remaining = maxLength - length;
   const isOverLimit = remaining < 0;
   const isNearLimit = remaining <= 20 && remaining >= 0;

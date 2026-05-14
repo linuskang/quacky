@@ -274,7 +274,7 @@ export default function OnboardingPage() {
                             </p>
                         </div>
 
-                        <div className="rounded-xl bg-card border border-primary/20 px-4 py-3 text-center">
+                        <div className="rounded-xl bg-card px-4 py-3 text-center">
                             <p className="text-sm font-semibold text-primary mb-0.5">Link sent</p>
                             <p className="text-xs text-muted-foreground">
                                 We sent a sign-in link to <span className="font-medium text-primary">{email}</span>

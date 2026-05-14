@@ -19,7 +19,7 @@ import { formatSize } from "@/client/utils";
 // Types
 import { PostAttachment } from "@/types";
 
-const MAX_CHARS = 280;
+const MAX_CHARS = 400;
 const MAX_FILES = 3;
 
 interface NewPost {
@@ -181,7 +181,7 @@ export default function Compose({ onPost }: Props) {
         content.length > MAX_CHARS || isPosting || isUploading;
 
     return (
-        <div className="rounded-xl bg-[var(--lynt)] border border-border p-4 w-full">
+        <div className="rounded-xl bg-card border border-border p-4 w-full">
             <div className="flex gap-4">
                 <Avatar className="w-12 h-12 shrink-0">
                     <AvatarImage src={session?.user.image || ""} alt={session?.user.name} />

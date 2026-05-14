@@ -515,7 +515,7 @@ function PollBlock({
 
 function PostCardSkeleton() {
     return (
-        <div className="rounded-xl border border-border bg-[var(--lynt)] p-4 flex flex-col gap-3">
+        <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3">
             <div className="flex items-center gap-2">
                 <Skeleton className="w-8 h-8 rounded-full shrink-0" />
                 <div className="flex items-center gap-2 flex-1">
@@ -781,9 +781,8 @@ export function PostCard({
     // ── Render ────────────────────────────────────────────────────────────────
 
     return (
-        <div className="rounded-xl border border-border bg-[var(--lynt)] p-4 flex flex-col gap-2">
+        <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-2">
 
-            {/* ── Repost banner ─────────────────────────────────────────────── */}
             {post.type === "repost" && (
                 <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-semibold">
                     <Repeat2 size={13} className="text-primary" />
@@ -798,7 +797,6 @@ export function PostCard({
                 </div>
             )}
 
-            {/* ── Pin indicator ─────────────────────────────────────────────── */}
             {isPinned && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Pin fill="currentColor" size={15} className="text-primary" />
@@ -806,17 +804,14 @@ export function PostCard({
                 </div>
             )}
 
-            {/* ── Deleted original (repost with missing parent) ─────────────── */}
             {isRepost && !displayPost && (
                 <div className="text-sm text-muted-foreground italic py-2">
                     The original post is unavailable.
                 </div>
             )}
 
-            {/* ── Main card body ────────────────────────────────────────────── */}
             {displayPost && (
                 <>
-                    {/* Author row */}
                     <div className="flex items-center gap-2">
                         <Avatar className="w-8 h-8 shrink-0">
                             <AvatarImage src={displayPost.author.image || ""} />
@@ -857,7 +852,6 @@ export function PostCard({
                             </span>
                         </div>
 
-                        {/* Right side: read-only badge + menu */}
                         <div className="flex items-center gap-1 shrink-0 ml-auto">
                             {isReadOnly && (
                                 <div className="flex items-center gap-1 text-muted-foreground text-xs border border-border rounded-full px-2 py-0.5">
@@ -1141,7 +1135,7 @@ export function PostCard({
                             value={editContent}
                             onChange={(e) => setEditContent(e.target.value)}
                             placeholder="Update your post..."
-                            maxLength={280}
+                            maxLength={400}
                             className="resize-none min-h-[140px]"
                             autoFocus
                         />
@@ -1149,8 +1143,8 @@ export function PostCard({
                             <span className="text-xs text-muted-foreground">
                                 Markdown is supported.
                             </span>
-                            <span className={`text-xs font-medium ${editContent.length > 260 ? "text-red-500" : "text-muted-foreground"}`}>
-                                {editContent.length}/280
+                            <span className={`text-xs font-medium ${editContent.length > 380 ? "text-red-500" : "text-muted-foreground"}`}>
+                                {editContent.length}/400
                             </span>
                         </div>
                         <div className="flex justify-end gap-2">
@@ -1178,13 +1172,13 @@ export function PostCard({
                             value={quoteContent}
                             onChange={(e) => setQuoteContent(e.target.value)}
                             placeholder="Add your thoughts..."
-                            maxLength={280}
+                            maxLength={400}
                             className="resize-none min-h-[100px]"
                             autoFocus
                         />
                         <div className="flex justify-end">
-                            <span className={`text-xs font-medium ${quoteContent.length > 260 ? "text-red-500" : "text-muted-foreground"}`}>
-                                {quoteContent.length}/280
+                            <span className={`text-xs font-medium ${quoteContent.length > 380 ? "text-red-500" : "text-muted-foreground"}`}>
+                                {quoteContent.length}/400
                             </span>
                         </div>
                         {/* Preview of the post being quoted */}

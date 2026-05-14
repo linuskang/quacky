@@ -164,14 +164,9 @@ function SearchPageContent() {
                 />
 
                 <div className="flex-1 flex flex-col gap-4 pt-8 max-w-2xl">
-                    <div className="rounded-xl border border-border bg-[var(--lynt)] p-5">
+                    <div className="rounded-xl border border-border bg-card p-5">
                         <div className="flex items-center gap-3 text-primary">
-                            <div>
                                 <h1 className="text-xl font-bold">Search</h1>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    Find people and posts across Quacky.
-                                </p>
-                            </div>
                         </div>
 
                         <div className="mt-4">

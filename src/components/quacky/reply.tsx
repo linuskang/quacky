@@ -120,7 +120,7 @@ export default function Reply({ postId, onReplySuccess }: Props) {
                             }, 150);
                         }}
                         placeholder="Reply..."
-                        maxLength={280}
+                        maxLength={400}
                         className="h-10 rounded-lg !bg-[var(--lynt)]"
                     />
                     {mentionResults.length > 0 && (

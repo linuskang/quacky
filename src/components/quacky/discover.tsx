@@ -34,7 +34,7 @@ export default function Discover({ session }: Props) {
     if (!session) {
         return (
             <aside className="sticky top-0 w-80 shrink-0 hidden lg:flex flex-col gap-4 pt-8 lg:h-screen overflow-y-auto pb-8">
-                <div className="rounded-xl bg-[var(--lynt)] border border-border p-4">
+                <div className="rounded-xl bg-card border border-border p-4">
                     <h2 className="text-xl font-bold text-primary mb-2 flex items-center gap-2">
                         Welcome to Quacky
                     </h2>
@@ -55,7 +55,7 @@ export default function Discover({ session }: Props) {
 
     return (
         <aside className="sticky top-0 w-80 shrink-0 hidden lg:flex flex-col gap-4 pt-8 lg:h-screen overflow-y-auto pb-8">
-            <div className="rounded-xl bg-[var(--lynt)] border border-border p-4">
+            <div className="rounded-xl bg-card border border-border p-4">
                 <h2 className="text-xl font-bold text-primary mb-4 flex items-center gap-2">
                     <TrendingUp size={24} strokeWidth={3} />
                     Trending

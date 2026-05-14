@@ -64,7 +64,7 @@ export default function NotificationsList({
 
     if (notifications.length === 0) {
         return (
-            <div className="rounded-xl bg-[var(--lynt)] border border-border p-12 text-center">
+            <div className="rounded-xl bg-card border border-border p-12 text-center">
                 <Bell size={48} fill="currentColor" className="mx-auto mb-4 text-primary" />
                 <p className="text-lg font-bold text-primary">No notifications yet</p>
                 <p className="text-sm text-muted-foreground mt-2">

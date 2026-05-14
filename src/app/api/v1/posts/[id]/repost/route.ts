@@ -33,7 +33,7 @@ export async function POST(
     // ── Quote post ────────────────────────────────────────────────────────────
     if (body.quote === true) {
         const content = typeof body.content === "string" ? body.content.trim() : "";
-        if (!content || content.length > 280) {
+        if (!content || content.length > 400) {
             return NextResponse.json({ error: "Invalid content" }, { status: 400 });
         }
 

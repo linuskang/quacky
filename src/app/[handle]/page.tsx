@@ -171,7 +171,7 @@ export default function ProfilePage(
                     className="flex-1 flex flex-col gap-4 pt-8 max-w-2xl"
                     style={{ ...(user.accentColor && user.accentColor !== "#1d9bf0" ? { '--primary': user.accentColor } as React.CSSProperties : {}) }}
                 >
-                    <div className="rounded-xl border border-border bg-[var(--lynt)] overflow-hidden">
+                    <div className="rounded-xl border border-border bg-card overflow-hidden">
                         {user.banner && (
                             <div className="h-32 w-full bg-cover bg-center" style={{ backgroundImage: `url(${user.banner})` }}></div>
                         )}

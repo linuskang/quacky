@@ -239,7 +239,7 @@ export async function PATCH(
         return NextResponse.json({ error: "Reposts cannot be edited" }, { status: 400 });
     }
 
-    if (content.length > 280) {
+    if (content.length > 400) {
         return NextResponse.json({ error: "Invalid content" }, { status: 400 });
     }
 

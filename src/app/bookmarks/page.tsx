@@ -45,7 +45,7 @@ export default function BookmarksPage() {
                     {loading ? (
                         <Loading />
                     ) : posts.length === 0 ? (
-                        <div className="rounded-xl border border-border bg-[var(--lynt)] p-12 text-center">
+                        <div className="rounded-xl border border-border bg-card p-12 text-center">
                             <Bookmark size={48} className="mx-auto mb-4 text-primary" />
                             <p className="text-lg font-bold text-primary">No bookmarks yet</p>
                             <p className="text-sm text-muted-foreground mt-2">
