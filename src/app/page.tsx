@@ -11,7 +11,7 @@
 
 // Libraries
 import { authClient } from "@/client/auth";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
 // UI Components
@@ -36,7 +36,26 @@ export default function Homepage() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [postsLoading, setPostsLoading] = useState(true);
     const [isBinHovered, setIsBinHovered] = useState(false);
+    const [bubbleText, setBubbleText] = useState("");
+    const typingTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+    const BUBBLE_MESSAGE = "click me to play a game ^^";
     const { resolvedTheme } = useTheme();
+
+    useEffect(() => {
+        if (typingTimer.current) clearInterval(typingTimer.current);
+        if (isBinHovered) {
+            setBubbleText("");
+            let i = 0;
+            typingTimer.current = setInterval(() => {
+                i++;
+                setBubbleText(BUBBLE_MESSAGE.slice(0, i));
+                if (i >= BUBBLE_MESSAGE.length) clearInterval(typingTimer.current!);
+            }, 45);
+        } else {
+            setBubbleText("");
+        }
+        return () => { if (typingTimer.current) clearInterval(typingTimer.current); };
+    }, [isBinHovered]);
 
     useEffect(() => {
         loadPosts();
@@ -112,6 +131,47 @@ export default function Homepage() {
                     className="w-full h-auto"
                 />
             </div> */}
+
+            {/* Speech bubble */}
+            <div
+                className={`fixed bottom-[180px] right-[42px] z-10 pointer-events-none select-none transition-all duration-150 ${
+                    isBinHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+                }`}
+            >
+                <div className="relative rotate-[-1.5deg]">
+                    <svg width="242" height="72" viewBox="0 0 242 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        {/* Bubble + tail as one filled shape */}
+                        <path
+                            d="M14 4 C14 4 80 0 140 1 C180 1 228 2 229 14 C230 26 229 42 228 52 C227 61 220 65 206 66 C175 67 80 67 36 66 C18 65 10 59 10 50 C9 38 10 20 11 12 C12 7 13 4 14 4 Z M185 66 C188 69 196 74 192 76 C184 72 172 68 168 67 Z"
+                            fill="white"
+                            stroke="#1c1c1c"
+                            strokeWidth="2.5"
+                            strokeLinejoin="round"
+                            strokeLinecap="round"
+                        />
+                        {/* Hard offset shadow */}
+                        <path
+                            d="M14 4 C14 4 80 0 140 1 C180 1 228 2 229 14 C230 26 229 42 228 52 C227 61 220 65 206 66 C175 67 80 67 36 66 C18 65 10 59 10 50 C9 38 10 20 11 12 C12 7 13 4 14 4 Z M185 66 C188 69 196 74 192 76 C184 72 172 68 168 67 Z"
+                            fill="none"
+                            stroke="#1c1c1c"
+                            strokeWidth="2.5"
+                            strokeLinejoin="round"
+                            strokeLinecap="round"
+                            transform="translate(3,3)"
+                            opacity="0.15"
+                        />
+                    </svg>
+                    <p
+                        className="absolute top-0 left-0 right-0 bottom-[12px] flex items-center justify-center text-sm font-bold text-zinc-900 whitespace-nowrap px-5"
+                        style={{ fontFamily: "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive" }}
+                    >
+                        {bubbleText}
+                        {bubbleText.length < BUBBLE_MESSAGE.length && (
+                            <span className="animate-pulse ml-px">|</span>
+                        )}
+                    </p>
+                </div>
+            </div>
 
             <button
                 type="button"
