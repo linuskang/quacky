@@ -98,7 +98,7 @@ export default function Homepage() {
                 <Footer />
             </div>
 
-            <div
+            {/* <div
                 aria-hidden="true"
                 className="pointer-events-none fixed inset-x-0 bottom-0 z-0"
             >
@@ -111,7 +111,7 @@ export default function Homepage() {
                     priority
                     className="w-full h-auto"
                 />
-            </div>
+            </div> */}
 
             <button
                 type="button"
