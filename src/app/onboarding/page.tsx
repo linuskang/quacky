@@ -155,7 +155,7 @@ export default function OnboardingPage() {
                         className="h-40 w-40 object-contain"
                     />
                 </div>
-                <h1 className="text-3xl font-bold text-foreground text-center mb-2">Join {orgName}</h1>
+                <h1 className="text-3xl font-bold text-primary text-center mb-2">Join {orgName}</h1>
 
                 <OnboardingStepper step={step} />
 
