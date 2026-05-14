@@ -1,4 +1,4 @@
-import Config from "@/server/config";
+import Config from "@/server/utilities/config";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/server/auth";
 

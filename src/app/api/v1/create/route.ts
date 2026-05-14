@@ -9,7 +9,7 @@
 
 import prisma from "@/server/db";
 import { NextRequest, NextResponse } from "next/server";
-import Config from "@/server/config";
+import Config from "@/server/utilities/config";
 import Send from "@/server/utilities/email";
 
 // types
