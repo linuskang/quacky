@@ -1,6 +1,11 @@
-// (c) 2025-2026 Linus Kang. Licensed under the Creative Commons Attribution-NonCommercial 4.0
-// For more information, refer to https://creativecommons.org/licenses/by-nc/4.0/
-// This file is a part of the Quacky project. For more information, see https://linuskang.au/quacky
+//    ____                   _          
+//   / __ \                 | |         
+//  | |  | |_   _  __ _  ___| | ___   _ 
+//  | |  | | | | |/ _` |/ __| |/ / | | |
+//  | |__| | |_| | (_| | (__|   <| |_| |
+//   \___\_\\__,_|\__,_|\___|_|\_\\__, |
+//                                 __/ |
+//                                |___/ 
 
 "use client";
 

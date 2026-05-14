@@ -4,11 +4,10 @@
 
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { use } from "react";
 import { authClient } from "@/client/auth";
 import { Button } from "@/components/ui/button";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import Footer from "@/components/quacky/footer";
 import Image from "next/image";
 
@@ -28,13 +27,9 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
     const [invite, setInvite] = useState<InviteInfo | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const [codeSent, setCodeSent] = useState(false);
-    const [sendingCode, setSendingCode] = useState(false);
+    const [linkSent, setLinkSent] = useState(false);
+    const [sendingLink, setSendingLink] = useState(false);
     const [sendError, setSendError] = useState<string | null>(null);
-
-    const [otp, setOtp] = useState("");
-    const [otpPending, setOtpPending] = useState(false);
-    const [otpError, setOtpError] = useState<string | null>(null);
 
     const handleBinClick = () => {
         const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
@@ -42,8 +37,6 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
     };
 
     const [isBinHovered, setIsBinHovered] = useState(false);
-
-    const otpRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         fetch(`/api/v1/invite/${token}`)
@@ -63,56 +56,24 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
             });
     }, [token]);
 
-    useEffect(() => {
-        if (codeSent) {
-            setTimeout(() => otpRef.current?.querySelector("input")?.focus(), 100);
-        }
-    }, [codeSent]);
-
     const handleAccept = async () => {
-        if (!invite || sendingCode) return;
-        setSendingCode(true);
+        if (!invite || sendingLink) return;
+        setSendingLink(true);
         setSendError(null);
 
-        const result = await authClient.emailOtp.sendVerificationOtp({
+        const result = await authClient.signIn.magicLink({
             email: invite.email,
-            type: "sign-in",
-        });
-
-        if (result?.error) {
-            const msg = (result.error as any).message ?? (result.error as any).error?.message;
-            setSendError(msg ?? "Failed to send code. Please try again.");
-        } else {
-            setCodeSent(true);
-        }
-
-        setSendingCode(false);
-    };
-
-    const handleOtpChange = async (value: string) => {
-        setOtp(value);
-        if (value.length !== 6 || !invite) return;
-        setOtpPending(true);
-        setOtpError(null);
-
-        const result = await authClient.signIn.emailOtp({
-            email: invite.email,
-            otp: value,
-            name: invite.displayName,
-            handle: invite.handle,
-            role: "Member",
-            privateAccount: false,
-            emailNotif: true,
             callbackURL: "/",
         });
 
         if (result?.error) {
-            setOtpError(result.error.message ?? "Invalid code. Please try again.");
-            setOtp("");
-            setOtpPending(false);
+            const msg = (result.error as any).message ?? (result.error as any).error?.message;
+            setSendError(msg ?? "Failed to send link. Please try again.");
         } else {
-            window.location.href = "/";
+            setLinkSent(true);
         }
+
+        setSendingLink(false);
     };
 
     return (
@@ -147,7 +108,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
                                 )}
                             </div>
 
-                            {!codeSent ? (
+                            {!linkSent ? (
                                 <div className="space-y-3">
                                     {sendError && (
                                         <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2.5 text-sm text-destructive text-center">
@@ -157,9 +118,9 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
                                     <Button
                                         className="w-full h-11"
                                         onClick={handleAccept}
-                                        disabled={sendingCode}
+                                        disabled={sendingLink}
                                     >
-                                        {sendingCode ? "Sending code..." : "Accept Invitation"}
+                                        {sendingLink ? "Sending link..." : "Accept Invitation"}
                                     </Button>
                                 </div>
                             ) : (
@@ -167,43 +128,15 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
                                     <div className="rounded-xl bg-card border border-primary/20 px-4 py-3 text-center">
                                         <p className="text-sm font-semibold text-primary mb-0.5">Check your email</p>
                                         <p className="text-xs text-muted-foreground">
-                                            We sent a 6-digit code to{" "}
+                                            We sent a sign-in link to{" "}
                                             <span className="font-medium text-primary">{invite.email}</span>
                                         </p>
                                     </div>
-
-                                    {otpError && (
-                                        <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2.5 text-sm text-destructive text-center">
-                                            {otpError}
-                                        </div>
-                                    )}
-
-                                    <div ref={otpRef} className="flex flex-col items-center gap-3">
-                                        <InputOTP
-                                            maxLength={6}
-                                            value={otp}
-                                            onChange={handleOtpChange}
-                                            disabled={otpPending}
-                                        >
-                                            <InputOTPGroup>
-                                                <InputOTPSlot index={0} className="w-11 h-11 text-base bg-card" />
-                                                <InputOTPSlot index={1} className="w-11 h-11 text-base bg-card" />
-                                                <InputOTPSlot index={2} className="w-11 h-11 text-base bg-card" />
-                                                <InputOTPSlot index={3} className="w-11 h-11 text-base bg-card" />
-                                                <InputOTPSlot index={4} className="w-11 h-11 text-base bg-card" />
-                                                <InputOTPSlot index={5} className="w-11 h-11 text-base bg-card" />
-                                            </InputOTPGroup>
-                                        </InputOTP>
-                                        {otpPending && (
-                                            <p className="text-xs text-muted-foreground">Verifying...</p>
-                                        )}
-                                    </div>
-
                                     <button
-                                        onClick={() => { setCodeSent(false); setOtp(""); setOtpError(null); }}
+                                        onClick={() => { setLinkSent(false); setSendError(null); }}
                                         className="w-full text-xs text-muted-foreground hover:text-primary underline underline-offset-2 transition-colors text-center"
                                     >
-                                        Resend code
+                                        Resend link
                                     </button>
                                 </div>
                             )}

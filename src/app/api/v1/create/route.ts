@@ -1,13 +1,18 @@
+//    ____                   _          
+//   / __ \                 | |         
+//  | |  | |_   _  __ _  ___| | ___   _ 
+//  | |  | | | | |/ _` |/ __| |/ / | | |
+//  | |__| | |_| | (_| | (__|   <| |_| |
+//   \___\_\\__,_|\__,_|\___|_|\_\\__, |
+//                                 __/ |
+//                                |___/ 
+
 import prisma from "@/server/db";
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
-import { env } from "@/env";
 import Config from "@/server/config";
-
-const resend = new Resend(env.RESEND_API_KEY);
+import Send from "@/server/utilities/email";
 
 // types
-
 type SelfRegisterConfig = {
     enabled: boolean;
 };
@@ -17,191 +22,46 @@ type MetaConfig = {
 };
 
 const welcomeEmail = (name: string, handle: string, org?: string) =>
-    `
+`
 <!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Quacky</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display:ital@0;1&display=swap');
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: #1a1a18;
-            font-family: 'DM Sans', sans-serif;
-            color: #e8e0d4;
-            padding: 40px 16px;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        .email-wrapper {
-            max-width: 560px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            padding: 32px 40px 28px;
-            border-radius: 10px;
-            background: #222220;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .mascot {
-            width: 120px;
-            height: 100px;
-            margin: 0 auto 12px;
-            display: block;
-        }
-
-        .header h1 {
-            font-family: 'DM Serif Display', serif;
-            font-size: 32px;
-            font-weight: 400;
-            color: #f0e8dc;
-            line-height: 1.25;
-            margin-top: 0;
-        }
-
-        .header h1 em {
-            font-style: italic;
-            color: hsl(22, 80%, 65%);
-        }
-
-        .body {
-            background: #222220;
-            padding: 0 40px;
-        }
-
-        .section {
-            padding: 32px 0;
-        }
-
-        .section p {
-            font-size: 15px;
-            line-height: 1.7;
-            color: #c8bfb0;
-        }
-
-        .username-card {
-            background: #2a2926;
-            border: 0.5px solid #3a3830;
-            border-radius: 10px;
-            padding: 16px 20px;
-            margin: 20px 0;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .username-card .at {
-            font-size: 22px;
-            font-weight: 700;
-            color: hsl(22, 80%, 50%);
-            line-height: 1;
-        }
-
-        .username-card .handle {
-            font-size: 18px;
-            font-weight: 500;
-            color: #f0e8dc;
-        }
-
-        .cta-wrap {
-            padding: 28px 0 36px;
-            text-align: center;
-        }
-
-        .btn-primary {
-            display: inline-block;
-            background: hsl(22, 100%, 15%);
-            color: hsl(22, 60%, 92%);
-            text-decoration: none;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 15px;
-            font-weight: 700;
-            padding: 14px 40px;
-            border-radius: 8px;
-            letter-spacing: .02em;
-        }
-
-        .footer {
-            background: #1e1e1c;
-            border-radius: 10px;
-            padding: 28px 40px;
-            text-align: center;
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
-        .footer-links a {
-            font-size: 13px;
-            color: #6a6258;
-            text-decoration: none;
-        }
-
-        .footer p {
-            font-size: 12px;
-            color: #4a4440;
-            line-height: 1.6;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="email-wrapper">
-        <div class="header">
-            <img class="mascot" src="https://quacky.space/assets/logo/flying.png" alt="Quacky logo">
-            <h1>Welcome to the <em>flock.</em></h1>
-        </div>
-
-        <div class="body">
-            <div class="section">
-                <p>Hey <strong style="color:#e8e0d4">@username</strong> 👋</p>
-                    <p style="margin-top:12px">You're in. Your account on <strong style="color:#e8e0d4">${org}</strong> is all set up and ready to go. Glad you're here.</p>
-
-                <div class="username-card">
-                    <div class="at">@</div>
-                    <div>
-                        <div class="handle">${name}</div>
-                    </div>
-                </div>
-
-                <p>This is how people will find and mention you. You can update your display name anytime, but your
-                    username is permanent.</p>
-            </div>
-
-            <div class="cta-wrap">
-                <a href="https://quacky.space/${handle}" class="btn-primary">Go to your profile</a>
-            </div>
-
-        </div>
-
-        <div class="footer">
-            <div class="footer-links">
-                <a href="https://quacky.space/community-guidelines">Community Guidelines</a>
-                <a href="https://quacky.space/terms">Terms of Service</a>
-                <a href="https://quacky.space/privacy">Privacy policy</a>
-            </div>
-            <p>You received this because you signed up for a Quacky account.<br>If this wasn't you, please contact support@quacky.space.</p>
-        </div>
-
-    </div>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display:ital@0;1&display=swap');</style></head>
+<body style="margin:0;padding:0;background:#1a1a18;font-family:'DM Sans',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px;">
+    <tr><td align="center">
+      <table width="520" cellpadding="0" cellspacing="0" style="background:#222220;border-radius:10px;overflow:hidden;border:1px solid #3a3830;">
+        <tr>
+          <td style="padding:40px 32px 28px;text-align:center;background:#1a1a1a;">
+            <h1 style="font-family:'DM Serif Display',serif;font-size:28px;font-weight:600;margin:0;color:#f0e8dc;">Welcome to the flock</h1>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:40px 32px;">
+            <p style="font-size:15px;line-height:1.7;color:#c8bfb0;margin:0 0 24px;">
+              You're in, @${handle}. Time to start socialising in ${org}!
+            </p>
+            
+            <p style="font-size:14px;line-height:1.6;color:#a09080;margin:0px 0 0;">
+              Edit your profile, follow people, and start posting.
+            </p>
+            
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr><td align="center" style="padding:20px 0;">
+                <a href="https://quacky.space/${handle}" style="display:inline-block;background:hsl(22, 100%, 15%);color:hsl(22, 60%, 92%);text-decoration:none;padding:14px 40px;border-radius:8px;font-size:15px;font-weight:700;letter-spacing:.02em;">Enter Quacky →</a>
+              </td></tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-top:1px solid #3a3830;padding:15px 32px;text-align:center;">
+              <a href="https://quacky.space/community-guidelines" style="font-size:12px;color:#6a6258;text-decoration:none;margin:0 16px;">Community Guidelines</a>
+              <a href="https://quacky.space/terms" style="font-size:12px;color:#6a6258;text-decoration:none;margin:0 16px;">Terms of Service</a>
+              <a href="https://quacky.space/privacy" style="font-size:12px;color:#6a6258;text-decoration:none;margin:0 16px;">Privacy policy</a>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
 </body>
 </html>
 `
@@ -237,14 +97,11 @@ export async function POST(request: NextRequest) {
         const meta = await Config.get("meta") as MetaConfig | null;
         const org = meta?.org_name;
 
-        await resend.emails.send(
-            {
-                from: env.EMAIL_FROM,
-                to: email,
-                subject: "Welcome to Quacky!",
-                html: welcomeEmail(name, handle, org)
-            }
-        )
+        await Send(
+            email,
+            "Welcome to Quacky!",
+            welcomeEmail(name, handle, org)
+        );
 
         return NextResponse.json(
             { success: true },

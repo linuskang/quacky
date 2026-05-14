@@ -5,7 +5,7 @@
 "use client";
 
 // Libraries
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { authClient } from "@/client/auth";
 
 // UI Components
@@ -13,12 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import {
-    InputOTP,
-    InputOTPGroup,
-    InputOTPSlot,
-    InputOTPSeparator
-} from "@/components/ui/input-otp";
 import { OnboardingStepper } from "@/components/quacky/onboarding-stepper";
 
 // Types
@@ -41,10 +35,6 @@ export default function OnboardingPage() {
     const [formError, setFormError] = useState<string | null>(null);
     const [sendingCode, setSendingCode] = useState(false);
 
-    const [otp, setOtp] = useState("");
-    const [otpPending, setOtpPending] = useState(false);
-    const [otpError, setOtpError] = useState<string | null>(null);
-    const otpRef = useRef<HTMLDivElement>(null);
 
     // Metadata
     useEffect(() => {
@@ -75,9 +65,9 @@ export default function OnboardingPage() {
                 if (data.error) {
                     setFormError(data.error);
                 } else {
-                    await authClient.emailOtp.sendVerificationOtp({
+                    await authClient.signIn.magicLink({
                         email: email.trim(),
-                        type: "sign-in",
+                        callbackURL: "/",
                     });
                     setStep(3);
                     setFormError(null);
@@ -86,32 +76,6 @@ export default function OnboardingPage() {
             .catch(() => {
                 setFormError("An unexpected error occurred. Please try again.");
             });
-    };
-
-    const handleOtpChange = async (value: string) => {
-        setOtp(value);
-        if (value.length !== 6) return;
-        setOtpPending(true);
-        setOtpError(null);
-
-        const result = await authClient.signIn.emailOtp({
-            email: email.trim(),
-            otp: value,
-            name: displayName.trim(),
-            handle: handle.trim(),
-            role: "Member",
-            privateAccount: false,
-            emailNotif: true,
-            callbackURL: "/",
-        });
-
-        if (result?.error) {
-            setOtpError(result.error.message || "Invalid OTP");
-            setOtp("");
-            setOtpPending(false);
-        } else {
-            window.location.href = "/";
-        }
     };
 
     // Loading
@@ -285,7 +249,7 @@ export default function OnboardingPage() {
                                 className="w-full h-11"
                                 disabled={sendingCode}
                             >
-                                {sendingCode ? "Sending code..." : "Sign up"}
+                                {sendingCode ? "Sending link..." : "Sign up"}
                             </Button>
                             <Button
                                 type="button"
@@ -303,44 +267,19 @@ export default function OnboardingPage() {
                     <div className="space-y-5">
                         <div>
                             <h2 className="text-xl font-extrabold tracking-tight text-primary">
-                                Confirm your email.
+                                Check your email.
                             </h2>
                             <p className="mt-1 text-sm text-muted-foreground">
-                                Enter the 6 digit code we sent to finish creating your account.
+                                We sent a sign-in link to finish creating your account.
                             </p>
                         </div>
 
-                        <div ref={otpRef} className="flex flex-col items-center gap-6 py-4 w-full justify-center">
-                            <InputOTP
-                                maxLength={6}
-                                value={otp}
-                                onChange={handleOtpChange}
-                                disabled={otpPending}
-                            >
-                                <div className="flex items-center justify-center gap-1.5">
-                                    <InputOTPGroup className="gap-1.5">
-                                        <InputOTPSlot index={0} className="w-12 h-12 text-base font-semibold bg-background border-2 border-muted-foreground/30 rounded-md" />
-                                        <InputOTPSlot index={1} className="w-12 h-12 text-base font-semibold bg-background border-2 border-muted-foreground/30 rounded-md" />
-                                        <InputOTPSlot index={2} className="w-12 h-12 text-base font-semibold bg-background border-2 border-muted-foreground/30 rounded-md" />
-                                    </InputOTPGroup>
-                                    <InputOTPSeparator className="text-muted-foreground" />
-                                    <InputOTPGroup className="gap-1.5">
-                                        <InputOTPSlot index={3} className="w-12 h-12 text-base font-semibold bg-background border-2 border-muted-foreground/30 rounded-md" />
-                                        <InputOTPSlot index={4} className="w-12 h-12 text-base font-semibold bg-background border-2 border-muted-foreground/30 rounded-md" />
-                                        <InputOTPSlot index={5} className="w-12 h-12 text-base font-semibold bg-background border-2 border-muted-foreground/30 rounded-md" />
-                                    </InputOTPGroup>
-                                </div>
-                            </InputOTP>
-                            {otpPending && (
-                                <p className="text-sm text-muted-foreground">Verifying...</p>
-                            )}
-                            {otpError && (
-                                <p className="text-sm text-destructive">
-                                    {otpError}. Please try again.
-                                </p>
-                            )}
+                        <div className="rounded-xl bg-card border border-primary/20 px-4 py-3 text-center">
+                            <p className="text-sm font-semibold text-primary mb-0.5">Link sent</p>
+                            <p className="text-xs text-muted-foreground">
+                                We sent a sign-in link to <span className="font-medium text-primary">{email}</span>
+                            </p>
                         </div>
-
                     </div>
                 )}
 
