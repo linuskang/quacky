@@ -164,7 +164,7 @@ type MarkdownNode = {
 };
 
 function splitMarkdownText(text: string): MarkdownNode[] {
-    const parts = text.split(/(#[\w]+|@[\w]+|https?:\/\/[^\s]+)/g);
+    const parts = text.split(/(#[\w][\w-]*|@[\w]+|https?:\/\/[^\s]+)/g);
 
     const nodes: MarkdownNode[] = [];
 

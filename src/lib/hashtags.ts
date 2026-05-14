@@ -2,7 +2,7 @@ import type { PrismaClient } from "@prisma/client";
 
 /** Extract unique lowercase hashtag strings from post content (without the #). */
 export function parseHashtags(content: string): string[] {
-    const matches = content.match(/#([\w]+)/g) ?? [];
+    const matches = content.match(/#([\w][\w-]*)/g) ?? [];
     return [...new Set(matches.map((t) => t.slice(1).toLowerCase()))];
 }
 
