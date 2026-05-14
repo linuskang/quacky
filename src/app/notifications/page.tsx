@@ -88,80 +88,44 @@ export default function NotificationsPage() {
         }
     };
 
-    if (isPending || (session && loading)) {
-        return (
-            <main className="min-h-screen w-full flex justify-center bg-background dark:bg-background">
-                <div className="flex w-full max-w-[1200px] gap-4 px-4">
-                    <Sidebar
-                        session={session}
-                    />
-                    <div className="flex-1 flex flex-col pt-8 max-w-2xl">
-                        <div className="mb-4 p-4">
-                            <div className="flex items-center justify-between gap-3">
-                                <h1 className="text-2xl font-bold text-primary">My Notifications</h1>
-
-                            </div>
-                            <div className="flex justify-center">
-                                <Loading />
-                            </div>
-                        </div>
-                    </div>
-                    <RightSidebar
-                        session={session}
-                    />
-                </div>
-            </main>
-        );
-    }
-
-    if (!session) {
-        redirect("/signin");
-    }
-
     return (
-        <main className="min-h-screen w-full flex flex-col items-center bg-background dark:bg-background">
+        <main className="min-h-screen w-full flex flex-col items-center bg-background">
             <div className="flex w-full max-w-[1200px] flex-1 gap-4 px-4">
-                <Sidebar
-                    session={session}
-                />
+                <Sidebar session={session} />
 
                 <div className="flex-1 flex flex-col pt-8 max-w-2xl">
-                    <div className="mb-4 p-4">
-                        <div className="flex items-center justify-between gap-3">
-                            <div className="flex items-center gap-3">
-                                <h1 className="text-2xl font-bold text-primary">Notifications</h1>
-                                {unreadCount > 0 && (
-                                    <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-background">
-                                        {unreadCount} unread
-                                    </span>
-                                )}
-                            </div>
+                    <div className="flex items-center justify-between gap-3 px-1 pb-4 mb-2 border-b border-border">
+                        <div className="flex items-center gap-2.5">
+                            <h1 className="text-xl font-bold text-foreground">Notifications</h1>
                             {unreadCount > 0 && (
-                                <button
-                                    onClick={handleMarkAllRead}
-                                    className="text-xs font-bold text-primary hover:underline cursor-pointer"
-                                >
-                                    Mark all read
-                                </button>
+                                <span className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-bold text-primary-foreground">
+                                    {unreadCount}
+                                </span>
                             )}
                         </div>
+                        {unreadCount > 0 && (
+                            <button
+                                onClick={handleMarkAllRead}
+                                className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                            >
+                                Mark all read
+                            </button>
+                        )}
                     </div>
 
-                    <NotificationsList
-                        notifications={notifications}
-                        onMarkRead={handleMarkRead}
-                        onMarkAllRead={handleMarkAllRead}
-                    />
+                    {loading ? (
+                        <Loading />
+                    ) : (
+                        <NotificationsList
+                            notifications={notifications}
+                            onMarkRead={handleMarkRead}
+                            onMarkAllRead={handleMarkAllRead}
+                        />
+                    )}
                 </div>
 
-                <RightSidebar
-                    session={session}
-                />
+                <RightSidebar session={session} />
             </div>
-
-            <footer className="w-full py-4 text-center text-xs text-muted-foreground">
-                (c) Linus Kang 2026. All Rights Reserved.
-            </footer>
         </main>
     );
 }
