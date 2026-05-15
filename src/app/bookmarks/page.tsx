@@ -9,7 +9,7 @@ import { authClient } from "@/client/auth";
 import { redirect } from "next/navigation";
 
 import Sidebar from "@/components/quacky/sidebar";
-import RightSidebar from "@/components/quacky/discover";
+import RightSidebar from "@/components/quacky/v2/rightbar";
 import Posts from "@/components/quacky/posts";
 import Loading from "@/components/loading";
 import { Bookmark } from "lucide-react";
@@ -33,7 +33,7 @@ export default function BookmarksPage() {
 
     return (
         <main className="min-h-screen w-full flex justify-center bg-background dark:bg-background">
-            <div className="flex w-full max-w-[1200px] gap-4 px-4">
+            <div className="flex w-full max-w-[1100px] gap-4 px-4">
                 <Sidebar session={session} />
 
                 <div className="flex-1 flex flex-col gap-4 pt-8 max-w-2xl">

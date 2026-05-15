@@ -62,7 +62,6 @@ export async function POST(request: NextRequest) {
                 location: true,
                 pronouns: true,
                 banner: true,
-                accentColor: true,
                 image: true,
                 privateAccount: true,
                 emailNotif: true,

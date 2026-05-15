@@ -587,7 +587,7 @@ export default function Posts({ posts, showActions = true, onChanged }: Props) {
     }
 
     return (
-        <div className="w-full flex flex-col gap-4">
+        <div className="w-full flex flex-col gap-2">
             {sort(posts).map((post) => (
                 <PostCard key={post.id} post={post} session={session} router={router} showActions={showActions} onChanged={onChanged} />
             ))}

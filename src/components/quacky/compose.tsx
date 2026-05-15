@@ -321,7 +321,7 @@ export default function Compose({ onPost }: Props) {
                             <button
                                 type="button"
                                 onClick={() => setPollEnabled(true)}
-                                className="px-3 py-2 rounded-full border border-border hover:bg-accent cursor-pointer text-sm font-semibold flex items-center gap-1.5"
+                                className="px-3 py-2 rounded-full hover:bg-background/50 cursor-pointer text-primary text-sm font-semibold flex items-center gap-1.5"
                                 title="Add a poll"
                             >
                                 <BarChart2 size={15} />
@@ -329,7 +329,7 @@ export default function Compose({ onPost }: Props) {
                             </button>
                         )}
 
-                        <label className="px-3 py-2 rounded-full border border-border hover:bg-accent cursor-pointer text-sm font-semibold">
+                        <label className="px-3 py-2 rounded-full hover:bg-background/50 cursor-pointer text-primary text-sm font-semibold">
                             {isUploading ? "Uploading..." : `Attach (${attachments.length}/${MAX_FILES})`}
                             <input
                                 type="file"

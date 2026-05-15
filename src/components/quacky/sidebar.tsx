@@ -28,6 +28,11 @@ import {
     Briefcase,
     Bookmark,
     LucideIcon,
+    TrendingUp,
+    MessageCircleCheck,
+    GraduationCap,
+    LoaderPinwheel,
+    FerrisWheel,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Account from "@/components/quacky/account";
@@ -64,10 +69,14 @@ export default function Sidebar({ session }: Props) {
         { href: "/search", label: "Search", icon: Search },
         { href: "/messages", label: "Messages", icon: MessagesSquare },
         { href: "/fuzzies", label: "Warm Fuzzies", icon: Briefcase },
+        { href: "/trending", label: "Trending", icon: TrendingUp },
         { href: "/shorts", label: "Shorts", icon: Clapperboard },
+        { href: "/check-in", label: "Daily Check In", icon: MessageCircleCheck },
+        { href: "/emotion-wheel", label: "Emotion Wheel", icon: FerrisWheel },
+        { href: "/learn", label: "Social Media Edu", icon: GraduationCap },
         { href: "/bookmarks", label: "Bookmarks", icon: Bookmark },
         { href: "/notifications", label: "Notifications", icon: Bell },
-        { href: `/${session.user.handle}`, label: "Profile", icon: User },
+        { href: `/${session.user.handle}`, label: "My Profile", icon: User },
         { href: "/settings", label: "Settings", icon: Settings },
     ];
 
@@ -83,7 +92,7 @@ export default function Sidebar({ session }: Props) {
     );
 
     return (
-        <aside className="sticky top-0 z-50 hidden h-screen w-60 shrink-0 flex-col gap-4 pt-8 lg:flex">
+        <aside className="sticky top-0 z-50 hidden h-screen w-60 shrink-0 flex-col gap-2 pt-8 lg:flex">
 
             <div className="text-center mb-1.5">
                 <h1 className="text-6xl font-extrabold tracking-tight text-primary dark:text-primary-dark">

@@ -14,7 +14,7 @@ model Config {
 }
 
 model User {
-  id String @id @default(cuid())
+  id String @id @default(uuid())
 
   name     String
   handle   String
@@ -35,10 +35,8 @@ model User {
 
   pronouns    String?
   banner      String?
-  accentColor String? @default("#1d9bf0")
-
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
 
   banned     Boolean?  @default(false)
   banReason  String?

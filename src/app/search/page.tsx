@@ -13,7 +13,7 @@ import { authClient } from "@/client/auth";
 // UI Components
 import { BadgeCheck, LoaderCircle, Lock, Search } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import RightSidebar from "@/components/quacky/discover";
+import RightSidebar from "@/components/quacky/v2/rightbar";
 import Posts from "@/components/quacky/posts";
 import Sidebar from "@/components/quacky/sidebar";
 
@@ -158,42 +158,26 @@ function SearchPageContent() {
 
     return (
         <main className="min-h-screen w-full flex flex-col items-center bg-background dark:bg-background">
-            <div className="flex w-full max-w-[1200px] flex-1 gap-4 px-4">
+            <div className="flex w-full max-w-[1100px] flex-1 gap-4 px-4">
                 <Sidebar
                     session={session}
                 />
 
-                <div className="flex-1 flex flex-col gap-4 pt-8 max-w-2xl">
-                    <div className="rounded-xl border border-border bg-card p-5">
-                        <div className="flex items-center gap-3 text-primary">
-                                <h1 className="text-xl font-bold">Search</h1>
-                        </div>
-
-                        <div className="mt-4">
-                            <label htmlFor="search-query" className="sr-only">Search query</label>
-                            <div className="flex items-center gap-3 rounded-xl border border-border bg-background/70 px-4 py-3">
-                                <Search size={18} className="text-muted-foreground" />
-                                <input
-                                    id="search-query"
-                                    value={query}
-                                    onChange={(e) => setQuery(e.target.value)}
-                                    placeholder="Search users and posts"
-                                    className="w-full bg-transparent text-primary outline-none placeholder:text-muted-foreground"
-                                />
-                                {isLoading && <LoaderCircle size={18} className="animate-spin text-primary" />}
-                            </div>
-                        </div>
-
+                <div className="flex-1 flex flex-col gap-2 pt-8 max-w-2xl">
+                    <h1 className="text-xl font-bold">Search</h1>
+                    <label htmlFor="search-query" className="sr-only">Search query</label>
+                    <div className="flex items-center gap-3 rounded-xl bg-card px-4 py-3">
+                        <Search size={18} className="text-muted-foreground" />
+                        <input
+                            id="search-query"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            placeholder="Search users and posts"
+                            className="w-full bg-transparent text-primary outline-none placeholder:text-muted-foreground"
+                        />
+                        {isLoading && <LoaderCircle size={18} className="animate-spin text-primary" />}
                     </div>
 
-                    {!deferredQuery && (
-                        <div className="p-10 text-center">
-                            <h2 className="text-lg font-bold text-primary">Start searching</h2>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                Try a name, handle, or words from a post.
-                            </p>
-                        </div>
-                    )}
 
                     {deferredQuery && error && (
                         <div className="p-5 text-sm text-destructive">
@@ -212,13 +196,12 @@ function SearchPageContent() {
 
                     {hashtags.length > 0 && (
                         <section className="flex flex-col gap-3">
-                            <h2 className="text-lg font-bold text-primary">Hashtags</h2>
                             <div className="flex flex-wrap gap-2">
                                 {hashtags.map((hashtag) => (
                                     <Link
                                         key={hashtag.id}
                                         href={`/hashtag/${hashtag.tag}`}
-                                        className="rounded-lg border border-border bg-[var(--lynt)] px-4 py-2 text-sm font-bold text-primary hover:bg-primary/5 transition"
+                                        className="rounded-lg bg-card pt-1 pb-1 pl-2 pr-2 text-sm font-bold text-primary hover:bg-card/40 transition"
                                     >
                                         #{hashtag.tag}
                                     </Link>
@@ -228,14 +211,12 @@ function SearchPageContent() {
                     )}
 
                     {users.length > 0 && (
-                        <section className="flex flex-col gap-3">
-                            <h2 className="text-lg font-bold text-primary">Users</h2>
-
+                        <section className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                             {users.map((user) => (
                                 <Link
                                     key={user.id}
                                     href={`/${user.handle}`}
-                                    className="rounded-xl border border-border bg-[var(--lynt)] p-4 transition-colors hover:bg-accent/40"
+                                    className="rounded-xl bg-card p-4 transition-colors hover:bg-card/40"
                                 >
                                     <div className="flex items-start gap-3">
                                         <Avatar className="size-12 shrink-0">
@@ -263,7 +244,6 @@ function SearchPageContent() {
 
                     {posts.length > 0 && (
                         <section className="flex flex-col gap-3">
-                                <h2 className="text-lg font-bold text-primary">Posts</h2>
 
                             <Posts posts={posts} />
                         </section>
@@ -276,9 +256,6 @@ function SearchPageContent() {
                 />
             </div>
 
-            <footer className="w-full py-4 text-center text-xs text-muted-foreground">
-                (c) Linus Kang 2026. All Rights Reserved.
-            </footer>
         </main>
     );
 }

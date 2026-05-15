@@ -19,7 +19,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import RightSidebar from "@/components/quacky/discover";
+import RightSidebar from "@/components/quacky/v2/rightbar";
 import Sidebar from "@/components/quacky/sidebar";
 import Posts from "@/components/quacky/posts";
 import FollowButton from "@/components/quacky/follow-button";
@@ -141,7 +141,7 @@ export default function ProfilePage(
     if (!user) {
         return (
             <main className="min-h-screen w-full flex justify-center bg-background dark:bg-background">
-                <div className="flex w-full max-w-[1200px] gap-4 px-4">
+                <div className="flex w-full max-w-[1100px] gap-4 px-4">
                     <Sidebar
                         session={session}
                     />
@@ -162,15 +162,12 @@ export default function ProfilePage(
 
     return (
         <main className="min-h-screen w-full flex justify-center bg-background dark:bg-background">
-            <div className="flex w-full max-w-[1200px] gap-4 px-4">
+            <div className="flex w-full max-w-[1100px] gap-3 px-4">
                 <Sidebar
                     session={session}
                 />
 
-                <div
-                    className="flex-1 flex flex-col gap-4 pt-8 max-w-2xl"
-                    style={{ ...(user.accentColor && user.accentColor !== "#1d9bf0" ? { '--primary': user.accentColor } as React.CSSProperties : {}) }}
-                >
+                <div className="flex-1 flex flex-col gap-2 pt-8 max-w-2xl">
                     <div className="rounded-xl border border-border bg-card overflow-hidden">
                         {user.banner && (
                             <div className="h-32 w-full bg-cover bg-center" style={{ backgroundImage: `url(${user.banner})` }}></div>

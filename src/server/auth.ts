@@ -53,11 +53,6 @@ export const auth = betterAuth(
                     type: "string",
                     required: false,
                 },
-                accentColor: {
-                    type: "string",
-                    required: false,
-                    default: "#1d9bf0",
-                },
                 privateAccount: {
                     type: "boolean",
                     required: true,

@@ -23,7 +23,6 @@ type UpdatedSettingsUser = {
     location: string | null;
     pronouns: string | null;
     banner: string | null;
-    accentColor: string | null;
     image: string | null;
     privateAccount: boolean;
     emailNotif: boolean;
@@ -72,7 +71,6 @@ export default function SettingsPage() {
                         location={effectiveUser.location ?? undefined}
                         pronouns={effectiveUser.pronouns ?? undefined}
                         banner={effectiveUser.banner ?? undefined}
-                        accentColor={effectiveUser.accentColor ?? undefined}
                         email={effectiveUser.email}
                         privateAccount={effectiveUser.privateAccount}
                         emailNotif={effectiveUser.emailNotif}

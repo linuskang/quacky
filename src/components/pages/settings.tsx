@@ -32,7 +32,6 @@ interface SettingsMenuProps {
     location?: string;
     pronouns?: string;
     banner?: string;
-    accentColor?: string;
     email: string;
 
     privateAccount: boolean;
@@ -45,7 +44,6 @@ interface SettingsMenuProps {
         location: string | null;
         pronouns: string | null;
         banner: string | null;
-        accentColor: string | null;
         image: string | null;
         privateAccount: boolean;
         emailNotif: boolean;
@@ -62,7 +60,6 @@ export default function Settings(props: SettingsMenuProps) {
     const [website, setWebsiteValue] = useState(props.website || "");
     const [location, setLocationValue] = useState(props.location || "");
     const [pronouns, setPronouns] = useState(props.pronouns || "");
-    const [accentColor, setAccentColor] = useState(props.accentColor || "#1d9bf0");
     const [email] = useState(props.email || "");
     const [avatarUrl, setAvatarUrl] = useState<string | undefined>(props.image || undefined);
     const [bannerUrl, setBannerUrl] = useState<string | undefined>(props.banner || undefined);
@@ -82,12 +79,11 @@ export default function Settings(props: SettingsMenuProps) {
         setWebsiteValue(props.website || "");
         setLocationValue(props.location || "");
         setPronouns(props.pronouns || "");
-        setAccentColor(props.accentColor || "#1d9bf0");
         setAvatarUrl(props.image || undefined);
         setBannerUrl(props.banner || undefined);
         setEmailNotifications(!!props.emailNotif);
         setPrivateAccount(!!props.privateAccount);
-    }, [props.displayName, props.handle, props.bio, props.website, props.location, props.pronouns, props.accentColor, props.image, props.banner, props.emailNotif, props.privateAccount]);
+    }, [props.displayName, props.handle, props.bio, props.website, props.location, props.pronouns, props.image, props.banner, props.emailNotif, props.privateAccount]);
 
     const save = async () => {
         setSaving(true);
@@ -102,7 +98,6 @@ export default function Settings(props: SettingsMenuProps) {
                     website,
                     location,
                     pronouns,
-                    accentColor,
                     privateAccount,
                     emailNotif: emailNotifications,
                 }),
@@ -222,22 +217,6 @@ export default function Settings(props: SettingsMenuProps) {
                             </RadioGroup>
                         </div>
 
-                    </div>
-                    <div className="flex items-center justify-between gap-3">
-                        <div>
-                            <p className="font-semibold text-primary">Profile Accent Color</p>
-                            <p className="text-sm text-muted-foreground">
-                                Choose a hex color code to override the theme on your profile.
-                            </p>
-                        </div>
-                        <div className="w-10 h-10 rounded-full border-2 border-border overflow-hidden cursor-pointer" >
-                            <input
-                                type="color"
-                                value={accentColor}
-                                onChange={(e) => setAccentColor(e.target.value)}
-                                className="w-[150%] h-[150%] -translate-x-1/4 -translate-y-1/4 cursor-pointer"
-                            />
-                        </div>
                     </div>
                 </div>
 
