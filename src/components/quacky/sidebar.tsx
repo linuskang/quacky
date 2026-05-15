@@ -86,7 +86,7 @@ export default function Sidebar({ session }: Props) {
         <aside className="sticky top-0 z-50 hidden h-screen w-60 shrink-0 flex-col gap-4 pt-8 lg:flex">
 
             <div className="text-center mb-1.5">
-                <h1 className="text-5xl font-extrabold tracking-tight text-primary dark:text-primary-dark">
+                <h1 className="text-6xl font-extrabold tracking-tight text-primary dark:text-primary-dark">
                     Quacky
                 </h1>
             </div>

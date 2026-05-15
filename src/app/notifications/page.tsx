@@ -94,9 +94,9 @@ export default function NotificationsPage() {
                 <Sidebar session={session} />
 
                 <div className="flex-1 flex flex-col pt-8 max-w-2xl">
-                    <div className="flex items-center justify-between gap-3 px-1 pb-4 mb-2 border-b border-border">
+                    <div className="flex items-center justify-between gap-3 px-1 pb-4 mb-2 ">
                         <div className="flex items-center gap-2.5">
-                            <h1 className="text-xl font-bold text-foreground">Notifications</h1>
+                            <h1 className="text-xl font-bold text-primary">Notifications</h1>
                             {unreadCount > 0 && (
                                 <span className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-bold text-primary-foreground">
                                     {unreadCount}

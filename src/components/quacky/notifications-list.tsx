@@ -6,7 +6,7 @@
 
 import Link from "next/link";
 import { formatDistanceToNow, format, differenceInDays } from "date-fns";
-import { BadgeCheck, Bell, Check, Heart, Repeat2, MessagesSquare, UserPlus, MessageSquareQuote } from "lucide-react";
+import { BadgeCheck, Bell, Check } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 export interface NotificationItem {
@@ -33,52 +33,38 @@ interface NotificationsListProps {
     onMarkAllRead?: () => void;
 }
 
-function NotificationIcon({ type }: { type: string }) {
-    switch (type) {
-        case "post:like":
-            return <Heart size={10} className="text-rose-500" fill="currentColor" />;
-        case "post:repost":
-            return <Repeat2 size={10} className="text-green-500" />;
-        case "post:reply":
-            return <MessagesSquare size={10} className="text-blue-500" />;
-        case "post:quote":
-            return <MessageSquareQuote size={10} className="text-primary" />;
-        case "user:follow":
-            return <UserPlus size={10} className="text-primary" />;
-        default:
-            return <Bell size={10} className="text-primary" />;
-    }
-}
-
 function getTimestamp(createdAt: string | Date) {
     return differenceInDays(new Date(), new Date(createdAt)) > 7
         ? format(new Date(createdAt), "MMM d, yyyy")
         : formatDistanceToNow(new Date(createdAt), { addSuffix: true });
 }
 
+function formatNotificationMessage(message: string) {
+    return message.replace(/\\n/g, "\n");
+}
+
 export default function NotificationsList({ notifications, onMarkRead }: NotificationsListProps) {
     if (notifications.length === 0) {
         return (
             <div className="rounded-xl bg-card border border-border px-6 py-16 text-center">
-                <Bell size={36} className="mx-auto mb-3 text-muted-foreground/30" />
-                <p className="font-semibold text-foreground">No notifications yet</p>
-                <p className="text-sm text-muted-foreground mt-1">When something happens, you'll see it here.</p>
+                <Bell size={36} className="mx-auto mb-3 text-primary" />
+                <p className="font-semibold text-primary">No notifications yet</p>
             </div>
         );
     }
 
     return (
-        <div className="rounded-xl border border-border bg-card overflow-hidden">
-            {notifications.map((notification, i) => {
+        <div className="flex flex-col gap-3">
+            {notifications.map((notification) => {
                 const isUnread = !notification.read;
                 const timestamp = getTimestamp(notification.createdAt);
 
                 return (
                     <div
                         key={notification.id}
-                        className={`relative flex gap-3 px-4 py-3.5 transition-colors ${
-                            i < notifications.length - 1 ? "border-b border-border" : ""
-                        } ${isUnread ? "bg-primary/[0.04]" : ""}`}
+                        className={`relative flex gap-3 rounded-xl border bg-card px-4 py-3.5 transition-colors ${
+                            isUnread ? "border-primary/20 bg-primary/[0.04]" : "border-border"
+                        }`}
                     >
                         {isUnread && (
                             <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-primary rounded-r-full" />
@@ -94,9 +80,6 @@ export default function NotificationsList({ notifications, onMarkRead }: Notific
                                             {notification.actor.name.charAt(0).toUpperCase()}
                                         </AvatarFallback>
                                     </Avatar>
-                                    <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-card ring-1 ring-border flex items-center justify-center">
-                                        <NotificationIcon type={notification.type} />
-                                    </div>
                                 </div>
 
                                 <Link
@@ -123,8 +106,8 @@ export default function NotificationsList({ notifications, onMarkRead }: Notific
                                 <span className="text-muted-foreground text-xs whitespace-nowrap">{timestamp}</span>
                             </div>
 
-                            <p className="text-sm text-muted-foreground leading-relaxed">
-                                {notification.message}
+                            <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line break-words">
+                                {formatNotificationMessage(notification.message)}
                             </p>
 
                             {notification.postId && (
@@ -132,7 +115,7 @@ export default function NotificationsList({ notifications, onMarkRead }: Notific
                                     href={`/post/${notification.postId}`}
                                     className="text-xs text-primary hover:underline w-fit mt-0.5"
                                 >
-                                    View post →
+                                    View post
                                 </Link>
                             )}
                         </div>
