@@ -148,8 +148,7 @@ export default function ProfilePage(
                     <div className="flex-1 flex flex-col gap-4 pt-8 max-w-2xl">
                         <div className="rounded-xl border border-border p-6 text-center">
                             <h1 className="text-4xl font-bold text-primary mb-2">404</h1>
-                            <h2 className="text-xl font-bold text-primary mb-2">Profile Not Found</h2>
-                            <p className="text-muted-foreground">This user doesn't exist or is unavailable.</p>
+                            <h2 className="text-xl font-bold text-primary mb-2">Page not found</h2>
                         </div>
                     </div>
                     <RightSidebar

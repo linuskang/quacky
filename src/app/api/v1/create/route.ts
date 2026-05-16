@@ -41,13 +41,9 @@ const welcomeEmail = (name: string, handle: string, org?: string) =>
               You're in, @${handle}. Time to start socialising in ${org}!
             </p>
 
-            <p style="font-size:14px;line-height:1.6;color:#a09080;margin:0px 0 0;">
-              Edit your profile, follow people, and start posting.
-            </p>
-
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr><td align="center" style="padding:20px 0;">
-                <a href="https://quacky.space/${handle}" style="display:inline-block;background:hsl(22, 100%, 15%);color:hsl(22, 60%, 92%);text-decoration:none;padding:14px 40px;border-radius:8px;font-size:15px;font-weight:700;letter-spacing:.02em;">Enter Quacky →</a>
+                <a href="https://quacky.space/${handle}" style="display:inline-block;background:hsl(22, 100%, 15%);color:hsl(22, 60%, 92%);text-decoration:none;padding:14px 40px;border-radius:8px;font-size:15px;font-weight:700;letter-spacing:.02em;">Go to quacky.space</a>
               </td></tr>
             </table>
           </td>

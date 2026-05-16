@@ -33,9 +33,12 @@ export async function GET(request: NextRequest) {
         }
     }
 
+    const limitParam = request.nextUrl.searchParams.get("limit");
+    const limit = Math.min(Math.max(parseInt(limitParam ?? "3", 10) || 3, 1), 50);
+
     const trending = [...counts.values()]
         .sort((a, b) => b.count - a.count)
-        .slice(0, 3);
+        .slice(0, limit);
 
     return NextResponse.json({ trending }, { status: 200 });
 }

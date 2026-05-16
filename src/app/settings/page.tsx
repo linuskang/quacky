@@ -11,8 +11,6 @@ import { authClient } from "@/client/auth";
 // UI Components
 import Loading from "@/components/loading";
 import Login from "@/components/login";
-import Discover from "@/components/quacky/discover";
-import Sidebar from "@/components/quacky/sidebar";
 import Settings from "@/components/pages/settings";
 
 type UpdatedSettingsUser = {
@@ -56,12 +54,9 @@ export default function SettingsPage() {
 
     return (
         <main className="min-h-screen w-full flex flex-col items-center bg-background dark:bg-background">
-            <div className="flex w-full max-w-[1200px] flex-1 gap-4 px-4 flex-col lg:flex-row">
-                <Sidebar
-                    session={effectiveSession}
-                />
+            <div className="flex w-full max-w-[1100px] flex-1 gap-4 px-4 flex-col lg:flex-row">
 
-                <div className="flex-1 flex flex-col pt-8 w-full lg:max-w-2xl">
+                <div className="flex-1 flex flex-col pt-8 w-full min-w-0">
                     <Settings
                         displayName={effectiveUser.name}
                         handle={effectiveUser.handle}
@@ -77,15 +72,7 @@ export default function SettingsPage() {
                         onSaved={setUpdatedUser}
                     />
                 </div>
-
-                <Discover
-                    session={effectiveSession}
-                />
             </div>
-
-            <footer className="w-full py-4 text-center text-xs text-muted-foreground">
-                (c) Linus Kang 2026. All Rights Reserved.
-            </footer>
         </main>
     )
 }
