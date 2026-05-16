@@ -121,6 +121,11 @@
 @layer base {
   * {
     @apply border-border outline-ring;
+    scrollbar-width: none;
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
   }
 
   body {
