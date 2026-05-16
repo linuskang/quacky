@@ -854,7 +854,7 @@ export function PostCard({
 
                         <div className="flex items-center gap-1 shrink-0 ml-auto">
                             {isReadOnly && (
-                                <div className="flex items-center gap-1 text-muted-foreground text-xs border border-border rounded-full px-2 py-0.5">
+                                <div className="flex items-center gap-1 text-muted-foreground text-xs px-2 py-0.5">
                                     <Lock size={11} />
                                     <span>Locked</span>
                                 </div>
@@ -1020,31 +1020,33 @@ export function PostCard({
                                 )}
 
                                 {/* Repost / Quote dropdown */}
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <button
-                                            onClick={(e) => e.stopPropagation()}
-                                            className={`cursor-pointer group flex items-center gap-1 px-2 py-1 rounded-lg border-2 transition ${
-                                                hasReposted
-                                                    ? "border-primary bg-primary text-[var(--lynt)]"
-                                                    : "border-primary text-primary hover:bg-primary hover:text-[var(--lynt)]"
-                                            }`}
-                                        >
-                                            <Repeat2 strokeWidth={3} size={16} />
-                                            <span className="font-medium text-sm">{formatCount(repostCount)}</span>
-                                        </button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="start" onClick={(e) => e.stopPropagation()}>
-                                        <DropdownMenuItem className="cursor-pointer gap-2" onClick={toggleRepost}>
-                                            <Repeat2 size={15} />
-                                            {hasReposted ? "Undo Repost" : "Repost"}
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem className="cursor-pointer gap-2" onClick={() => setIsQuoteOpen(true)}>
-                                            <QuoteIcon size={15} />
-                                            Quote
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
+                                {!isReadOnly && (
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <button
+                                                onClick={(e) => e.stopPropagation()}
+                                                className={`cursor-pointer group flex items-center gap-1 px-2 py-1 rounded-lg border-2 transition ${
+                                                    hasReposted
+                                                        ? "border-primary bg-primary text-[var(--lynt)]"
+                                                        : "border-primary text-primary hover:bg-primary hover:text-[var(--lynt)]"
+                                                }`}
+                                            >
+                                                <Repeat2 strokeWidth={3} size={16} />
+                                                <span className="font-medium text-sm">{formatCount(repostCount)}</span>
+                                            </button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="start" onClick={(e) => e.stopPropagation()}>
+                                            <DropdownMenuItem className="cursor-pointer gap-2" onClick={toggleRepost}>
+                                                <Repeat2 size={15} />
+                                                {hasReposted ? "Undo Repost" : "Repost"}
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem className="cursor-pointer gap-2" onClick={() => setIsQuoteOpen(true)}>
+                                                <QuoteIcon size={15} />
+                                                Quote
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                )}
 
                                 {/* Like */}
                                 <Action

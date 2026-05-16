@@ -10,55 +10,59 @@
 "use client";
 
 // Libraries
-import { authClient } from "@/client/auth";
-import { useEffect, useState } from "react";
-import Image from "next/image";
+import {authClient} from "@/client/auth";
+import {useEffect, useState} from "react";
 
 // UI Components
 import Login from "@/components/login";
 import Sidebar from "@/components/quacky/sidebar";
 import Discover from "@/components/quacky/v2/rightbar";
 import Loading from "@/components/loading";
-import Posts, { PostsSkeleton } from "@/components/quacky/posts";
+import Posts, {PostsSkeleton} from "@/components/quacky/posts";
 import Compose from "@/components/quacky/compose";
-import { InteractiveButton } from "@/components/quacky/interactive-button";
+import {InteractiveButton} from "@/components/quacky/interactive-button";
 
 // Utilities
-import { getPosts } from "@/client/utils";
+import {getPosts} from "@/client/utils";
 
 // Types
-import { Post } from "@/types";
+import {Post} from "@/types";
 
 export default function Homepage() {
     // States
-    const { data: session, isPending } = authClient.useSession();
+    const {data: session, isPending} = authClient.useSession();
     const [posts, setPosts] = useState<Post[]>([]);
     const [postsLoading, setPostsLoading] = useState(true);
-
-    useEffect(() => {
-        if (!session) return;
-        loadPosts();
-    }, [session]);
-
-    // Loading
-    if (isPending) {
-        return (
-            <Loading />
-        )
-    }
-
-    // Not logged in
-    if (!session) {
-        return (
-            <Login />
-        )
-    }
 
     // Load helper
     async function loadPosts() {
         setPostsLoading(true);
         setPosts(await getPosts());
         setPostsLoading(false);
+    }
+
+    useEffect(() => {
+        if (!session) return;
+        async function fetchInitialPosts() {
+            setPostsLoading(true);
+            setPosts(await getPosts());
+            setPostsLoading(false);
+        }
+        fetchInitialPosts();
+    }, [session]);
+
+    // Loading
+    if (isPending) {
+        return (
+            <Loading/>
+        )
+    }
+
+    // Not logged in
+    if (!session) {
+        return (
+            <Login/>
+        )
     }
 
     return (
@@ -75,7 +79,7 @@ export default function Homepage() {
                     />
 
                     {postsLoading ? (
-                        <PostsSkeleton />
+                        <PostsSkeleton/>
                     ) : (
                         <Posts
                             posts={posts}
@@ -109,7 +113,7 @@ export default function Homepage() {
                 hoverImage="/assets/bin/open.png"
                 defaultImage="/assets/bin/close.png"
                 onClick={() => {
-                    
+
                 }}
                 ariaLabel="Toggle corner asset"
             />

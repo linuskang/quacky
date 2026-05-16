@@ -23,10 +23,11 @@ export async function POST(
 
     const original = await prisma.post.findUnique({
         where: { id: parentId, isDeleted: false },
-        select: { id: true, authorId: true },
+        select: { id: true, authorId: true, readOnly: true },
     });
 
     if (!original) return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    if (original.readOnly) return NextResponse.json({ error: "Post is read-only" }, { status: 403 });
 
     const body = await request.json().catch(() => ({}));
 
