@@ -166,7 +166,7 @@ function SearchPageContent() {
                 <div className="flex-1 flex flex-col gap-2 pt-8 max-w-2xl">
                     <h1 className="text-xl font-bold">Search</h1>
                     <label htmlFor="search-query" className="sr-only">Search query</label>
-                    <div className="flex items-center gap-3 rounded-xl bg-card px-4 py-3">
+                    <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3">
                         <Search size={18} className="text-muted-foreground" />
                         <input
                             id="search-query"
