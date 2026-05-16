@@ -1,11 +1,11 @@
-//    ____                   _          
-//   / __ \                 | |         
-//  | |  | |_   _  __ _  ___| | ___   _ 
+//    ____                   _
+//   / __ \                 | |
+//  | |  | |_   _  __ _  ___| | ___   _
 //  | |  | | | | |/ _` |/ __| |/ / | | |
 //  | |__| | |_| | (_| | (__|   <| |_| |
 //   \___\_\\__,_|\__,_|\___|_|\_\\__, |
 //                                 __/ |
-//                                |___/ 
+//                                |___/
 
 import prisma from "@/server/db";
 import { NextRequest, NextResponse } from "next/server";
@@ -40,11 +40,11 @@ const welcomeEmail = (name: string, handle: string, org?: string) =>
             <p style="font-size:15px;line-height:1.7;color:#c8bfb0;margin:0 0 24px;">
               You're in, @${handle}. Time to start socialising in ${org}!
             </p>
-            
+
             <p style="font-size:14px;line-height:1.6;color:#a09080;margin:0px 0 0;">
               Edit your profile, follow people, and start posting.
             </p>
-            
+
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr><td align="center" style="padding:20px 0;">
                 <a href="https://quacky.space/${handle}" style="display:inline-block;background:hsl(22, 100%, 15%);color:hsl(22, 60%, 92%);text-decoration:none;padding:14px 40px;border-radius:8px;font-size:15px;font-weight:700;letter-spacing:.02em;">Enter Quacky →</a>
@@ -83,6 +83,27 @@ export async function POST(request: NextRequest) {
 
     try {
 
+        const existingUser = await prisma.user.findFirst({
+            where: {
+                OR: [
+                    { handle },
+                    { email }
+                ]
+            }
+        });
+
+        const reservedHandleConfig = await Config.get("reserved_handles") as { handles?: string[] } | null;
+        const isReserved = reservedHandleConfig?.handles?.some(
+            (h) => h.toLowerCase() === handle.toLowerCase()
+        ) ?? false;
+        if (isReserved) {
+            return NextResponse.json({ error: "This handle is reserved." }, { status: 409 });
+        }
+        if (existingUser) {
+            return NextResponse.json({ error: "Handle or email already in use" }, { status: 409 });
+        }
+
+
         // Create the user
         await prisma.user.create(
             {
@@ -108,7 +129,10 @@ export async function POST(request: NextRequest) {
             { status: 201 }
         );
 
-    } catch (err: any) {
-        return NextResponse.json({ err }, { status: 500 });
+    } catch (err: unknown) {
+        return NextResponse.json(
+            { error: err instanceof Error ? err.message : "Internal server error" },
+            { status: 500 }
+        );
     }
 }

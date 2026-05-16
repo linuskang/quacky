@@ -71,10 +71,16 @@ export async function POST(request: NextRequest) {
     const { email, displayName, expiresInDays } = parsed.data;
     const handle = parsed.data.handle.trim().replace(/^@+/, "");
 
-    // Check handle uniqueness
-    const existingUser = await prisma.user.findFirst({ where: { handle }, select: { id: true } });
-    if (existingUser) {
+    // Check handle uniqueness and email uniqueness together
+    const existingUser = await prisma.user.findFirst({
+        where: { OR: [{ handle }, { email }] },
+        select: { id: true, handle: true, email: true },
+    });
+    if (existingUser?.handle === handle) {
         return NextResponse.json({ error: "Handle is already taken." }, { status: 400 });
+    }
+    if (existingUser?.email === email) {
+        return NextResponse.json({ error: "An account with this email already exists." }, { status: 400 });
     }
 
     // Check for duplicate pending invite to same email

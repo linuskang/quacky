@@ -17,7 +17,7 @@ model User {
   id String @id @default(uuid())
 
   name     String
-  handle   String
+  handle   String @unique
   bio      String?
   email    String
   role     String? @default("Member")

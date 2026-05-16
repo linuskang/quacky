@@ -49,33 +49,30 @@ export default function OnboardingPage() {
 
     const createAccount = async (e: React.FormEvent) => {
         e.preventDefault();
-        fetch("/api/v1/create", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                name: displayName.trim(),
-                handle: handle.trim(),
-                email: email.trim(),
-            }),
-        })
-            .then((r) => r.json())
-            .then(async (data) => {
-                if (data.error) {
-                    setFormError(data.error);
-                } else {
-                    await authClient.signIn.magicLink({
-                        email: email.trim(),
-                        callbackURL: "/",
-                    });
-                    setStep(3);
-                    setFormError(null);
-                }
-            })
-            .catch(() => {
-                setFormError("An unexpected error occurred. Please try again.");
+        try {
+            const r = await fetch("/api/v1/create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: displayName.trim(),
+                    handle: handle.trim(),
+                    email: email.trim(),
+                }),
             });
+            const data = await r.json().catch(() => ({}));
+            if (!r.ok) {
+                setFormError(data.error ?? "An unexpected error occurred. Please try again.");
+                return;
+            }
+            await authClient.signIn.magicLink({
+                email: email.trim(),
+                callbackURL: "/",
+            });
+            setStep(3);
+            setFormError(null);
+        } catch {
+            setFormError("An unexpected error occurred. Please try again.");
+        }
     };
 
     // Loading
