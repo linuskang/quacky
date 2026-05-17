@@ -4,7 +4,7 @@ import { env } from "@/env";
 const resend = new Resend(env.RESEND_API_KEY);
 
 export default async function Send(
-    to: string,
+    to: string | string[],
     subject: string,
     html: string
 ) {

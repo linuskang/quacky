@@ -56,6 +56,7 @@ model User {
   warmFuzziesSent     WarmFuzzy[]     @relation("WarmFuzzySender")
   warmFuzziesReceived WarmFuzzy[]     @relation("WarmFuzzyRecipient")
   pollVotes           PollVote[]
+  checkInResponses    CheckInResponse[]
 
   @@unique([email])
 }
@@ -301,6 +302,18 @@ model Verification {
   updatedAt  DateTime @updatedAt
 
   @@unique([identifier])
+}
+
+model CheckInResponse {
+  id        String   @id @default(cuid())
+  userId    String
+  answers   Json
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model Invite {
