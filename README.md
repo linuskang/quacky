@@ -66,9 +66,12 @@ Create a ``.env`` with:
 
 ```env
 # Required for storing user data
-DATABASE_URL="postgresql://quacky:quacky@localhost:15432/quackydb" # You will need a PostgresQL database.
+# You can either self-host a Postgres 16 database with docker,
+# or get a free managed instance at https://prisma.io with up to 500mb of storage.
+DATABASE_URL="postgresql://quacky:quacky@localhost:15432/quackydb"
 
 # S3 Bucket: This is needed for profile pictures, banners, shorts, uploading.
+# I recommend you to host RustFS (im using this), SeaweedFS, or use Cloudflare R2 Buckets.
 S3_ENDPOINT=http://localhost:9000
 S3_BUCKET_NAME=quacky
 S3_ACCESS_KEY_ID=
@@ -80,14 +83,19 @@ BETTER_AUTH_SECRET=""
 BETTER_AUTH_URL="http://localhost:3000"
 
 # OAUTH
+# Not required, but QOL improvement for your students/teachers.
 GITHUB_CLIENT_ID=""
 GITHUB_CLIENT_SECRET=""
+MICROSOFT_CLIENT_ID=""
+MICROSOFT_CLIENT_SECRET=""
 
 # Emails
+# Required for sending logins, and other things like invites.
 RESEND_API_KEY=""
 EMAIL_FROM=""
 
 # Seq Logging
+# Not required
 DISCORD_WEBHOOK_URL=""
 
 # Extras: Services that you don't need, but are great addons
@@ -103,7 +111,7 @@ Start Quacky:
 docker compose up -d
 ```
 
-**And.. your done! Access Quacky at [localhost:3001](http://localhost:3001) and create an account.**
+**And.. your done! Access Quacky at [localhost:3000/setup](http://localhost:3000/setup) and continue to configuration.**
 
 ## License
 
