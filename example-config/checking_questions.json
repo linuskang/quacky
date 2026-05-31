@@ -1,0 +1,10 @@
+[
+  {
+    "question": "How are you feeling today?",
+    "options": ["Great", "Good", "Okay", "Not great", "Struggling"]
+  },
+  {
+    "question": "Do you need to talk to someone?",
+    "options": ["Yes", "No"]
+  }
+]
