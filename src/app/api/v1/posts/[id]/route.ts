@@ -131,16 +131,15 @@ export async function GET(
         return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    // Record unique view
-    const isNewView = await prisma.postView.findUnique({
-        where: { postId_userId: { postId: id, userId } },
-        select: { postId: true },
-    });
-    if (!isNewView) {
+    // Record unique view — use try/catch to handle concurrent duplicate requests gracefully
+    try {
         await prisma.$transaction([
             prisma.postView.create({ data: { postId: id, userId } }),
             prisma.post.update({ where: { id }, data: { viewCount: { increment: 1 } } }),
         ]);
+    } catch (e: any) {
+        // P2002 = unique constraint violation (view already exists) — safe to ignore
+        if (e?.code !== "P2002") throw e;
     }
 
     // Build ancestor chain (walk up parentId links, oldest first, max 5 deep)
