@@ -17,6 +17,7 @@ import {useEffect, useState} from "react";
 import Login from "@/components/login";
 import Sidebar from "@/components/quacky/sidebar";
 import Discover from "@/components/quacky/v2/rightbar";
+import PostPanel from "@/components/quacky/post-panel";
 import Loading from "@/components/loading";
 import Posts, {PostsSkeleton} from "@/components/quacky/posts";
 import Compose from "@/components/quacky/compose";
@@ -33,6 +34,7 @@ export default function Homepage() {
     const {data: session, isPending} = authClient.useSession();
     const [posts, setPosts] = useState<Post[]>([]);
     const [postsLoading, setPostsLoading] = useState(true);
+    const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 
     // Load helper
     async function loadPosts() {
@@ -84,13 +86,22 @@ export default function Homepage() {
                         <Posts
                             posts={posts}
                             onChanged={loadPosts}
+                            onPostClick={(id) => setSelectedPostId(id)}
                         />
                     )}
                 </div>
 
-                <Discover
-                    session={session}
-                />
+                {/* Right column — w-60 in layout (feed never shifts), panel overflows right into margin */}
+                <div className="sticky top-0 h-screen w-60 shrink-0 hidden lg:flex flex-col overflow-visible">
+                    {selectedPostId ? (
+                        <PostPanel
+                            postId={selectedPostId}
+                            onClose={() => setSelectedPostId(null)}
+                        />
+                    ) : (
+                        <Discover session={session} className="w-full flex flex-col gap-2 pt-8 h-full overflow-y-auto pb-8" />
+                    )}
+                </div>
             </div>
 
             {/* <div

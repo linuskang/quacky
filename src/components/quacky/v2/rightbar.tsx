@@ -150,7 +150,7 @@ function WhoToFollow({ session }: { session: Props["session"] }) {
     );
 }
 
-export default function Rightbar({ session }: Props) {
+export default function Rightbar({ session, className }: Props & { className?: string }) {
     const [trending, setTrending] = useState<TrendingTag[]>([]);
 
     useEffect(() => {
@@ -161,7 +161,7 @@ export default function Rightbar({ session }: Props) {
     }, [session]);
 
     return (
-        <aside className="sticky top-0 w-60 shrink-0 hidden lg:flex flex-col gap-2 pt-8 lg:h-screen overflow-y-auto pb-8">
+        <aside className={className ?? "sticky top-0 w-60 shrink-0 hidden lg:flex flex-col gap-2 pt-8 lg:h-screen overflow-y-auto pb-8"}>
             <div className="rounded-xl bg-card border border-border p-4">
                 <h2 className="text-xl font-bold text-primary mb-4 flex items-center gap-2">
                     <TrendingUp size={24} strokeWidth={3} />

@@ -345,7 +345,7 @@ function EmbeddedPost({ post }: { post: Post }) {
     return (
         <div
             onClick={(e) => { e.stopPropagation(); router.push(`/post/${post.id}`); }}
-            className="cursor-pointer rounded-lg border border-border bg-background/40 p-3 flex flex-col gap-1.5 hover:bg-background/60 transition"
+            className="cursor-pointer rounded-lg border border-2 border-primary p-3 flex flex-col gap-1.5 hover:bg-background/60 transition"
         >
             {/* Author line */}
             <div className="flex items-center gap-1.5">
@@ -561,9 +561,10 @@ interface Props {
     posts: Post[];
     showActions?: boolean;
     onChanged?: () => void;
+    onPostClick?: (id: string) => void;
 }
 
-export default function Posts({ posts, showActions = true, onChanged }: Props) {
+export default function Posts({ posts, showActions = true, onChanged, onPostClick }: Props) {
     const router = useRouter();
     const { data: session } = authClient.useSession();
 
@@ -589,7 +590,7 @@ export default function Posts({ posts, showActions = true, onChanged }: Props) {
     return (
         <div className="w-full flex flex-col gap-2">
             {sort(posts).map((post) => (
-                <PostCard key={post.id} post={post} session={session} router={router} showActions={showActions} onChanged={onChanged} />
+                <PostCard key={post.id} post={post} session={session} router={router} showActions={showActions} onChanged={onChanged} onPostClick={onPostClick} />
             ))}
         </div>
     );
@@ -603,12 +604,14 @@ export function PostCard({
     router,
     showActions = true,
     onChanged,
+    onPostClick,
 }: {
     post: Post;
     session: any;
     router: any;
     showActions?: boolean;
     onChanged?: () => void;
+    onPostClick?: (id: string) => void;
 }) {
     const [isReportOpen, setIsReportOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
@@ -776,7 +779,11 @@ export function PostCard({
         }
     }
 
-    const navigateToPost = () => router.push(`/post/${targetId}`);
+    const navigateToPost = () => {
+        if (onPostClick) onPostClick(targetId);
+        else router.push(`/post/${targetId}`);
+    };
+    const navigateToPostPage = () => router.push(`/post/${targetId}`);
 
     // ── Render ────────────────────────────────────────────────────────────────
 
@@ -812,14 +819,20 @@ export function PostCard({
 
             {displayPost && (
                 <>
-                    <div className="flex items-center gap-2">
-                        <Avatar className="w-8 h-8 shrink-0">
-                            <AvatarImage src={displayPost.author.image || ""} />
-                            <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">
-                                {displayPost.author.name.charAt(0).toUpperCase()}
-                            </AvatarFallback>
-                        </Avatar>
+                    <div className="flex gap-2.5">
+                        {/* Avatar column */}
+                        <div className="shrink-0 pt-0.5">
+                            <Avatar className="w-8 h-8">
+                                <AvatarImage src={displayPost.author.image || ""} />
+                                <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">
+                                    {displayPost.author.name.charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                            </Avatar>
+                        </div>
 
+                        {/* Content column */}
+                        <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                    <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1.5 min-w-0 flex-1">
                             <Link
                                 href={`/${displayPost.author.handle}`}
@@ -1008,10 +1021,10 @@ export function PostCard({
                         <div className="flex items-center justify-between pt-1">
                             <div className="flex items-center gap-1.5">
 
-                                {/* Replies */}
+                                {/* Replies — always navigates to the full /post/[id] page */}
                                 {!isReadOnly && (
                                     <Action
-                                        onClick={navigateToPost}
+                                        onClick={navigateToPostPage}
                                         icon={<MessagesSquare strokeWidth={3} size={16} />}
                                         count={replyCount}
                                         activeClassName="border-primary bg-primary text-[var(--lynt)]"
@@ -1120,6 +1133,8 @@ export function PostCard({
                             </div>
                         </div>
                     )}
+                        </div> {/* end content column */}
+                    </div> {/* end avatar + content row */}
                 </>
             )}
 

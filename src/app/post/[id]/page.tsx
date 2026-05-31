@@ -58,7 +58,7 @@ export default function PostPage({ params }: Props) {
 
     return (
         <main className="min-h-screen w-full flex flex-col items-center bg-background dark:bg-background">
-            <div className="flex w-full max-w-[1200px] flex-1 gap-4 px-4">
+            <div className="flex w-full max-w-[1100px] flex-1 gap-4 px-4">
                 <Sidebar session={session} />
 
                 <div className="flex-1 flex flex-col gap-4 pt-8 max-w-2xl">
