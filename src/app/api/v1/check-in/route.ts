@@ -18,7 +18,9 @@ export async function GET(req: NextRequest) {
         const questions = await Config.get("checking_questions");
 
         return NextResponse.json(
-            questions
+            {
+                questions: questions ?? [],
+            }
         );
     }
 

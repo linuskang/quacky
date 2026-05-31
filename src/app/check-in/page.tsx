@@ -15,7 +15,7 @@ import Loading from "@/components/loading";
 type Question = {
     id: string;
     question: string;
-    answers: string[];
+    options: string[];
 };
 
 export default function CheckIn() {
@@ -26,7 +26,7 @@ export default function CheckIn() {
     useEffect(() => {
         fetch('/api/v1/check-in')
             .then(res => res.json())
-            .then(d => setQuestions(d.questions ?? []));
+            .then(d => setQuestions(Array.isArray(d) ? d : (d.questions ?? [])));
     }, []);
 
     if (isPending) return <Loading />;
@@ -116,7 +116,7 @@ function CheckInQuiz({ questions }: { questions: Question[] }) {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                    {currentQuestion.answers.map((answer) => (
+                    {currentQuestion.options.map((answer) => (
                         <button
                             key={answer}
                             onClick={() => selectOption(answer)}
