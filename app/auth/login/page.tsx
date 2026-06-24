@@ -64,7 +64,8 @@ export default function Page() {
                         alt="Quacky Logo"
                         width={150}
                         height={150}
-                        className="mx-auto mb-4"
+                        priority
+                        className="mx-auto mb-4 h-auto w-auto"
                     />
                     <h1 className="text-primary text-3xl font-extrabold text-center">
                         Sign in to Quacky

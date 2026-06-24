@@ -5,14 +5,71 @@ import { authClient } from "@/client/auth";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
+import { Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
 
+type Step = 1 | 2 | 3;
+
+// stepper made with ai.
+function Stepper({ step }: { step: Step }) {
+    const steps = ["Accept rules", "Your details", "Confirm email"];
+
+    const fillWidth =
+        step >= 3 ? "calc(100% - 2rem)" : step >= 2 ? "calc(50% - 1rem)" : "0px";
+
+    return (
+        <div className="relative flex justify-between items-start mb-12 w-full">
+            <div className="absolute left-4 right-4 top-[15px] h-[2px] bg-border z-0" />
+            <div
+                className="absolute left-4 top-[15px] h-[2px] bg-primary z-0 transition-all duration-500 ease-out"
+                style={{ width: fillWidth }}
+            />
+
+            {steps.map((label, i) => {
+                const num = (i + 1) as Step;
+                const completed = step > num;
+                const active = step === num;
+
+                return (
+                    <div key={label} className="relative z-10 flex flex-col items-center bg-background rounded-full">
+                        <div
+                            className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold border-2 transition-all duration-300 ${completed
+                                ? "bg-primary border-primary text-primary-foreground"
+                                : active
+                                    ? "border-primary bg-background text-primary"
+                                    : "border-muted bg-background text-muted-foreground"
+                                }`}
+                        >
+                            {completed ? (
+                                <Check className="w-4 h-4" />
+                            ) : (
+                                num
+                            )}
+                        </div>
+                        <span
+                            className={`absolute top-10 text-xs whitespace-nowrap transition-colors duration-300 ${active
+                                ? "text-foreground font-medium"
+                                : completed
+                                    ? "text-primary"
+                                    : "text-muted-foreground"
+                                }`}
+                        >
+                            {label}
+                        </span>
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
 
 export default function Page() {
+    const [step, setStep] = useState<Step>(1);
     const [name, setName] = useState("");
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
@@ -20,6 +77,28 @@ export default function Page() {
     const [agreed, setAgreed] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const rules = [
+        {
+            title: "Be respectful",
+            description: "Treat others with kindness and respect. Harassment, hate speech, and discrimination will not be tolerated."
+        },
+        {
+            title: "No spamming",
+            description: "Avoid posting irrelevant or repetitive content. This includes excessive self-promotion."
+        },
+        {
+            title: "Follow the law",
+            description: "Do not post content that violates any laws or regulations. This includes sharing illegal content or engaging in illegal activities."
+        },
+        {
+            title: "Protect privacy",
+            description: "Do not share personal information of others without their consent. This includes doxxing or sharing private messages."
+        },
+        {
+            title: "Use appropriate content",
+            description: "Avoid posting explicit, violent, or otherwise inappropriate content. This is a family-friendly community."
+        }
+    ];
 
     const createAccount = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,21 +111,20 @@ export default function Page() {
 
         setLoading(true);
 
-        const { data, error } = await authClient.signUp.email(
-            {
-                name,
-                username,
-                email,
-                password,
-                callbackURL: "/"
-            },
-            {
+        await authClient.signUp.email({
+            name,
+            username,
+            email,
+            password,
+            callbackURL: "/",
+            fetchOptions: {
                 onRequest: () => {
                     setLoading(true);
                     setError("");
                 },
                 onSuccess: () => {
                     setLoading(false);
+                    setStep(3);
                     toast.success("Account created successfully! Please check your email to verify your account.");
                 },
                 onError: (ctx) => {
@@ -54,8 +132,8 @@ export default function Page() {
                     setError(ctx.error.message);
                 }
             }
-        );
-    }
+        });
+    };
 
     return (
         <div className="min-h-screen w-full flex items-center justify-center bg-background relative px-4 py-8 sm:py-0">
@@ -66,123 +144,183 @@ export default function Page() {
                         alt="Quacky Logo"
                         width={150}
                         height={150}
-                        className="mx-auto mb-4"
+                        priority
+                        className="mx-auto mb-4 h-auto w-auto"
                     />
                     <h1 className="text-primary text-3xl font-extrabold text-center">
-                        Create an Account
+                        Join {"Queensland Academies for Creative Industries"}
                     </h1>
                     <p className="mt-2 text-sm text-muted-foreground">
-                        Existing user? {" "}
-                        <Link
-                            href="/auth/login"
-                            className="text-primary-2 hover:underline"
-                        >
+                        Existing user?{" "}
+                        <Link href="/auth/login" className="text-primary-2 hover:underline">
                             Sign in
                         </Link>
                     </p>
                 </div>
 
+                <Stepper step={step} />
 
-                <form onSubmit={createAccount} className="space-y-3">
-                    <div>
-                        <Label
-                            htmlFor="name"
-                            className="mb-1"
-                        >
-                            Your Name
-                        </Label>
-                        <Input
-                            id="name"
-                            type="text"
-                            value={name}
-                            className="bg-card border border-border/40 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
-                            onChange={(e) => setName(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <Label
-                            htmlFor="name"
-                            className="mb-1"
-                        >
-                            Your Username
-                        </Label>
-                        <Input
-                            id="username"
-                            type="text"
-                            value={username}
-                            className="bg-card border border-border/40 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
-                            onChange={(e) => setUsername(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <Label
-                            htmlFor="email"
-                            className="mb-1"
-                        >
-                            Your Email
-                        </Label>
-                        <Input
-                            id="email"
-                            type="email"
-                            value={email}
-                            className="bg-card border border-border/40 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <Label
-                            htmlFor="password"
-                            className="mb-1"
-                        >
-                            Your Password
-                        </Label>
-                        <Input
-                            id="password"
-                            type="password"
-                            value={password}
-                            className="bg-card border border-border/40 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div className="flex items-start gap-2 pt-1">
-                        <Checkbox
-                            id="terms"
-                            checked={agreed}
-                            onCheckedChange={(checked) => setAgreed(checked === true)}
-                        />
-                        <Label htmlFor="terms" className="text-sm text-muted-foreground leading-none mt-0.5 cursor-pointer">
-                            I agree to the{" "}
-                            <Link
-                                href="/legal/terms"
-                                target="_blank"
-                                className="text-primary-2 hover:underline"
-                            >
-                                Terms of Service
-                            </Link>
-                        </Label>
-                    </div>
-
-                    {error && (
-                        <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2.5 text-sm text-destructive">
-                            {error}
+                {step === 1 && (
+                    <div className="space-y-3">
+                        <div>
+                            <h2 className="text-xl font-extrabold tracking-tight text-primary">
+                                Some ground rules.
+                            </h2>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                These are set and enforced by moderators.
+                            </p>
                         </div>
-                    )}
 
-                    <Button
-                        type="submit"
-                        variant="default"
-                        className="text-base w-full h-11"
-                        disabled={loading || !agreed}
-                    >
-                        {loading ? "Creating account..." : "Create Account"}
-                    </Button>
+                        <div className="space-y-0 rounded-xl border border-border overflow-hidden bg-card">
+                            {rules?.map((rule, i) => (
+                                <div key={rule.title}>
+                                    <div className="flex gap-3 px-4 py-3.5">
+                                        <div className="size-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                                            {i + 1}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-semibold text-foreground leading-snug">
+                                                {rule.title}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                                                {rule.description}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {i < rules.length - 1 && <Separator />}
+                                </div>
+                            ))}
+                        </div>
+                        <Button
+                            onClick={() => setStep(2)}
+                            className="text-base w-full h-11"
+                        >
+                            I Accept the Rules
+                        </Button>
+                    </div>
+                )}
 
-                </form>
+                {step === 2 && (
+                    <form onSubmit={createAccount} className="space-y-3">
+                        <div>
+                            <Label htmlFor="name" className="mb-1">
+                                Your Name
+                            </Label>
+                            <Input
+                                id="name"
+                                type="text"
+                                value={name}
+                                className="bg-card border border-border/40 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
+                                onChange={(e) => setName(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <Label htmlFor="username" className="mb-1">
+                                Your Username
+                            </Label>
+                            <Input
+                                id="username"
+                                type="text"
+                                value={username}
+                                className="bg-card border border-border/40 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
+                                onChange={(e) => setUsername(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <Label htmlFor="email" className="mb-1">
+                                Your Email
+                            </Label>
+                            <Input
+                                id="email"
+                                type="email"
+                                value={email}
+                                className="bg-card border border-border/40 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <Label htmlFor="password" className="mb-1">
+                                Your Password
+                            </Label>
+                            <Input
+                                id="password"
+                                type="password"
+                                value={password}
+                                className="bg-card border border-border/40 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="flex items-start gap-2 pt-1">
+                            <Checkbox
+                                id="terms"
+                                checked={agreed}
+                                onCheckedChange={(checked) => setAgreed(checked === true)}
+                            />
+                            <Label htmlFor="terms" className="text-sm text-muted-foreground leading-none mt-0.5 cursor-pointer">
+                                I agree to the{" "}
+                                <Link
+                                    href="/legal/terms"
+                                    target="_blank"
+                                    className="text-primary-2 hover:underline"
+                                >
+                                    Terms of Service
+                                </Link>
+                            </Label>
+                        </div>
+
+                        {error && (
+                            <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2.5 text-sm text-destructive">
+                                {error}
+                            </div>
+                        )}
+
+                        <Button
+                            type="submit"
+                            variant="default"
+                            className="text-base w-full h-11"
+                            disabled={loading || !agreed}
+                        >
+                            {loading ? "Creating account..." : "Create Account"}
+                        </Button>
+                    </form>
+                )}
+
+                {step === 3 && (
+                    <div className="text-center space-y-6">
+                        <div className="rounded-lg border border-border/40 bg-card p-6 space-y-4">
+                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                                <svg
+                                    className="w-6 h-6 text-primary"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                    />
+                                </svg>
+                            </div>
+                            <div className="space-y-2">
+                                <h2 className="text-lg font-semibold">Check your email</h2>
+                                <p className="text-sm text-muted-foreground">
+                                    We&apos;ve sent a verification link to{" "}
+                                    <span className="text-foreground font-medium">{email}</span>. Click the link to verify your account.
+                                </p>
+                            </div>
+                        </div>
+                        <Button asChild className="text-base w-full h-11">
+                            <Link href="/auth/login">Go to Login</Link>
+                        </Button>
+                    </div>
+                )}
             </div>
         </div>
-    )
+    );
 }
