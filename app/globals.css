@@ -38,6 +38,8 @@
     --color-card-foreground: var(--card-foreground);
     --color-card: var(--card);
     --color-foreground: var(--foreground);
+    --color-card-header: var(--card-header);
+    --color-card-2: var(--card-2);
     --color-background: var(--background);
     --radius-sm: calc(var(--radius) * 0.6);
     --radius-md: calc(var(--radius) * 0.8);
@@ -46,6 +48,8 @@
     --radius-2xl: calc(var(--radius) * 1.8);
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
+
+    --color-purple-1: var(--purple-1);
 }
 
 :root {
@@ -87,7 +91,11 @@
 .dark {
     --background: hsl(245, 67%, 7%);
     --foreground: hsl(0, 0%, 100%);
+
+    --card-header: hsl(231, 16%, 45%);
     --card: hsl(231, 21%, 26%);
+    --card-2: hsl(36, 5%, 38%);
+
     --card-foreground: hsl(0, 0%, 100%);
     --popover: hsl(231, 16%, 45%);
     --popover-foreground: hsl(0, 0%, 100%);
@@ -97,12 +105,12 @@
     --secondary: hsl(231, 21%, 26%);
     --secondary-foreground: hsl(0, 0%, 100%);
     --muted: hsl(36, 5%, 38%);
-    --muted-foreground: hsl(245, 5%, 53%);
+    --muted-foreground: hsl(245, 5%, 80%);
     --accent: hsl(288, 100%, 86%);
     --accent-foreground: hsl(245, 67%, 7%);
     --destructive: hsl(352, 100%, 78%);
     --border: hsl(228, 18%, 45%);
-    --input: hsla(0, 0%, 100%, 0.4);
+    --input: hsl(231, 21%, 26%);
     --ring: hsl(49, 68%, 84%);
     --chart-1: hsl(180, 100%, 75%);
     --chart-2: hsl(288, 100%, 86%);
@@ -117,6 +125,8 @@
     --sidebar-accent-foreground: hsl(0, 0%, 100%);
     --sidebar-border: hsl(228, 18%, 45%);
     --sidebar-ring: hsl(49, 68%, 84%);
+
+    --purple-1: hsl(288, 100%, 86%);
 }
 
 @layer base {
