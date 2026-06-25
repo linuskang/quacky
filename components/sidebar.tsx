@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { exo2, playfairDisplay } from "@/app/layout";
+import { exo2, patrickHand, playfairDisplay } from "@/app/layout";
 
 import {
     Home,
@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+
+import { CurvedLine } from "@/components/curved_parabola";
 
 interface Props {
     session: {
@@ -54,6 +56,20 @@ export function Sidebar({ session }: Props) {
             <h1 className="text-3xl font-black text-primary px-4 pt-4 pb-6">
                 Quacky
             </h1>
+
+            <CurvedLine
+                from={{ x: 160, y: 50 }}
+                to={{ x: 220, y: 150 }}
+                stroke="currentColor"
+                strokeWidth={3}
+                wobble={-100}
+            />
+
+            <span
+                className={`${patrickHand.className} absolute left-35 top-40 text-xl w-full font-bold`}
+            >
+                logo drawn by my sis {":)"}
+            </span>
 
             <nav className="flex flex-col gap-1 px-2 flex-1 justify-center">
                 {items.map(({ href, label, icon: Icon }) => {
