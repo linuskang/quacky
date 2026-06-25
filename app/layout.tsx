@@ -2,8 +2,9 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner";
-import { Lexend } from "next/font/google";
+import { Lexend, Patrick_Hand } from "next/font/google";
 const lexend = Lexend({ subsets: ["latin"] });
+export const patrickHand = Patrick_Hand({ weight: "400", subsets: ["latin"] });
 
 
 export default function RootLayout({

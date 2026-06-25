@@ -1,0 +1,59 @@
+"use client";
+
+import { useMemo } from "react";
+
+interface CurvedLineProps {
+    from: { x: number; y: number };
+    to: { x: number; y: number };
+    stroke?: string;
+    strokeWidth?: number;
+    wobble?: number; // 0 = perfect curve, >0 adds organic hand-drawn feel
+}
+
+// Deterministic pseudo-random so SSR and client match
+function seededRandom(seed: number) {
+    const x = Math.sin(seed * 12.9898) * 43758.5453;
+    return x - Math.floor(x);
+}
+
+export function CurvedLine({
+    from,
+    to,
+    stroke = "currentColor",
+    strokeWidth = 3,
+    wobble = 0,
+}: CurvedLineProps) {
+    const d = useMemo(() => {
+        const mx = (from.x + to.x) / 2;
+        const my = (from.y + to.y) / 2;
+
+        // Deterministic seed based on coordinates so SSR == client
+        const seed = from.x * 1000 + from.y * 100 + to.x * 10 + to.y;
+        const cx = wobble ? mx + (seededRandom(seed) - 0.5) * wobble : mx;
+        const cy = wobble ? my + (seededRandom(seed + 1) - 0.5) * wobble : my;
+
+        return `M ${from.x} ${from.y} Q ${cx} ${cy} ${to.x} ${to.y}`;
+    }, [from, to, wobble]);
+
+    return (
+        <svg
+            style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                pointerEvents: "none",
+                overflow: "visible",
+            }}
+        >
+            <path
+                d={d}
+                stroke={stroke}
+                strokeWidth={strokeWidth}
+                strokeLinecap="round"
+                fill="none"
+            />
+        </svg>
+    );
+}
