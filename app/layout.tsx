@@ -2,9 +2,18 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner";
-import { Lexend, Patrick_Hand } from "next/font/google";
+import { Lexend, Patrick_Hand, Playfair_Display } from "next/font/google";
+
 const lexend = Lexend({ subsets: ["latin"] });
 export const patrickHand = Patrick_Hand({ weight: "400", subsets: ["latin"] });
+export const playfairDisplay = Playfair_Display({
+    subsets: ["latin"],
+    variable: "--font-playfair",
+});
+
+export const timesNewRoman = {
+    className: "font-[family-name:'Times_New_Roman',Times,serif]",
+} as const;
 
 
 export default function RootLayout({
@@ -13,10 +22,11 @@ export default function RootLayout({
     children: React.ReactNode
 }>) {
     return (
-        <html
-            lang="en"
-            suppressHydrationWarning
-        >
+            <html
+                lang="en"
+                suppressHydrationWarning
+                className={playfairDisplay.variable}
+            >
             <body
                 className={`${lexend.className} antialiased`}
             >
