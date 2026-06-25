@@ -194,7 +194,7 @@ export function Composer({
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
                                 onFocus={() => setActive(true)}
-                                placeholder="What's on your mind?"
+                                placeholder={`What's happening, ${session.user.name}?`}
                                 className={`w-full resize-none bg-transparent text-lg outline-none placeholder:text-muted-foreground transition-all duration-300 ease-out ${active
                                     ? "h-24 py-1"
                                     : "h-10 py-0 leading-10"

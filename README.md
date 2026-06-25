@@ -1,21 +1,22 @@
-# Next.js template
+# Quacky: Social media for teens
 
-This is a Next.js template with shadcn/ui.
+## Features
 
-## Adding components
+- Fully featured social media platform
+- Cool arts made by my [sister](https://sushi.kang.software)!
 
-To add components to your app, run the following command:
+## notice
 
-```bash
-npx shadcn@latest add button
-```
+This codebase is **NOT** production ready whatsoever. I would not recommend you build off of this application as it's is heavily unstable. there is a lot of jank and hacky work arounds to make everything work together. i wish you luck to whoever is trying to submit a pr :)
 
-This will place the ui components in the `components` directory.
+## i hate docker
 
-## Using components
+weirdo... but ok. you'll need to figure out how to get postgres and rustfs running yourself bucko
 
-To use the components in your app, import them as follows:
+1. double check your env is all set.
 
-```tsx
-import { Button } from "@/components/ui/button";
-```
+2. deploy the app using ``npm run start``
+
+3. grab a fire extinguisher and prepare for meltdown
+
+good luck 🥀

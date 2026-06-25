@@ -10,6 +10,7 @@ import { AboutWidget } from "@/components/about";
 import { RngWidget } from "@/components/rng";
 import { TrendingWidget } from "@/components/trending";
 import { InteractiveButton } from "@/components/bin";
+import { Profile } from "@/components/profile";
 
 export default function Page() {
     return (
@@ -184,8 +185,16 @@ export default function Page() {
                 />
             </div>
 
-            <aside className="fixed left-0 top-0 h-screen w-64 hidden lg:flex flex-col py-8 gap-4 px-4 overflow-y-auto">
-                <h1>whats good</h1>
+            <aside className="fixed left-0 top-0 h-screen w-64 hidden lg:flex flex-col py-4 px-4">
+                <div className="mt-auto">
+                    <Profile
+                        profile={{
+                            name: "Linus Kang",
+                            handle: "linuskang",
+                            image: "https://github.com/linuskang.png"
+                        }}
+                    />
+                </div>
             </aside>
 
             <aside className="fixed right-0 top-0 h-screen w-80 hidden xl:flex flex-col py-8 gap-4 px-4 overflow-y-auto">
