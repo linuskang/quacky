@@ -58,7 +58,7 @@ export function Sidebar({ session }: Props) {
             </h1>
 
             <CurvedLine
-                from={{ x: 160, y: 50 }}
+                from={{ x: 160, y: 60 }}
                 to={{ x: 220, y: 150 }}
                 stroke="currentColor"
                 strokeWidth={3}

@@ -113,11 +113,7 @@ export default function Page() {
                 <AboutWidget />
                 <RngWidget />
                 <TrendingWidget />
-                <Feedback
-                    defaultImage="/close.png"
-                    hoverImage="/open.png"
-                    onClick={() => toast("Interactive button clicked")}
-                />
+                <Feedback />
             </PageRight>
         </PageLayout>
     )
