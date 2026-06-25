@@ -1,6 +1,7 @@
 "use client";
 
 import { Post } from "@/components/post";
+import { toast } from "sonner";
 
 export default function Page() {
     return (
@@ -14,14 +15,19 @@ export default function Page() {
                                 name: "Linus Kang",
                                 handle: "linusdotmy",
                                 image: "https://api.dicebear.com/9.x/glass/svg?seed=Linus",
-                                verified: true
+                                verified: false,
+                                staff: true
                             },
                             content: "Hello, this is a sample *post component*. ``You`` can **customize it** as you like!\n\nMoreover, newline is supported!\nContact me at https://linus.my",
-                            createdAt: new Date().toISOString(),
-                            edited: true,
-                            flagged: true,
+                            createdAt: "2026-06-24T22:55Z",
+                            edited: false,
+                            flagged: false,
+                            views: 100,
+                            likes: 50,
+                            reposts: 10,
+                            comments: 5,
                             repost: {
-                                repost: true,
+                                repost: false,
                                 by: {
                                     name: "admin",
                                     handle: "administrator",
@@ -33,8 +39,13 @@ export default function Page() {
                                     url: "https://api.dicebear.com/9.x/glass/svg?seed=Linus"
                                 },
                             ],
-
                         }}
+                        onComment={() => toast("Comment clicked")}
+                        onRepost={() => toast("Repost clicked")}
+                        onLike={() => toast("Like clicked")}
+                        onBookmark={() => toast("Bookmark clicked")}
+                        onShare={() => toast("Share clicked")}
+                        onAnalytics={() => toast("Analytics clicked")}
                     />
                 </div>
             </div>
