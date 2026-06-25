@@ -27,7 +27,7 @@ interface Props {
     session: {
         user: {
             handle: string;
-            image: string;
+            image?: string | null;
         };
     };
 }

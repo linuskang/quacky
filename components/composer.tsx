@@ -30,7 +30,7 @@ export function Composer({
         user: {
             name: string;
             handle: string;
-            image: string;
+            image?: string | null;
         };
     };
 }) {
@@ -179,7 +179,7 @@ export function Composer({
         >
             <div className="flex items-start gap-3">
                 <Image
-                    src={session.user.image}
+                    src={session.user.image || `https://api.dicebear.com/9.x/glass/svg?seed=${session.user.handle}`}
                     alt={session.user.name}
                     width={40}
                     height={40}

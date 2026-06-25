@@ -14,24 +14,42 @@ import { Profile } from "@/components/profile";
 import { Sidebar } from "@/components/sidebar";
 import { PageLayout, PageCenter, PageLeft, PageRight } from "@/components/page-layout";
 
+import { authClient } from "@/client/auth";
+import { redirect } from "next/navigation";
+
 export default function Page() {
+
+    const { data: session, isPending } = authClient.useSession();
+
+    if (isPending) {
+        return (
+            <div className="flex h-screen items-center justify-center">
+                Loading...
+            </div>
+        );
+    }
+
+    if (!session) {
+        redirect("/auth/login");
+    }
+
     return (
         <PageLayout>
             <PageLeft>
                 <Sidebar
                     session={{
                         user: {
-                            handle: "linusdotmy",
-                            image: "https://github.com/linuskang.png",
+                            handle: session.user.username,
+                            image: session.user.image,
                         }
                     }}
                 />
                 <div className="mt-auto">
                     <Profile
                         profile={{
-                            name: "Linus Kang",
-                            handle: "linuskang",
-                            image: "https://github.com/linuskang.png"
+                            name: session.user.name,
+                            handle: session.user.username,
+                            image: session.user.image,
                         }}
                     />
                 </div>
@@ -44,9 +62,9 @@ export default function Page() {
                     }}
                     session={{
                         user: {
-                            name: "Linus Kang",
-                            handle: "linusdotmy",
-                            image: "https://api.dicebear.com/9.x/glass/svg?seed=Linus"
+                            name: session.user.name,
+                            handle: session.user.username,
+                            image: session.user.image,
                         }
                     }}
                 />
@@ -74,26 +92,6 @@ export default function Page() {
                             edited: false,
                             flagged: false,
                             views: 100,
-                            quote: {
-                                by: {
-                                    name: "John Doe",
-                                    handle: "johndoe",
-                                },
-                                post: {
-                                    id: "2",
-                                    author: {
-                                        name: "Linus Kang",
-                                        handle: "linusdotmy",
-                                        image: "https://api.dicebear.com/9.x/glass/svg?seed=Linus",
-                                        verified: false,
-                                        staff: true
-                                    },
-                                    content: "This is a quoted post. You can click on it to view the original post.",
-                                    createdAt: "2026-06-24T22:55Z",
-                                    edited: true,
-                                    flagged: false,
-                                }
-                            },
                             likes: 50,
                             reposts: 10,
                             comments: 5,
