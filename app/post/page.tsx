@@ -60,6 +60,7 @@ export default function Page() {
                         onBookmark={() => toast("Bookmark clicked")}
                         onShare={() => toast("Share clicked")}
                         onAnalytics={() => toast("Analytics clicked")}
+                        onReport={() => toast("Report clicked")}
                     />
                 </div>
             </div>

@@ -19,18 +19,18 @@ export default function Page() {
 
     const login = async (e: React.FormEvent) => {
         e.preventDefault();
-        const { data, error } = await authClient.signIn.email(
+        await authClient.signIn.email(
             {
                 email,
                 password,
                 callbackURL: "/"
             },
             {
-                onRequest: (ctx) => {
+                onRequest: () => {
                     setLoading(true);
                     setError("");
                 },
-                onSuccess: (ctx) => {
+                onSuccess: () => {
                     setLoading(false);
                 },
                 onError: (ctx) => {
@@ -42,12 +42,12 @@ export default function Page() {
     }
 
     const loginGithub = async () => {
-        const { data, error } = await authClient.signIn.social(
+        await authClient.signIn.social(
             {
                 provider: "github",
             },
             {
-                onRequest: (ctx) => {
+                onRequest: () => {
                     setLoading(true);
                     setError("");
                 }
@@ -71,7 +71,7 @@ export default function Page() {
                         Sign in to Quacky
                     </h1>
                     <p className="mt-2 text-sm text-muted-foreground">
-                        Don't have an account? {" "}
+                        Don&apos;t have an account? {" "}
                         <Link
                             href="/auth/register"
                             className="text-primary-2 hover:underline"

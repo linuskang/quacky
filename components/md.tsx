@@ -167,6 +167,7 @@ export function Markdown({ children }: { children: string }) {
                     </td>
                 ),
 
+                /* eslint-disable @next/next/no-img-element */
                 img: ({ src, alt }) => (
                     <img
                         src={src ?? ""}
@@ -175,6 +176,7 @@ export function Markdown({ children }: { children: string }) {
                         loading="lazy"
                     />
                 ),
+                /* eslint-enable @next/next/no-img-element */
             }}
         >
             {children}
