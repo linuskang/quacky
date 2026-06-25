@@ -2,13 +2,18 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner";
-import { Lexend, Patrick_Hand, Playfair_Display } from "next/font/google";
+import { Exo_2, Lexend, Patrick_Hand, Playfair_Display } from "next/font/google";
 
 const lexend = Lexend({ subsets: ["latin"] });
 export const patrickHand = Patrick_Hand({ weight: "400", subsets: ["latin"] });
 export const playfairDisplay = Playfair_Display({
     subsets: ["latin"],
     variable: "--font-playfair",
+});
+
+export const exo2 = Exo_2({
+    subsets: ["latin"],
+    variable: "--font-exo",
 });
 
 export const timesNewRoman = {
@@ -25,7 +30,7 @@ export default function RootLayout({
             <html
                 lang="en"
                 suppressHydrationWarning
-                className={playfairDisplay.variable}
+                className={`${playfairDisplay.variable} ${exo2.variable}`}
             >
             <body
                 className={`${lexend.className} antialiased`}
