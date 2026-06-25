@@ -23,6 +23,26 @@ export default function Page() {
                             edited: false,
                             flagged: false,
                             views: 100,
+                            quote: {
+                                by: {
+                                    name: "John Doe",
+                                    handle: "johndoe",
+                                },
+                                post: {
+                                    id: "2",
+                                    author: {
+                                        name: "Linus Kang",
+                                        handle: "linusdotmy",
+                                        image: "https://api.dicebear.com/9.x/glass/svg?seed=Linus",
+                                        verified: false,
+                                        staff: true
+                                    },
+                                    content: "This is a quoted post. You can click on it to view the original post.",
+                                    createdAt: "2026-06-24T22:55Z",
+                                    edited: true,
+                                    flagged: false,
+                                }
+                            },
                             likes: 50,
                             reposts: 10,
                             comments: 5,
@@ -33,12 +53,6 @@ export default function Page() {
                                     handle: "administrator",
                                 }
                             },
-                            attachments: [
-                                {
-                                    name: "Sample Attachment",
-                                    url: "https://api.dicebear.com/9.x/glass/svg?seed=Linus"
-                                },
-                            ],
                         }}
                         onComment={() => toast("Comment clicked")}
                         onRepost={() => toast("Repost clicked")}
