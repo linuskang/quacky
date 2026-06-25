@@ -71,10 +71,10 @@ export function Profile({ profile }: ProfileProps) {
                             </button>
                         </DialogTrigger>
 
-                        <DialogContent className="bg-card border-2 border-border p-6 w-full !max-w-lg">
+                        <DialogContent className="bg-card border-2 border-border p-6 w-full !max-w-lg" showCloseButton={false}>
                             <DialogHeader>
                                 <DialogTitle
-                                    className={`text-4xl font-semibold ${playfairDisplay.className}`}
+                                    className={`text-4xl font-semibold ${playfairDisplay.className} text-primary`}
                                     style={{ fontStyle: "italic" }}
                                 >
                                     Settings
@@ -86,11 +86,11 @@ export function Profile({ profile }: ProfileProps) {
                                     <div className="flex items-start gap-3">
                                         <Checkbox id="streamer-mode" className="mt-1" />
                                         <div className="space-y-0.5">
-                                            <Label htmlFor="streamer-mode" className="font-semibold text-sm">
-                                                Streamer mode
+                                            <Label htmlFor="streamer-mode" className="font-semibold text-sm text-primary">
+                                                Streamer Mode
                                             </Label>
                                             <p className="text-xs text-muted-foreground">
-                                                Blurs sensitive content across the app for safer screen sharing.
+                                                Blurs sensitive information like your email, amoung others.
                                             </p>
                                         </div>
                                     </div>
@@ -98,11 +98,35 @@ export function Profile({ profile }: ProfileProps) {
                                     <div className="flex items-start gap-3">
                                         <Checkbox id="private-account" className="mt-1" />
                                         <div className="space-y-0.5">
-                                            <Label htmlFor="private-account" className="font-semibold text-sm">
-                                                Private account
+                                            <Label htmlFor="private-account" className="font-semibold text-sm text-primary">
+                                                Private Account
                                             </Label>
                                             <p className="text-xs text-muted-foreground">
-                                                Only approved followers can view your profile and posts.
+                                                Makes your account private, only you can see your profile.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start gap-3">
+                                        <Checkbox id="stats-nerds" className="mt-1" />
+                                        <div className="space-y-0.5">
+                                            <Label htmlFor="stats-nerds" className="font-semibold text-sm text-primary">
+                                                Stats for Nerds
+                                            </Label>
+                                            <p className="text-xs text-muted-foreground">
+                                                Some developer stats on pages. Useful for debugging.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start gap-3">
+                                        <Checkbox id="hide-tips" className="mt-1" />
+                                        <div className="space-y-0.5">
+                                            <Label htmlFor="hide-tips" className="font-semibold text-sm text-primary">
+                                                Hide Tips
+                                            </Label>
+                                            <p className="text-xs text-muted-foreground">
+                                                Hides tips on pages.
                                             </p>
                                         </div>
                                     </div>
@@ -110,12 +134,16 @@ export function Profile({ profile }: ProfileProps) {
 
                                 <div className="grid gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="name">Name</Label>
+                                        <Label htmlFor="name" className="font-semibold text-primary">
+                                            Name
+                                        </Label>
                                         <Input id="name" className="border-2 border-border h-10 !text-sm hover:border-primary focus:border-primary !ring-0" placeholder={profile.name} />
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="username">Username</Label>
+                                        <Label htmlFor="username" className="font-semibold text-primary">
+                                            Username
+                                        </Label>
                                         <Input id="username" className="border-2 border-border h-10 !text-sm hover:border-primary focus:border-primary !ring-0" placeholder={`@${profile.handle}`} />
                                     </div>
                                 </div>
