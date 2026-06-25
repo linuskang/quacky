@@ -5,6 +5,7 @@ import { Settings, LogOut } from "lucide-react";
 import { authClient } from "@/client/auth";
 
 import { useState } from "react"
+import { useTheme } from "next-themes"
 import { toast } from "sonner"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
@@ -26,6 +27,26 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+
+function ThemeToggle() {
+    const { theme, setTheme } = useTheme()
+
+    return (
+        <div className="flex gap-2">
+            {(["light", "dark", "system"] as const).map((t) => (
+                <Button
+                    key={t}
+                    type="button"
+                    variant={theme === t ? "default" : "secondary"}
+                    className="h-8 px-3 rounded-full border-2 border-border text-xs font-semibold capitalize"
+                    onClick={() => setTheme(t)}
+                >
+                    {t}
+                </Button>
+            ))}
+        </div>
+    )
+}
 
 interface ProfileProps {
     profile: {
@@ -81,7 +102,10 @@ export function Profile({ profile }: ProfileProps) {
                                 </DialogTitle>
                             </DialogHeader>
 
-                            <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label className="font-semibold text-sm text-primary">
+                                    General Settings
+                                </Label>
                                 <div className="space-y-4">
                                     <div className="flex items-start gap-3">
                                         <Checkbox id="streamer-mode" className="mt-1" />
@@ -130,6 +154,13 @@ export function Profile({ profile }: ProfileProps) {
                                             </p>
                                         </div>
                                     </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label className="font-semibold text-sm text-primary">
+                                        App Theme
+                                    </Label>
+                                    <ThemeToggle />
                                 </div>
 
                                 <div className="grid gap-4">
