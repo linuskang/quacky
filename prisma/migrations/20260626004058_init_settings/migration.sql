@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "hideTips" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "private" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "statsForNerds" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "streamerMode" BOOLEAN NOT NULL DEFAULT false;

@@ -21,6 +21,7 @@ import {
     GraduationCap,
     FerrisWheel,
 } from "lucide-react";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 
@@ -53,12 +54,15 @@ export function Sidebar({ session }: Props) {
 
     return (
         <div className={`h-full flex flex-col ${exo2.className}`}>
-            <h1 className="text-3xl font-black text-primary px-4 pt-4 pb-6">
-                Quacky
-            </h1>
+            <Image className="mx-auto mt-4"
+                src="/quacky.png"
+                alt="Quacky logo"
+                width={200}
+                height={200}
+            />
 
             <CurvedLine
-                from={{ x: 160, y: 60 }}
+                from={{ x: 160, y: 100 }}
                 to={{ x: 220, y: 150 }}
                 stroke="currentColor"
                 strokeWidth={3}
@@ -66,7 +70,7 @@ export function Sidebar({ session }: Props) {
             />
 
             <span
-                className={`${patrickHand.className} absolute left-35 top-40 text-xl w-full font-bold`}
+                className={`${patrickHand.className} absolute left-60 top-35 text-xl w-full font-bold`}
             >
                 logo drawn by my sis {":)"}
             </span>

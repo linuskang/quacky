@@ -45,13 +45,7 @@ export default function Page() {
                     }}
                 />
                 <div className="mt-auto">
-                    <Profile
-                        profile={{
-                            name: session.user.name,
-                            handle: session.user.username,
-                            image: session.user.image,
-                        }}
-                    />
+                    <Profile />
                 </div>
             </PageLeft>
 

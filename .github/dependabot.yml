@@ -1,0 +1,45 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 10
+    reviewers:
+      - linusdotmy
+    labels:
+      - type:dependencies
+      - area:config
+    commit-message:
+      prefix: 'deps'
+      include: scope
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    reviewers:
+      - linusdotmy
+    labels:
+      - type:dependencies
+      - area:docker
+    commit-message:
+      prefix: 'docker'
+      include: scope
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    reviewers:
+      - linusdotmy
+    labels:
+      - type:dependencies
+      - area:ci-cd
+    commit-message:
+      prefix: 'ci'
+      include: scope

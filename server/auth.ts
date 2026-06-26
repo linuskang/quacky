@@ -4,6 +4,10 @@ import { prisma } from "@/server/prisma";
 import { env } from "@/env";
 import { z } from "zod";
 import { APIError } from "@better-auth/core/error";
+import { Resend } from "resend";
+import { admin } from "better-auth/plugins"
+
+const resend = new Resend(env.RESEND_API_KEY);
 
 export const auth = betterAuth(
     {
@@ -11,8 +15,32 @@ export const auth = betterAuth(
             provider: "postgresql"
         }),
 
+        plugins: [
+            admin()
+        ],
+
         emailAndPassword: {
-            enabled: true
+            enabled: true,
+            requireEmailVerification: true,
+        },
+
+        emailVerification: {
+            sendOnSignIn: true,
+            sendOnSignUp: true,
+            sendVerificationEmail: async (data, _request) => {
+                await resend.emails.send({
+                    from: env.EMAIL_FROM,
+                    to: data.user.email,
+                    subject: "Verify your email",
+                    html: `
+                        <p>Hi ${data.user.name},</p>
+                        <p>Please click this link to verify your email:</p>
+                        <a href="${data.url}">Verify Email</a>
+                        <p>If you didn't request this, please contact us at <a href="mailto:admin@quacky.space">admin@quacky.space</a> to have it resolved.</p>
+                        <p><strong>Please do not reply to this email.</strong></p>
+                    `
+                });
+            }
         },
 
         user: {
@@ -27,6 +55,26 @@ export const auth = betterAuth(
                             .max(20, "Username must be less than 20 characters long")
                             .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores")
                     }
+                },
+                statsForNerds: {
+                    type: "boolean",
+                    required: false,
+                    default: false
+                },
+                private: {
+                    type: "boolean",
+                    required: false,
+                    default: false
+                },
+                streamerMode: {
+                    type: "boolean",
+                    required: false,
+                    default: false
+                },
+                hideTips: {
+                    type: "boolean",
+                    required: false,
+                    default: false
                 }
             }
         },

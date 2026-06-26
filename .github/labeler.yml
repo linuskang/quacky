@@ -1,0 +1,104 @@
+# GitHub Labeler configuration
+# https://github.com/actions/labeler
+
+# Area labels
+area:app:
+  - changed-files:
+      - any-glob-to-any-file:
+          - app/**
+          - app/***
+
+area:components:
+  - changed-files:
+      - any-glob-to-any-file:
+          - components/**
+          - components/***
+
+area:server:
+  - changed-files:
+      - any-glob-to-any-file:
+          - server/**
+          - server/***
+
+area:database:
+  - changed-files:
+      - any-glob-to-any-file:
+          - prisma/**
+          - prisma/***
+          - prisma.config.ts
+
+area:emails:
+  - changed-files:
+      - any-glob-to-any-file:
+          - emails/**
+          - emails/***
+
+area:docs:
+  - changed-files:
+      - any-glob-to-any-file:
+          - docs/**
+          - docs/***
+          - "**/*.md"
+
+area:ci-cd:
+  - changed-files:
+      - any-glob-to-any-file:
+          - .github/workflows/**
+          - .github/workflows/***
+          - .github/labeler.yml
+
+area:docker:
+  - changed-files:
+      - any-glob-to-any-file:
+          - Dockerfile
+          - docker-compose.yml
+          - production.docker-compose.yml
+          - .dockerignore
+
+area:config:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "*.config.*"
+          - tsconfig.json
+          - package.json
+          - package-lock.json
+          - .env*
+          - .prettier*
+          - .eslint*
+
+# Type labels
+type:enhancement:
+  - changed-files:
+      - any-glob-to-any-file:
+          - app/**
+          - components/**
+          - server/**
+          - lib/**
+          - hooks/**
+
+type:bugfix:
+  - head-branch:
+      - fix/*
+      - hotfix/*
+      - bugfix/*
+
+type:feature:
+  - head-branch:
+      - feature/*
+      - feat/*
+
+type:chore:
+  - changed-files:
+      - any-glob-to-any-file:
+          - .github/**
+          - scripts/**
+          - tests/**
+          - docs/**
+          - "*.md"
+
+type:dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - package.json
+          - package-lock.json
+          - prisma/schema.prisma

@@ -42,7 +42,7 @@ function Stepper({ step }: { step: Step }) {
                                 ? "bg-primary border-primary text-primary-foreground"
                                 : active
                                     ? "border-primary bg-background text-primary"
-                                    : "border-muted bg-background text-muted-foreground"
+                                    : "border-border bg-background text-muted-foreground"
                                 }`}
                         >
                             {completed ? (
@@ -142,8 +142,8 @@ export default function Page() {
                     <Image
                         src="/logo.png"
                         alt="Quacky Logo"
-                        width={150}
-                        height={150}
+                        width={100}
+                        height={100}
                         priority
                         className="mx-auto mb-4 h-auto w-auto"
                     />
@@ -171,7 +171,7 @@ export default function Page() {
                             </p>
                         </div>
 
-                        <div className="space-y-0 rounded-xl border border-border overflow-hidden bg-card">
+                        <div className="space-y-0 rounded-xl border-2 border-border overflow-hidden bg-card">
                             {rules?.map((rule, i) => (
                                 <div key={rule.title}>
                                     <div className="flex gap-3 px-4 py-3.5">
@@ -187,7 +187,7 @@ export default function Page() {
                                             </p>
                                         </div>
                                     </div>
-                                    {i < rules.length - 1 && <Separator />}
+                                    {i < rules.length - 1 && <Separator className="bg-border border-1" />}
                                 </div>
                             ))}
                         </div>
@@ -210,7 +210,7 @@ export default function Page() {
                                 id="name"
                                 type="text"
                                 value={name}
-                                className="bg-card border border-border/40 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
+                                className="!bg-card border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
                                 onChange={(e) => setName(e.target.value)}
                                 required
                             />
@@ -223,7 +223,7 @@ export default function Page() {
                                 id="username"
                                 type="text"
                                 value={username}
-                                className="bg-card border border-border/40 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
+                                className="!bg-card border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
                                 onChange={(e) => setUsername(e.target.value)}
                                 required
                             />
@@ -236,7 +236,7 @@ export default function Page() {
                                 id="email"
                                 type="email"
                                 value={email}
-                                className="bg-card border border-border/40 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
+                                className="!bg-card border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                             />
@@ -249,7 +249,7 @@ export default function Page() {
                                 id="password"
                                 type="password"
                                 value={password}
-                                className="bg-card border border-border/40 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
+                                className="!bg-card border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                             />
@@ -258,6 +258,7 @@ export default function Page() {
                             <Checkbox
                                 id="terms"
                                 checked={agreed}
+                                className="border-2"
                                 onCheckedChange={(checked) => setAgreed(checked === true)}
                             />
                             <Label htmlFor="terms" className="text-sm text-muted-foreground leading-none mt-0.5 cursor-pointer">
@@ -281,7 +282,7 @@ export default function Page() {
                         <Button
                             type="submit"
                             variant="default"
-                            className="text-base w-full h-11"
+                            className="text-base bg-primary rounded-full w-full h-11"
                             disabled={loading || !agreed}
                         >
                             {loading ? "Creating account..." : "Create Account"}
@@ -291,24 +292,8 @@ export default function Page() {
 
                 {step === 3 && (
                     <div className="text-center space-y-6">
-                        <div className="rounded-lg border border-border/40 bg-card p-6 space-y-4">
-                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                                <svg
-                                    className="w-6 h-6 text-primary"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                                    />
-                                </svg>
-                            </div>
+                        <div className="rounded-lg border-2 border-border p-6 space-y-4">
                             <div className="space-y-2">
-                                <h2 className="text-lg font-semibold">Check your email</h2>
                                 <p className="text-sm text-muted-foreground">
                                     We&apos;ve sent a verification link to{" "}
                                     <span className="text-foreground font-medium">{email}</span>. Click the link to verify your account.

@@ -16,6 +16,7 @@ export default function Page() {
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [resending, setResending] = useState(false);
 
     const login = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -35,7 +36,13 @@ export default function Page() {
                 },
                 onError: (ctx) => {
                     setLoading(false);
-                    setError(ctx.error.message);
+                    const msg = ctx.error.message ?? "";
+                    const code = (ctx.error as Record<string, unknown>).code as string | undefined;
+                    if (code === "EMAIL_NOT_VERIFIED" || msg.toLowerCase().includes("not verified")) {
+                        setError("EMAIL_NOT_VERIFIED");
+                    } else {
+                        setError(msg);
+                    }
                 }
             }
         )
@@ -109,7 +116,8 @@ export default function Page() {
                             id="email"
                             type="email"
                             value={email}
-                            className="bg-card border border-border/40 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
+                            placeholder="quacky@your.school"
+                            className="!bg-card border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
                             onChange={(e) => setEmail(e.target.value)}
                             required
                         />
@@ -125,17 +133,22 @@ export default function Page() {
                             id="password"
                             type="password"
                             value={password}
-                            className="bg-card border border-border/40 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
+                            placeholder="••••••••"
+                            className="!bg-card border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
                     </div>
 
-                    {error && (
-                        <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2.5 text-sm text-destructive">
+                    {error === "EMAIL_NOT_VERIFIED" ? (
+                        <div className="rounded-md border-2 border-destructive bg-destructive/10 px-3 py-2.5 text-sm text-destructive space-y-2">
+                            <p>Your email is not verified. We&aposve resent a verification email to your inbox.</p>
+                        </div>
+                    ) : error ? (
+                        <div className="rounded-md border-2 border-destructive bg-destructive/10 px-3 py-2.5 text-sm text-destructive">
                             {error}
                         </div>
-                    )}
+                    ) : null}
 
                     <Button
                         type="submit"

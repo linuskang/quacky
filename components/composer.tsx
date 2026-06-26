@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Markdown } from "@/components/md";
 import { Paperclip, X } from "lucide-react";
 import { toast } from "sonner";
+
+import { getGreeting } from "@/client/utils";
+
 
 const ACCEPTED_TYPES = [
     "image/jpeg",
@@ -38,6 +41,10 @@ export function Composer({
     const [mode, setMode] = useState<"write" | "preview">("write");
     const [active, setActive] = useState(false);
     const [files, setFiles] = useState<Attachment[]>([]);
+    const greeting = useMemo(
+        () => getGreeting(new Date(), session.user.name),
+        [session.user.name],
+    );
 
     const containerRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -194,7 +201,7 @@ export function Composer({
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
                                 onFocus={() => setActive(true)}
-                                placeholder={`What's happening, ${session.user.name}?`}
+                                placeholder={greeting}
                                 className={`w-full resize-none bg-transparent text-lg outline-none placeholder:text-muted-foreground transition-all duration-300 ease-out ${active
                                     ? "h-24 py-1"
                                     : "h-10 py-0 leading-10"

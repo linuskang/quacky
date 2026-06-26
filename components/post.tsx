@@ -293,10 +293,13 @@ export function Post({
                                 }`}
                         >
                             {post.attachments.map((attachment, index) => (
-                                <img
+                                <Image
                                     key={index}
                                     src={attachment.url}
                                     alt={attachment.name}
+                                    width={500}
+                                    height={300}
+                                    unoptimized
                                     className="h-full max-h-[300px] w-full rounded-md object-cover"
                                     loading="lazy"
                                 />

@@ -76,3 +76,15 @@ export function useFormattedDate(time: string) {
 
     return formatted;
 }
+
+export function getGreeting(time: Date, name: string) {
+    const hour = new Date(time).getHours();
+
+    if (hour < 12) {
+        return `Good morning, ${name}!`;
+    } else if (hour < 18) {
+        return `Good afternoon, ${name}!`;
+    } else {
+        return `Good evening, ${name}!`;
+    }
+}

@@ -1,0 +1,22 @@
+{
+  "categories": [
+    {
+      "title": "## Features",
+      "labels": ["feature", "enhancement", "type:feature", "type:enhancement"]
+    },
+    {
+      "title": "## Bug Fixes",
+      "labels": ["bug", "fix", "type:bugfix"]
+    },
+    {
+      "title": "## Dependencies",
+      "labels": ["dependencies", "type:dependencies"]
+    },
+    {
+      "title": "## Other",
+      "labels": []
+    }
+  ],
+  "template": "#{{CHANGELOG}}\n\n## Contributors\n#{{CONTRIBUTORS}}",
+  "pr_template": "- #{{TITLE}} by @#{{AUTHOR}} in ##{{NUMBER}}"
+}

@@ -20,18 +20,17 @@ export const timesNewRoman = {
     className: "font-[family-name:'Times_New_Roman',Times,serif]",
 } as const;
 
-
 export default function RootLayout({
     children,
 }: Readonly<{
     children: React.ReactNode
 }>) {
     return (
-            <html
-                lang="en"
-                suppressHydrationWarning
-                className={`${playfairDisplay.variable} ${exo2.variable}`}
-            >
+        <html
+            lang="en"
+            suppressHydrationWarning
+            className={`${playfairDisplay.variable} ${exo2.variable}`}
+        >
             <body
                 className={`${lexend.className} antialiased`}
             >
