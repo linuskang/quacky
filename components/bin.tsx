@@ -43,7 +43,7 @@ export function Feedback() {
     const [visual, setVisual] = useState(0);
     const [comments, setComments] = useState("");
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (usability === 0 || satisfaction === 0 || recommend === 0 || visual === 0 || comments.trim() === "") {
             toast.error("Please answer all required fields.");
             return;
@@ -57,8 +57,15 @@ export function Feedback() {
             comments,
         };
 
-        console.log("Feedback submitted:", data);
-        toast.success("Feedback sent! Thank you.");
+        await fetch("/api/feedback-portal", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+
+        toast.success("Feedback sent! Thank you for trying out Quacky.");
 
         setUsability(0);
         setSatisfaction(0);
