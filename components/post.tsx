@@ -117,7 +117,7 @@ export function Post({
     return (
         <div
             onClick={handleCardClick}
-            className="rounded-md border-2 border-border max-w-lg bg-background p-4 flex flex-col gap-2 hover:border-primary/80 transition cursor-pointer"
+            className="rounded-md border-2 border-border max-w-lg !bg-card-primary p-4 flex flex-col gap-2 hover:border-primary/80 transition cursor-pointer"
         >
             {post.repost?.repost && (
                 <div className="flex items-center gap-1 mb-2 text-sm">
@@ -318,7 +318,7 @@ export function Post({
                                 variant="default"
 
                                 size="sm"
-                                className="h-8 py-1 px-2.5 text-md font-semibold text-primary/80 hover:text-primary bg-background border-2 border-border hover:bg-background hover:border-primary"
+                                className="h-8 py-1 px-2.5 text-md font-semibold text-primary/80 hover:text-primary !bg-card-primary border-2 border-border hover:bg-background hover:border-primary"
                             >
                                 <MessagesSquare
                                     strokeWidth={3}
@@ -333,7 +333,7 @@ export function Post({
                                         onClick={handleAction(onRepost)}
                                         variant="default"
                                         size="sm"
-                                        className="h-8 py-1 px-2.5 text-md font-semibold text-primary/80 hover:text-primary bg-background border-2 border-border hover:bg-background hover:border-primary"
+                                        className="h-8 py-1 px-2.5 text-md font-semibold text-primary/80 hover:text-primary !bg-card-primary border-2 border-border hover:bg-background hover:border-primary"
                                     >
                                         <Repeat2
                                             strokeWidth={3}
@@ -365,7 +365,7 @@ export function Post({
                                 onClick={handleAction(onLike)}
                                 variant="default"
                                 size="sm"
-                                className="h-8 py-1 px-2.5 text-md font-semibold text-primary/80 hover:text-primary bg-background border-2 border-border hover:bg-background hover:border-primary"
+                                className="h-8 py-1 px-2.5 text-md font-semibold text-primary/80 hover:text-primary !bg-card-primary border-2 border-border hover:bg-background hover:border-primary"
                             >
                                 <Heart
                                     strokeWidth={3}
@@ -380,7 +380,7 @@ export function Post({
                                 onClick={handleAction(onAnalytics)}
                                 variant="default"
                                 size="sm"
-                                className="h-8 py-1 px-2.5 text-md font-semibold text-primary/80 hover:text-primary bg-background border-2 border-border hover:bg-background hover:border-primary"
+                                className="h-8 py-1 px-2.5 text-md font-semibold text-primary/80 hover:text-primary !bg-card-primary border-2 border-border hover:bg-background hover:border-primary"
                             >
                                 <BarChart2
                                     strokeWidth={3}
@@ -393,7 +393,7 @@ export function Post({
                                 onClick={handleAction(onBookmark)}
                                 variant="default"
                                 size="sm"
-                                className="h-8 py-1 px-1.5 text-md font-semibold text-primary/80 hover:text-primary bg-background border-2 border-border hover:bg-background hover:border-primary"
+                                className="h-8 py-1 px-1.5 text-md font-semibold text-primary/80 hover:text-primary !bg-card-primary border-2 border-border hover:bg-background hover:border-primary"
                             >
                                 <Bookmark
                                     strokeWidth={3}
@@ -404,7 +404,7 @@ export function Post({
                                 onClick={handleAction(onShare)}
                                 variant="default"
                                 size="sm"
-                                className="h-8 py-1 px-1.5 text-md font-semibold text-primary/80 hover:text-primary bg-background border-2 border-border hover:bg-background hover:border-primary"
+                                className="h-8 py-1 px-1.5 text-md font-semibold text-primary/80 hover:text-primary !bg-card-primary border-2 border-border hover:bg-background hover:border-primary"
                             >
                                 <Share
                                     strokeWidth={3}

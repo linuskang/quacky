@@ -9,6 +9,8 @@ export const patrickHand = Patrick_Hand({ weight: "400", subsets: ["latin"] });
 export const playfairDisplay = Playfair_Display({
     subsets: ["latin"],
     variable: "--font-playfair",
+    style: ["normal", "italic"],
+    weight: ["400", "700"],
 });
 
 export const exo2 = Exo_2({

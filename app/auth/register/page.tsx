@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { authClient } from "@/client/auth";
 import Link from "next/link";
 import Image from "next/image";
@@ -46,7 +46,7 @@ function Stepper({ step }: { step: Step }) {
                                 }`}
                         >
                             {completed ? (
-                                <Check className="w-4 h-4" />
+                                <Check className="w-4 h-4" strokeWidth={4} />
                             ) : (
                                 num
                             )}
@@ -77,28 +77,22 @@ export default function Page() {
     const [agreed, setAgreed] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const rules = [
-        {
-            title: "Be respectful",
-            description: "Treat others with kindness and respect. Harassment, hate speech, and discrimination will not be tolerated."
-        },
-        {
-            title: "No spamming",
-            description: "Avoid posting irrelevant or repetitive content. This includes excessive self-promotion."
-        },
-        {
-            title: "Follow the law",
-            description: "Do not post content that violates any laws or regulations. This includes sharing illegal content or engaging in illegal activities."
-        },
-        {
-            title: "Protect privacy",
-            description: "Do not share personal information of others without their consent. This includes doxxing or sharing private messages."
-        },
-        {
-            title: "Use appropriate content",
-            description: "Avoid posting explicit, violent, or otherwise inappropriate content. This is a family-friendly community."
-        }
-    ];
+    const [rules, setRules] = useState<{ title: string; description: string }[]>([]);
+    const [orgName, setOrgName] = useState("");
+
+    useEffect(() => {
+        fetch("/api/meta")
+            .then((res) => res.json())
+            .then((data) => {
+                setRules(data.org.rules);
+                setOrgName(data.org.name);
+            })
+            .catch((err) => {
+                toast.error(err.message);
+            });
+
+        console.log(rules);
+    }, [])
 
     const createAccount = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -148,7 +142,7 @@ export default function Page() {
                         className="mx-auto mb-4 h-auto w-auto"
                     />
                     <h1 className="text-primary text-3xl font-extrabold text-center">
-                        Join {"Queensland Academies for Creative Industries"}
+                        Join {orgName}
                     </h1>
                     <p className="mt-2 text-sm text-muted-foreground">
                         Existing user?{" "}
@@ -262,7 +256,7 @@ export default function Page() {
                                 onCheckedChange={(checked) => setAgreed(checked === true)}
                             />
                             <Label htmlFor="terms" className="text-sm text-muted-foreground leading-none mt-0.5 cursor-pointer">
-                                I agree to the{" "}
+                                I agree to the
                                 <Link
                                     href="/legal/terms"
                                     target="_blank"

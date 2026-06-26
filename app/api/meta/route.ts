@@ -1,17 +1,15 @@
 import { env } from "@/env";
 import { NextResponse } from "next/server";
+import { version, rules } from "@/lib/var";
 
 export async function GET() {
     return NextResponse.json(
         {
-            orgName: env.ORG_NAME,
-            version: env.VERSION,
-            apiVersions: [
-                {
-                    version: "1",
-                    endpoint: "/api/v1",
-                }
-            ],
+            org: {
+                name: env.ORG_NAME,
+                rules
+            },
+            version: version,
         }
     )
 }

@@ -51,12 +51,16 @@
     --radius-2xl: calc(var(--radius) * 1.8);
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
+    --color-card-primary: var(--card-primary);
+    --color-profile-card: var(--profile-card);
 
     --color-purple-1: var(--purple-1);
 }
 
 :root {
     --background: hsl(46, 28%, 94%);
+    --card-primary: hsl(0, 0%, 100%);
+    --profile-card: hsl(0, 0%, 100%);
     --foreground: hsl(20, 14.3%, 4.1%);
     --card: hsl(0, 0%, 100%);
     --card-foreground: hsl(20, 14.3%, 4.1%);
@@ -92,8 +96,11 @@
 }
 
 .dark {
-    --background: hsl(245, 67%, 7%);
+    --background: hsl(245, 56%, 8%);
+    --card-primary: hsl(245, 67%, 7%);
     --foreground: hsl(0, 0%, 100%);
+
+    --profile-card: hsl(230, 16%, 45%);
 
     --card-header: hsl(231, 16%, 45%);
     --card: hsl(231, 21%, 26%);

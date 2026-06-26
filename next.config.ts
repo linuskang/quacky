@@ -11,11 +11,28 @@ const nextConfig: NextConfig = {
             },
             {
                 protocol: "https",
+                hostname: "api.dicebear.com",
+                pathname: "/10.x/disco/**",
+            },
+            {
+                protocol: "https",
                 hostname: "github.com",
                 pathname: "/**",
             }
         ],
     },
+    async rewrites() {
+        return [
+            {
+                source: "/@:handle",
+                destination: "/user/:handle",
+            },
+        ];
+    },
+    allowedDevOrigins: [
+        "localhost.linus.my",
+        "qky.linus.my",
+    ],
 }
 
 export default nextConfig

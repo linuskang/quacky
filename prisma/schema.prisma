@@ -23,6 +23,12 @@ model User {
   streamerMode  Boolean @default(false)
   hideTips      Boolean @default(false)
 
+  bio String?
+  bannerImage String?
+  pronoun String?
+  location String?
+  website String?
+
   createdAt DateTime @db.Timestamptz(3)
   updatedAt DateTime @db.Timestamptz(3)
 

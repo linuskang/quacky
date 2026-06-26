@@ -42,24 +42,26 @@ export function Sidebar({ session }: Props) {
     const items = [
         { href: "/", label: "home", icon: Home },
         { href: "/search", label: "search", icon: Search },
-        { href: "/messages", label: "messages", icon: MessagesSquare },
+        { href: "/my/messages", label: "messages", icon: MessagesSquare },
         { href: "/fuzzies", label: "warm fuzzies", icon: Briefcase },
         { href: "/trending", label: "trending", icon: TrendingUp },
         { href: "/check-in", label: "daily check in", icon: MessageCircleCheck },
         { href: "/emotion-wheel", label: "emotion wheel", icon: FerrisWheel },
-        { href: "/bookmarks", label: "bookmarks", icon: Bookmark },
-        { href: "/notifications", label: "notifications", icon: Bell },
-        { href: `/${session.user.handle}`, label: "profile", icon: User },
+        { href: "/my/bookmarks", label: "bookmarks", icon: Bookmark },
+        { href: "/my/notifications", label: "notifications", icon: Bell },
+        { href: `/@${session.user.handle}`, label: "profile", icon: User },
     ];
 
     return (
         <div className={`h-full flex flex-col ${exo2.className}`}>
-            <Image className="mx-auto mt-4"
-                src="/quacky.png"
-                alt="Quacky logo"
-                width={200}
-                height={200}
-            />
+            <Link href="/">
+                <Image className="mx-auto mt-4"
+                    src="/quacky.png"
+                    alt="Quacky logo"
+                    width={200}
+                    height={200}
+                />
+            </Link>
 
             <CurvedLine
                 from={{ x: 160, y: 100 }}
@@ -80,23 +82,25 @@ export function Sidebar({ session }: Props) {
                     const active = pathname === href;
 
                     return (
-                        <Button
+                        <Link
                             key={href}
-                            asChild
-                            variant="ghost"
+                            href={href}
                             className={cn(
-                                "w-full justify-start rounded-full h-11 text-base transition-colors",
+                                "flex items-center gap-3 rounded-full py-2 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]",
                                 active
-                                    ? `text-3xl font-bold ${playfairDisplay.className} text-primary !bg-background`
-                                    : "text-primary/80 text-2xl !bg-background"
+                                    ? `translate-x-2 text-2xl font-bold ${playfairDisplay.className} text-primary`
+                                    : "translate-x-0 text-xl text-primary/80 hover:translate-x-1 hover:text-primary"
                             )}
-                            style={active ? { fontStyle: "italic" } : undefined}
                         >
-                            <Link href={href}>
-                                <Icon className="mr-3 h-12 w-12" strokeWidth={3} />
-                                {label}
-                            </Link>
-                        </Button>
+                            <Icon
+                                className={cn(
+                                    "shrink-0 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]",
+                                    active ? "size-9" : "size-7"
+                                )}
+                                strokeWidth={active ? 2.5 : 2}
+                            />
+                            <span className="truncate">{label}</span>
+                        </Link>
                     );
                 })}
 
@@ -105,7 +109,7 @@ export function Sidebar({ session }: Props) {
                     className="mt-4 w-full h-11 rounded-full bg-primary-2 text-background hover:bg-primary-2/80 text-base font-semibold"
                 >
                     <Link href="/post">
-                        <Plus className="mr-1 h-12 w-12" strokeWidth={3} />
+                        <Plus className="mr-1 size-8" strokeWidth={3} />
                         Post
                     </Link>
                 </Button>

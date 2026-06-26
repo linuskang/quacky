@@ -35,19 +35,7 @@ export default function Page() {
 
     return (
         <PageLayout>
-            <PageLeft>
-                <Sidebar
-                    session={{
-                        user: {
-                            handle: session.user.username,
-                            image: session.user.image,
-                        }
-                    }}
-                />
-                <div className="mt-auto">
-                    <Profile />
-                </div>
-            </PageLeft>
+
 
             <PageCenter>
                 <Composer
