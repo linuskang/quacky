@@ -53,3 +53,5 @@ Return field result
 ↓
 Log to Upstream
 ```
+
+Any routes that have a patch, delete, or post, will include the updated query from prisma as ``res``.
