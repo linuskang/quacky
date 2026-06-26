@@ -5,21 +5,17 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Markdown } from "@/components/md";
 import { getGreeting } from "@/client/utils";
+import { authClient } from "@/client/auth";
 
-export function Composer({
-    session,
-}: {
-    session: {
-        user: {
-            name: string;
-            handle: string;
-            image?: string | null;
-        };
-    };
-}) {
+export function Composer() {
     const [content, setContent] = useState("");
     const [mode, setMode] = useState<"write" | "preview">("write");
     const [active, setActive] = useState(false);
+    const { data: session } = authClient.useSession();
+
+    if (!session) {
+        return null;
+    }
 
     const greeting = useMemo(
         () => getGreeting(new Date(), session.user.name),
@@ -59,7 +55,7 @@ export function Composer({
                 <Image
                     src={
                         session.user.image ||
-                        `https://api.dicebear.com/9.x/glass/svg?seed=${session.user.handle}`
+                        `https://api.dicebear.com/9.x/glass/svg?seed=${session.user.username}`
                     }
                     alt={session.user.name}
                     width={40}

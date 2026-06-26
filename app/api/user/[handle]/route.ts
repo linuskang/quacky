@@ -23,7 +23,27 @@ export async function GET(
         {
             where: {
                 username: handle,
-            }
+            },
+            include: {
+                following: {
+                    select: {
+                        follow: {
+                            select: {
+                                username: true,
+                            },
+                        },
+                    },
+                },
+                followers: {
+                    select: {
+                        user: {
+                            select: {
+                                username: true,
+                            },
+                        },
+                    },
+                },
+            },
         }
     )
 
@@ -34,6 +54,9 @@ export async function GET(
         );
     }
 
+    const following = user.following.map(({ follow }) => follow.username);
+    const followers = user.followers.map(({ user }) => user.username);
+
     if (user.banned) {
 
         return NextResponse.json(
@@ -42,6 +65,8 @@ export async function GET(
                 name: user.name,
                 username: user.username,
                 banned: user.banned,
+                following,
+                followers,
             }
         );
     }
@@ -58,6 +83,8 @@ export async function GET(
                 private: user.private,
                 role: user.role,
                 banned: user.banned,
+                following,
+                followers,
             },
             {
                 status: 200,
@@ -81,6 +108,8 @@ export async function GET(
             bannerImage: user.bannerImage,
             pronouns: user.pronoun,
             banned: user.banned,
+            following,
+            followers,
         },
         {
             status: 200,

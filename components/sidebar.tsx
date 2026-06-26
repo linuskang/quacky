@@ -63,7 +63,7 @@ export function Sidebar({ session }: Props) {
                 />
             </Link>
 
-            <CurvedLine
+            {/* <CurvedLine
                 from={{ x: 160, y: 100 }}
                 to={{ x: 220, y: 150 }}
                 stroke="currentColor"
@@ -75,7 +75,7 @@ export function Sidebar({ session }: Props) {
                 className={`${patrickHand.className} absolute left-60 top-35 text-xl w-full font-bold`}
             >
                 logo drawn by my sis {":)"}
-            </span>
+            </span> */}
 
             <nav className="flex flex-col gap-1 px-2 flex-1 justify-center">
                 {items.map(({ href, label, icon: Icon }) => {

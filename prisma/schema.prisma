@@ -39,7 +39,22 @@ model User {
   banReason  String?
   banExpires DateTime?
 
+  following Follow[] @relation("UserFollowing")
+  followers Follow[] @relation("UserFollowers")
+
   @@map("user")
+}
+
+model Follow {
+  userId   String
+  followId String
+
+  user     User @relation("UserFollowing", fields: [userId], references: [id], onDelete: Cascade)
+  follow   User @relation("UserFollowers", fields: [followId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@id([userId, followId])
 }
 
 model Session {

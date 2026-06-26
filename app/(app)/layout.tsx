@@ -15,7 +15,7 @@ export default async function QuackyLayout({
     });
 
     if (!session) {
-        redirect("/login");
+        redirect("/auth/login");
     }
 
     return (

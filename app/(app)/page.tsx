@@ -38,18 +38,7 @@ export default function Page() {
 
 
             <PageCenter>
-                <Composer
-                    onSubmit={({ content, files }) => {
-                        toast("success");
-                    }}
-                    session={{
-                        user: {
-                            name: session.user.name,
-                            handle: session.user.username,
-                            image: session.user.image,
-                        }
-                    }}
-                />
+                <Composer />
                 <Tabs
                     tabs={[
                         { name: "Recent", href: "#", current: true },
