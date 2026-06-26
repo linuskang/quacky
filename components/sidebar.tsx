@@ -40,7 +40,7 @@ export function Sidebar({ session }: Props) {
     const pathname = usePathname();
 
     const items = [
-        { href: "/post", label: "home", icon: Home },
+        { href: "/", label: "home", icon: Home },
         { href: "/search", label: "search", icon: Search },
         { href: "/messages", label: "messages", icon: MessagesSquare },
         { href: "/fuzzies", label: "warm fuzzies", icon: Briefcase },
@@ -87,8 +87,8 @@ export function Sidebar({ session }: Props) {
                             className={cn(
                                 "w-full justify-start rounded-full h-11 text-base transition-colors",
                                 active
-                                    ? `text-3xl font-semibold ${playfairDisplay.className} text-primary`
-                                    : "text-primary/80 text-2xl hover:text-primary hover:bg-primary/10"
+                                    ? `text-3xl font-bold ${playfairDisplay.className} text-primary !bg-background`
+                                    : "text-primary/80 text-2xl !bg-background"
                             )}
                             style={active ? { fontStyle: "italic" } : undefined}
                         >
