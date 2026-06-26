@@ -15,12 +15,14 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED 1
 
 ENV DATABASE_URL=postgresql://localhost:5432/db
-ENV BETTER_AUTH_SECRET=dummy-secret
-ENV BETTER_AUTH_URL=http://localhost:3000
+ENV ORG_NAME=dummy-org
+ENV VERSION=dummy-version
 ENV GITHUB_CLIENT_ID=dummy-client-id
 ENV GITHUB_CLIENT_SECRET=dummy-client-secret
+ENV UPSTREAM_API_KEY=dummy-upstream-api-key
 ENV RESEND_API_KEY=dummy-api-key
-ENV RESEND_EMAIL_FROM=dummy@example.com
+ENV EMAIL_FROM=dummy@example.com
+ENV BETTER_AUTH_URL=http://localhost:3000
 
 RUN npx prisma generate
 RUN npm run build
