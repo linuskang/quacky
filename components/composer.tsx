@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Markdown } from "@/components/md";
@@ -11,39 +11,38 @@ export function Composer() {
     const [content, setContent] = useState("");
     const [mode, setMode] = useState<"write" | "preview">("write");
     const [active, setActive] = useState(false);
+
+    const containerRef = useRef<HTMLDivElement>(null);
     const { data: session } = authClient.useSession();
+
+    useEffect(() => {
+        function handleClickOutside(e: MouseEvent) {
+            if (
+                containerRef.current &&
+                !containerRef.current.contains(e.target as Node) &&
+                !content.trim()
+            ) {
+                setActive(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [content]);
 
     if (!session) {
         return null;
     }
 
-    const greeting = useMemo(
-        () => getGreeting(new Date(), session.user.name),
-        [session.user.name]
+    const user = session.user;
+
+    const greeting = getGreeting(
+        new Date(),
+        user.name
     );
-
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
-            if (
-                containerRef.current &&
-                !containerRef.current.contains(e.target as Node) &&
-                !content
-            ) {
-                setActive(false);
-            }
-        };
-
-        document.addEventListener("mousedown", handleClickOutside);
-
-        return () => {
-            document.removeEventListener(
-                "mousedown",
-                handleClickOutside
-            );
-        };
-    }, [content]);
 
     return (
         <div
@@ -54,10 +53,10 @@ export function Composer() {
             <div className="flex items-start gap-3">
                 <Image
                     src={
-                        session.user.image ||
-                        `https://api.dicebear.com/9.x/glass/svg?seed=${session.user.username}`
+                        user.image ||
+                        `https://api.dicebear.com/9.x/glass/svg?seed=${user.username}`
                     }
-                    alt={session.user.name}
+                    alt={user.name}
                     width={40}
                     height={40}
                     unoptimized
@@ -68,9 +67,7 @@ export function Composer() {
                     {mode === "write" ? (
                         <textarea
                             value={content}
-                            onChange={(e) =>
-                                setContent(e.target.value)
-                            }
+                            onChange={(e) => setContent(e.target.value)}
                             onFocus={() => setActive(true)}
                             placeholder={greeting}
                             className={`w-full resize-none bg-transparent text-lg outline-none placeholder:text-muted-foreground transition-all duration-300 ease-out ${active
@@ -88,6 +85,7 @@ export function Composer() {
 
             <div className="flex items-center justify-end gap-1">
                 <button
+                    type="button"
                     onClick={() => setMode("write")}
                     className={`rounded px-2 py-1 text-xs font-semibold transition ${mode === "write"
                         ? "bg-primary/10 text-primary"
@@ -98,6 +96,7 @@ export function Composer() {
                 </button>
 
                 <button
+                    type="button"
                     onClick={() => setMode("preview")}
                     className={`rounded px-2 py-1 text-xs font-semibold transition ${mode === "preview"
                         ? "bg-primary/10 text-primary"

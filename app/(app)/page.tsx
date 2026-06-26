@@ -60,6 +60,7 @@ export default function Page() {
                             },
                             content: "Hello, this is a sample *post component*. ``You`` can **customize it** as you like!\n\nMoreover, newline is supported!\nContact me at https://linus.my",
                             createdAt: "2026-06-24T22:55Z",
+                            updatedAt: "2026-06-25T10:00Z",
                             edited: false,
                             flagged: false,
                             views: 100,

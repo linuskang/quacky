@@ -22,6 +22,7 @@ export interface Post {
     flagged: boolean;
     edited: boolean;
     createdAt: string;
+    updatedAt: string;
     views: number;
     likes: number;
     reposts: number;

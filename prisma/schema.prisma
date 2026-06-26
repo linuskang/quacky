@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -9,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id String @id
+  id String @id @default(uuid())
 
   name          String
   username      String  @unique
@@ -23,11 +22,11 @@ model User {
   streamerMode  Boolean @default(false)
   hideTips      Boolean @default(false)
 
-  bio String?
+  bio         String?
   bannerImage String?
-  pronoun String?
-  location String?
-  website String?
+  pronoun     String?
+  location    String?
+  website     String?
 
   createdAt DateTime @db.Timestamptz(3)
   updatedAt DateTime @db.Timestamptz(3)
@@ -39,22 +38,107 @@ model User {
   banReason  String?
   banExpires DateTime?
 
-  following Follow[] @relation("UserFollowing")
-  followers Follow[] @relation("UserFollowers")
+  posts Post[]
+  following Follow[]  @relation("UserFollowing")
+  followers Follow[]  @relation("UserFollowers")
+  likes     Like[]
+  comments  Comment[]
+  bookmarks Bookmark[]
 
   @@map("user")
+}
+
+model Post {
+  id          String       @id @default(uuid())
+  authorId    String
+  author      User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content     String @default("")
+  flagged     Boolean      @default(false)
+  edited      Boolean      @default(false)
+  createdAt   DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime     @updatedAt @db.Timestamptz(3)
+  views       Int          @default(1)
+  repostOfId String?
+  repostOf   Post?  @relation("PostReposts", fields: [repostOfId], references: [id], onDelete: Cascade)
+  reposts    Post[] @relation("PostReposts")
+  likes       Like[]
+  comments    Comment[]
+  attachments Attachment[]
+  bookmarks Bookmark[]
+
+  @@map("post")
+  @@index([authorId])
+  @@index([repostOfId])
+}
+
+model Bookmark {
+  userId String
+  postId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@id([userId, postId])
+  @@index([postId])
+  @@map("bookmark")
+}
+
+model Like {
+  userId    String
+  postId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@id([userId, postId])
+  @@map("like")
+}
+
+model Comment {
+  id       String @id @default(uuid())
+  postId   String
+  authorId String
+
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  content String
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("comment")
+}
+
+model Attachment {
+  id     String @id @default(uuid())
+  postId String
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  name String
+  url  String
+  type String?
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([postId])
+  @@map("attachment")
 }
 
 model Follow {
   userId   String
   followId String
 
-  user     User @relation("UserFollowing", fields: [userId], references: [id], onDelete: Cascade)
-  follow   User @relation("UserFollowers", fields: [followId], references: [id], onDelete: Cascade)
+  user   User @relation("UserFollowing", fields: [userId], references: [id], onDelete: Cascade)
+  follow User @relation("UserFollowers", fields: [followId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @db.Timestamptz(3)
 
   @@id([userId, followId])
+  @@map("follow")
 }
 
 model Session {
@@ -70,8 +154,8 @@ model Session {
 
   impersonatedBy String?
 
-  @@map("session")
   @@index([userId])
+  @@map("session")
 }
 
 model Account {
@@ -90,8 +174,8 @@ model Account {
   createdAt             DateTime  @db.Timestamptz(3)
   updatedAt             DateTime  @db.Timestamptz(3)
 
-  @@map("account")
   @@index([userId])
+  @@map("account")
 }
 
 model Verification {
@@ -102,6 +186,6 @@ model Verification {
   createdAt  DateTime @db.Timestamptz(3)
   updatedAt  DateTime @db.Timestamptz(3)
 
-  @@map("verification")
   @@index([identifier])
+  @@map("verification")
 }

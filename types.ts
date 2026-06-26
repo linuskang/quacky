@@ -1,4 +1,100 @@
-export interface Rule {
+export type FullUser = {
+    id: string;
     name: string;
-    description: string;
-}
+    username: string;
+    email: string;
+    emailVerified: boolean;
+    image: string | null;
+    verified: boolean;
+
+    statsForNerds: boolean;
+    private: boolean;
+    streamerMode: boolean;
+    hideTips: boolean;
+
+    bio: string | null;
+    bannerImage: string | null;
+    pronoun: string | null;
+    location: string | null;
+    website: string | null;
+
+    role: string | null;
+    banned: boolean | null;
+    banReason: string | null;
+    banExpires: string | null;
+
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type User = {
+    name: string;
+    username: string;
+    image: string | null;
+    verified: boolean;
+};
+
+export type Attachment = {
+    name: string;
+    url: string;
+    type: string | null;
+};
+
+export type EmbeddedPost = {
+    id: string;
+    author: User;
+    content: string;
+    flagged: boolean;
+    edited: boolean;
+    createdAt: string;
+    updatedAt: string;
+    views: number;
+    attachments: Attachment[];
+};
+
+export type Post = {
+    id: string;
+    author: User;
+    content: string;
+
+    repostOfId: string | null;
+    repostOf: EmbeddedPost | null;
+
+    flagged: boolean;
+    edited: boolean;
+    createdAt: string;
+    updatedAt: string;
+    views: number;
+
+    likes: number;
+    comments: number;
+    reposts: number;
+
+    liked?: boolean;
+    reposted?: boolean;
+    bookmarked?: boolean;
+    commented?: boolean;
+
+    attachments: Attachment[];
+};
+
+export type Like = {
+    userId: string;
+    postId: string;
+    createdAt: string;
+};
+
+export type Comment = {
+    id: string;
+    postId: string;
+    author: User;
+    content: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export type Follow = {
+    userId: string;
+    followId: string;
+    createdAt: string;
+};
