@@ -53,6 +53,7 @@ export function Profile() {
     const [saving, setSaving] = useState(false);
 
     const [name, setName] = useState("");
+    const [image, setImage] = useState("");
     const [username, setUsername] = useState("");
     const [streamerMode, setStreamerMode] = useState(false);
     const [privateAccount, setPrivateAccount] = useState(false);
@@ -68,6 +69,7 @@ export function Profile() {
             setPrivateAccount(session.user.private ?? false);
             setStatsForNerds(session.user.statsForNerds ?? false);
             setHideTips(session.user.hideTips ?? false);
+            setImage(session.user.image || "");
         }
     };
 
@@ -92,6 +94,7 @@ export function Profile() {
     const handleSave = async () => {
         const payload: Record<string, unknown> = {};
         if (name !== user.name) payload.name = name;
+        if (image !== user.image) payload.image = image;
         if (username !== user.username) payload.username = username;
         if (streamerMode !== user.streamerMode) payload.streamerMode = streamerMode;
         if (privateAccount !== user.private) payload.private = privateAccount;
@@ -257,6 +260,19 @@ export function Profile() {
                                             onChange={(e) => setName(e.target.value)}
                                             className="border-2 border-border h-10 !text-sm hover:border-primary focus:border-primary !ring-0"
                                             placeholder="Name"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="image" className="font-semibold text-primary">
+                                            Profile Image
+                                        </Label>
+                                        <Input
+                                            id="image"
+                                            value={image}
+                                            onChange={(e) => setImage(e.target.value)}
+                                            className="border-2 border-border h-10 !text-sm hover:border-primary focus:border-primary !ring-0"
+                                            placeholder="Profile Image URL"
                                         />
                                     </div>
 

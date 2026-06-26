@@ -1,40 +1,114 @@
-"use client"
-import { Button } from "@/components/ui/button"
-import { authClient } from "@/client/auth"
-import { redirect } from "next/navigation"
+"use client";
+
+import { PostList } from "@/components/post";
+import { Composer } from "@/components/composer";
+import { toast } from "sonner";
+import { Tabs } from "@/components/post-tabs";
+import { SearchBar } from "@/components/search-bar";
+import { StreakWidget } from "@/components/streak";
+import { AboutWidget } from "@/components/about";
+import { RngWidget } from "@/components/rng";
+import { TrendingWidget } from "@/components/trending";
+import { Feedback } from "@/components/bin";
+import { Profile } from "@/components/profile";
+import { Sidebar } from "@/components/sidebar";
+import { PageLayout, PageCenter, PageLeft, PageRight } from "@/components/page-layout";
+
+import { authClient } from "@/client/auth";
+import { redirect } from "next/navigation";
+
 export default function Page() {
 
     const { data: session, isPending } = authClient.useSession();
 
     if (isPending) {
         return (
-            <div className="flex min-h-svh items-center justify-center">
-                <div className="animate-pulse rounded-md bg-muted p-4">
-                    Loading session...
-                </div>
+            <div className="flex h-screen items-center justify-center">
+                Loading...
             </div>
-        )
+        );
     }
 
     if (!session) {
-
         redirect("/auth/login");
     }
+
     return (
-        <div className="flex min-h-svh p-6">
-            <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-                <div>
-                    <h1 className="font-medium">Welcome, {session.user.name}</h1>
-                    <p>Username: {session.user.username}</p>
-                    <p>Email: {session.user.email}</p>
-                    <Button className="mt-2" onClick={() => authClient.signOut()}>
-                        Sign out
-                    </Button>
+        <PageLayout>
+            <PageLeft>
+                <Sidebar
+                    session={{
+                        user: {
+                            handle: session.user.username,
+                            image: session.user.image,
+                        }
+                    }}
+                />
+                <div className="mt-auto">
+                    <Profile />
                 </div>
-                <div className="font-mono text-xs text-muted-foreground">
-                    (Press <kbd>d</kbd> to toggle dark mode)
-                </div>
-            </div>
-        </div>
+            </PageLeft>
+
+            <PageCenter>
+                <Composer
+                    onSubmit={({ content, files }) => {
+                        toast("success");
+                    }}
+                    session={{
+                        user: {
+                            name: session.user.name,
+                            handle: session.user.username,
+                            image: session.user.image,
+                        }
+                    }}
+                />
+                <Tabs
+                    tabs={[
+                        { name: "Recent", href: "#", current: true },
+                        { name: "For you", href: "#", current: false },
+                        { name: "Following", href: "#", current: false },
+                        { name: "Popular", href: "#", current: false },
+                    ]}
+                />
+                <PostList
+                    posts={[
+                        {
+                            id: "1",
+                            author: {
+                                name: "Linus Kang",
+                                handle: "linusdotmy",
+                                image: "https://api.dicebear.com/9.x/glass/svg?seed=Linus",
+                                verified: false,
+                                staff: true
+                            },
+                            content: "Hello, this is a sample *post component*. ``You`` can **customize it** as you like!\n\nMoreover, newline is supported!\nContact me at https://linus.my",
+                            createdAt: "2026-06-24T22:55Z",
+                            edited: false,
+                            flagged: false,
+                            views: 100,
+                            likes: 50,
+                            reposts: 10,
+                            comments: 5,
+                            repost: {
+                                repost: false,
+                                by: {
+                                    name: "admin",
+                                    handle: "administrator",
+                                }
+                            },
+                        }
+                    ]}
+                />
+            </PageCenter>
+
+            <PageRight>
+                <SearchBar />
+                <StreakWidget />
+                <AboutWidget />
+                <RngWidget />
+                <TrendingWidget />
+                <Feedback />
+            </PageRight>
+        </PageLayout>
     )
 }
