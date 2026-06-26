@@ -18,6 +18,6 @@ export const env = createEnv(
 
         experimental__runtimeEnv: {},
         emptyStringAsUndefined: true,
-
+        skipValidation: !!process.env.CI || process.env.SKIP_ENV_VALIDATION === "true",
     }
 );
