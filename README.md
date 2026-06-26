@@ -7,7 +7,7 @@
 
 ## notice
 
-This codebase is **NOT** production ready whatsoever. I would not recommend you build off of this application as it's is heavily unstable. there is a lot of jank and hacky work arounds to make everything work together. i wish you luck to whoever is trying to submit a pr :)
+This codebase is NOT production ready whatsoever. I would not recommend you build off of this application as it's is heavily unstable. there is a lot of jank and hacky work arounds to make everything work together. i wish you luck to whoever is trying to submit a pr :)
 
 ## i hate docker
 
