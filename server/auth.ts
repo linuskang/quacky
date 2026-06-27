@@ -100,7 +100,7 @@ export const auth = betterAuth(
                             return {
                                 data: {
                                     ...user,
-                                    image: `https://avatars.linus.my/10.x/glass/svg?seed=${encodeURIComponent(user.email)}`
+                                    image: `https://avatars.linus.my/10.x/glass/svg?seed=${encodeURIComponent(user.name)}`
                                 }
                             };
                         }

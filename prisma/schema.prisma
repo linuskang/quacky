@@ -14,7 +14,7 @@ model User {
   username      String  @unique
   email         String  @unique
   emailVerified Boolean
-  image         String?
+  image         String
   verified      Boolean @default(false)
 
   statsForNerds Boolean @default(false)
