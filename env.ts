@@ -14,6 +14,7 @@ export const env = createEnv(
             RESEND_API_KEY: z.string(),
             EMAIL_FROM: z.string(),
             BETTER_AUTH_URL: z.string(),
+            DESCRIPTION: z.string(),
         },
 
         experimental__runtimeEnv: {},
