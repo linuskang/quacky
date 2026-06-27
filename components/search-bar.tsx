@@ -15,7 +15,7 @@ export function SearchBar() {
                 <Input
                     type="text"
                     placeholder="Search for stuff..."
-                    className="w-full rounded-md border-2 border-border !bg-input pl-8 h-9 !ring-0 !text-primary"
+                    className="w-full rounded-md border-2 border-border !bg-card pl-8 h-9 !ring-0 !text-primary"
                 />
             </div>
         </div>

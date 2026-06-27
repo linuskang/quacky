@@ -4,7 +4,7 @@ export type FullUser = {
     username: string;
     email: string;
     emailVerified: boolean;
-    image: string | null;
+    image: string;
     verified: boolean;
 
     statsForNerds: boolean;
@@ -30,7 +30,7 @@ export type FullUser = {
 export type User = {
     name: string;
     username: string;
-    image: string | null;
+    image: string;
     verified: boolean;
 };
 

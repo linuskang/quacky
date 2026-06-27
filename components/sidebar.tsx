@@ -89,7 +89,7 @@ export function Sidebar({ session }: Props) {
                                 "flex items-center gap-3 rounded-full py-2 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]",
                                 active
                                     ? `translate-x-2 text-2xl font-bold ${playfairDisplay.className} text-primary`
-                                    : "translate-x-0 text-xl text-primary/80 hover:translate-x-1 hover:text-primary"
+                                    : "translate-x-0 text-xl font-semibold text-primary/80 hover:translate-x-1 hover:text-primary"
                             )}
                         >
                             <Icon
@@ -109,7 +109,6 @@ export function Sidebar({ session }: Props) {
                     className="mt-4 w-full h-11 rounded-full bg-primary-2 text-background hover:bg-primary-2/80 text-base font-semibold"
                 >
                     <Link href="/post">
-                        <Plus className="mr-1 size-8" strokeWidth={3} />
                         Post
                     </Link>
                 </Button>

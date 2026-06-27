@@ -271,6 +271,17 @@ export async function POST(req: NextRequest) {
 
     const content = body.content.trim();
 
+    if (content.length === 0 || content.length > 400) {
+        return NextResponse.json(
+            {
+                err: "Invalid content length",
+            },
+            {
+                status: 400,
+            }
+        );
+    }
+
     const attachments = body.attachments ?? [];
 
     if (attachments.length > 2) {
