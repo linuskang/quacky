@@ -9,27 +9,18 @@ import { Admin } from "./icons";
 import { useRouter } from "next/navigation";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Post } from "@/types";
-
-export interface PostActions {
-    onComment?: () => void;
-    onRepost?: () => void;
-    onLike?: () => void;
-    onBookmark?: () => void;
-    onShare?: () => void;
-    onAnalytics?: () => void;
-    onReport?: () => void;
-}
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export function PostList({
     posts,
-    ...actions
 }: {
     posts: Post[];
-} & PostActions) {
+}) {
     return (
         <div className="flex flex-col gap-4 max-w-lg w-full">
             {posts.map((post) => (
-                <PostCard key={post.id} post={post} {...actions} />
+                <PostCard key={post.id} post={post} />
             ))}
         </div>
     );
@@ -37,25 +28,13 @@ export function PostList({
 
 export function PostCard({
     post,
-    onComment,
-    onRepost,
-    onLike,
-    onBookmark,
-    onShare,
-    onAnalytics,
-    onReport,
 }: {
     post: Post;
-} & PostActions) {
+}) {
     const router = useRouter();
 
     const handleCardClick = () => {
         router.push(`/post/${post.id}`);
-    };
-
-    const handleAction = (callback?: () => void) => (e: React.MouseEvent) => {
-        e.stopPropagation();
-        callback?.();
     };
 
     const timeAgo = formatTimeAgo(post.createdAt);
@@ -109,7 +88,10 @@ export function PostCard({
                             )}
                         </span>
 
-                        <span className="ml-auto shrink-0">
+                        <span
+                            className="ml-auto shrink-0"
+                            onClick={(e) => e.stopPropagation()}
+                        >
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button
@@ -125,7 +107,7 @@ export function PostCard({
                                     className="bg-background border-2 border-border rounded-md shadow-none min-w-[140px]"
                                 >
                                     <DropdownMenuItem
-                                        onClick={handleAction(onReport)}
+                                        onClick={() => toast("Report feature is not implemented yet.")}
                                         className="text-sm font-medium text-primary cursor-pointer rounded-sm data-[highlighted]:bg-primary/10 data-[highlighted]:text-primary"
                                     >
                                         Report
@@ -258,14 +240,21 @@ export function PostCard({
                         {postedAt ? `Posted ${postedAt}` : `Posted ${post.createdAt}`}
                     </div>
 
-                    <div className="flex items-center justify-between pt-1">
+                    <div
+                        className="flex items-center justify-between pt-1"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <div className="flex items-center gap-1.5">
                             <Button
-                                onClick={handleAction(onComment)}
+                                onClick={() => router.push(`/post/${post.id}`)}
                                 variant="default"
-
                                 size="sm"
-                                className="h-8 py-1 px-2.5 text-md font-semibold text-primary/80 hover:text-primary !bg-card-primary border-2 border-border hover:bg-background hover:border-primary"
+                                className={cn(
+                                    "h-8 px-2.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
+                                    post.commented
+                                        ? "border-primary text-primary"
+                                        : "border-border text-primary/80 hover:border-primary hover:text-primary"
+                                )}
                             >
                                 <MessagesSquare
                                     strokeWidth={3}
@@ -277,10 +266,15 @@ export function PostCard({
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button
-                                        onClick={handleAction(onRepost)}
+                                        onClick={() => toast("Repost feature is not implemented yet.")}
                                         variant="default"
                                         size="sm"
-                                        className="h-8 py-1 px-2.5 text-md font-semibold text-primary/80 hover:text-primary !bg-card-primary border-2 border-border hover:bg-background hover:border-primary"
+                                        className={cn(
+                                            "h-8 px-2.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
+                                            post.reposted
+                                                ? "border-primary text-primary"
+                                                : "border-border text-primary/80 hover:border-primary hover:text-primary"
+                                        )}
                                     >
                                         <Repeat2
                                             strokeWidth={3}
@@ -294,13 +288,13 @@ export function PostCard({
                                     className="bg-background border-2 border-border rounded-md shadow-none min-w-[140px]"
                                 >
                                     <DropdownMenuItem
-                                        onClick={handleAction(onRepost)}
+                                        onClick={() => toast("Repost feature is not implemented yet.")}
                                         className="text-sm font-medium text-primary cursor-pointer rounded-sm data-[highlighted]:bg-primary/10 data-[highlighted]:text-primary"
                                     >
                                         Repost
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
-                                        onClick={handleAction(onRepost)}
+                                        onClick={() => toast("Quote repost feature is not implemented yet.")}
                                         className="text-sm font-medium text-primary cursor-pointer rounded-sm data-[highlighted]:bg-primary/10 data-[highlighted]:text-primary"
                                     >
                                         Quote Repost
@@ -309,10 +303,15 @@ export function PostCard({
                             </DropdownMenu>
 
                             <Button
-                                onClick={handleAction(onLike)}
+                                onClick={() => toast("Like feature is not implemented yet.")}
                                 variant="default"
                                 size="sm"
-                                className="h-8 py-1 px-2.5 text-md font-semibold text-primary/80 hover:text-primary !bg-card-primary border-2 border-border hover:bg-background hover:border-primary"
+                                className={cn(
+                                    "h-8 px-2.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
+                                    post.liked
+                                        ? "border-primary text-primary"
+                                        : "border-border text-primary/80 hover:border-primary hover:text-primary"
+                                )}
                             >
                                 <Heart
                                     strokeWidth={3}
@@ -324,7 +323,6 @@ export function PostCard({
                         </div>
                         <div className="ml-auto gap-1.5 flex">
                             <Button
-                                onClick={handleAction(onAnalytics)}
                                 variant="default"
                                 size="sm"
                                 className="h-8 py-1 px-2.5 text-md font-semibold text-primary/80 hover:text-primary !bg-card-primary border-2 border-border hover:bg-background hover:border-primary"
@@ -337,10 +335,15 @@ export function PostCard({
                                 {post.views}
                             </Button>
                             <Button
-                                onClick={handleAction(onBookmark)}
+                                onClick={() => toast("Bookmark feature is not implemented yet.")}
                                 variant="default"
                                 size="sm"
-                                className="h-8 py-1 px-1.5 text-md font-semibold text-primary/80 hover:text-primary !bg-card-primary border-2 border-border hover:bg-background hover:border-primary"
+                                className={cn(
+                                    "h-8 px-1.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
+                                    post.bookmarked
+                                        ? "border-primary text-primary"
+                                        : "border-border text-primary/80 hover:border-primary hover:text-primary"
+                                )}
                             >
                                 <Bookmark
                                     strokeWidth={3}
@@ -348,7 +351,7 @@ export function PostCard({
                                 />
                             </Button>
                             <Button
-                                onClick={handleAction(onShare)}
+                                onClick={() => toast("Share feature is not implemented yet.")}
                                 variant="default"
                                 size="sm"
                                 className="h-8 py-1 px-1.5 text-md font-semibold text-primary/80 hover:text-primary !bg-card-primary border-2 border-border hover:bg-background hover:border-primary"
