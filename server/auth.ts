@@ -95,6 +95,15 @@ export const auth = betterAuth(
                                 });
                             }
                         }
+
+                        if (!user.image) {
+                            return {
+                                data: {
+                                    ...user,
+                                    image: `https://avatars.linus.my/10.x/glass/svg?seed=${encodeURIComponent(user.email)}`
+                                }
+                            };
+                        }
                     }
                 },
                 update: {
