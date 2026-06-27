@@ -9,9 +9,12 @@ import { formatTimeAgo, useFormattedDate } from "@/client/utils";
 import { Admin } from "./icons";
 import { useRouter } from "next/navigation";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Post } from "@/types";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { EmbeddedPost, Post } from "@/types";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { authClient } from "@/client/auth";
+import { CharCounter } from "./char-counter";
 
 export function PostList({
     posts,
@@ -27,6 +30,74 @@ export function PostList({
     );
 }
 
+function QuotedPostPreview({
+    post,
+}: {
+    post: Post | EmbeddedPost;
+}) {
+    return (
+        <div className="rounded-md border-2 border-border bg-card-primary p-3">
+            <div className="flex gap-3">
+                <Image
+                    src={post.author.image}
+                    alt={post.author.name}
+                    width={28}
+                    height={28}
+                    unoptimized
+                    className="h-7 w-7 shrink-0 rounded-full object-cover"
+                />
+
+                <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-1 text-sm font-semibold">
+                        <span className="text-primary">{post.author.name}</span>
+                        {post.author.verified && (
+                            <BadgeCheck className="h-4 w-4 fill-primary text-background" />
+                        )}
+                        {post.author.role == "admin" && <Admin />}
+                        <span className="text-muted-foreground">@{post.author.username}</span>
+                        <span className="text-muted-foreground">· {formatTimeAgo(post.createdAt)}</span>
+                    </div>
+
+                    {post.content.trim() ? (
+                        <div className="mt-2 text-sm">
+                            <Markdown>{post.content}</Markdown>
+                        </div>
+                    ) : "repostOf" in post && post.repostOf ? null : (
+                        <p className="mt-2 text-sm text-muted-foreground">No content.</p>
+                    )}
+
+                    {"repostOf" in post && post.repostOf && (
+                        <div className="mt-3">
+                            <QuotedPostPreview post={post.repostOf} />
+                        </div>
+                    )}
+
+                    {post.attachments?.length ? (
+                        <div
+                            className={`mt-2 grid gap-2 ${post.attachments.length === 1
+                                ? "grid-cols-1"
+                                : "grid-cols-2"
+                                }`}
+                        >
+                            {post.attachments.map((attachment, index) => (
+                                <Image
+                                    key={index}
+                                    src={attachment.url}
+                                    alt={attachment.name}
+                                    width={500}
+                                    height={300}
+                                    unoptimized
+                                    className="h-full max-h-[200px] w-full rounded-md object-cover"
+                                />
+                            ))}
+                        </div>
+                    ) : null}
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export function PostCard({
     post,
 }: {
@@ -38,6 +109,10 @@ export function PostCard({
     const [bookmarked, setBookmarked] = useState(post.bookmarked ?? false);
     const [likePending, setLikePending] = useState(false);
     const [bookmarkPending, setBookmarkPending] = useState(false);
+    const [quoteRepostOpen, setQuoteRepostOpen] = useState(false);
+    const [quoteContent, setQuoteContent] = useState("");
+    const [quotePending, setQuotePending] = useState(false);
+    const { data: session } = authClient.useSession();
 
     const handleCardClick = () => {
         router.push(`/post/${post.id}`);
@@ -65,6 +140,55 @@ export function PostCard({
         setLikePending(false);
     };
 
+    const repost = async () => {
+        const res = await fetch(`/api/posts/repost`, {
+            method: "POST",
+            body: JSON.stringify({ postId: post.id }),
+        });
+
+        if (!res.ok) {
+            toast.error(res.statusText);
+        } else {
+            toast.success("Reposted");
+        }
+    }
+
+    const quoteRepost = async () => {
+        const content = quoteContent.trim();
+
+        if (!content || quotePending) return;
+
+        if (content.length > 400) {
+            toast.error("Quote repost must be 400 characters or less.");
+            return;
+        }
+
+        setQuotePending(true);
+
+        const res = await fetch(`/api/posts/quote`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                postId: post.id,
+                content,
+            }),
+        });
+
+        if (!res.ok) {
+            const data = await res.json().catch(() => null) as { err?: string } | null;
+            toast.error(data?.err ?? res.statusText);
+            setQuotePending(false);
+            return;
+        }
+
+        setQuoteContent("");
+        setQuoteRepostOpen(false);
+        setQuotePending(false);
+        toast.success("Quote reposted");
+    }
+
     const handleBookmark = async () => {
         if (bookmarkPending) return;
 
@@ -77,9 +201,7 @@ export function PostCard({
         });
 
         if (!res.ok) {
-            const data = await res.json().catch(() => null) as { err?: string } | null;
-            setBookmarked(bookmarked);
-            toast.error(data?.err ?? "Failed to update bookmark");
+            toast.error(res.statusText);
         }
 
         setBookmarkPending(false);
@@ -184,7 +306,7 @@ export function PostCard({
                                 e.stopPropagation();
                                 router.push(`/post/${post.repostOf!.id}`);
                             }}
-                            className="rounded-md border-2 border-border max-w-lg bg-card p-4 flex flex-col gap-2 hover:border-primary/80 transition cursor-pointer"
+                            className="rounded-md border-2 border-border max-w-lg dark:bg-card-primary bg-card p-4 flex flex-col gap-2 hover:border-primary/80 transition cursor-pointer"
                         >
                             <div className="flex gap-3">
                                 <div className="shrink-0">
@@ -311,44 +433,85 @@ export function PostCard({
                                 {post.comments}
                             </Button>
 
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                        onClick={() => toast("Repost feature is not implemented yet.")}
-                                        variant="default"
-                                        size="sm"
-                                        className={cn(
-                                            "h-8 px-2.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
-                                            post.reposted
-                                                ? "border-primary text-primary"
-                                                : "border-border text-primary/80 hover:border-primary hover:text-primary"
-                                        )}
-                                    >
-                                        <Repeat2
-                                            strokeWidth={3}
-                                            size={16}
-                                        />
+                            <Dialog open={quoteRepostOpen} onOpenChange={setQuoteRepostOpen}>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="default"
+                                            size="sm"
+                                            className={cn(
+                                                "h-8 px-2.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
+                                                post.reposted
+                                                    ? "border-primary text-primary"
+                                                    : "border-border text-primary/80 hover:border-primary hover:text-primary"
+                                            )}
+                                        >
+                                            <Repeat2
+                                                strokeWidth={3}
+                                                size={16}
+                                            />
 
-                                        {post.reposts}
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                    className="bg-background border-2 border-border rounded-md shadow-none min-w-[140px]"
-                                >
-                                    <DropdownMenuItem
-                                        onClick={() => toast("Repost feature is not implemented yet.")}
-                                        className="text-sm font-medium text-primary cursor-pointer rounded-sm data-[highlighted]:bg-primary/10 data-[highlighted]:text-primary"
+                                            {post.reposts}
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent
+                                        className="bg-background border-2 border-border rounded-md shadow-none min-w-[140px]"
                                     >
-                                        Repost
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                        onClick={() => toast("Quote repost feature is not implemented yet.")}
-                                        className="text-sm font-medium text-primary cursor-pointer rounded-sm data-[highlighted]:bg-primary/10 data-[highlighted]:text-primary"
-                                    >
-                                        Quote Repost
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                                        <DropdownMenuItem
+                                            onClick={repost}
+                                            className="text-sm font-medium text-primary cursor-pointer rounded-sm data-[highlighted]:bg-primary/10 data-[highlighted]:text-primary"
+                                        >
+                                            Repost
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            onSelect={() => setQuoteRepostOpen(true)}
+                                            className="text-sm font-medium text-primary cursor-pointer rounded-sm data-[highlighted]:bg-primary/10 data-[highlighted]:text-primary"
+                                        >
+                                            Quote
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                                <DialogContent className="bg-card-primary border-2 border-border w-full !max-w-lg">
+
+                                    <div className="flex flex-col gap-3">
+                                        <div className="flex items-start gap-4">
+                                            <Image
+                                                src={session?.user.image ?? "/default-avatar.png"}
+                                                alt={session?.user.name ?? "You"}
+                                                width={40}
+                                                height={40}
+                                                unoptimized
+                                                className="h-10 w-10 shrink-0 rounded-full object-cover"
+                                            />
+
+                                            <textarea
+                                                value={quoteContent}
+                                                onChange={(e) => setQuoteContent(e.target.value)}
+                                                placeholder="Add your thoughts..."
+                                                className="min-h-10 w-full bg-transparent py-1 text-lg leading-normal outline-none placeholder:text-muted-foreground"
+                                            />
+                                        </div>
+
+                                        <div className="ml-14">
+                                            <QuotedPostPreview post={post} />
+                                        </div>
+
+                                        <div className="flex items-center justify-end gap-2">
+                                            <CharCounter length={quoteContent.length} maxLength={400} />
+
+                                            <Button
+                                                size="sm"
+                                                disabled={!quoteContent.trim() || quoteContent.length > 400 || quotePending}
+                                                onClick={quoteRepost}
+                                                className="h-8 rounded-full bg-primary-2 px-4 text-sm font-semibold hover:bg-primary-2/80"
+                                            >
+                                                {quotePending ? "Posting..." : "Post"}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </DialogContent>
+
+                            </Dialog>
 
                             <Button
                                 onClick={handleLike}
