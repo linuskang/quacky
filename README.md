@@ -1,4 +1,8 @@
-# Quacky: Social media for teens
+<p align="center">
+  <img width="256" height="256" alt="image" src="https://github.com/user-attachments/assets/22a06755-c0c6-4d8f-8e95-79d8fbc534e8" />
+</p>
+
+<h1 align="center">Quacky: Social media for schools</h1>
 
 ## Features
 
