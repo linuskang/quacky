@@ -23,9 +23,13 @@ export function PostList({
 }) {
     return (
         <div className="flex flex-col gap-4 max-w-lg w-full">
-            {posts.map((post) => (
-                <PostCard key={post.id} post={post} />
-            ))}
+            {posts.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No posts yet.</p>
+            ) : (
+                posts.map((post) => (
+                    <PostCard key={post.id} post={post} />
+                ))
+            )}
         </div>
     );
 }
