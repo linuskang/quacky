@@ -24,136 +24,138 @@ export async function GET(
 
     const { id } = await params;
 
-    const posts = await prisma.post.findMany({
-        where: {
-            id,
-            author: {
-                banned: false,
-            },
-            OR: [
-                {
-                    repostOfId: null,
+    const post = await prisma.post.findFirst(
+        {
+            where: {
+                id,
+                author: {
+                    banned: false,
                 },
-                {
-                    repostOf: {
+                OR: [
+                    {
+                        repostOfId: null,
+                    },
+                    {
+                        repostOf: {
+                            author: {
+                                banned: false,
+                            },
+                        },
+                    },
+                ],
+            },
+            select: {
+                id: true,
+
+                author: {
+                    select: {
+                        name: true,
+                        username: true,
+                        image: true,
+                        verified: true,
+                    },
+                },
+
+                content: true,
+
+                repostOfId: true,
+
+                repostOf: {
+                    select: {
+                        id: true,
+
                         author: {
-                            banned: false,
+                            select: {
+                                name: true,
+                                username: true,
+                                image: true,
+                                verified: true,
+                            },
+                        },
+
+                        content: true,
+                        flagged: true,
+                        edited: true,
+                        createdAt: true,
+                        updatedAt: true,
+                        views: true,
+
+                        attachments: {
+                            select: {
+                                name: true,
+                                url: true,
+                                type: true,
+                            },
                         },
                     },
                 },
-            ],
-        },
-        select: {
-            id: true,
 
-            author: {
-                select: {
-                    name: true,
-                    username: true,
-                    image: true,
-                    verified: true,
-                },
-            },
+                flagged: true,
+                edited: true,
+                createdAt: true,
+                updatedAt: true,
+                views: true,
 
-            content: true,
-
-            repostOfId: true,
-
-            repostOf: {
-                select: {
-                    id: true,
-
-                    author: {
-                        select: {
-                            name: true,
-                            username: true,
-                            image: true,
-                            verified: true,
-                        },
-                    },
-
-                    content: true,
-                    flagged: true,
-                    edited: true,
-                    createdAt: true,
-                    updatedAt: true,
-                    views: true,
-
-                    attachments: {
-                        select: {
-                            name: true,
-                            url: true,
-                            type: true,
-                        },
+                _count: {
+                    select: {
+                        likes: true,
+                        reposts: true,
+                        comments: true,
                     },
                 },
-            },
 
-            flagged: true,
-            edited: true,
-            createdAt: true,
-            updatedAt: true,
-            views: true,
+                likes: {
+                    where: {
+                        userId: session.user.id,
+                    },
+                    select: {
+                        userId: true,
+                    },
+                },
 
-            _count: {
-                select: {
-                    likes: true,
-                    reposts: true,
-                    comments: true,
+                reposts: {
+                    where: {
+                        authorId: session.user.id,
+                    },
+                    select: {
+                        id: true,
+                    },
                 },
-            },
 
-            likes: {
-                where: {
-                    userId: session.user.id,
+                comments: {
+                    where: {
+                        authorId: session.user.id,
+                    },
+                    select: {
+                        id: true,
+                    },
                 },
-                select: {
-                    userId: true,
-                },
-            },
 
-            reposts: {
-                where: {
-                    authorId: session.user.id,
+                bookmarks: {
+                    where: {
+                        userId: session.user.id,
+                    },
+                    select: {
+                        userId: true,
+                    },
                 },
-                select: {
-                    id: true,
-                },
-            },
 
-            comments: {
-                where: {
-                    authorId: session.user.id,
-                },
-                select: {
-                    id: true,
-                },
-            },
-
-            bookmarks: {
-                where: {
-                    userId: session.user.id,
-                },
-                select: {
-                    userId: true,
+                attachments: {
+                    select: {
+                        name: true,
+                        url: true,
+                        type: true,
+                    },
                 },
             },
 
-            attachments: {
-                select: {
-                    name: true,
-                    url: true,
-                    type: true,
-                },
+            orderBy: {
+                createdAt: "desc",
             },
-        },
+        }
+    );
 
-        orderBy: {
-            createdAt: "desc",
-        },
-    });
-
-    if (posts.length == 0) {
+    if (!post) {
         return NextResponse.json(
             {
                 err: "Post not found",
@@ -164,7 +166,27 @@ export async function GET(
         );
     }
 
-    const res = posts.map((post) => ({
+    const comments = await prisma.comment.findMany({
+        where: { postId: id },
+        select: {
+            id: true,
+            postId: true,
+            content: true,
+            createdAt: true,
+            updatedAt: true,
+            author: {
+                select: {
+                    name: true,
+                    username: true,
+                    image: true,
+                    verified: true,
+                },
+            },
+        },
+        orderBy: { createdAt: "asc" },
+    });
+
+    const res = {
         id: post.id,
         author: post.author,
         content: post.content,
@@ -208,9 +230,19 @@ export async function GET(
             url: attachment.url,
             type: attachment.type,
         })),
-    })) as Post[];
+        postComments: comments.map((c) => ({
+            id: c.id,
+            postId: c.postId,
+            author: c.author,
+            content: c.content,
+            createdAt: c.createdAt.toISOString(),
+            updatedAt: c.updatedAt.toISOString(),
+        })),
+    } as Post;
 
-    return NextResponse.json(res);
+    return NextResponse.json(
+        res
+    );
 }
 
 export async function DELETE(

@@ -77,6 +77,7 @@ export type Post = {
     commented?: boolean;
 
     attachments?: Attachment[];
+    postComments?: Comment[];
 };
 
 export type Like = {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { BadgeCheck, Heart, Repeat2, MessagesSquare, BarChart2, Bookmark, Share, EyeOff, MoreHorizontal } from "lucide-react";
@@ -32,9 +33,56 @@ export function PostCard({
     post: Post;
 }) {
     const router = useRouter();
+    const [liked, setLiked] = useState(post.liked ?? false);
+    const [likes, setLikes] = useState(post.likes);
+    const [bookmarked, setBookmarked] = useState(post.bookmarked ?? false);
+    const [likePending, setLikePending] = useState(false);
+    const [bookmarkPending, setBookmarkPending] = useState(false);
 
     const handleCardClick = () => {
         router.push(`/post/${post.id}`);
+    };
+
+    const handleLike = async () => {
+        if (likePending) return;
+
+        const nextLiked = !liked;
+        setLikePending(true);
+        setLiked(nextLiked);
+        setLikes((current) => current + (nextLiked ? 1 : -1));
+
+        const res = await fetch(`/api/posts/${post.id}/like`, {
+            method: nextLiked ? "POST" : "DELETE",
+        });
+
+        if (!res.ok) {
+            const data = await res.json().catch(() => null) as { err?: string } | null;
+            setLiked(liked);
+            setLikes(likes);
+            toast.error(data?.err ?? "Failed to update like");
+        }
+
+        setLikePending(false);
+    };
+
+    const handleBookmark = async () => {
+        if (bookmarkPending) return;
+
+        const nextBookmarked = !bookmarked;
+        setBookmarkPending(true);
+        setBookmarked(nextBookmarked);
+
+        const res = await fetch(`/api/posts/${post.id}/bookmark`, {
+            method: nextBookmarked ? "POST" : "DELETE",
+        });
+
+        if (!res.ok) {
+            const data = await res.json().catch(() => null) as { err?: string } | null;
+            setBookmarked(bookmarked);
+            toast.error(data?.err ?? "Failed to update bookmark");
+        }
+
+        setBookmarkPending(false);
     };
 
     const timeAgo = formatTimeAgo(post.createdAt);
@@ -303,12 +351,13 @@ export function PostCard({
                             </DropdownMenu>
 
                             <Button
-                                onClick={() => toast("Like feature is not implemented yet.")}
+                                onClick={handleLike}
+                                disabled={likePending}
                                 variant="default"
                                 size="sm"
                                 className={cn(
                                     "h-8 px-2.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
-                                    post.liked
+                                    liked
                                         ? "border-primary text-primary"
                                         : "border-border text-primary/80 hover:border-primary hover:text-primary"
                                 )}
@@ -318,7 +367,7 @@ export function PostCard({
                                     size={16}
                                 />
 
-                                {post.likes}
+                                {likes}
                             </Button>
                         </div>
                         <div className="ml-auto gap-1.5 flex">
@@ -335,12 +384,13 @@ export function PostCard({
                                 {post.views}
                             </Button>
                             <Button
-                                onClick={() => toast("Bookmark feature is not implemented yet.")}
+                                onClick={handleBookmark}
+                                disabled={bookmarkPending}
                                 variant="default"
                                 size="sm"
                                 className={cn(
                                     "h-8 px-1.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
-                                    post.bookmarked
+                                    bookmarked
                                         ? "border-primary text-primary"
                                         : "border-border text-primary/80 hover:border-primary hover:text-primary"
                                 )}

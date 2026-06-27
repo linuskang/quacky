@@ -3,9 +3,17 @@
 interface CharCounterProps {
     length: number;
     maxLength?: number;
+    width?: number;
+    height?: number;
 }
 
-export function CharCounter({ length, maxLength = 400 }: CharCounterProps) {
+export function CharCounter(
+    {
+        length,
+        maxLength = 400,
+        width = 10,
+        height = 10,
+    }: CharCounterProps) {
     // get remaining characters
     const remaining = maxLength - length;
     const isOverLimit = remaining < 0;
@@ -19,8 +27,8 @@ export function CharCounter({ length, maxLength = 400 }: CharCounterProps) {
     const dash = (percentage / 100) * circumference; // percentage/100 times by circumference to get length
 
     return (
-        <div className="relative w-10 h-10">
-            <svg className="w-10 h-10" viewBox="0 0 40 40">
+        <div className="relative">
+            <svg className={`w-${width} h-${height}`} viewBox="0 0 40 40">
                 <circle
                     cx="20"
                     cy="20"

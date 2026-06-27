@@ -34,7 +34,7 @@ export default function RootLayout({
             className={`${playfairDisplay.variable} ${exo2.variable}`}
         >
             <body
-                className={`${lexend.className} antialiased`}
+                className={`${lexend.className} antialiased bg-background`}
             >
                 <TooltipProvider>
                     <ThemeProvider>
