@@ -32,6 +32,7 @@ export type User = {
     username: string;
     image: string;
     verified: boolean;
+    role?: string;
 };
 
 export type Attachment = {
@@ -49,7 +50,7 @@ export type EmbeddedPost = {
     createdAt: string;
     updatedAt: string;
     views: number;
-    attachments: Attachment[];
+    attachments?: Attachment[];
 };
 
 export type Post = {
@@ -75,7 +76,7 @@ export type Post = {
     bookmarked?: boolean;
     commented?: boolean;
 
-    attachments: Attachment[];
+    attachments?: Attachment[];
 };
 
 export type Like = {

@@ -5,64 +5,10 @@ import { Button } from "@/components/ui/button";
 import { BadgeCheck, Heart, Repeat2, MessagesSquare, BarChart2, Bookmark, Share, EyeOff, MoreHorizontal } from "lucide-react";
 import { Markdown } from "@/components/md";
 import { formatTimeAgo, useFormattedDate } from "@/client/utils";
-import { Staff } from "./icons";
+import { Admin } from "./icons";
 import { useRouter } from "next/navigation";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-
-export interface Post {
-    id: string;
-    author: {
-        name: string;
-        handle: string;
-        image: string;
-        verified: boolean;
-        staff: boolean;
-    };
-    content: string;
-    flagged: boolean;
-    edited: boolean;
-    createdAt: string;
-    updatedAt: string;
-    views: number;
-    likes: number;
-    reposts: number;
-    comments: number;
-    repost?: {
-        repost: boolean;
-        by: {
-            name: string;
-            handle: string;
-        }
-    }
-    quote?: {
-        by: {
-            name: string;
-            handle: string;
-        }
-        post: {
-            id: string;
-            author: {
-                name: string;
-                handle: string;
-                image: string;
-                verified: boolean;
-                staff: boolean;
-            };
-            content: string;
-            flagged: boolean;
-            edited: boolean;
-            createdAt: string;
-            attachments?: {
-                name: string;
-                url: string;
-            }[]
-        };
-    }
-    attachments?: {
-        name: string;
-        url: string;
-    }[]
-}
+import { Post } from "@/types";
 
 export interface PostActions {
     onComment?: () => void;
@@ -83,13 +29,13 @@ export function PostList({
     return (
         <div className="flex flex-col gap-4 max-w-lg w-full">
             {posts.map((post) => (
-                <Post key={post.id} post={post} {...actions} />
+                <PostCard key={post.id} post={post} {...actions} />
             ))}
         </div>
     );
 }
 
-export function Post({
+export function PostCard({
     post,
     onComment,
     onRepost,
@@ -120,10 +66,10 @@ export function Post({
             onClick={handleCardClick}
             className="rounded-md border-2 border-border max-w-lg !bg-card-primary p-4 flex flex-col gap-2 hover:border-primary/80 transition cursor-pointer"
         >
-            {post.repost?.repost && (
+            {post.repostOf && !post.content && (
                 <div className="flex items-center gap-1 mb-2 text-sm">
                     <Repeat2 size={15} strokeWidth={3} className="text-primary" />
-                    <span className="font-semibold text-xs text-primary">reposted by {post.repost.by.name} (@{post.repost.by.handle})</span>
+                    <span className="font-semibold text-xs text-primary">reposted by {post.author.name} (@{post.author.username})</span>
                 </div>
             )}
 
@@ -149,12 +95,12 @@ export function Post({
                             />
                         )}
 
-                        {post.author.staff && (
-                            <Staff />
+                        {post.author.role == "admin" && (
+                            <Admin />
                         )}
 
                         <span className="text-sm text-muted-foreground">
-                            @{post.author.handle}
+                            @{post.author.username}
                         </span>
 
                         <span className="text-sm text-muted-foreground">
@@ -202,19 +148,19 @@ export function Post({
                         {post.content}
                     </Markdown>
 
-                    {post.quote && (
+                    {post.repostOf && (
                         <div
                             onClick={(e) => {
                                 e.stopPropagation();
-                                router.push(`/post/${post.quote!.post.id}`);
+                                router.push(`/post/${post.repostOf!.id}`);
                             }}
-                            className="rounded-md border-2 border-border max-w-lg bg-background p-4 flex flex-col gap-2 hover:border-primary/80 transition cursor-pointer"
+                            className="rounded-md border-2 border-border max-w-lg bg-card p-4 flex flex-col gap-2 hover:border-primary/80 transition cursor-pointer"
                         >
                             <div className="flex gap-3">
                                 <div className="shrink-0">
                                     <Image
-                                        src={post.quote.post.author.image}
-                                        alt={post.quote.post.author.name}
+                                        src={post.repostOf!.author.image}
+                                        alt={post.repostOf!.author.name}
                                         width={28}
                                         height={28}
                                         unoptimized
@@ -224,30 +170,30 @@ export function Post({
 
                                 <div className="flex flex-col gap-2 min-w-0 flex-1">
                                     <div className="flex items-center gap-1 text-base font-semibold flex-wrap">
-                                        <span className="text-primary">{post.quote.post.author.name}</span>
+                                        <span className="text-primary">{post.repostOf!.author.name}</span>
 
-                                        {post.quote.post.author.verified && (
+                                        {post.repostOf!.author.verified && (
                                             <BadgeCheck
                                                 className="h-[20px] w-[20px] fill-primary text-background"
                                             />
                                         )}
 
-                                        {post.quote.post.author.staff && (
-                                            <Staff />
+                                        {post.repostOf!.author.role == "admin" && (
+                                            <Admin />
                                         )}
 
                                         <span className="text-sm text-muted-foreground">
-                                            @{post.quote.post.author.handle}
+                                            @{post.repostOf!.author.username}
                                         </span>
 
                                         <span className="text-sm text-muted-foreground">
-                                            · {formatTimeAgo(post.quote.post.createdAt)} {post.quote.post.edited && (
+                                            · {formatTimeAgo(post.repostOf!.createdAt)} {post.repostOf!.edited && (
                                                 <span className="text-xs text-muted-foreground font-medium">(edited)</span>
                                             )}
                                         </span>
                                     </div>
 
-                                    {post.quote.post.flagged && (
+                                    {post.repostOf!.flagged && (
                                         <div className="flex items-center gap-2 rounded-md border-2 dark:border-accent border-primary p-3">
                                             <EyeOff size={15} className="shrink-0 dark:text-accent text-primary" />
                                             <p className="text-sm dark:text-accent text-primary">
@@ -257,17 +203,17 @@ export function Post({
                                     )}
 
                                     <Markdown>
-                                        {post.quote.post.content}
+                                        {post.repostOf!.content}
                                     </Markdown>
 
-                                    {post.quote.post.attachments?.length ? (
+                                    {post.repostOf!.attachments?.length ? (
                                         <div
-                                            className={`grid gap-2 ${post.quote.post.attachments.length === 1
+                                            className={`grid gap-2 ${post.repostOf!.attachments.length === 1
                                                 ? "grid-cols-1"
                                                 : "grid-cols-2"
                                                 }`}
                                         >
-                                            {post.quote.post.attachments.map((attachment, index) => (
+                                            {post.repostOf!.attachments.map((attachment, index) => (
                                                 <Image
                                                     key={index}
                                                     src={attachment.url}

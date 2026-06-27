@@ -2,7 +2,6 @@
 
 import { PostList } from "@/components/post";
 import { Composer } from "@/components/composer";
-import { toast } from "sonner";
 import { Tabs } from "@/components/post-tabs";
 import { SearchBar } from "@/components/search-bar";
 import { StreakWidget } from "@/components/streak";
@@ -10,33 +9,29 @@ import { AboutWidget } from "@/components/about";
 import { RngWidget } from "@/components/rng";
 import { TrendingWidget } from "@/components/trending";
 import { Feedback } from "@/components/bin";
-import { Profile } from "@/components/profile";
-import { Sidebar } from "@/components/sidebar";
-import { PageLayout, PageCenter, PageLeft, PageRight } from "@/components/page-layout";
-
-import { authClient } from "@/client/auth";
-import { redirect } from "next/navigation";
+import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
+import { useState, useEffect } from "react";
+import { Post } from "@/types";
+import { toast } from "sonner";
 
 export default function Page() {
+    const [posts, setPosts] = useState<Post[]>([]);
 
-    const { data: session, isPending } = authClient.useSession();
-
-    if (isPending) {
-        return (
-            <div className="flex h-screen items-center justify-center">
-                Loading...
-            </div>
-        );
-    }
-
-    if (!session) {
-        redirect("/auth/login");
-    }
+    useEffect(() => {
+        async function fetchPosts() {
+            const res = await fetch("/api/posts");
+            if (res.ok) {
+                const data = await res.json();
+                setPosts(data);
+            } else {
+                toast.error(res.statusText);
+            }
+        }
+        fetchPosts();
+    }, []);
 
     return (
         <PageLayout>
-
-
             <PageCenter>
                 <Composer />
                 <Tabs
@@ -48,37 +43,9 @@ export default function Page() {
                     ]}
                 />
                 <PostList
-                    posts={[
-                        {
-                            id: "1",
-                            author: {
-                                name: "Linus Kang",
-                                handle: "linusdotmy",
-                                image: "https://api.dicebear.com/9.x/glass/svg?seed=Linus",
-                                verified: false,
-                                staff: true
-                            },
-                            content: "Hello, this is a sample *post component*. ``You`` can **customize it** as you like!\n\nMoreover, newline is supported!\nContact me at https://linus.my",
-                            createdAt: "2026-06-24T22:55Z",
-                            updatedAt: "2026-06-25T10:00Z",
-                            edited: false,
-                            flagged: false,
-                            views: 100,
-                            likes: 50,
-                            reposts: 10,
-                            comments: 5,
-                            repost: {
-                                repost: false,
-                                by: {
-                                    name: "admin",
-                                    handle: "administrator",
-                                }
-                            },
-                        }
-                    ]}
+                    posts={posts}
                 />
             </PageCenter>
-
             <PageRight>
                 <SearchBar />
                 <StreakWidget />

@@ -10,10 +10,10 @@ export function Github() {
     )
 }
 
-export function Staff() {
+export function Admin() {
     return (
         <Badge variant="secondary" className="text-xs">
-            Staff
+            Admin
         </Badge>
     )
 }
