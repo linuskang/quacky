@@ -44,6 +44,7 @@ model User {
   likes     Like[]
   comments  Comment[]
   bookmarks Bookmark[]
+  postViews PostView[]
 
   @@map("user")
 }
@@ -65,6 +66,7 @@ model Post {
   comments    Comment[]
   attachments Attachment[]
   bookmarks Bookmark[]
+  postViews PostView[]
 
   @@map("post")
   @@index([authorId])
@@ -83,6 +85,20 @@ model Bookmark {
   @@id([userId, postId])
   @@index([postId])
   @@map("bookmark")
+}
+
+model PostView {
+  userId String
+  postId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@id([userId, postId])
+  @@index([postId])
+  @@map("post_view")
 }
 
 model Like {

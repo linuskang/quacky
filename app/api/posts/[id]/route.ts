@@ -166,6 +166,29 @@ export async function GET(
         );
     }
 
+    const postView = await prisma.postView.createMany({
+        data: [
+            {
+                userId: session.user.id,
+                postId: post.id,
+            },
+        ],
+        skipDuplicates: true,
+    });
+
+    if (postView.count === 1) {
+        await prisma.post.update({
+            where: {
+                id: post.id,
+            },
+            data: {
+                views: {
+                    increment: 1,
+                },
+            },
+        });
+    }
+
     const comments = await prisma.comment.findMany({
         where: { postId: id },
         select: {
@@ -214,7 +237,7 @@ export async function GET(
         edited: post.edited,
         createdAt: post.createdAt.toISOString(),
         updatedAt: post.updatedAt.toISOString(),
-        views: post.views,
+        views: post.views + postView.count,
 
         likes: post._count.likes,
         reposts: post._count.reposts,

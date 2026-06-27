@@ -75,7 +75,12 @@ export async function POST(req: NextRequest) {
             data: {
                 authorId: session.user.id,
                 repostOfId: body.postId,
-                content: content
+                content: content,
+                postViews: {
+                    create: {
+                        userId: session.user.id,
+                    },
+                },
             },
         }
     )

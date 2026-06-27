@@ -301,6 +301,11 @@ export async function POST(req: NextRequest) {
             id: crypto.randomUUID(),
             authorId: session.user.id,
             content,
+            postViews: {
+                create: {
+                    userId: session.user.id,
+                },
+            },
             attachments: {
                 create: attachments
             }
