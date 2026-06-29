@@ -3,6 +3,7 @@ import { auth } from '@/server/auth';
 import { NextRequest, NextResponse } from "next/server";
 import { Up } from "@/server/upstream"
 import { env } from "@/env";
+import { NotificationService } from "@/server/helpers";
 
 export async function POST(
     req: NextRequest,
@@ -30,6 +31,18 @@ export async function POST(
             where: {
                 id,
             },
+            include: {
+                author: {
+                    select: {
+                        id: true,
+                        name: true,
+                        username: true,
+                        image: true,
+                        verified: true,
+                        role: true,
+                    }
+                }
+            }
         }
     );
 
@@ -126,6 +139,12 @@ export async function POST(
                 content: `Post flagged for review`,
             }
         );
+
+        await NotificationService.send(
+            post.authorId,
+            'quacky',
+            `Hello, ${post.author.name}. \n\nYour [post](${env.BETTER_AUTH_URL}/post/${post.id}) which you made on **${new Date().toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric", })}** has been taken down due to a violation of our [Community Guidelines](https://quacky.space/terms).\n\nReason given: **${moderation?.reason}**\n\nIf you believe this is a mistake, please contact an school administrator.`
+        )
     } else {
         events.push(
             {
@@ -155,7 +174,7 @@ export async function POST(
                 },
                 {
                     name: "Post Author",
-                    value: `${post.authorId}`,
+                    value: `${post.author.name} (${post.authorId})`,
                 },
             ],
             data: {
