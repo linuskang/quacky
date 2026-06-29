@@ -30,6 +30,20 @@ export const authClient = createAuthClient(
                         type: "boolean",
                         required: false,
                         default: false
+                    },
+                    verified: {
+                        type: "boolean",
+                        required: true,
+                        default: false
+                    },
+                    role: {
+                        type: "string",
+                        required: true,
+                        default: "user"
+                    },
+                    image: {
+                        type: "string",
+                        required: true,
                     }
                 },
             }),

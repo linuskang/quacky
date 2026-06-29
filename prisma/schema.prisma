@@ -38,13 +38,15 @@ model User {
   banReason  String?
   banExpires DateTime?
 
-  posts Post[]
-  following Follow[]  @relation("UserFollowing")
-  followers Follow[]  @relation("UserFollowers")
-  likes     Like[]
-  comments  Comment[]
-  bookmarks Bookmark[]
-  postViews PostView[]
+  posts              Post[]
+  following          Follow[]       @relation("UserFollowing")
+  followers          Follow[]       @relation("UserFollowers")
+  likes              Like[]
+  comments           Comment[]
+  notifications      Notification[] @relation("NotificationUser")
+  actorNotifications Notification[] @relation("NotificationActor")
+  bookmarks          Bookmark[]
+  postViews          PostView[]
 
   @@map("user")
 }
@@ -53,24 +55,24 @@ model Post {
   id          String       @id @default(uuid())
   authorId    String
   author      User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  content     String @default("")
+  content     String       @default("")
   flagged     Boolean      @default(false)
   edited      Boolean      @default(false)
   createdAt   DateTime     @default(now()) @db.Timestamptz(3)
   updatedAt   DateTime     @updatedAt @db.Timestamptz(3)
   views       Int          @default(1)
-  repostOfId String?
-  repostOf   Post?  @relation("PostReposts", fields: [repostOfId], references: [id], onDelete: Cascade)
-  reposts    Post[] @relation("PostReposts")
+  repostOfId  String?
+  repostOf    Post?        @relation("PostReposts", fields: [repostOfId], references: [id], onDelete: Cascade)
+  reposts     Post[]       @relation("PostReposts")
   likes       Like[]
   comments    Comment[]
   attachments Attachment[]
-  bookmarks Bookmark[]
-  postViews PostView[]
+  bookmarks   Bookmark[]
+  postViews   PostView[]
 
-  @@map("post")
   @@index([authorId])
   @@index([repostOfId])
+  @@map("post")
 }
 
 model Bookmark {
@@ -157,6 +159,22 @@ model Follow {
 
   @@id([userId, followId])
   @@map("follow")
+}
+
+model Notification {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation("NotificationUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  actorId String?
+  actor   User?   @relation("NotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  content       String
+
+  read Boolean @default(false)
+
+  createdAt DateTime @default(now())
 }
 
 model Session {

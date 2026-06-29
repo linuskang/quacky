@@ -80,6 +80,15 @@ export type Post = {
     postComments?: Comment[];
 };
 
+export type Notification = {
+    id: string;
+    user: User;
+    actor: User;
+    content: string;
+    read: boolean;
+    createdAt: string;
+}
+
 export type Like = {
     userId: string;
     postId: string;

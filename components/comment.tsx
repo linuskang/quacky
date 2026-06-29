@@ -94,7 +94,7 @@ export function Reply(
         <InputGroup className="!bg-card border-2 border-border h-10 !ring-0 focus-within:!border-chart-3">
             <InputGroupInput
                 className="!text-sm !font-semibold"
-                placeholder="Write a reply... (nice comments only :D)"
+                placeholder="Write a reply..."
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
             />
