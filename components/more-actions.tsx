@@ -74,8 +74,7 @@ export function MoreActions({ post }: { post: Post }) {
         });
 
         if (!res.ok) {
-            const data = await res.json().catch(() => null) as { err?: string } | null;
-            toast.error(data?.err ?? res.statusText);
+            toast.error(res.statusText);
             setEditPending(false);
             return;
         }
@@ -96,8 +95,7 @@ export function MoreActions({ post }: { post: Post }) {
         });
 
         if (!res.ok) {
-            const data = await res.json().catch(() => null) as { err?: string } | null;
-            toast.error(data?.err ?? res.statusText);
+            toast.error(res.statusText);
             setDeletePending(false);
             return;
         }
