@@ -2,6 +2,8 @@ import { prisma } from "@/server/prisma";
 import { auth } from '@/server/auth';
 import { NextRequest, NextResponse } from "next/server";
 import type { Post } from "@/types";
+import { sendMentionNotifications } from "@/server/mentions";
+import { env } from "@/env";
 
 // This is the main endpoint for fetching the most recent posts.
 // Returns normal posts, reposts, and quoted posts.
@@ -344,6 +346,15 @@ export async function POST(req: NextRequest) {
             },
         },
     });
+
+    await sendMentionNotifications(
+        {
+            content,
+            actorId: session.user.id,
+            actorUsername: session.user.username,
+            message: `mentioned you in a [post](${env.BETTER_AUTH_URL}/post/${post.id})`,
+        }
+    );
 
     const newPost: Post = {
         id: post.id,

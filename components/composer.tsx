@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Markdown } from "@/components/md";
@@ -10,13 +10,28 @@ import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 import { CharCounter } from "./char-counter";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { MentionSuggestions, useMentionSuggestions } from "@/components/mention-suggestions";
 
 export function Composer() {
     const [content, setContent] = useState("");
+    const [caret, setCaret] = useState(0);
     const [mode, setMode] = useState<"write" | "preview">("write");
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     const { data: session } = authClient.useSession();
     const hasContent = content.trim().length > 0;
+    const mentions = useMentionSuggestions({
+        value: content,
+        caret,
+        onChange: setContent,
+        onCaretChange: (nextCaret) => {
+            setCaret(nextCaret);
+            requestAnimationFrame(() => {
+                textareaRef.current?.focus();
+                textareaRef.current?.setSelectionRange(nextCaret, nextCaret);
+            });
+        },
+    });
 
     async function post() {
         const res = await fetch("/api/posts", {
@@ -46,7 +61,7 @@ export function Composer() {
     return (
         <div
             className={cn(
-                "group flex max-w-lg flex-col gap-2 overflow-hidden rounded-md border-2 border-border bg-card-primary p-4",
+                "group flex max-w-lg flex-col gap-2 overflow-visible rounded-md border-2 border-border bg-card-primary p-4",
                 "transition-[min-height,border-color] duration-300 ease-out hover:border-primary/80",
                 hasContent
                     ? "min-h-[180px]"
@@ -65,19 +80,33 @@ export function Composer() {
 
                 <div
                     className={cn(
-                        "min-w-0 flex-1 overflow-hidden transition-[height] duration-300 ease-out",
+                        "relative min-w-0 flex-1 overflow-visible transition-[height] duration-300 ease-out",
                         hasContent
                             ? "h-28"
                             : "h-10 group-has-[textarea:focus]:h-28"
                     )}
                 >
                     {mode === "write" ? (
-                        <textarea
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                            placeholder={greeting}
-                            className="h-24 w-full resize-none bg-transparent py-1 text-lg leading-normal outline-none placeholder:text-muted-foreground"
-                        />
+                        <div className="relative">
+                            <textarea
+                                ref={textareaRef}
+                                value={content}
+                                onChange={(e) => {
+                                    setContent(e.target.value);
+                                    setCaret(e.target.selectionStart);
+                                }}
+                                onClick={(e) => setCaret(e.currentTarget.selectionStart)}
+                                onKeyUp={(e) => setCaret(e.currentTarget.selectionStart)}
+                                placeholder={greeting}
+                                className="h-24 w-full resize-none bg-transparent py-1 text-lg leading-normal outline-none placeholder:text-muted-foreground"
+                            />
+                            <MentionSuggestions
+                                open={mentions.open}
+                                users={mentions.users}
+                                onSelect={mentions.selectUser}
+                                positionClassName="top-9 mt-1"
+                            />
+                        </div>
                     ) : (
                         <div className="min-h-8 py-0.5 text-sm">
                             {content.trim() ? (

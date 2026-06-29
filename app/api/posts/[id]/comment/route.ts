@@ -1,6 +1,8 @@
 import { prisma } from "@/server/prisma";
 import { auth } from '@/server/auth';
 import { NextRequest, NextResponse } from "next/server";
+import { sendMentionNotifications } from "@/server/mentions";
+import { env } from "@/env";
 
 export interface CommentBody {
     content: string;
@@ -79,6 +81,13 @@ export async function POST(
             }
         }
     );
+
+    await sendMentionNotifications({
+        content,
+        actorId: session.user.id,
+        actorUsername: session.user.username,
+        message: `mentioned you in a [comment](${env.BETTER_AUTH_URL}/post/${post.id})`,
+    });
 
     return NextResponse.json(
         {

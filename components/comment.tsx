@@ -16,11 +16,13 @@ import {
     InputGroupInput,
 } from "@/components/ui/input-group"
 import { CharCounter } from "./char-counter";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogClose, DialogDescription } from "./ui/dialog";
 import { Textarea } from "./ui/textarea";
 import { PurpleEyeWarning } from "./warning";
 import { authClient } from "@/client/auth";
+import { MentionSuggestions, useMentionSuggestions } from "@/components/mention-suggestions";
+import { Markdown } from "@/components/md";
 
 export function CommentList(
     {
@@ -70,6 +72,20 @@ export function Reply(
     }
 ) {
     const [content, setContent] = useState("");
+    const [caret, setCaret] = useState(0);
+    const inputRef = useRef<HTMLInputElement>(null);
+    const mentions = useMentionSuggestions({
+        value: content,
+        caret,
+        onChange: setContent,
+        onCaretChange: (nextCaret) => {
+            setCaret(nextCaret);
+            requestAnimationFrame(() => {
+                inputRef.current?.focus();
+                inputRef.current?.setSelectionRange(nextCaret, nextCaret);
+            });
+        },
+    });
 
     async function comment() {
         const res = await fetch(`/api/posts/${postId}/comment`, {
@@ -94,30 +110,43 @@ export function Reply(
     }
 
     return (
-        <InputGroup className="!bg-card border-2 border-border h-10 !ring-0 focus-within:!border-chart-3">
-            <InputGroupInput
-                className="!text-sm !font-semibold"
-                placeholder="Write a reply..."
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-            />
-            <InputGroupAddon align="inline-end">
-                <CharCounter
-                    length={content.length}
-                    maxLength={100}
-                    width={8}
-                    height={8}
+        <div className="relative">
+            <InputGroup className="!bg-card border-2 border-border h-10 !ring-0 focus-within:!border-chart-3">
+                <InputGroupInput
+                    ref={inputRef}
+                    className="!text-sm !font-semibold"
+                    placeholder="Write a reply..."
+                    value={content}
+                    onChange={(e) => {
+                        setContent(e.target.value);
+                        setCaret(e.target.selectionStart ?? 0);
+                    }}
+                    onClick={(e) => setCaret(e.currentTarget.selectionStart ?? 0)}
+                    onKeyUp={(e) => setCaret(e.currentTarget.selectionStart ?? 0)}
                 />
-                <InputGroupButton
-                    variant="ghost"
-                    className="hover:!bg-transparent"
-                    onClick={comment}
-                    disabled={content.trim().length == 0 || content.length > 100}
-                >
-                    <SendHorizontal className="!size-5 text-foreground" />
-                </InputGroupButton>
-            </InputGroupAddon>
-        </InputGroup>
+                <InputGroupAddon align="inline-end">
+                    <CharCounter
+                        length={content.length}
+                        maxLength={100}
+                        width={8}
+                        height={8}
+                    />
+                    <InputGroupButton
+                        variant="ghost"
+                        className="hover:!bg-transparent"
+                        onClick={comment}
+                        disabled={content.trim().length == 0 || content.length > 100}
+                    >
+                        <SendHorizontal className="!size-5 text-foreground" />
+                    </InputGroupButton>
+                </InputGroupAddon>
+            </InputGroup>
+            <MentionSuggestions
+                open={mentions.open}
+                users={mentions.users}
+                onSelect={mentions.selectUser}
+            />
+        </div>
     )
 }
 
@@ -298,7 +327,7 @@ export function CommentCard(
                         />
                     )}
                     <div className="text-sm text-muted-foreground break-words mb-1">
-                        {comment.content}
+                        <Markdown>{comment.content}</Markdown>
                     </div>
                 </div>
             </div>

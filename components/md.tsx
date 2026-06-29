@@ -1,5 +1,14 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { MentionHoverCard } from "@/components/mention-hover-card";
+
+const MENTION_REGEX = /(^|[^\w])@([a-zA-Z0-9_]+)/g;
+
+function linkMentions(content: string) {
+    return content.replace(MENTION_REGEX, (_match, prefix: string, username: string) => {
+        return `${prefix}[@${username}](/@${username})`;
+    });
+}
 
 export function Markdown({ children }: { children: string }) {
     return (
@@ -95,16 +104,25 @@ export function Markdown({ children }: { children: string }) {
                     <hr className="my-4 border-border" />
                 ),
 
-                a: ({ href, children }) => (
-                    <a
-                        href={href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="break-words font-medium text-primary-2 underline-offset-2 [overflow-wrap:anywhere] hover:underline"
-                    >
-                        {children}
-                    </a>
-                ),
+                a: ({ href, children }) => {
+                    const internal = href?.startsWith("/");
+                    const mention = href?.match(/^\/@([a-zA-Z0-9_]+)$/);
+
+                    if (mention) {
+                        return <MentionHoverCard username={mention[1]} />;
+                    }
+
+                    return (
+                        <a
+                            href={href}
+                            target={internal ? undefined : "_blank"}
+                            rel={internal ? undefined : "noopener noreferrer"}
+                            className="break-words font-medium text-primary-2 underline-offset-2 [overflow-wrap:anywhere] hover:underline"
+                        >
+                            {children}
+                        </a>
+                    );
+                },
 
                 code: ({ className, children }) => {
                     const inline = !className;
@@ -180,7 +198,7 @@ export function Markdown({ children }: { children: string }) {
                 /* eslint-enable @next/next/no-img-element */
                 }}
             >
-                {children}
+                {linkMentions(children)}
             </ReactMarkdown>
         </div>
     );
