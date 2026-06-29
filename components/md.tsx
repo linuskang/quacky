@@ -3,14 +3,15 @@ import remarkGfm from "remark-gfm";
 
 export function Markdown({ children }: { children: string }) {
     return (
-        <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            components={{
-                h1: ({ children }) => (
-                    <h1 className="mb-4 mt-6 text-3xl font-bold first:mt-0">
-                        {children}
-                    </h1>
-                ),
+        <div className="min-w-0 max-w-full break-words [overflow-wrap:anywhere]">
+            <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                    h1: ({ children }) => (
+                        <h1 className="mb-4 mt-6 text-3xl font-bold first:mt-0">
+                            {children}
+                        </h1>
+                    ),
 
                 h2: ({ children }) => (
                     <h2 className="mb-3 mt-5 text-2xl font-bold first:mt-0">
@@ -43,7 +44,7 @@ export function Markdown({ children }: { children: string }) {
                 ),
 
                 p: ({ children }) => (
-                    <p className="mb-3 whitespace-pre-wrap text-sm leading-6 last:mb-0">
+                    <p className="mb-3 whitespace-pre-wrap break-words text-sm leading-6 [overflow-wrap:anywhere] last:mb-0">
                         {children}
                     </p>
                 ),
@@ -99,7 +100,7 @@ export function Markdown({ children }: { children: string }) {
                         href={href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-medium text-primary-2 hover:underline underline-offset-2"
+                        className="break-words font-medium text-primary-2 underline-offset-2 [overflow-wrap:anywhere] hover:underline"
                     >
                         {children}
                     </a>
@@ -110,7 +111,7 @@ export function Markdown({ children }: { children: string }) {
 
                     if (inline) {
                         return (
-                            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[0.85em]">
+                            <code className="break-words rounded bg-muted px-1.5 py-0.5 font-mono text-[0.85em] [overflow-wrap:anywhere]">
                                 {children}
                             </code>
                         );
@@ -177,9 +178,10 @@ export function Markdown({ children }: { children: string }) {
                     />
                 ),
                 /* eslint-enable @next/next/no-img-element */
-            }}
-        >
-            {children}
-        </ReactMarkdown>
+                }}
+            >
+                {children}
+            </ReactMarkdown>
+        </div>
     );
 }

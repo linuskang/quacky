@@ -1,22 +1,54 @@
 "use client";
 
+// Libraries
 import { useState } from "react";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { BadgeCheck, Heart, Repeat2, MessagesSquare, BarChart2, Bookmark, Share, EyeOff, MoreHorizontal } from "lucide-react";
-import { Markdown } from "@/components/md";
-import { formatTimeAgo, useFormattedDate } from "@/client/utils";
-import { Admin } from "./icons";
-import { useRouter } from "next/navigation";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { EmbeddedPost, Post } from "@/types";
-import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 import { authClient } from "@/client/auth";
-import { CharCounter } from "./char-counter";
-import { Textarea } from "./ui/textarea";
-import { DialogClose } from "./ui/dialog";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+
+import Image from "next/image";
+import Link from "next/link";
+
+import {
+    formatTimeAgo,
+    useFormattedDate
+} from "@/client/utils";
+
+// Components
+import { Button } from "@/components/ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import {
+    Dialog,
+    DialogContent
+} from "@/components/ui/dialog";
+import {
+    BadgeCheck,
+    Heart,
+    Repeat2,
+    MessagesSquare,
+    BarChart2,
+    Bookmark
+} from "lucide-react";
+
+import { Markdown } from "@/components/md";
+import { Admin } from "@/components/icons";
+import { CharCounter } from "@/components/char-counter";
+import { MoreActions } from "@/components/more-actions";
+import { PurpleEyeWarning } from "@/components/warning";
+import { SharePost } from "@/components/share";
+
+// Types
+import {
+    EmbeddedPost,
+    Post
+} from "@/types";
+
 
 export function PostList({
     posts,
@@ -36,124 +68,41 @@ export function PostList({
     );
 }
 
-function QuotedPostPreview({
-    post,
-}: {
-    post: Post | EmbeddedPost;
-}) {
-    return (
-        <div className="rounded-md border-2 border-border bg-card-primary p-3">
-            <div className="flex gap-3">
-                <Image
-                    src={post.author.image}
-                    alt={post.author.name}
-                    width={28}
-                    height={28}
-                    unoptimized
-                    className="h-7 w-7 shrink-0 rounded-full object-cover"
-                />
+type PostCardPost = Post | EmbeddedPost;
 
-                <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-1 text-sm font-semibold">
-                        <span className="text-primary">{post.author.name}</span>
-                        {post.author.verified && (
-                            <BadgeCheck className="h-4 w-4 fill-primary text-background" />
-                        )}
-                        {post.author.role == "admin" && <Admin />}
-                        <span className="text-muted-foreground">@{post.author.username}</span>
-                        <span className="text-muted-foreground">· {formatTimeAgo(post.createdAt)}</span>
-                    </div>
-
-                    {post.content.trim() ? (
-                        <div className="mt-2 text-sm">
-                            <Markdown>{post.content}</Markdown>
-                        </div>
-                    ) : "repostOf" in post && post.repostOf ? null : (
-                        <p className="mt-2 text-sm text-muted-foreground">No content.</p>
-                    )}
-
-                    {"repostOf" in post && post.repostOf && (
-                        <div className="mt-3">
-                            <QuotedPostPreview post={post.repostOf} />
-                        </div>
-                    )}
-
-                    {post.attachments?.length ? (
-                        <div
-                            className={`mt-2 grid gap-2 ${post.attachments.length === 1
-                                ? "grid-cols-1"
-                                : "grid-cols-2"
-                                }`}
-                        >
-                            {post.attachments.map((attachment, index) => (
-                                <Image
-                                    key={index}
-                                    src={attachment.url}
-                                    alt={attachment.name}
-                                    width={500}
-                                    height={300}
-                                    unoptimized
-                                    className="h-full max-h-[200px] w-full rounded-md object-cover"
-                                />
-                            ))}
-                        </div>
-                    ) : null}
-                </div>
-            </div>
-        </div>
-    );
+function isFullPost(post: PostCardPost): post is Post {
+    return "likes" in post;
 }
 
 export function PostCard({
     post,
+    showActions = true,
 }: {
-    post: Post;
+    post: PostCardPost;
+    showActions?: boolean;
 }) {
     const router = useRouter();
-    const [liked, setLiked] = useState(post.liked ?? false);
-    const [likes, setLikes] = useState(post.likes);
-    const [bookmarked, setBookmarked] = useState(post.bookmarked ?? false);
+    const fullPost = isFullPost(post) ? post : null;
+    const repostOf = fullPost?.repostOf ?? null;
+
+    // User States
+    const [liked, setLiked] = useState(fullPost?.liked ?? false);
+    const [likes, setLikes] = useState(fullPost?.likes ?? 0);
+    const [bookmarked, setBookmarked] = useState(fullPost?.bookmarked ?? false);
+
+    // Pending States
     const [likePending, setLikePending] = useState(false);
     const [bookmarkPending, setBookmarkPending] = useState(false);
+
+    // Quote
     const [quoteRepostOpen, setQuoteRepostOpen] = useState(false);
-    const [reportOpen, setReportOpen] = useState(false);
     const [quoteContent, setQuoteContent] = useState("");
     const [quotePending, setQuotePending] = useState(false);
+
+    const shareUrl = `${window.location.origin}/post/${post.id}`;
     const { data: session } = authClient.useSession();
-    const [reportReason, setReportReason] = useState("");
-    const [reportPending, setReportPending] = useState(false);
-    const reportPost = async () => {
-        if (!reportReason.trim() || reportPending) return;
 
-        setReportPending(true);
-
-        const res = await fetch(`/api/posts/${post.id}/report`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                reason: reportReason.trim(),
-            }),
-        });
-
-        if (!res.ok) {
-            toast.error(res.statusText);
-            setReportPending(false);
-            return;
-        } else {
-            setReportReason("");
-            setReportOpen(false);
-            setReportPending(false);
-            toast.success("Reported post. Thanks for keeping our community safe.");
-        }
-    }
-
-    const handleCardClick = () => {
-        router.push(`/post/${post.id}`);
-    };
-
-    const handleLike = async () => {
+    const like = async () => {
         if (likePending) return;
 
         const nextLiked = !liked;
@@ -188,7 +137,7 @@ export function PostCard({
         }
     }
 
-    const quoteRepost = async () => {
+    const quote = async () => {
         const content = quoteContent.trim();
 
         if (!content || quotePending) return;
@@ -224,7 +173,7 @@ export function PostCard({
         toast.success("Quote reposted");
     }
 
-    const handleBookmark = async () => {
+    const bookmark = async () => {
         if (bookmarkPending) return;
 
         const nextBookmarked = !bookmarked;
@@ -247,17 +196,17 @@ export function PostCard({
 
     return (
         <div
-            onClick={handleCardClick}
-            className="rounded-md border-2 border-border max-w-lg !bg-card-primary p-4 flex flex-col gap-2 hover:border-primary/80 transition cursor-pointer"
+            onClick={() => router.push(`/post/${post.id}`)}
+            className="rounded-md border-2 border-border max-w-lg w-full min-w-0 overflow-hidden !bg-card-primary p-3 flex flex-col gap-2 hover:border-primary/80 transition cursor-pointer"
         >
-            {post.repostOf && !post.content && (
+            {repostOf && !post.content && (
                 <div className="flex items-center gap-1 mb-2 text-sm">
                     <Repeat2 size={15} strokeWidth={3} className="text-primary" />
-                    <span className="font-semibold text-xs text-primary">reposted by {post.author.name} (@{post.author.username})</span>
+                    <span className="font-semibold text-xs text-primary">reposted by @{post.author.username}</span>
                 </div>
             )}
 
-            <div className="flex gap-3">
+            <div className="flex gap-2">
                 <div className="shrink-0">
                     <Image
                         src={post.author.image}
@@ -268,188 +217,62 @@ export function PostCard({
                         className="rounded-full"
                     />
                 </div>
+                <div className="flex flex-col gap-1 min-w-0 flex-1 mb-0">
+                    <div className="flex items-start justify-between min-w-0 -mb-2">
+                        <div className="flex items-center gap-1 min-w-0 flex-wrap">
+                            <Link
+                                href={`/@${post.author.username}`}
+                                onClick={(event) => event.stopPropagation()}
+                                className="text-primary font-semibold hover:underline"
+                            >
+                                {post.author.name}
+                            </Link>
 
-                <div className="flex flex-col gap-2 min-w-0 flex-1">
-                    <div className="flex items-center gap-1 text-base font-semibold flex-wrap">
-                        <span className="text-primary">{post.author.name}</span>
-
-                        {post.author.verified && (
-                            <BadgeCheck
-                                className="h-[20px] w-[20px] fill-primary text-background"
-                            />
-                        )}
-
-                        {post.author.role == "admin" && (
-                            <Admin />
-                        )}
-
-                        <span className="text-sm text-muted-foreground">
-                            @{post.author.username}
-                        </span>
-
-                        <span className="text-sm text-muted-foreground">
-                            · {timeAgo} {post.edited && (
-                                <span className="text-xs text-muted-foreground font-medium">(edited)</span>
+                            {post.author.verified && (
+                                <BadgeCheck className="h-5 w-5 shrink-0 fill-primary text-background" />
                             )}
-                        </span>
 
-                        <span
-                            className="ml-auto shrink-0"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <Dialog open={reportOpen} onOpenChange={setReportOpen}>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-8 w-8 text-muted-foreground hover:text-primary"
-                                        >
-                                            <MoreHorizontal size={16} />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent
-                                        align="end"
-                                        className="bg-background border-2 border-border rounded-md shadow-none min-w-[140px]"
-                                    >
-                                        <DropdownMenuItem
-                                            onSelect={() => setReportOpen(true)}
-                                            className="text-sm font-medium text-primary cursor-pointer rounded-sm data-[highlighted]:bg-primary/10 data-[highlighted]:text-primary"
-                                        >
-                                            Report
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                                <DialogContent className="bg-card-primary border-2 border-border w-full !max-w-lg">
-                                    <DialogHeader>
-                                        <DialogTitle className="text-lg font-bold text-primary">Report post</DialogTitle>
-                                        <DialogDescription>
-                                            Tell us why this post should be reviewed.
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <Textarea
-                                        placeholder="Reason for reporting this post"
-                                        className="w-full border-2 border-border !ring-0"
-                                        value={reportReason}
-                                        onChange={(e) => setReportReason(e.target.value)}
-                                    />
-                                    <div className="flex items-center justify-end gap-2">
-                                        <DialogClose asChild>
-                                            <Button
-                                                variant="secondary"
-                                                className="bg-card-primary hover:border-primary h-8 px-3 border-2 border-border text-base rounded-full"
-                                            >
-                                                Cancel
-                                            </Button>
-                                        </DialogClose>
-                                        <Button
-                                            size="sm"
-                                            disabled={!reportReason.trim() || reportPending}
-                                            onClick={reportPost}
-                                            className="h-8 rounded-full bg-primary-2 px-4 text-sm font-semibold hover:bg-primary-2/80"
-                                        >
-                                            {reportPending ? "Reporting..." : "Report"}
-                                        </Button>
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
-                        </span>
+                            {post.author.role === "admin" && (
+                                <Admin />
+                            )}
+
+                            <Link
+                                href={`/@${post.author.username}`}
+                                onClick={(event) => event.stopPropagation()}
+                                className="text-sm text-muted-foreground font-semibold hover:underline"
+                            >
+                                @{post.author.username}
+                            </Link>
+
+                            <span className="text-sm text-muted-foreground">
+                                · {timeAgo}
+                            </span>
+
+                            {post.edited && (
+                                <span className="text-xs text-muted-foreground font-medium">
+                                    (edited)
+                                </span>
+                            )}
+                        </div>
+                        <MoreActions postId={post.id} />
                     </div>
 
                     {post.flagged && (
-                        <div className="flex items-center gap-2 rounded-md border-2 dark:border-accent border-primary p-3">
-                            <EyeOff size={15} className="shrink-0 dark:text-accent text-primary" />
-                            <p className="text-sm dark:text-accent text-primary">
-                                This post has been unlisted by a moderator due to a violation of our community guidelines.
-                            </p>
-                        </div>
+                        <PurpleEyeWarning
+                            text="This post has been unlisted by a moderator due to a violation of our community guidelines."
+                        />
                     )}
 
                     <Markdown>
                         {post.content}
                     </Markdown>
 
-                    {post.repostOf && (
-                        <div
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                router.push(`/post/${post.repostOf!.id}`);
-                            }}
-                            className="rounded-md border-2 border-border max-w-lg dark:bg-card-primary bg-card p-4 flex flex-col gap-2 hover:border-primary/80 transition cursor-pointer"
-                        >
-                            <div className="flex gap-3">
-                                <div className="shrink-0">
-                                    <Image
-                                        src={post.repostOf!.author.image}
-                                        alt={post.repostOf!.author.name}
-                                        width={28}
-                                        height={28}
-                                        unoptimized
-                                        className="rounded-full"
-                                    />
-                                </div>
-
-                                <div className="flex flex-col gap-2 min-w-0 flex-1">
-                                    <div className="flex items-center gap-1 text-base font-semibold flex-wrap">
-                                        <span className="text-primary">{post.repostOf!.author.name}</span>
-
-                                        {post.repostOf!.author.verified && (
-                                            <BadgeCheck
-                                                className="h-[20px] w-[20px] fill-primary text-background"
-                                            />
-                                        )}
-
-                                        {post.repostOf!.author.role == "admin" && (
-                                            <Admin />
-                                        )}
-
-                                        <span className="text-sm text-muted-foreground">
-                                            @{post.repostOf!.author.username}
-                                        </span>
-
-                                        <span className="text-sm text-muted-foreground">
-                                            · {formatTimeAgo(post.repostOf!.createdAt)} {post.repostOf!.edited && (
-                                                <span className="text-xs text-muted-foreground font-medium">(edited)</span>
-                                            )}
-                                        </span>
-                                    </div>
-
-                                    {post.repostOf!.flagged && (
-                                        <div className="flex items-center gap-2 rounded-md border-2 dark:border-accent border-primary p-3">
-                                            <EyeOff size={15} className="shrink-0 dark:text-accent text-primary" />
-                                            <p className="text-sm dark:text-accent text-primary">
-                                                This post has been unlisted by a moderator due to a violation of our community guidelines.
-                                            </p>
-                                        </div>
-                                    )}
-
-                                    <Markdown>
-                                        {post.repostOf!.content}
-                                    </Markdown>
-
-                                    {post.repostOf!.attachments?.length ? (
-                                        <div
-                                            className={`grid gap-2 ${post.repostOf!.attachments.length === 1
-                                                ? "grid-cols-1"
-                                                : "grid-cols-2"
-                                                }`}
-                                        >
-                                            {post.repostOf!.attachments.map((attachment, index) => (
-                                                <Image
-                                                    key={index}
-                                                    src={attachment.url}
-                                                    alt={attachment.name}
-                                                    width={500}
-                                                    height={300}
-                                                    unoptimized
-                                                    className="h-full max-h-[300px] w-full rounded-md object-cover"
-                                                />
-                                            ))}
-                                        </div>
-                                    ) : null}
-                                </div>
-                            </div>
-
+                    {repostOf && (
+                        <div className="min-w-0 max-w-full">
+                            <PostCard
+                                showActions={false}
+                                post={repostOf}
+                            />
                         </div>
                     )}
 
@@ -476,183 +299,168 @@ export function PostCard({
                     ) : null}
 
                     <div className="text-xs text-muted-foreground">
-                        {postedAt ? `Posted ${postedAt}` : `Posted ${post.createdAt}`}
+                        {postedAt}
                     </div>
 
-                    <div
-                        className="flex items-center justify-between pt-1"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="flex items-center gap-1.5">
-                            <Button
-                                onClick={() => router.push(`/post/${post.id}`)}
-                                variant="default"
-                                size="sm"
-                                className={cn(
-                                    "h-8 px-2.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
-                                    post.commented
-                                        ? "border-primary text-primary"
-                                        : "border-border text-primary/80 hover:border-primary hover:text-primary"
-                                )}
-                            >
-                                <MessagesSquare
-                                    strokeWidth={3}
-                                />
+                    {showActions && fullPost && (
+                        <div
+                            className="flex items-center justify-between pt-1"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="flex items-center gap-1.5">
+                                <Button
+                                    onClick={() => router.push(`/post/${post.id}`)}
+                                    variant="default"
+                                    size="sm"
+                                    className={cn(
+                                        "h-8 px-2.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
+                                        fullPost.commented
+                                            ? "!bg-primary !bg-clip-border border-primary text-background"
+                                            : "border-border text-primary/80 hover:border-primary hover:text-primary"
+                                    )}
+                                >
+                                    <MessagesSquare
+                                        strokeWidth={3}
+                                    />
 
-                                {post.comments}
-                            </Button>
+                                    {fullPost.comments}
+                                </Button>
 
-                            <Dialog open={quoteRepostOpen} onOpenChange={setQuoteRepostOpen}>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button
-                                            variant="default"
-                                            size="sm"
-                                            className={cn(
-                                                "h-8 px-2.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
-                                                post.reposted
-                                                    ? "border-primary text-primary"
-                                                    : "border-border text-primary/80 hover:border-primary hover:text-primary"
-                                            )}
-                                        >
-                                            <Repeat2
-                                                strokeWidth={3}
-                                                size={16}
-                                            />
-
-                                            {post.reposts}
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent
-                                        className="bg-background border-2 border-border rounded-md shadow-none min-w-[140px]"
-                                    >
-                                        <DropdownMenuItem
-                                            onClick={repost}
-                                            className="text-sm font-medium text-primary cursor-pointer rounded-sm data-[highlighted]:bg-primary/10 data-[highlighted]:text-primary"
-                                        >
-                                            Repost
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                            onSelect={() => setQuoteRepostOpen(true)}
-                                            className="text-sm font-medium text-primary cursor-pointer rounded-sm data-[highlighted]:bg-primary/10 data-[highlighted]:text-primary"
-                                        >
-                                            Quote
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                                <DialogContent className="bg-card-primary border-2 border-border w-full !max-w-lg">
-
-                                    <div className="flex flex-col gap-3">
-                                        <div className="flex items-start gap-4">
-                                            <Image
-                                                src={session?.user.image ?? "/default-avatar.png"}
-                                                alt={session?.user.name ?? "You"}
-                                                width={40}
-                                                height={40}
-                                                unoptimized
-                                                className="h-10 w-10 shrink-0 rounded-full object-cover"
-                                            />
-
-                                            <textarea
-                                                value={quoteContent}
-                                                onChange={(e) => setQuoteContent(e.target.value)}
-                                                placeholder="Add your thoughts..."
-                                                className="min-h-10 w-full bg-transparent py-1 text-lg leading-normal outline-none placeholder:text-muted-foreground"
-                                            />
-                                        </div>
-
-                                        <div className="ml-14">
-                                            <QuotedPostPreview post={post} />
-                                        </div>
-
-                                        <div className="flex items-center justify-end gap-2">
-                                            <CharCounter length={quoteContent.length} maxLength={400} />
-
+                                <Dialog open={quoteRepostOpen} onOpenChange={setQuoteRepostOpen}>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
                                             <Button
+                                                variant="default"
                                                 size="sm"
-                                                disabled={!quoteContent.trim() || quoteContent.length > 400 || quotePending}
-                                                onClick={quoteRepost}
-                                                className="h-8 rounded-full bg-primary-2 px-4 text-sm font-semibold hover:bg-primary-2/80"
+                                                className={cn(
+                                                    "h-8 px-2.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
+                                                    fullPost.reposted
+                                                        ? "!bg-primary !bg-clip-border border-primary text-background"
+                                                        : "bg-card-primary border-border text-primary/80 hover:border-primary hover:text-primary"
+                                                )}
                                             >
-                                                {quotePending ? "Posting..." : "Post"}
+                                                <Repeat2
+                                                    strokeWidth={3}
+                                                    size={16}
+                                                />
+
+                                                {fullPost.reposts}
                                             </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent
+                                            className="bg-background border-2 border-border rounded-md shadow-none min-w-[140px]"
+                                        >
+                                            <DropdownMenuItem
+                                                onClick={repost}
+                                                className="text-sm font-medium text-primary cursor-pointer rounded-sm data-[highlighted]:bg-primary/10 data-[highlighted]:text-primary"
+                                            >
+                                                Repost
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                onSelect={() => setQuoteRepostOpen(true)}
+                                                className="text-sm font-medium text-primary cursor-pointer rounded-sm data-[highlighted]:bg-primary/10 data-[highlighted]:text-primary"
+                                            >
+                                                Quote
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                    <DialogContent className="bg-card-primary border-2 border-border w-full !max-w-lg">
+                                        <div className="flex flex-col gap-3">
+                                            <div className="flex items-start gap-2">
+                                                <Image
+                                                    src={session?.user.image ?? "/default-avatar.png"}
+                                                    alt={session?.user.name ?? "You"}
+                                                    width={30}
+                                                    height={30}
+                                                    unoptimized
+                                                    className="h-8 w-8 shrink-0 rounded-full object-cover"
+                                                />
+
+                                                <textarea
+                                                    value={quoteContent}
+                                                    onChange={(e) => setQuoteContent(e.target.value)}
+                                                    placeholder="Add your thoughts..."
+                                                    className="min-h-10 w-full bg-transparent py-1 text-lg leading-normal outline-none placeholder:text-muted-foreground"
+                                                />
+                                            </div>
+
+                                            <div className="ml-9 min-w-0 max-w-[calc(100%-2.25rem)]">
+                                                <PostCard showActions={false} post={post} />
+                                            </div>
+
+                                            <div className="flex items-center justify-end gap-2">
+                                                <CharCounter length={quoteContent.length} maxLength={400} />
+
+                                                <Button
+                                                    size="sm"
+                                                    disabled={!quoteContent.trim() || quoteContent.length > 400 || quotePending}
+                                                    onClick={quote}
+                                                    className="h-8 rounded-full bg-primary-2 px-4 text-sm font-semibold hover:bg-primary-2/80"
+                                                >
+                                                    {quotePending ? "Posting..." : "Post"}
+                                                </Button>
+                                            </div>
                                         </div>
-                                    </div>
-                                </DialogContent>
+                                    </DialogContent>
 
-                            </Dialog>
+                                </Dialog>
 
-                            <Button
-                                onClick={handleLike}
-                                disabled={likePending}
-                                variant="default"
-                                size="sm"
-                                className={cn(
-                                    "h-8 px-2.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
-                                    liked
-                                        ? "border-primary text-primary"
-                                        : "border-border text-primary/80 hover:border-primary hover:text-primary"
-                                )}
-                            >
-                                <Heart
-                                    strokeWidth={3}
-                                    size={16}
-                                />
+                                <Button
+                                    onClick={like}
+                                    disabled={likePending}
+                                    variant="default"
+                                    size="sm"
+                                    className={cn(
+                                        "h-8 px-2.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
+                                        liked
+                                            ? "!bg-primary !bg-clip-border border-primary text-background"
+                                            : "border-border text-primary/80 hover:border-primary hover:text-primary"
+                                    )}
+                                >
+                                    <Heart
+                                        strokeWidth={3}
+                                        size={16}
+                                        fill={liked ? "currentColor" : "none"}
+                                    />
 
-                                {likes}
-                            </Button>
+                                    {likes}
+                                </Button>
+                            </div>
+                            <div className="ml-auto gap-1.5 flex">
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    className="h-8 py-1 px-2.5 text-md font-semibold text-primary/80 hover:text-primary !bg-card-primary border-2 border-border hover:bg-background hover:border-primary"
+                                >
+                                    <BarChart2
+                                        strokeWidth={3}
+                                        size={16}
+                                    />
+
+                                    {fullPost.views}
+                                </Button>
+                                <Button
+                                    onClick={bookmark}
+                                    disabled={bookmarkPending}
+                                    variant="default"
+                                    size="sm"
+                                    className={cn(
+                                        "h-8 px-1.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
+                                        bookmarked
+                                            ? "!bg-primary !bg-clip-border border-primary text-background"
+                                            : "border-border text-primary/80 hover:border-primary hover:text-primary"
+                                    )}
+                                >
+                                    <Bookmark
+                                        strokeWidth={3}
+                                        size={16}
+                                        fill={bookmarked ? "currentColor" : "none"}
+                                    />
+                                </Button>
+                                <SharePost shareUrl={shareUrl} />
+                            </div>
                         </div>
-                        <div className="ml-auto gap-1.5 flex">
-                            <Button
-                                variant="default"
-                                size="sm"
-                                className="h-8 py-1 px-2.5 text-md font-semibold text-primary/80 hover:text-primary !bg-card-primary border-2 border-border hover:bg-background hover:border-primary"
-                            >
-                                <BarChart2
-                                    strokeWidth={3}
-                                    size={16}
-                                />
-
-                                {post.views}
-                            </Button>
-                            <Button
-                                onClick={handleBookmark}
-                                disabled={bookmarkPending}
-                                variant="default"
-                                size="sm"
-                                className={cn(
-                                    "h-8 px-1.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
-                                    bookmarked
-                                        ? "border-primary text-primary"
-                                        : "border-border text-primary/80 hover:border-primary hover:text-primary"
-                                )}
-                            >
-                                <Bookmark
-                                    strokeWidth={3}
-                                    size={16}
-                                />
-                            </Button>
-                            <Dialog>
-                                <DialogTrigger asChild>
-                                    <Button
-                                        variant="default"
-                                        size="sm"
-                                        className="h-8 py-1 px-1.5 text-md font-semibold text-primary/80 hover:text-primary !bg-card-primary border-2 border-border hover:bg-background hover:border-primary"
-                                    >
-                                        <Share
-                                            strokeWidth={3}
-                                            size={16}
-                                        />
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent className="bg-card-primary border-2 border-border w-full !max-w-lg">
-                                    <div className="flex flex-col gap-3">
-                                        <p className="text-sm text-muted-foreground">Share feature is not implemented yet.</p>
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
-                        </div>
-                    </div>
+                    )}
 
                 </div>
             </div>

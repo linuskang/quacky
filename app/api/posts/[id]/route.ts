@@ -53,6 +53,7 @@ export async function GET(
                         username: true,
                         image: true,
                         verified: true,
+                        role: true,
                     },
                 },
 
@@ -70,6 +71,7 @@ export async function GET(
                                 username: true,
                                 image: true,
                                 verified: true,
+                                role: true,
                             },
                         },
 
@@ -207,6 +209,7 @@ export async function GET(
                     username: true,
                     image: true,
                     verified: true,
+                    role: true,
                 },
             },
         },

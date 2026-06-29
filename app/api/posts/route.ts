@@ -70,6 +70,7 @@ export async function GET(req: NextRequest) {
                     username: true,
                     image: true,
                     verified: true,
+                    role: true,
                 },
             },
 
@@ -87,6 +88,7 @@ export async function GET(req: NextRequest) {
                             username: true,
                             image: true,
                             verified: true,
+                            role: true,
                         },
                     },
 
