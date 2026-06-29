@@ -1,5 +1,12 @@
 "use client";
 
+// Libraries
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+
+import { fetchRecentPosts } from "./helpers";
+
+// Components
 import { PostList } from "@/components/post";
 import { Composer } from "@/components/composer";
 import { Tabs } from "@/components/post-tabs";
@@ -10,24 +17,23 @@ import { RngWidget } from "@/components/rng";
 import { TrendingWidget } from "@/components/trending";
 import { Feedback } from "@/components/bin";
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
-import { useState, useEffect } from "react";
+
+// Types
 import { Post } from "@/types";
-import { toast } from "sonner";
 
 export default function Page() {
     const [posts, setPosts] = useState<Post[]>([]);
 
     useEffect(() => {
-        async function fetchPosts() {
-            const res = await fetch("/api/posts");
-            if (res.ok) {
-                const data = await res.json();
-                setPosts(data);
-            } else {
-                toast.error(res.statusText);
+        const recentPosts = async () => {
+            try {
+                const posts = await fetchRecentPosts();
+                setPosts(posts);
+            } catch (error: any) {
+                toast.error(error.message);
             }
         }
-        fetchPosts();
+        recentPosts();
     }, []);
 
     return (
