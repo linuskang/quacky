@@ -4,23 +4,26 @@ import { PostCard } from "@/components/post";
 import { SearchBar } from "@/components/search-bar";
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
 import { useState, useEffect } from "react";
-import { Post } from "@/types";
+import type { Comment, Post } from "@/types";
 import { toast } from "sonner";
 import RelevantPeopleWidget from "@/components/relevant-people";
 import { useParams } from "next/navigation";
-import { CommentList } from "@/components/comment";
+import { CommentCard, CommentList } from "@/components/comment";
+
+type CommentPageData = {
+    comment: Comment;
+    post: Post;
+};
 
 export default function Page() {
     const params = useParams<{ id: string }>();
     const id = params.id;
 
-    console.log(id)
-
-    const [post, setPost] = useState<Post>();
+    const [data, setData] = useState<CommentPageData>();
 
     useEffect(() => {
-        async function fetchPost() {
-            const res = await fetch(`/api/posts/${id}`);
+        async function fetchComment() {
+            const res = await fetch(`/api/comments/${id}`);
 
             if (!res.ok) {
                 toast.error(res.statusText);
@@ -29,27 +32,41 @@ export default function Page() {
 
             const data = await res.json();
 
-            if (!data) {
-                toast.error("Post not found");
+            if (!data.comment || !data.post) {
+                toast.error("Comment not found");
                 return;
             }
 
-            setPost(data);
+            setData(data);
         }
-        fetchPost();
-    }, []);
+        fetchComment();
+    }, [id]);
+
+    const comments = data?.post.postComments?.filter((comment) => comment.id !== data.comment.id) ?? [];
 
     return (
         <PageLayout>
             <PageCenter>
-                {post && (
+                {data && (
                     <>
-                        <PostCard
-                            post={post}
-                        />
+                        <div className="flex w-full max-w-lg flex-col gap-2">
+                            <CommentCard
+                                comment={data.comment}
+                            />
+                            <div className="flex h-16 items-center pl-10">
+                                <div className="relative flex h-full items-center justify-center border-l-2 border-dotted border-border">
+                                    <span className="bg-background px-2 text-sm font-semibold text-muted-foreground">
+                                        Replying to
+                                    </span>
+                                </div>
+                            </div>
+                            <PostCard
+                                post={data.post}
+                            />
+                        </div>
                         <CommentList
-                            comments={post.postComments || []}
-                            postId={post.id}
+                            comments={comments}
+                            postId={data.post.id}
                         />
                     </>
                 )}

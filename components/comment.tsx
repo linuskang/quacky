@@ -7,6 +7,7 @@ import { formatTimeAgo } from "@/client/utils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
 
 import {
     InputGroup,
@@ -18,6 +19,7 @@ import { CharCounter } from "./char-counter";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogClose, DialogDescription } from "./ui/dialog";
 import { Textarea } from "./ui/textarea";
+import { PurpleEyeWarning } from "./warning";
 
 export function CommentList(
     {
@@ -125,7 +127,7 @@ export function CommentCard(
         comment: Comment;
     }
 ) {
-
+    const router = useRouter();
     const [reportOpen, setReportOpen] = useState(false);
     const [reportReason, setReportReason] = useState("");
     const [reportPending, setReportPending] = useState(false);
@@ -159,7 +161,8 @@ export function CommentCard(
     }
     return (
         <div
-            className="rounded-md border-2 border-border max-w-lg !bg-card-primary p-4 flex flex-col gap-2"
+            onClick={() => router.push(`/comment/${comment.id}`)}
+            className="rounded-md hover:border-primary/80 transition cursor-pointer border-2 border-border max-w-lg !bg-card-primary p-3 flex flex-col gap-2"
         >
             <div className="flex gap-3">
                 <div className="shrink-0">
@@ -256,6 +259,11 @@ export function CommentCard(
                             </Dialog>
                         </span>
                     </div>
+                    {comment.flagged && (
+                        <PurpleEyeWarning
+                            text="This comment has been unlisted by a moderator due to a violation of our community guidelines."
+                        />
+                    )}
                     <div className="text-sm text-muted-foreground break-words mb-1">
                         {comment.content}
                     </div>
