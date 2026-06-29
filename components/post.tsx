@@ -196,7 +196,13 @@ export function PostCard({
 
     return (
         <div
-            onClick={() => router.push(`/post/${post.id}`)}
+            onClick={(event) => {
+                if (!showActions) {
+                    event.stopPropagation();
+                }
+
+                router.push(`/post/${post.id}`);
+            }}
             className="rounded-md border-2 border-border max-w-lg w-full min-w-0 overflow-hidden !bg-card-primary p-3 flex flex-col gap-2 hover:border-primary/80 transition cursor-pointer"
         >
             {repostOf && !post.content && (
@@ -254,7 +260,9 @@ export function PostCard({
                                 </span>
                             )}
                         </div>
-                        <MoreActions postId={post.id} />
+                        {fullPost && (
+                            <MoreActions post={fullPost} />
+                        )}
                     </div>
 
                     {post.flagged && (

@@ -313,7 +313,7 @@ export async function DELETE(
         )
     }
 
-    if (post.authorId !== session.user.id) {
+    if (post.authorId !== session.user.id && session.user.role !== "admin") {
         return NextResponse.json(
             {
                 err: "You are not the author of this post",
