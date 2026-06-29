@@ -15,6 +15,7 @@ export const env = createEnv(
             EMAIL_FROM: z.string(),
             BETTER_AUTH_URL: z.string(),
             DESCRIPTION: z.string(),
+            AI_URL: z.string(),
         },
 
         experimental__runtimeEnv: {},

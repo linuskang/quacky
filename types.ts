@@ -91,6 +91,7 @@ export type Comment = {
     postId: string;
     author: User;
     content: string;
+    flagged: boolean;
     createdAt: string;
     updatedAt: string;
 };

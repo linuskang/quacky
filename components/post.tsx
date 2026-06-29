@@ -9,12 +9,14 @@ import { formatTimeAgo, useFormattedDate } from "@/client/utils";
 import { Admin } from "./icons";
 import { useRouter } from "next/navigation";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { EmbeddedPost, Post } from "@/types";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { authClient } from "@/client/auth";
 import { CharCounter } from "./char-counter";
+import { Textarea } from "./ui/textarea";
+import { DialogClose } from "./ui/dialog";
 
 export function PostList({
     posts,
@@ -114,9 +116,38 @@ export function PostCard({
     const [likePending, setLikePending] = useState(false);
     const [bookmarkPending, setBookmarkPending] = useState(false);
     const [quoteRepostOpen, setQuoteRepostOpen] = useState(false);
+    const [reportOpen, setReportOpen] = useState(false);
     const [quoteContent, setQuoteContent] = useState("");
     const [quotePending, setQuotePending] = useState(false);
     const { data: session } = authClient.useSession();
+    const [reportReason, setReportReason] = useState("");
+    const [reportPending, setReportPending] = useState(false);
+    const reportPost = async () => {
+        if (!reportReason.trim() || reportPending) return;
+
+        setReportPending(true);
+
+        const res = await fetch(`/api/posts/${post.id}/report`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                reason: reportReason.trim(),
+            }),
+        });
+
+        if (!res.ok) {
+            toast.error(res.statusText);
+            setReportPending(false);
+            return;
+        } else {
+            setReportReason("");
+            setReportOpen(false);
+            setReportPending(false);
+            toast.success("Reported post. Thanks for keeping our community safe.");
+        }
+    }
 
     const handleCardClick = () => {
         router.push(`/post/${post.id}`);
@@ -266,28 +297,62 @@ export function PostCard({
                             className="ml-auto shrink-0"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 text-muted-foreground hover:text-primary"
+                            <Dialog open={reportOpen} onOpenChange={setReportOpen}>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 text-muted-foreground hover:text-primary"
+                                        >
+                                            <MoreHorizontal size={16} />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent
+                                        align="end"
+                                        className="bg-background border-2 border-border rounded-md shadow-none min-w-[140px]"
                                     >
-                                        <MoreHorizontal size={16} />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                    align="end"
-                                    className="bg-background border-2 border-border rounded-md shadow-none min-w-[140px]"
-                                >
-                                    <DropdownMenuItem
-                                        onClick={() => toast("Report feature is not implemented yet.")}
-                                        className="text-sm font-medium text-primary cursor-pointer rounded-sm data-[highlighted]:bg-primary/10 data-[highlighted]:text-primary"
-                                    >
-                                        Report
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                                        <DropdownMenuItem
+                                            onSelect={() => setReportOpen(true)}
+                                            className="text-sm font-medium text-primary cursor-pointer rounded-sm data-[highlighted]:bg-primary/10 data-[highlighted]:text-primary"
+                                        >
+                                            Report
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                                <DialogContent className="bg-card-primary border-2 border-border w-full !max-w-lg">
+                                    <DialogHeader>
+                                        <DialogTitle className="text-lg font-bold text-primary">Report post</DialogTitle>
+                                        <DialogDescription>
+                                            Tell us why this post should be reviewed.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <Textarea
+                                        placeholder="Reason for reporting this post"
+                                        className="w-full border-2 border-border !ring-0"
+                                        value={reportReason}
+                                        onChange={(e) => setReportReason(e.target.value)}
+                                    />
+                                    <div className="flex items-center justify-end gap-2">
+                                        <DialogClose asChild>
+                                            <Button
+                                                variant="secondary"
+                                                className="bg-card-primary hover:border-primary h-8 px-3 border-2 border-border text-base rounded-full"
+                                            >
+                                                Cancel
+                                            </Button>
+                                        </DialogClose>
+                                        <Button
+                                            size="sm"
+                                            disabled={!reportReason.trim() || reportPending}
+                                            onClick={reportPost}
+                                            className="h-8 rounded-full bg-primary-2 px-4 text-sm font-semibold hover:bg-primary-2/80"
+                                        >
+                                            {reportPending ? "Reporting..." : "Report"}
+                                        </Button>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
                         </span>
                     </div>
 
@@ -567,17 +632,25 @@ export function PostCard({
                                     size={16}
                                 />
                             </Button>
-                            <Button
-                                onClick={() => toast("Share feature is not implemented yet.")}
-                                variant="default"
-                                size="sm"
-                                className="h-8 py-1 px-1.5 text-md font-semibold text-primary/80 hover:text-primary !bg-card-primary border-2 border-border hover:bg-background hover:border-primary"
-                            >
-                                <Share
-                                    strokeWidth={3}
-                                    size={16}
-                                />
-                            </Button>
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button
+                                        variant="default"
+                                        size="sm"
+                                        className="h-8 py-1 px-1.5 text-md font-semibold text-primary/80 hover:text-primary !bg-card-primary border-2 border-border hover:bg-background hover:border-primary"
+                                    >
+                                        <Share
+                                            strokeWidth={3}
+                                            size={16}
+                                        />
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="bg-card-primary border-2 border-border w-full !max-w-lg">
+                                    <div className="flex flex-col gap-3">
+                                        <p className="text-sm text-muted-foreground">Share feature is not implemented yet.</p>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
                         </div>
                     </div>
 

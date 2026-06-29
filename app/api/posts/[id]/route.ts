@@ -100,7 +100,11 @@ export async function GET(
                     select: {
                         likes: true,
                         reposts: true,
-                        comments: true,
+                        comments: {
+                            where: {
+                                flagged: false,
+                            }
+                        },
                     },
                 },
 
@@ -190,7 +194,7 @@ export async function GET(
     }
 
     const comments = await prisma.comment.findMany({
-        where: { postId: id },
+        where: { postId: id, flagged: false },
         select: {
             id: true,
             postId: true,

@@ -117,7 +117,11 @@ export async function GET(req: NextRequest) {
                 select: {
                     likes: true,
                     reposts: true,
-                    comments: true,
+                    comments: {
+                        where: {
+                            flagged: false,
+                        }
+                    },
                 },
             },
 
