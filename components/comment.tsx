@@ -20,6 +20,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogClose, DialogDescription } from "./ui/dialog";
 import { Textarea } from "./ui/textarea";
 import { PurpleEyeWarning } from "./warning";
+import { authClient } from "@/client/auth";
 
 export function CommentList(
     {
@@ -131,7 +132,10 @@ export function CommentCard(
     const [reportOpen, setReportOpen] = useState(false);
     const [reportReason, setReportReason] = useState("");
     const [reportPending, setReportPending] = useState(false);
+    const [deletePending, setDeletePending] = useState(false);
+    const { data: session } = authClient.useSession();
     const timeAgo = formatTimeAgo(comment.createdAt);
+    const canDelete = session && (session.user.username === comment.author.username || session.user.role === "admin");
 
     const reportComment = async () => {
         if (!reportReason.trim() || reportPending) return;
@@ -159,6 +163,26 @@ export function CommentCard(
             toast.success("Reported comment. Thanks for keeping our community safe.");
         }
     }
+
+    const deleteComment = async () => {
+        if (!canDelete || deletePending) return;
+
+        setDeletePending(true);
+
+        const res = await fetch(`/api/comments/${comment.id}`, {
+            method: "DELETE",
+        });
+
+        if (!res.ok) {
+            toast.error(res.statusText);
+            setDeletePending(false);
+            return;
+        }
+
+        toast.success("Comment deleted.");
+        window.location.assign(`/post/${comment.postId}`);
+    }
+
     return (
         <div
             onClick={() => router.push(`/comment/${comment.id}`)}
@@ -222,6 +246,15 @@ export function CommentCard(
                                         >
                                             Report
                                         </DropdownMenuItem>
+                                        {canDelete && (
+                                            <DropdownMenuItem
+                                                onSelect={deleteComment}
+                                                disabled={deletePending}
+                                                className="text-sm font-medium text-destructive cursor-pointer rounded-sm data-[highlighted]:bg-destructive/10 data-[highlighted]:text-destructive"
+                                            >
+                                                {deletePending ? "Deleting..." : "Delete"}
+                                            </DropdownMenuItem>
+                                        )}
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                                 <DialogContent className="bg-card-primary border-2 border-border w-full !max-w-lg">

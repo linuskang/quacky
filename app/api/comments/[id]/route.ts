@@ -325,3 +325,74 @@ export async function GET(
 
     return NextResponse.json(res)
 }
+
+export async function DELETE(
+    req: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    const session = await auth.api.getSession({
+        headers: req.headers,
+    })
+
+    if (!session) {
+        return NextResponse.json(
+            {
+                err: "Unauthorized",
+            },
+            {
+                status: 401,
+            }
+        )
+    }
+
+    const { id } = await params;
+
+    const comment = await prisma.comment.findUnique({
+        where: {
+            id,
+        },
+        select: {
+            id: true,
+            authorId: true,
+            postId: true,
+        },
+    });
+
+    if (!comment) {
+        return NextResponse.json(
+            {
+                err: "Comment not found",
+            },
+            {
+                status: 404,
+            }
+        )
+    }
+
+    if (comment.authorId !== session.user.id && session.user.role !== "admin") {
+        return NextResponse.json(
+            {
+                err: "You are not the author of this comment",
+            },
+            {
+                status: 403,
+            }
+        )
+    }
+
+    await prisma.comment.delete({
+        where: {
+            id,
+        },
+    });
+
+    return NextResponse.json(
+        {
+            success: true,
+            postId: comment.postId,
+        },
+        {
+            status: 200,
+        }
+    )
+}
