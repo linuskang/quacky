@@ -65,8 +65,7 @@ export default function Page() {
         });
 
         if (!res.ok) {
-            const data = await res.json().catch(() => null) as { err?: string } | null;
-            toast.error(data?.err ?? "Failed to update follow");
+            toast.error(res.statusText);
             setFollowPending(false);
             return;
         }
