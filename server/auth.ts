@@ -23,12 +23,26 @@ export const auth = betterAuth(
         emailAndPassword: {
             enabled: true,
             requireEmailVerification: true,
+            sendResetPassword: async (data) => {
+                await resend.emails.send({
+                    from: env.EMAIL_FROM,
+                    to: data.user.email,
+                    subject: "Reset your password",
+                    html: `
+                        <p>Hi ${data.user.name},</p>
+                        <p>Please click this link to reset your password:</p>
+                        <a href="${data.url}">Reset Password</a>
+                        <p>This link expires soon. If you didn't request this, you can safely ignore this email.</p>
+                        <p><strong>Please do not reply to this email.</strong></p>
+                    `
+                });
+            }
         },
 
         emailVerification: {
             sendOnSignIn: true,
             sendOnSignUp: true,
-            sendVerificationEmail: async (data, _request) => {
+            sendVerificationEmail: async (data) => {
                 await resend.emails.send({
                     from: env.EMAIL_FROM,
                     to: data.user.email,
@@ -76,6 +90,26 @@ export const auth = betterAuth(
                     type: "boolean",
                     required: false,
                     default: false
+                },
+                bio: {
+                    type: "string",
+                    required: false
+                },
+                bannerImage: {
+                    type: "string",
+                    required: false
+                },
+                pronoun: {
+                    type: "string",
+                    required: false
+                },
+                location: {
+                    type: "string",
+                    required: false
+                },
+                website: {
+                    type: "string",
+                    required: false
                 }
             }
         },

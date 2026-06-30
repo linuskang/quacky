@@ -44,6 +44,26 @@ export const authClient = createAuthClient(
                     image: {
                         type: "string",
                         required: true,
+                    },
+                    bio: {
+                        type: "string",
+                        required: false,
+                    },
+                    bannerImage: {
+                        type: "string",
+                        required: false,
+                    },
+                    pronoun: {
+                        type: "string",
+                        required: false,
+                    },
+                    location: {
+                        type: "string",
+                        required: false,
+                    },
+                    website: {
+                        type: "string",
+                        required: false,
                     }
                 },
             }),

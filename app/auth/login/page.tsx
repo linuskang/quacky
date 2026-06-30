@@ -16,7 +16,6 @@ export default function Page() {
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [resending, setResending] = useState(false);
 
     const login = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -138,6 +137,11 @@ export default function Page() {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
+                        <div className="mt-1 text-right">
+                            <Link href="/auth/forgot-password" className="text-xs text-primary-2 hover:underline">
+                                Forgot password?
+                            </Link>
+                        </div>
                     </div>
 
                     {error === "EMAIL_NOT_VERIFIED" ? (
