@@ -11,15 +11,21 @@ import { CharCounter } from "./char-counter";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { MentionSuggestions, useMentionSuggestions } from "@/components/mention-suggestions";
+import { ImagePlus, Paperclip } from "lucide-react";
 
 export function Composer() {
     const [content, setContent] = useState("");
+    const [attachments, setAttachments] = useState<File[]>([]);
+    const [attachmentPreviews, setAttachmentPreviews] = useState<string[]>([]);
+    const [posting, setPosting] = useState(false);
     const [caret, setCaret] = useState(0);
     const [mode, setMode] = useState<"write" | "preview">("write");
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const previewUrlsRef = useRef<string[]>([]);
 
     const { data: session } = authClient.useSession();
-    const hasContent = content.trim().length > 0;
+    const hasContent = content.trim().length > 0 || attachments.length > 0;
     const mentions = useMentionSuggestions({
         value: content,
         caret,
@@ -33,22 +39,64 @@ export function Composer() {
         },
     });
 
+    function setSelectedAttachments(files: File[]) {
+        previewUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+
+        const previews = files.map((file) => URL.createObjectURL(file));
+        previewUrlsRef.current = previews;
+        setAttachments(files);
+        setAttachmentPreviews(previews);
+    }
+
     async function post() {
+        setPosting(true);
+
+        const uploadedAttachments = [];
+
+        for (const attachment of attachments) {
+            const formData = new FormData();
+            formData.append("file", attachment);
+
+            const uploadRes = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            const upload = await uploadRes.json();
+
+            uploadedAttachments.push(
+                {
+                    name: upload.name,
+                    url: upload.url,
+                    type: upload.type ?? null,
+                }
+            );
+        }
+
         const res = await fetch("/api/posts", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ content }),
+            body: JSON.stringify({
+                content,
+                attachments: uploadedAttachments,
+            }),
         });
 
         if (!res.ok) {
+            setPosting(false);
             toast.error(res.statusText);
             return;
         }
 
         setContent("");
+        setSelectedAttachments([]);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
         setMode("write");
+        setPosting(false);
         toast.success("Post created!");
     }
 
@@ -121,7 +169,52 @@ export function Composer() {
                 </div>
             </div>
 
+            {attachmentPreviews.length > 0 && (
+                <div className="ml-14 grid grid-cols-2 gap-2">
+                    {attachmentPreviews.map((preview) => (
+                        <Image
+                            key={preview}
+                            src={preview}
+                            alt="Attachment preview"
+                            width={240}
+                            height={160}
+                            unoptimized
+                            className="h-36 w-full rounded-md border-2 border-border object-cover"
+                        />
+                    ))}
+                </div>
+            )}
+
             <div className="flex items-center justify-end -mb-2 gap-1">
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={(event) => {
+                        const files = [
+                            ...attachments,
+                            ...Array.from(event.target.files ?? []),
+                        ].slice(0, 2);
+                        setSelectedAttachments(files);
+                        event.currentTarget.value = "";
+                    }}
+                />
+
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-primary"
+                    disabled={posting || attachments.length >= 2}
+                    aria-label="Upload images"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => fileInputRef.current?.click()}
+                >
+                    <Paperclip strokeWidth={3} />
+                </Button>
+
                 <Tabs
                     value={mode}
                     onValueChange={(value) =>
@@ -150,12 +243,13 @@ export function Composer() {
                 <Button
                     size="sm"
                     className="h-8 rounded-full bg-primary-2 px-4 text-sm font-semibold hover:bg-primary-2/80"
-                    disabled={!content.trim() || content.length > 400}
+                    disabled={!content.trim() || content.length > 400 || posting}
                     onClick={post}
                 >
-                    Post
+                    {posting ? "Posting..." : "Post"}
                 </Button>
             </div>
+
         </div>
     );
 }

@@ -16,6 +16,12 @@ export const env = createEnv(
             BETTER_AUTH_URL: z.string(),
             DESCRIPTION: z.string(),
             AI_URL: z.string(),
+            RUSTFS_ENDPOINT: z.url(),
+            RUSTFS_REGION: z.string().default("auto"),
+            RUSTFS_ACCESS_KEY_ID: z.string(),
+            RUSTFS_SECRET_ACCESS_KEY: z.string(),
+            RUSTFS_BUCKET: z.string().default("qky"),
+            RUSTFS_PUBLIC_BASE_URL: z.url().default("https://cdn.linus.my/qky"),
         },
 
         experimental__runtimeEnv: {},

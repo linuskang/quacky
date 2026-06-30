@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Settings, LogOut } from "lucide-react";
 import { authClient } from "@/client/auth";
 
-import { useState, useEffect } from "react"
+import { useRef, useState } from "react"
 import { useTheme } from "next-themes"
 import { toast } from "sonner"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -54,22 +54,27 @@ export function Profile() {
 
     const [name, setName] = useState("");
     const [image, setImage] = useState("");
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState("");
     const [username, setUsername] = useState("");
     const [streamerMode, setStreamerMode] = useState(false);
     const [privateAccount, setPrivateAccount] = useState(false);
     const [statsForNerds, setStatsForNerds] = useState(false);
     const [hideTips, setHideTips] = useState(false);
+    const imageInputRef = useRef<HTMLInputElement>(null);
 
     const handleOpenChange = (nextOpen: boolean) => {
         setOpen(nextOpen);
         if (nextOpen && session?.user) {
-            setName(session.user.name ?? "");
-            setUsername(session.user.username ?? "");
+            setName(session.user.name);
+            setUsername(session.user.username);
             setStreamerMode(session.user.streamerMode ?? false);
             setPrivateAccount(session.user.private ?? false);
             setStatsForNerds(session.user.statsForNerds ?? false);
             setHideTips(session.user.hideTips ?? false);
-            setImage(session.user.image || "");
+            setImage(session.user.image);
+            setImagePreview(session.user.image);
+            setImageFile(null);
         }
     };
 
@@ -92,9 +97,29 @@ export function Profile() {
     const user = session.user;
 
     const handleSave = async () => {
+        setSaving(true);
+
+        let nextImage = image;
+
+        if (imageFile) {
+            const formData = new FormData();
+            formData.append("file", imageFile);
+
+            const uploadRes = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            const upload = await uploadRes.json()
+
+            nextImage = upload.url;
+            setImage(nextImage);
+            setImagePreview(nextImage);
+        }
+
         const payload: Record<string, unknown> = {};
         if (name !== user.name) payload.name = name;
-        if (image !== user.image) payload.image = image;
+        if (nextImage !== user.image) payload.image = nextImage;
         if (username !== user.username) payload.username = username;
         if (streamerMode !== user.streamerMode) payload.streamerMode = streamerMode;
         if (privateAccount !== user.private) payload.private = privateAccount;
@@ -102,6 +127,7 @@ export function Profile() {
         if (hideTips !== user.hideTips) payload.hideTips = hideTips;
 
         if (Object.keys(payload).length === 0) {
+            setSaving(false);
             setOpen(false);
             return;
         }
@@ -109,7 +135,6 @@ export function Profile() {
         await authClient.updateUser(
             payload,
             {
-                onRequest: () => setSaving(true),
                 onSuccess: () => {
                     setSaving(false);
                     setOpen(false);
@@ -264,16 +289,48 @@ export function Profile() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="image" className="font-semibold text-primary">
+                                        <Label className="font-semibold text-primary">
                                             Profile Image
                                         </Label>
-                                        <Input
-                                            id="image"
-                                            value={image}
-                                            onChange={(e) => setImage(e.target.value)}
-                                            className="border-2 border-border h-10 !text-sm hover:border-primary focus:border-primary !ring-0"
-                                            placeholder="Profile Image URL"
-                                        />
+                                        <div className="flex items-center gap-3">
+                                            <Image
+                                                src={imagePreview}
+                                                alt={name || user.name}
+                                                width={56}
+                                                height={56}
+                                                unoptimized
+                                                className="h-14 w-14 rounded-full object-cover"
+                                            />
+                                            <div className="space-y-1">
+                                                <input
+                                                    ref={imageInputRef}
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files?.[0] ?? null;
+                                                        setImageFile(file);
+
+                                                        if (file) {
+                                                            setImagePreview(URL.createObjectURL(file));
+                                                        }
+                                                    }}
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="secondary"
+                                                    className="h-9 rounded-full border-2 border-border bg-card px-4 font-semibold hover:border-primary"
+                                                    onClick={() => imageInputRef.current?.click()}
+                                                >
+                                                    Upload Image
+                                                </Button>
+                                                {imageFile && (
+                                                    <p className="max-w-64 truncate text-xs text-muted-foreground">
+                                                        {imageFile.name}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div className="space-y-2">
