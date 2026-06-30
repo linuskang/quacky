@@ -14,6 +14,10 @@ function engagementContent(type: EngagementNotificationType, postId: string) {
     return `${engagementCopy[type]} [post](${env.BETTER_AUTH_URL}/post/${postId})`;
 }
 
+function followContent() {
+    return "started following you";
+}
+
 export class NotificationService {
     static async send(
         userId: string,
@@ -70,6 +74,32 @@ export class NotificationService {
                         engagementContent(type as EngagementNotificationType, postId)
                     ),
                 },
+            },
+        });
+    }
+
+    static async sendFollow(
+        userId: string,
+        actorId: string,
+    ) {
+        if (userId === actorId) return null;
+
+        return NotificationService.send(
+            userId,
+            actorId,
+            followContent(),
+        );
+    }
+
+    static async removeFollow(
+        userId: string,
+        actorId: string,
+    ) {
+        await prisma.notification.deleteMany({
+            where: {
+                userId,
+                actorId,
+                content: followContent(),
             },
         });
     }

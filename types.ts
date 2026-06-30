@@ -3,28 +3,24 @@ export type FullUser = {
     name: string;
     username: string;
     email: string;
-    emailVerified: boolean;
+    emailVerified?: boolean;
     image: string;
     verified: boolean;
-
     statsForNerds: boolean;
     private: boolean;
     streamerMode: boolean;
     hideTips: boolean;
-
-    bio: string | null;
-    bannerImage: string | null;
-    pronoun: string | null;
-    location: string | null;
-    website: string | null;
-
+    bio?: string | null;
+    bannerImage?: string | null;
+    pronoun?: string | null;
+    location?: string | null;
+    website?: string | null;
+    createdAt: string;
+    updatedAt?: string;
     role: string | null;
     banned: boolean | null;
-    banReason: string | null;
-    banExpires: string | null;
-
-    createdAt: string;
-    updatedAt: string;
+    banReason?: string | null;
+    banExpires?: string | null;
 };
 
 export type User = {

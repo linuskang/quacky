@@ -58,7 +58,6 @@ export async function GET(
     const followers = user.followers.map(({ user }) => user.username);
 
     if (user.banned) {
-
         return NextResponse.json(
             {
                 id: user.id,
@@ -78,13 +77,12 @@ export async function GET(
                 name: user.name,
                 username: user.username,
                 image: user.image,
+                bannerImage: user.bannerImage,
                 createdAt: user.createdAt,
                 verified: user.verified,
                 private: user.private,
                 role: user.role,
                 banned: user.banned,
-                following,
-                followers,
             },
             {
                 status: 200,

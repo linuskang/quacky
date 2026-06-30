@@ -66,14 +66,14 @@ export function Profile() {
     const handleOpenChange = (nextOpen: boolean) => {
         setOpen(nextOpen);
         if (nextOpen && session?.user) {
-            setName(session.user.name);
+            setName(session.user.name ?? "");
             setUsername(session.user.username);
             setStreamerMode(session.user.streamerMode ?? false);
             setPrivateAccount(session.user.private ?? false);
             setStatsForNerds(session.user.statsForNerds ?? false);
             setHideTips(session.user.hideTips ?? false);
-            setImage(session.user.image);
-            setImagePreview(session.user.image);
+            setImage(session.user.image ?? "");
+            setImagePreview(session.user.image ?? "");
             setImageFile(null);
         }
     };
@@ -154,7 +154,7 @@ export function Profile() {
                 <div className="flex min-w-0 items-center gap-3">
                     <Image
                         src={user.image || `https://api.dicebear.com/9.x/glass/svg?seed=${user.username}`}
-                        alt={user.name}
+                        alt={user.name ?? "User"}
                         width={36}
                         height={36}
                         unoptimized
@@ -295,7 +295,7 @@ export function Profile() {
                                         <div className="flex items-center gap-3">
                                             <Image
                                                 src={imagePreview}
-                                                alt={name || user.name}
+                                                alt={name || user.name || "User"}
                                                 width={56}
                                                 height={56}
                                                 unoptimized

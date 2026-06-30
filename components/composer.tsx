@@ -11,7 +11,7 @@ import { CharCounter } from "./char-counter";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { MentionSuggestions, useMentionSuggestions } from "@/components/mention-suggestions";
-import { ImagePlus, Paperclip } from "lucide-react";
+import { Paperclip } from "lucide-react";
 
 export function Composer() {
     const [content, setContent] = useState("");
@@ -104,7 +104,7 @@ export function Composer() {
         return null;
     }
 
-    const greeting = getGreeting(new Date(), session.user.name);
+    const greeting = getGreeting(new Date(), session.user.name ?? "there");
 
     return (
         <div
@@ -119,7 +119,7 @@ export function Composer() {
             <div className="flex items-start gap-4">
                 <Image
                     src={session.user.image ?? "/default-avatar.png"}
-                    alt={session.user.name}
+                    alt={session.user.name ?? "You"}
                     width={40}
                     height={40}
                     unoptimized

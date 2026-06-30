@@ -1,240 +1,224 @@
+"use client";
+
 import { notFound } from "next/navigation";
-import { headers } from "next/headers";
-import { auth } from "@/server/auth";
-import { prisma } from "@/server/prisma";
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
 import { SearchBar } from "@/components/search-bar";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import Image from "next/image";
+import { BadgeCheck, CalendarDays, ExternalLink, MapPin } from "lucide-react";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { authClient } from "@/client/auth";
 import { Button } from "@/components/ui/button";
-import { BadgeCheck } from "lucide-react";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import Link from "next/link";
+import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default async function Page({
-    params,
-}: {
-    params: Promise<{ handle: string }>;
-}) {
-    const { handle } = await params;
+type ProfileUser = {
+    id: string;
+    name?: string;
+    username: string;
+    image?: string | null;
+    bannerImage?: string | null;
+    createdAt: string;
+    verified?: boolean;
+    private?: boolean;
+    bio?: string | null;
+    website?: string | null;
+    location?: string | null;
+    pronoun?: string | null;
+    followers?: string[];
+};
 
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+export default function Page() {
+    const [user, setUser] = useState<ProfileUser | null>(null);
+    const [following, setFollowing] = useState(false);
+    const [followPending, setFollowPending] = useState(false);
+    const { handle } = useParams();
+    const { data: session, isPending } = authClient.useSession();
 
-    const user = await prisma.user.findUnique(
-        {
-            where: { username: handle },
-            include: {
-                following: {
-                    select: {
-                        follow: {
-                            select: {
-                                name: true,
-                                username: true,
-                                image: true,
-                            },
-                        },
-                    },
-                },
-                followers: {
-                    select: {
-                        user: {
-                            select: {
-                                name: true,
-                                username: true,
-                                image: true,
-                            },
-                        },
-                    },
-                },
-            },
+    useEffect(() => {
+        async function fetchUser() {
+            const res = await fetch(`/api/user/${handle}`);
+
+            if (!res.ok) {
+                notFound();
+            } else {
+                const data = await res.json() as ProfileUser;
+                if (!data.id) {
+                    notFound();
+                }
+                setUser(data);
+                setFollowing(data.followers?.includes(session?.user.username ?? "") ?? false);
+            }
         }
-    );
+        fetchUser();
+    }, [handle, session?.user.username]);
 
-    if (!user) {
-        notFound();
+    async function toggleFollow() {
+        if (!user || followPending) return;
+
+        setFollowPending(true);
+
+        const nextFollowing = !following;
+        const res = await fetch(`/api/user/${user.username}/follow`, {
+            method: nextFollowing ? "POST" : "DELETE",
+        });
+
+        if (!res.ok) {
+            const data = await res.json().catch(() => null) as { err?: string } | null;
+            toast.error(data?.err ?? "Failed to update follow");
+            setFollowPending(false);
+            return;
+        }
+
+        setFollowing(nextFollowing);
+        setFollowPending(false);
     }
 
-    const following = user.following.map(({ follow }) => follow);
-    const followers = user.followers.map(({ user }) => user);
+
+    if (isPending) {
+        return null;
+    }
+
+    if (!session) return null;
+
+    if (!user) {
+        return null;
+    }
 
     return (
         <PageLayout>
             <PageCenter>
-                <div>
-                    <Card className="!bg-profile-card">
-                        <CardHeader className="p-0 -mt-4">
-                            <Image
-                                src={`https://api.dicebear.com/10.x/disco/svg?seed=${user.username}`}
-                                alt={user.name ?? "User"}
-                                width={1200}
-                                height={320}
-                                unoptimized
-                                className="w-full h-40 object-cover rounded-t-lg"
-                            />
+                <Card className="overflow-hidden !bg-profile-card">
+                    <CardHeader className="p-0 -mt-4">
+                        <Image
+                            src={user.bannerImage || "https://avatars.linus.my/10.x/micah/svg?seed=sushi"}
+                            alt={user.name!}
+                            width={1200}
+                            height={320}
+                            unoptimized
+                            className="w-full h-40 object-cover rounded-t-lg"
+                        />
 
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex">
-                                <div className="flex items-start gap-4">
-                                    <Image
-                                        src={user.image || ""}
-                                        alt={user.name ?? "User"}
-                                        width={50}
-                                        height={50}
-                                        unoptimized
-                                        className="h-15 w-15 rounded-full object-cover"
-                                    />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex">
+                            <div className="flex items-start gap-4">
+                                <Image
+                                    src={user.image!}
+                                    alt={user.name!}
+                                    width={50}
+                                    height={50}
+                                    unoptimized
+                                    className="h-15 w-15 rounded-full object-cover"
+                                />
 
-                                    <div className="flex flex-col">
-                                        <h1 className="text-2xl font-bold flex items-center gap-1">
-                                            {user.name}
-                                            {user.verified && (
-                                                <BadgeCheck
-                                                    className="h-[20px] w-[20px] fill-primary text-profile-card"
-                                                />
-                                            )}
-                                            {user.pronoun && (
-                                                <span className="text-sm text-muted-foreground">
-                                                    ({user.pronoun})
-                                                </span>
-                                            )}
-                                        </h1>
-                                        <p className="text-base text-muted-foreground">
-                                            @{user.username}
-                                        </p>
-                                    </div>
+                                <div className="flex flex-col">
+                                    <h1 className="text-2xl font-bold flex items-center gap-1">
+                                        {user.name}
+                                        {user.verified && (
+                                            <BadgeCheck
+                                                className="h-[20px] w-[20px] fill-primary text-profile-card"
+                                            />
+                                        )}
+                                        {user.pronoun && (
+                                            <span className="text-sm text-muted-foreground">
+                                                ({user.pronoun})
+                                            </span>
+                                        )}
+                                    </h1>
+                                    <p className="text-base text-muted-foreground">
+                                        @{user.username}
+                                    </p>
                                 </div>
-
-                                {session?.user.username == user.username && (
-                                    <div className="ml-auto mb-auto">
-                                        <Button
-                                            variant="default"
-                                            className="h-10 px-3 font-semibold text-base rounded-full"
-                                        >
-                                            Edit Profile
-                                        </Button>
-                                    </div>
-                                )}
                             </div>
 
-                            {user.bio ? (
-                                <p className="mt-3 whitespace-pre-wrap text-base">
-                                    {user.bio}
-                                </p>
-                            ) : (
-                                <p className="mt-3 whitespace-pre-wrap text-muted-foreground italic text-base">
-                                    User has not added a bio yet.
-                                </p>
-                            )}
+                            <div className="ml-auto mb-auto">
+                                {user.id === session.user.id ? (
+                                    <Button
+                                        variant="secondary"
+                                        className="h-8 rounded-full bg-primary-2 px-4 text-sm font-semibold text-background hover:bg-primary-2/80"
+                                    >
+                                        Edit Profile
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        variant={following ? "secondary" : "default"}
+                                        disabled={followPending}
+                                        onClick={toggleFollow}
+                                        className="h-8 rounded-full bg-primary-2 px-4 text-sm font-semibold text-background hover:bg-primary-2/80"
+                                    >
+                                        {followPending ? "Saving..." : following ? "Unfollow" : "Follow"}
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
 
+                        {user.bio ? (
+                            <p className="mt-3 whitespace-pre-wrap text-base">
+                                {user.bio}
+                            </p>
+                        ) : (
+                            <p className="mt-3 whitespace-pre-wrap text-muted-foreground italic text-base">
+                                {user.private ? "This profile is private." : "No bio yet."}
+                            </p>
+                        )}
 
-                            <div className="mt-2 mb-2 text-muted-foreground font-semibold">
-                                Joined {user.createdAt.toLocaleDateString("en-US", {
-                                    day: "numeric",
+                        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                            <span className="flex items-center gap-1 font-semibold">
+                                <CalendarDays className="h-4 w-4" strokeWidth={3} />
+                                Joined {new Date(user.createdAt).toLocaleDateString("en-US", {
                                     year: "numeric",
                                     month: "long",
                                 })}
-                            </div>
+                            </span>
 
-                            <Dialog>
-                                <DialogTrigger asChild>
-                                    <a
-                                        className="hover:underline hover:cursor-pointer text-xs font-semibold mr-4"
-                                    >
-                                        {followers.length} <span className="font-normal">Followers</span>
-                                    </a>
-                                </DialogTrigger>
-                                <DialogContent className="!bg-card border-2 border-border">
-                                    <DialogHeader>
-                                        <DialogTitle className="text-lg font-bold">Followers</DialogTitle>
-                                    </DialogHeader>
+                            {user.location && (
+                                <span className="flex items-center font-semibold gap-1">
+                                    <MapPin className="h-4 w-4" strokeWidth={3} />
+                                    {user.location}
+                                </span>
+                            )}
 
-                                    <div className="flex flex-col gap-2">
-                                        {user.followers.length > 0 ? (
-                                            user.followers.map((followerUser) => (
-                                                <Link
-                                                    href={`/@${followerUser.user.username}`}
-                                                    key={followerUser.user.username}
-                                                    className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-border"
-                                                >
-                                                    <Image
-                                                        src={followerUser.user.image || `https://api.dicebear.com/9.x/glass/svg?seed=${user.username}`}
-                                                        alt={user.name}
-                                                        width={40}
-                                                        height={40}
-                                                        unoptimized
-                                                        className="h-10 w-10 rounded-full object-cover"
-                                                    />
-                                                    <div className="min-w-0">
-                                                        <p className="truncate font-semibold text-foreground">
-                                                            {followerUser.user.name}
-                                                        </p>
-                                                        <p className="truncate text-muted-foreground">
-                                                            @{followerUser.user.username}
-                                                        </p>
-                                                    </div>
-                                                </Link>
-                                            ))
-                                        ) : (
-                                            <p className="py-4 text-center text-muted-foreground">
-                                                No followers yet.
-                                            </p>
-                                        )}
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
-                            <Dialog>
-                                <DialogTrigger asChild>
-                                    <a
-                                        className="hover:underline hover:cursor-pointer text-xs font-semibold"
-                                    >
-                                        {following.length} <span className="font-normal">Following</span>
-                                    </a>
-                                </DialogTrigger>
-                                <DialogContent className="!bg-card border-2 border-border">
-                                    <DialogHeader>
-                                        <DialogTitle className="text-lg font-bold">Following</DialogTitle>
-                                    </DialogHeader>
+                            {user.website && (
+                                <a
+                                    href={user.website}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="flex items-center font-semibold gap-1 hover:underline"
+                                >
+                                    <ExternalLink className="h-4 w-4" strokeWidth={3} />
+                                    {user.website.replace(/^https?:\/\//, "")}
+                                </a>
+                            )}
+                        </div>
+                    </CardContent>
 
-                                    <div className="flex flex-col gap-2">
-                                        {user.following.length > 0 ? (
-                                            user.following.map((followingUser) => (
-                                                <Link
-                                                    href={`/@${followingUser.follow.username}`}
-                                                    key={followingUser.follow.username}
-                                                    className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-border"
-                                                >
-                                                    <Image
-                                                        src={followingUser.follow.image || `https://api.dicebear.com/9.x/glass/svg?seed=${user.username}`}
-                                                        alt={user.name}
-                                                        width={40}
-                                                        height={40}
-                                                        unoptimized
-                                                        className="h-10 w-10 rounded-full object-cover"
-                                                    />
-                                                    <div className="min-w-0">
-                                                        <p className="truncate font-semibold text-foreground">
-                                                            {followingUser.follow.name}
-                                                        </p>
-                                                        <p className="truncate text-muted-foreground">
-                                                            @{followingUser.follow.username}
-                                                        </p>
-                                                    </div>
-                                                </Link>
-                                            ))
-                                        ) : (
-                                            <p className="py-4 text-center text-muted-foreground">
-                                                No followers yet.
-                                            </p>
-                                        )}
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
-                        </CardContent>
-                    </Card>
-                </div>
+                    <Tabs defaultValue="posts" className="w-full gap-0 border-t-2 -mt-2 border-border">
+                        <TabsList variant="line" className="h-11 w-full justify-start rounded-none bg-profile-card px-4">
+                            <TabsTrigger value="posts" className="px-3 text-sm font-bold">
+                                Posts
+                            </TabsTrigger>
+                            <TabsTrigger value="replies" className="px-3 text-sm font-bold">
+                                Replies
+                            </TabsTrigger>
+                            <TabsTrigger value="badges" className="px-3 text-sm font-bold">
+                                Badges
+                            </TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="posts" className="border-t-2 border-border p-4 text-sm text-muted-foreground">
+                            Posts will show here soon.
+                        </TabsContent>
+                        <TabsContent value="replies" className="border-t-2 border-border p-4 text-sm text-muted-foreground">
+                            Replies will show here soon.
+                        </TabsContent>
+                        <TabsContent value="badges" className="border-t-2 border-border p-4 text-sm text-muted-foreground">
+                            Badges will show here soon.
+                        </TabsContent>
+                    </Tabs>
+                </Card>
+
             </PageCenter>
             <PageRight>
                 <SearchBar />
