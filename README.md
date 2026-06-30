@@ -24,3 +24,5 @@ weirdo... but ok. you'll need to figure out how to get postgres and rustfs runni
 3. grab a fire extinguisher and prepare for meltdown
 
 good luck 🥀
+
+- linus
