@@ -1,6 +1,7 @@
 import { prisma } from "@/server/prisma";
 import { auth } from '@/server/auth';
 import { NextRequest, NextResponse } from "next/server";
+import { NotificationService } from "@/server/helpers";
 
 export async function POST(req: NextRequest) {
     const session = await auth.api.getSession({
@@ -69,6 +70,13 @@ export async function POST(req: NextRequest) {
             },
         }
     )
+
+    await NotificationService.sendEngagement(
+        "repost",
+        res.authorId,
+        session.user.id,
+        res.id,
+    );
 
     return NextResponse.json(
         {

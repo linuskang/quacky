@@ -26,12 +26,8 @@ export default function Page() {
 
     useEffect(() => {
         const recentPosts = async () => {
-            try {
-                const posts = await fetchRecentPosts();
-                setPosts(posts);
-            } catch (error: any) {
-                toast.error(error.message);
-            }
+            const posts = await fetchRecentPosts();
+            setPosts(posts);
         }
         recentPosts();
     }, []);

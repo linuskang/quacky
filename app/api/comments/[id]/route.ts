@@ -2,6 +2,7 @@ import { prisma } from "@/server/prisma";
 import { auth } from '@/server/auth';
 import { NextRequest, NextResponse } from "next/server";
 import type { Comment, Post, User } from "@/types";
+import { NotificationService } from "@/server/helpers";
 
 type PrismaUser = Omit<User, "role"> & {
     role: string | null;
@@ -355,6 +356,11 @@ export async function DELETE(
             id: true,
             authorId: true,
             postId: true,
+            post: {
+                select: {
+                    authorId: true,
+                },
+            },
         },
     });
 
@@ -385,6 +391,13 @@ export async function DELETE(
             id,
         },
     });
+
+    await NotificationService.removeEngagement(
+        "comment",
+        comment.post.authorId,
+        comment.authorId,
+        comment.postId,
+    );
 
     return NextResponse.json(
         {

@@ -3,6 +3,7 @@ import { auth } from '@/server/auth';
 import { NextRequest, NextResponse } from "next/server";
 import { sendMentionNotifications } from "@/server/mentions";
 import { env } from "@/env";
+import { NotificationService } from "@/server/helpers";
 
 export interface CommentBody {
     content: string;
@@ -80,6 +81,13 @@ export async function POST(
                 content,
             }
         }
+    );
+
+    await NotificationService.sendEngagement(
+        "comment",
+        post.authorId,
+        session.user.id,
+        post.id,
     );
 
     await sendMentionNotifications({

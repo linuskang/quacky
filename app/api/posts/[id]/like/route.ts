@@ -1,6 +1,7 @@
 import { prisma } from "@/server/prisma";
 import { auth } from '@/server/auth';
 import { NextRequest, NextResponse } from "next/server";
+import { NotificationService } from "@/server/helpers";
 
 export async function POST(
     req: NextRequest,
@@ -23,19 +24,14 @@ export async function POST(
 
     const { id } = await params;
 
-    const post = await prisma.post.findUnique({
+    const post = await prisma.post.findFirst({
         where: {
             id,
+            flagged: false,
+            author: {
+                banned: false,
+            },
         },
-    });
-
-    const like = await prisma.like.findUnique({
-        where: {
-            userId_postId: {
-                userId: session.user.id,
-                postId: id,
-            }
-        }
     });
 
     if (!post) {
@@ -49,34 +45,35 @@ export async function POST(
         )
     }
 
-    if (like) {
-        return NextResponse.json(
-            {
-                success: false,
-                err: "You have already liked this post",
-            },
-            {
-                status: 400,
-            }
-        )
-    }
-
-    const res = await prisma.like.create(
+    const res = await prisma.like.createMany(
         {
-            data: {
-                userId: session.user.id,
-                postId: id,
-            },
+            data: [
+                {
+                    userId: session.user.id,
+                    postId: id,
+                },
+            ],
+            skipDuplicates: true,
         }
     );
+
+    if (res.count === 1) {
+        await NotificationService.sendEngagement(
+            "like",
+            post.authorId,
+            session.user.id,
+            post.id,
+        );
+    }
 
     return NextResponse.json(
         {
             success: true,
+            liked: true,
             res,
         },
         {
-            status: 201,
+            status: res.count === 1 ? 201 : 200,
         }
     )
 }
@@ -102,9 +99,13 @@ export async function DELETE(
 
     const { id } = await params;
 
-    const post = await prisma.post.findUnique({
+    const post = await prisma.post.findFirst({
         where: {
             id,
+            flagged: false,
+            author: {
+                banned: false,
+            },
         },
     });
 
@@ -119,47 +120,32 @@ export async function DELETE(
         )
     }
 
-    const like = await prisma.like.findUnique(
+    const res = await prisma.like.deleteMany(
         {
             where: {
-                userId_postId: {
-                    userId: session.user.id,
-                    postId: id,
-                }
+                userId: session.user.id,
+                postId: id,
             }
         }
     );
 
-    if (!like) {
-        return NextResponse.json(
-            {
-                success: false,
-                err: "You have not liked this post",
-            },
-            {
-                status: 404,
-            }
-        )
+    if (res.count === 1) {
+        await NotificationService.removeEngagement(
+            "like",
+            post.authorId,
+            session.user.id,
+            post.id,
+        );
     }
-
-    const res = await prisma.like.delete(
-        {
-            where: {
-                userId_postId: {
-                    userId: session.user.id,
-                    postId: id,
-                }
-            }
-        }
-    );
 
     return NextResponse.json(
         {
             success: true,
+            liked: false,
             res,
         },
         {
-            status: 201,
+            status: 200,
         }
     )
 }

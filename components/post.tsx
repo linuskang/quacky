@@ -1,7 +1,7 @@
 "use client";
 
 // Libraries
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { authClient } from "@/client/auth";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -92,6 +92,7 @@ export function PostCard({
 
     // Pending States
     const [likePending, setLikePending] = useState(false);
+    const likePendingRef = useRef(false);
     const [bookmarkPending, setBookmarkPending] = useState(false);
 
     // Quote
@@ -103,25 +104,33 @@ export function PostCard({
     const { data: session } = authClient.useSession();
 
     const like = async () => {
-        if (likePending) return;
+        if (likePendingRef.current) return;
 
         const nextLiked = !liked;
+        likePendingRef.current = true;
         setLikePending(true);
         setLiked(nextLiked);
         setLikes((current) => current + (nextLiked ? 1 : -1));
 
-        const res = await fetch(`/api/posts/${post.id}/like`, {
-            method: nextLiked ? "POST" : "DELETE",
-        });
+        try {
+            const res = await fetch(`/api/posts/${post.id}/like`, {
+                method: nextLiked ? "POST" : "DELETE",
+            });
 
-        if (!res.ok) {
-            const data = await res.json().catch(() => null) as { err?: string } | null;
+            if (!res.ok) {
+                const data = await res.json().catch(() => null) as { err?: string } | null;
+                setLiked(liked);
+                setLikes(likes);
+                toast.error(data?.err ?? "Failed to update like");
+            }
+        } catch {
             setLiked(liked);
             setLikes(likes);
-            toast.error(data?.err ?? "Failed to update like");
+            toast.error("Failed to update like");
+        } finally {
+            likePendingRef.current = false;
+            setLikePending(false);
         }
-
-        setLikePending(false);
     };
 
     const repost = async () => {

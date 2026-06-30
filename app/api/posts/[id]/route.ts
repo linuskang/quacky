@@ -2,6 +2,7 @@ import { prisma } from "@/server/prisma";
 import { auth } from '@/server/auth';
 import { NextRequest, NextResponse } from "next/server";
 import type { Post } from "@/types";
+import { NotificationService } from "@/server/helpers";
 
 export async function GET(
     req: NextRequest,
@@ -300,6 +301,14 @@ export async function DELETE(
         where: {
             id,
         },
+        include: {
+            repostOf: {
+                select: {
+                    id: true,
+                    authorId: true,
+                },
+            },
+        },
     });
 
     if (!post) {
@@ -331,6 +340,17 @@ export async function DELETE(
             },
         }
     );
+
+    if (post.repostOf) {
+        await NotificationService.removeEngagement(
+            post.content ? "quote" : "repost",
+            post.repostOf.authorId,
+            post.authorId,
+            post.repostOf.id,
+        );
+    }
+
+    await NotificationService.removeEngagementsForPost(post.id);
 
     return NextResponse.json(
         {
