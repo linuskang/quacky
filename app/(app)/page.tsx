@@ -2,8 +2,6 @@
 
 // Libraries
 import { useState, useEffect } from "react";
-import { toast } from "sonner";
-
 import { fetchRecentPosts } from "./helpers";
 
 // Components
@@ -17,17 +15,21 @@ import { RngWidget } from "@/components/rng";
 import { TrendingWidget } from "@/components/trending";
 import { Feedback } from "@/components/bin";
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
+import Loading from "@/components/loading";
 
 // Types
 import { Post } from "@/types";
 
 export default function Page() {
     const [posts, setPosts] = useState<Post[]>([]);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const recentPosts = async () => {
+            setLoading(true);
             const posts = await fetchRecentPosts();
             setPosts(posts);
+            setLoading(false);
         }
         recentPosts();
     }, []);
@@ -44,6 +46,7 @@ export default function Page() {
                         { name: "Popular", href: "#", current: false },
                     ]}
                 />
+                {loading && <Loading />}
                 <PostList
                     posts={posts}
                 />
