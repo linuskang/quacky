@@ -23,9 +23,9 @@ export default async function Page() {
                 <Tabs
                     tabs={[
                         { name: "Recent", href: "#", current: true },
-                        { name: "For you", href: "#", current: false },
-                        { name: "Following", href: "#", current: false },
-                        { name: "Popular", href: "#", current: false },
+                        { name: "For you", href: "#foryou", current: false },
+                        { name: "Following", href: "#following", current: false },
+                        { name: "Popular", href: "#popular", current: false },
                     ]}
                 />
                 <PostList posts={posts} />

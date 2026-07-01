@@ -1,11 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/server/auth";
-import { prisma } from "@/server/prisma";
+import { NextResponse } from "next/server";
+import { getSession } from "@/server/auth";
+import { fetchNotifications } from "@/server/notifications";
 
-export async function GET(req: NextRequest) {
-    const session = await auth.api.getSession({
-        headers: req.headers,
-    });
+export async function GET() {
+    const session = await getSession()
 
     if (!session) {
         return NextResponse.json(
@@ -18,38 +16,9 @@ export async function GET(req: NextRequest) {
         );
     }
 
-    const notifications = await prisma.notification.findMany(
-        {
-            where: {
-                userId: session.user.id,
-            },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        name: true,
-                        username: true,
-                        image: true,
-                        verified: true,
-                        role: true,
-                    }
-                },
-                actor: {
-                    select: {
-                        id: true,
-                        name: true,
-                        username: true,
-                        image: true,
-                        verified: true,
-                        role: true,
-                    }
-                }
-            },
-            orderBy: {
-                createdAt: "desc",
-            },
-        }
-    )
+    const notifications = await fetchNotifications({
+        userId: session.user.id
+    });
 
     return NextResponse.json(
         {

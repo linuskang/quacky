@@ -28,7 +28,7 @@ export type User = {
     username: string;
     image: string;
     verified: boolean;
-    role?: string;
+    role?: string | null;
 };
 
 export type Attachment = {
@@ -79,7 +79,7 @@ export type Post = {
 export type Notification = {
     id: string;
     user: User;
-    actor: User;
+    actor: User | null;
     content: string;
     read: boolean;
     createdAt: string;

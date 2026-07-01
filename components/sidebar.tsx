@@ -42,13 +42,13 @@ export function Sidebar({ session }: Props) {
     const items = [
         { href: "/", label: "home", icon: Home },
         { href: "/search", label: "search", icon: Search },
-        { href: "/my/dms", label: "dms", icon: MessagesSquare },
+        { href: "/dms", label: "dms", icon: MessagesSquare },
         { href: "/fuzzies", label: "warm fuzzies", icon: Briefcase },
         { href: "/trending", label: "trending", icon: TrendingUp },
         { href: "/check-in", label: "daily check in", icon: MessageCircleCheck },
         { href: "/emotion-wheel", label: "emotion wheel", icon: FerrisWheel },
-        { href: "/my/bookmarks", label: "bookmarks", icon: Bookmark },
-        { href: "/my/notifications", label: "notifications", icon: Bell },
+        { href: "/bookmarks", label: "bookmarks", icon: Bookmark },
+        { href: "/notifications", label: "notifications", icon: Bell },
         { href: `/@${session.user.handle}`, label: "profile", icon: User },
     ];
 
@@ -62,20 +62,6 @@ export function Sidebar({ session }: Props) {
                     height={200}
                 />
             </Link>
-
-            {/* <CurvedLine
-                from={{ x: 160, y: 100 }}
-                to={{ x: 220, y: 150 }}
-                stroke="currentColor"
-                strokeWidth={3}
-                wobble={-100}
-            />
-
-            <span
-                className={`${patrickHand.className} absolute left-60 top-35 text-xl w-full font-bold`}
-            >
-                logo drawn by my sis {":)"}
-            </span> */}
 
             <nav className="flex flex-col gap-1 px-2 flex-1 justify-center">
                 {items.map(({ href, label, icon: Icon }) => {

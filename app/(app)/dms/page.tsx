@@ -1,90 +1,13 @@
-"use client";
+// wip
 
-import { useEffect, useRef } from "react";
 import { ArrowUp, MoreHorizontal } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import { Button } from "@/components/ui/button";
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupTextarea } from "@/components/ui/input-group";
-import { Message, MessageContent, MessageFooter } from "@/components/ui/message";
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group";
+import { Message, MessageContent } from "@/components/ui/message";
 import { PageCenter, PageLayout } from "@/components/page-layout";
 import { Card, CardTitle, CardContent, CardHeader, CardDescription } from "@/components/ui/card";
-
-const messages = [
-
-    {
-        day: "tuesday",
-        from: "them",
-        text: "it should feel like it belongs next to posts and notifications.",
-        time: "14:06",
-    },
-    {
-        day: "yesterday",
-        from: "me",
-        text: "the current DMs page feels too clean-room, like it escaped from a component demo.",
-        time: "10:24",
-    },
-    {
-        day: "yesterday",
-        from: "me",
-        text: "the current DMs page feels too clean-room, like it escaped from a component demo.",
-        time: "10:24",
-    },
-    {
-        day: "yesterday",
-        from: "me",
-        text: "the current DMs page feels too clean-room, like it escaped from a component demo.",
-        time: "10:24",
-    },
-    {
-        day: "yesterday",
-        from: "them",
-        text: "quacky needs the same chunky little card energy as the feed.",
-        time: "10:25",
-    },
-    {
-        day: "yesterday",
-        from: "me",
-        text: "yeah, less messenger clone. more tiny inbox bolted onto the app.",
-        time: "10:28",
-    },
-    {
-        day: "today",
-        from: "them",
-        text: "exactly. keep it drafty, but make it feel intentional.",
-        time: "10:31",
-    },
-    {
-        day: "today",
-        from: "me",
-        text: "i'm thinking left rail on desktop, stacked cards on mobile, and a composer that feels like posting but smaller.",
-        time: "10:33",
-    },
-    {
-        day: "today",
-        from: "them",
-        text: "that works. just keep the message box pinned near the bottom so it feels like an actual thread.",
-        time: "10:36",
-    },
-    {
-        day: "today",
-        from: "them",
-        text: "that works. just keep the message box pinned near the bottom so it feels like an actual thread.",
-        time: "10:36",
-    },
-    {
-        day: "today",
-        from: "them",
-        text: "that works. just keep the message box pinned near the bottom so it feels like an actual thread.",
-        time: "10:36",
-    },
-    {
-        day: "today",
-        from: "them",
-        text: "that works. just keep the message box pinned near the bottom so it feels like an actual thread.",
-        time: "10:36",
-    },
-];
 
 export default function MessagesPage() {
     return (
