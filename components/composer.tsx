@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Markdown } from "@/components/md";
@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { MentionSuggestions, useMentionSuggestions } from "@/components/mention-suggestions";
 import { Paperclip } from "lucide-react";
 
+const subscribe = () => () => {};
+
 export function Composer() {
     const [content, setContent] = useState("");
     const [attachments, setAttachments] = useState<File[]>([]);
@@ -24,6 +26,7 @@ export function Composer() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const previewUrlsRef = useRef<string[]>([]);
 
+    const hydrated = useSyncExternalStore(subscribe, () => true, () => false);
     const { data: session } = authClient.useSession();
     const hasContent = content.trim().length > 0 || attachments.length > 0;
     const mentions = useMentionSuggestions({
@@ -100,7 +103,7 @@ export function Composer() {
         toast.success("Post created!");
     }
 
-    if (!session) {
+    if (!hydrated || !session) {
         return null;
     }
 

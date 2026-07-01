@@ -188,3 +188,31 @@ export async function fetchPosts({
         attachments: post.attachments,
     })) as Post[];
 }
+
+export async function fetchTrending() {
+    const hashtags = await prisma.postHashtag.groupBy({
+        by: ["tag"],
+        where: {
+            post: {
+                flagged: false,
+                author: {
+                    banned: false,
+                },
+            },
+        },
+        _count: {
+            tag: true,
+        },
+        orderBy: {
+            _count: {
+                tag: "desc",
+            },
+        },
+        take: 3,
+    });
+
+    return hashtags.map((hashtag) => ({
+        tag: hashtag.tag,
+        count: hashtag._count.tag,
+    }));
+}

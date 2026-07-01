@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,6 +12,8 @@ import { Post } from "@/types";
 import { CharCounter } from "@/components/char-counter";
 import { useRouter } from "next/navigation";
 
+const subscribe = () => () => {};
+
 export function MoreActions({ post }: { post: Post }) {
 
     const [reportOpen, setReportOpen] = useState(false);
@@ -21,10 +23,11 @@ export function MoreActions({ post }: { post: Post }) {
     const [editContent, setEditContent] = useState(post.content);
     const [editPending, setEditPending] = useState(false);
     const [deletePending, setDeletePending] = useState(false);
+    const hydrated = useSyncExternalStore(subscribe, () => true, () => false);
     const { data: session } = authClient.useSession();
     const router = useRouter();
 
-    if (!session) return null;
+    if (!hydrated || !session) return null;
 
     const isOwner = session.user.username === post.author.username;
     const canDelete = isOwner || session.user.role === "admin";

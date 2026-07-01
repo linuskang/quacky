@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Settings, LogOut } from "lucide-react";
 import { authClient } from "@/client/auth";
 
-import { useRef, useState } from "react"
+import { useRef, useState, useSyncExternalStore } from "react"
 import { useTheme } from "next-themes"
 import { toast } from "sonner"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -26,6 +26,8 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+
+const subscribe = () => () => {};
 
 function ThemeToggle() {
     const { theme, setTheme } = useTheme()
@@ -49,6 +51,7 @@ function ThemeToggle() {
 
 export function Profile() {
     const { data: session, isPending } = authClient.useSession();
+    const hydrated = useSyncExternalStore(subscribe, () => true, () => false);
     const [open, setOpen] = useState(false);
     const [saving, setSaving] = useState(false);
 
@@ -78,7 +81,7 @@ export function Profile() {
         }
     };
 
-    if (isPending || !session) {
+    if (!hydrated || isPending || !session) {
         return (
             <Card className="w-full h-15 border-2 border-border">
                 <div className="flex h-full items-center justify-between px-3">

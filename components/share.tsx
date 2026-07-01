@@ -1,12 +1,19 @@
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Share2 } from "lucide-react";
 import { toast } from "sonner";
 
+const subscribe = () => () => {};
+
 export function SharePost({ shareUrl }: { shareUrl: string }) {
     const [shareOpen, setShareOpen] = useState(false);
+    const hydrated = useSyncExternalStore(subscribe, () => true, () => false);
+    const fullShareUrl = !hydrated
+        ? shareUrl
+        : new URL(shareUrl, window.location.origin).toString();
+
     return (
         <Dialog open={shareOpen} onOpenChange={setShareOpen}>
             <DialogTrigger asChild>
@@ -27,7 +34,7 @@ export function SharePost({ shareUrl }: { shareUrl: string }) {
                 </DialogHeader>
                 <div className="flex flex-col gap-3 sm:flex-row">
                     <Input
-                        value={shareUrl}
+                        value={fullShareUrl}
                         readOnly
                         onFocus={(e) => e.target.select()}
                         className="w-full h-10 !ring-0 border-2 border-border rounded-full"
@@ -35,7 +42,7 @@ export function SharePost({ shareUrl }: { shareUrl: string }) {
                     <Button
                         type="button"
                         onClick={async () => {
-                            await navigator.clipboard.writeText(shareUrl);
+                            await navigator.clipboard.writeText(fullShareUrl);
                             toast.success("Copied link");
                         }}
                         className="h-10 rounded-full bg-primary-2 px-4 text-sm font-semibold hover:bg-primary-2/80"

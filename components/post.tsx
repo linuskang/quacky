@@ -100,7 +100,7 @@ export function PostCard({
     const [quoteContent, setQuoteContent] = useState("");
     const [quotePending, setQuotePending] = useState(false);
 
-    const shareUrl = `${window.location.origin}/post/${post.id}`;
+    const shareUrl = `/post/${post.id}`;
     const { data: session } = authClient.useSession();
 
     const like = async () => {
