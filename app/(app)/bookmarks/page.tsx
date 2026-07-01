@@ -6,6 +6,7 @@ import { requireSession } from "@/server/auth";
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
 import { PostList } from "@/components/post";
 import { SearchBar } from "@/components/search-bar";
+import { Title } from "@/components/text";
 
 export default async function Page() {
     const session = await requireSession();
@@ -16,7 +17,7 @@ export default async function Page() {
     return (
         <PageLayout>
             <PageCenter>
-                <h1 className="text-2xl font-semibold">Your Bookmarks</h1>
+                <Title>Your Bookmarks</Title>
                 <PostList
                     posts={bookmarks}
                 />

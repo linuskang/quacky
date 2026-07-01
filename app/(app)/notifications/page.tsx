@@ -7,6 +7,7 @@ import { fetchNotifications } from "@/server/notifications";
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
 import { SearchBar } from "@/components/search-bar";
 import { Notifications } from "@/components/notification";
+import { Title } from "@/components/text";
 
 export default async function Page() {
     const session = await requireSession();
@@ -17,7 +18,7 @@ export default async function Page() {
     return (
         <PageLayout>
             <PageCenter>
-                <h1 className="text-2xl font-semibold">Your Notifications</h1>
+                <Title>Your Notifications</Title>
                 <Notifications notifications={notifications} />
             </PageCenter>
             <PageRight>

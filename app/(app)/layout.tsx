@@ -4,7 +4,7 @@ import { requireSession } from "@/server/auth";
 // Components
 import { Sidebar } from "@/components/sidebar";
 import { Profile } from "@/components/profile";
-import { PageLayout, PageLeft, PageCenter, PageRight } from "@/components/page-layout";
+import { PageLayout, PageLeft, PageCenter } from "@/components/page-layout";
 import { Feedback } from "@/components/feedback";
 
 export const metadata = {
@@ -39,9 +39,7 @@ export default async function QuackyLayout({
                 {children}
             </PageCenter>
 
-            <PageRight>
-                <Feedback />
-            </PageRight>
+            <Feedback />
         </PageLayout>
     );
 }
