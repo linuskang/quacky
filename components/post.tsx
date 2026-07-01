@@ -48,6 +48,7 @@ import {
     EmbeddedPost,
     Post
 } from "@/types";
+import { Card } from "./ui/card";
 
 
 export function PostList({
@@ -204,15 +205,12 @@ export function PostCard({
     const postedAt = useFormattedDate(post.createdAt);
 
     return (
-        <div
+        <Card
             onClick={(event) => {
-                if (!showActions) {
-                    event.stopPropagation();
-                }
-
+                event.stopPropagation();
                 router.push(`/post/${post.id}`);
             }}
-            className="rounded-md border-2 border-border max-w-lg w-full min-w-0 overflow-hidden !bg-card-primary p-3 flex flex-col gap-2 hover:border-primary/80 transition cursor-pointer"
+            className="!bg-card-primary p-3 flex flex-col gap-2 hover:border-primary/80 transition cursor-pointer"
         >
             {repostOf && !post.content && (
                 <div className="flex items-center gap-1 mb-2 text-sm">
@@ -238,7 +236,7 @@ export function PostCard({
                             <Link
                                 href={`/@${post.author.username}`}
                                 onClick={(event) => event.stopPropagation()}
-                                className="text-primary font-semibold hover:underline"
+                                className="text-primary text-sm font-semibold hover:underline"
                             >
                                 {post.author.name}
                             </Link>
@@ -274,31 +272,13 @@ export function PostCard({
                         )}
                     </div>
 
-                    {post.flagged && (
-                        <PurpleEyeWarning
-                            text="This post has been unlisted by a moderator due to a violation of our community guidelines."
-                        />
-                    )}
-
-                    <Markdown>
-                        {post.content}
-                    </Markdown>
-
-                    {repostOf && (
-                        <div className="min-w-0 max-w-full">
-                            <PostCard
-                                showActions={false}
-                                post={repostOf}
-                            />
-                        </div>
-                    )}
+                    {post.flagged && <PurpleEyeWarning text="This post has been unlisted by a moderator due to a violation of our community guidelines." />}
+                    <Markdown>{post.content}</Markdown>
+                    {repostOf && <PostCard showActions={false} post={repostOf} />}
 
                     {post.attachments?.length ? (
                         <div
-                            className={`grid gap-2 ${post.attachments.length === 1
-                                ? "grid-cols-1"
-                                : "grid-cols-2"
-                                }`}
+                            className="grid gap-2 grid-cols-2"
                         >
                             {post.attachments.map((attachment, index) => (
                                 <Image
@@ -330,7 +310,7 @@ export function PostCard({
                                     variant="default"
                                     size="sm"
                                     className={cn(
-                                        "h-8 px-2.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
+                                        "h-8 px-2.5 py-1 text-sm font-semibold !bg-card-primary border-2 hover:bg-background",
                                         fullPost.commented
                                             ? "!bg-primary !bg-clip-border border-primary text-background"
                                             : "border-border text-primary/80 hover:border-primary hover:text-primary"
@@ -350,7 +330,7 @@ export function PostCard({
                                                 variant="default"
                                                 size="sm"
                                                 className={cn(
-                                                    "h-8 px-2.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
+                                                    "h-8 px-2.5 py-1 text-sm font-semibold !bg-card-primary border-2 hover:bg-background",
                                                     fullPost.reposted
                                                         ? "!bg-primary !bg-clip-border border-primary text-background"
                                                         : "bg-card-primary border-border text-primary/80 hover:border-primary hover:text-primary"
@@ -428,7 +408,7 @@ export function PostCard({
                                     variant="default"
                                     size="sm"
                                     className={cn(
-                                        "h-8 px-2.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
+                                        "h-8 px-2.5 py-1 text-sm font-semibold !bg-card-primary border-2 hover:bg-background",
                                         liked
                                             ? "!bg-primary !bg-clip-border border-primary text-background"
                                             : "border-border text-primary/80 hover:border-primary hover:text-primary"
@@ -447,7 +427,7 @@ export function PostCard({
                                 <Button
                                     variant="default"
                                     size="sm"
-                                    className="h-8 py-1 px-2.5 text-md font-semibold text-primary/80 hover:text-primary !bg-card-primary border-2 border-border hover:bg-background hover:border-primary"
+                                    className="h-8 py-1 px-2.5 text-sm font-semibold text-primary/80 hover:text-primary !bg-card-primary border-2 border-border hover:bg-background hover:border-primary"
                                 >
                                     <BarChart2
                                         strokeWidth={3}
@@ -462,7 +442,7 @@ export function PostCard({
                                     variant="default"
                                     size="sm"
                                     className={cn(
-                                        "h-8 px-1.5 py-1 text-md font-semibold !bg-card-primary border-2 hover:bg-background",
+                                        "h-8 px-1.5 py-1 text-sm font-semibold !bg-card-primary border-2 hover:bg-background",
                                         bookmarked
                                             ? "!bg-primary !bg-clip-border border-primary text-background"
                                             : "border-border text-primary/80 hover:border-primary hover:text-primary"
@@ -482,6 +462,6 @@ export function PostCard({
                 </div>
             </div>
 
-        </div>
+        </Card>
     )
 }
