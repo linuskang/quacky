@@ -191,6 +191,23 @@ model Notification {
   createdAt DateTime @default(now())
 }
 
+model Dm {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  message    String
+
+  createdAt  DateTime @default(now())
+  read       Boolean  @default(false)
+
+  sender   User @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId, receiverId])
+  @@index([receiverId, senderId])
+  @@index([createdAt])
+}
+
 model Session {
   id        String   @id
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)

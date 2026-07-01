@@ -1,33 +1,58 @@
-"use client";
+import { cn } from "@/lib/utils";
 
-export function PageLayout({ children }: { children: React.ReactNode }) {
+type Props = {
+    children: React.ReactNode;
+    className?: string;
+};
+
+export function PageLayout({ children, className }: Props) {
     return (
-        <main className="relative min-h-screen w-full bg-background">
+        <main
+            className={cn(
+                "relative min-h-dvh w-full bg-background",
+                className
+            )}
+        >
             {children}
         </main>
-    )
+    );
 }
 
-export function PageCenter({ children }: { children: React.ReactNode }) {
+export function PageCenter({ children, className }: Props) {
     return (
-        <div className="flex flex-col gap-3 mx-auto w-full max-w-xl px-4 py-4">
+        <div
+            className={cn(
+                "mx-auto flex w-full max-w-xl flex-col gap-3 px-4 py-4",
+                className
+            )}
+        >
             {children}
         </div>
-    )
+    );
 }
 
-export function PageLeft({ children }: { children: React.ReactNode }) {
+export function PageLeft({ children, className }: Props) {
     return (
-        <aside className="fixed left-0 top-0 h-screen w-64 hidden lg:flex flex-col py-4 px-4">
+        <aside
+            className={cn(
+                "fixed left-0 top-0 hidden h-screen w-64 flex-col px-4 py-4 lg:flex",
+                className
+            )}
+        >
             {children}
         </aside>
-    )
+    );
 }
 
-export function PageRight({ children }: { children: React.ReactNode }) {
+export function PageRight({ children, className }: Props) {
     return (
-        <aside className="fixed right-0 top-0 h-screen w-80 hidden xl:flex flex-col py-8 gap-4 px-4 overflow-y-auto">
+        <aside
+            className={cn(
+                "fixed right-0 top-0 hidden h-screen w-80 flex-col gap-4 overflow-y-auto px-4 py-8 xl:flex",
+                className
+            )}
+        >
             {children}
         </aside>
-    )
+    );
 }

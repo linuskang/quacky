@@ -42,7 +42,7 @@ export function Sidebar({ session }: Props) {
     const items = [
         { href: "/", label: "home", icon: Home },
         { href: "/search", label: "search", icon: Search },
-        { href: "/my/messages", label: "messages", icon: MessagesSquare },
+        { href: "/my/dms", label: "dms", icon: MessagesSquare },
         { href: "/fuzzies", label: "warm fuzzies", icon: Briefcase },
         { href: "/trending", label: "trending", icon: TrendingUp },
         { href: "/check-in", label: "daily check in", icon: MessageCircleCheck },
