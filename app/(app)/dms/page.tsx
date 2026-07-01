@@ -86,7 +86,7 @@ export default function MessagesPage() {
                                         <BubbleContent
                                             className="!rounded-2xl !rounded-bl-md !bg-card !px-3 !py-2 text-sm leading-5"
                                         >
-                                            What's gooooood
+                                            What&apos;s gooooood
                                         </BubbleContent>
                                     </Bubble>
                                 </MessageContent>
