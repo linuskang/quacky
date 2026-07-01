@@ -1,6 +1,6 @@
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
 import { SearchBar } from "@/components/search-bar";
-import { TrendingWidget } from "@/components/trending";
+import { TrendingWidget } from "@/components/widgets/trending";
 import { Title } from "@/components/text";
 
 export default function Page() {

@@ -3,10 +3,10 @@ import { fetchTrending } from "@/server/posts";
 import Link from "next/link";
 
 // Components
-import { AboutWidget } from "@/components/about";
+import { AboutWidget } from "@/components/widgets/about";
 import { PageCenter, PageLayout, PageRight } from "@/components/page-layout";
 import { SearchBar } from "@/components/search-bar";
-import { TrendingWidget } from "@/components/trending";
+import { TrendingWidget } from "@/components/widgets/trending";
 import { Title } from "@/components/text";
 
 export default async function TrendingPage() {

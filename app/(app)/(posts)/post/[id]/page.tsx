@@ -6,7 +6,7 @@ import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
 import { useState, useEffect } from "react";
 import { Post } from "@/types";
 import { toast } from "sonner";
-import RelevantPeopleWidget from "@/components/relevant-people";
+import RelevantPeopleWidget from "@/components/widgets/relevant-people";
 import { useParams } from "next/navigation";
 import { CommentList } from "@/components/comment";
 

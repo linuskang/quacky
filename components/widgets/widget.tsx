@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardHeader } from "./ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export function Widget({ children }: { children: React.ReactNode }) {
     return (

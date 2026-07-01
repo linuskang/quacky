@@ -1,6 +1,6 @@
 "use client";
 
-import { Widget, WidgetSecondaryHeader, WidgetContent } from "@/components/widget";
+import { Widget, WidgetSecondaryHeader, WidgetContent } from "@/components/widgets/widget";
 import { useState, useEffect } from "react";
 
 export function AboutWidget() {

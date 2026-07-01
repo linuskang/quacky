@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Dices } from "lucide-react"
 
-import { Widget, WidgetSecondaryHeader, WidgetContent } from "@/components/widget";
+import { Widget, WidgetSecondaryHeader, WidgetContent } from "@/components/widgets/widget";
 
 export function RngWidget() {
     return (
