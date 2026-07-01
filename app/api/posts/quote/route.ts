@@ -2,6 +2,7 @@ import { prisma } from "@/server/prisma";
 import { auth } from '@/server/auth';
 import { NextRequest, NextResponse } from "next/server";
 import { NotificationService } from "@/server/helpers";
+import { extractHashtags } from "@/lib/hashtags";
 
 export async function POST(req: NextRequest) {
     const session = await auth.api.getSession({
@@ -81,6 +82,11 @@ export async function POST(req: NextRequest) {
                     create: {
                         userId: session.user.id,
                     },
+                },
+                hashtags: {
+                    create: extractHashtags(content).map((tag) => ({
+                        tag,
+                    })),
                 },
             },
         }

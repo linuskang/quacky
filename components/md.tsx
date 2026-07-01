@@ -3,10 +3,17 @@ import remarkGfm from "remark-gfm";
 import { MentionHoverCard } from "@/components/mention-hover-card";
 
 const MENTION_REGEX = /(^|[^\w])@([a-zA-Z0-9_]+)/g;
+const HASHTAG_REGEX = /(^|[^\w])#([a-zA-Z0-9_]+)/g;
 
 function linkMentions(content: string) {
     return content.replace(MENTION_REGEX, (_match, prefix: string, username: string) => {
         return `${prefix}[@${username}](/@${username})`;
+    });
+}
+
+function linkHashtags(content: string) {
+    return content.replace(HASHTAG_REGEX, (_match, prefix: string, tag: string) => {
+        return `${prefix}[#${tag}](/trending/${tag.toLowerCase()})`;
     });
 }
 
@@ -198,7 +205,7 @@ export function Markdown({ children }: { children: string }) {
                 /* eslint-enable @next/next/no-img-element */
                 }}
             >
-                {linkMentions(children)}
+                {linkHashtags(linkMentions(children))}
             </ReactMarkdown>
         </div>
     );

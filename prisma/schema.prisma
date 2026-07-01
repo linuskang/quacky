@@ -69,10 +69,24 @@ model Post {
   attachments Attachment[]
   bookmarks   Bookmark[]
   postViews   PostView[]
+  hashtags    PostHashtag[]
 
   @@index([authorId])
   @@index([repostOfId])
   @@map("post")
+}
+
+model PostHashtag {
+  postId String
+  tag    String
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@id([postId, tag])
+  @@index([tag, createdAt])
+  @@map("post_hashtag")
 }
 
 model Bookmark {

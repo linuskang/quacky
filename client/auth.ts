@@ -33,17 +33,17 @@ export const authClient = createAuthClient(
                     },
                     verified: {
                         type: "boolean",
-                        required: true,
+                        required: false,
                         default: false
                     },
                     role: {
                         type: "string",
-                        required: true,
+                        required: false,
                         default: "user"
                     },
                     image: {
                         type: "string",
-                        required: true,
+                        required: false,
                     },
                     bio: {
                         type: "string",

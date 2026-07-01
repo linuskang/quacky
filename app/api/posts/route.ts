@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import type { Post } from "@/types";
 import { sendMentionNotifications } from "@/server/mentions";
 import { env } from "@/env";
+import { extractHashtags } from "@/lib/hashtags";
 
 // This is the main endpoint for fetching the most recent posts.
 // Returns normal posts, reposts, and quoted posts.
@@ -43,12 +44,19 @@ export async function GET(req: NextRequest) {
         )
     }
 
+    const hashtag = req.nextUrl.searchParams.get("hashtag")?.toLowerCase();
+
     const posts = await prisma.post.findMany({
         where: {
             flagged: false,
             author: {
                 banned: false,
             },
+            hashtags: hashtag ? {
+                some: {
+                    tag: hashtag,
+                },
+            } : undefined,
             OR: [
                 {
                     repostOfId: null,
@@ -291,6 +299,7 @@ export async function POST(req: NextRequest) {
     }
 
     const attachments = body.attachments ?? [];
+    const hashtags = extractHashtags(content);
 
     if (attachments.length > 2) {
         return NextResponse.json(
@@ -316,6 +325,11 @@ export async function POST(req: NextRequest) {
             },
             attachments: {
                 create: attachments
+            },
+            hashtags: {
+                create: hashtags.map((tag) => ({
+                    tag,
+                })),
             }
         },
         select: {
