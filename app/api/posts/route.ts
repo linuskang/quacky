@@ -28,6 +28,8 @@ import { extractHashtags } from "@/lib/hashtags";
 // repostOf: { ...originalPost }
 // content: "my quote text"
 
+import { fetchPosts } from "@/server/posts";
+
 export async function GET(req: NextRequest) {
     const session = await auth.api.getSession({
         headers: req.headers,
@@ -44,196 +46,12 @@ export async function GET(req: NextRequest) {
         )
     }
 
-    const hashtag = req.nextUrl.searchParams.get("hashtag")?.toLowerCase();
-
-    const posts = await prisma.post.findMany({
-        where: {
-            flagged: false,
-            author: {
-                banned: false,
-            },
-            hashtags: hashtag ? {
-                some: {
-                    tag: hashtag,
-                },
-            } : undefined,
-            OR: [
-                {
-                    repostOfId: null,
-                },
-                {
-                    repostOf: {
-                        flagged: false,
-                        author: {
-                            banned: false,
-                        },
-                    },
-                },
-            ],
-        },
-        select: {
-            id: true,
-
-            author: {
-                select: {
-                    name: true,
-                    username: true,
-                    image: true,
-                    verified: true,
-                    role: true,
-                },
-            },
-
-            content: true,
-
-            repostOfId: true,
-
-            repostOf: {
-                select: {
-                    id: true,
-
-                    author: {
-                        select: {
-                            name: true,
-                            username: true,
-                            image: true,
-                            verified: true,
-                            role: true,
-                        },
-                    },
-
-                    content: true,
-                    flagged: true,
-                    edited: true,
-                    createdAt: true,
-                    updatedAt: true,
-                    views: true,
-
-                    attachments: {
-                        select: {
-                            name: true,
-                            url: true,
-                            type: true,
-                        },
-                    },
-                },
-            },
-
-            flagged: true,
-            edited: true,
-            createdAt: true,
-            updatedAt: true,
-            views: true,
-
-            _count: {
-                select: {
-                    likes: true,
-                    reposts: true,
-                    comments: {
-                        where: {
-                            flagged: false,
-                        }
-                    },
-                },
-            },
-
-            likes: {
-                where: {
-                    userId: session.user.id,
-                },
-                select: {
-                    userId: true,
-                },
-            },
-
-            reposts: {
-                where: {
-                    authorId: session.user.id,
-                },
-                select: {
-                    id: true,
-                },
-            },
-
-            comments: {
-                where: {
-                    authorId: session.user.id,
-                },
-                select: {
-                    id: true,
-                },
-            },
-
-            bookmarks: {
-                where: {
-                    userId: session.user.id,
-                },
-                select: {
-                    userId: true,
-                },
-            },
-
-            attachments: {
-                select: {
-                    name: true,
-                    url: true,
-                    type: true,
-                },
-            },
-        },
-
-        orderBy: {
-            createdAt: "desc",
-        },
+    const posts = await fetchPosts({
+        userId: session.user.id,
+        hashtag: req.nextUrl.searchParams.get("hashtag"),
     });
 
-    const res = posts.map((post) => ({
-        id: post.id,
-        author: post.author,
-        content: post.content,
-
-        repostOfId: post.repostOfId,
-        repostOf: post.repostOf
-            ? {
-                id: post.repostOf.id,
-                author: post.repostOf.author,
-                content: post.repostOf.content,
-                flagged: post.repostOf.flagged,
-                edited: post.repostOf.edited,
-                createdAt: post.repostOf.createdAt.toISOString(),
-                updatedAt: post.repostOf.updatedAt.toISOString(),
-                views: post.repostOf.views,
-                attachments: post.repostOf.attachments.map((attachment) => ({
-                    name: attachment.name,
-                    url: attachment.url,
-                    type: attachment.type,
-                })),
-            }
-            : null,
-
-        flagged: post.flagged,
-        edited: post.edited,
-        createdAt: post.createdAt.toISOString(),
-        updatedAt: post.updatedAt.toISOString(),
-        views: post.views,
-
-        likes: post._count.likes,
-        reposts: post._count.reposts,
-        comments: post._count.comments,
-
-        liked: post.likes.length > 0,
-        reposted: post.reposts.length > 0,
-        commented: post.comments.length > 0,
-        bookmarked: post.bookmarks.length > 0,
-
-        attachments: post.attachments.map((attachment) => ({
-            name: attachment.name,
-            url: attachment.url,
-            type: attachment.type,
-        })),
-    })) as Post[];
-
-    return NextResponse.json(res);
+    return NextResponse.json(posts);
 }
 
 // These are the types we need for the request body of Posts.

@@ -1,23 +1,23 @@
+// Libraries
+import { requireSession } from "@/server/auth";
+
+// Components
 import { Sidebar } from "@/components/sidebar";
-import { auth } from "@/server/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import { PageLayout, PageLeft, PageCenter } from "@/components/page-layout";
 import { Profile } from "@/components/profile";
+import { PageLayout, PageLeft, PageCenter, PageRight } from "@/components/page-layout";
+import { Feedback } from "@/components/feedback";
+
+export const metadata = {
+    title: "Quacky",
+    description: "A social media platform by linus.",
+}
 
 export default async function QuackyLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
-
-    if (!session) {
-        redirect("/auth/login");
-    }
-
+    const session = await requireSession();
     return (
         <PageLayout>
             <PageLeft>
@@ -38,6 +38,10 @@ export default async function QuackyLayout({
             <PageCenter>
                 {children}
             </PageCenter>
+
+            <PageRight>
+                <Feedback />
+            </PageRight>
         </PageLayout>
     );
 }

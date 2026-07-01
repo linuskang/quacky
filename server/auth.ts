@@ -7,8 +7,27 @@ import { APIError } from "@better-auth/core/error";
 import { Resend } from "resend";
 import { admin } from "better-auth/plugins"
 import { NotificationService } from "@/server/helpers";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 const resend = new Resend(env.RESEND_API_KEY);
+
+export async function getSession() {
+    return auth.api.getSession({
+        headers: await headers(),
+    });
+}
+
+export async function requireSession() {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    if (!session) {
+        redirect("/auth/login");
+    }
+    return session;
+}
 
 export const auth = betterAuth(
     {
