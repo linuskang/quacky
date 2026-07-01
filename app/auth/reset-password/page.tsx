@@ -97,7 +97,7 @@ function ResetPasswordForm() {
                                 id="password"
                                 type="password"
                                 value={password}
-                                className="!bg-card border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
+                                className="!bg-card transition border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                             />
@@ -110,7 +110,7 @@ function ResetPasswordForm() {
                                 id="confirm-password"
                                 type="password"
                                 value={confirmPassword}
-                                className="!bg-card border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
+                                className="!bg-card transition border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 required
                             />

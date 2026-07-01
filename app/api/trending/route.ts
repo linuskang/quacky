@@ -20,7 +20,7 @@ export async function GET() {
                 tag: "desc",
             },
         },
-        take: 10,
+        take: 3,
     });
 
     return NextResponse.json(

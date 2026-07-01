@@ -81,7 +81,7 @@ export default function Page() {
                                 type="email"
                                 value={email}
                                 placeholder="quacky@your.school"
-                                className="!bg-card border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
+                                className="!bg-card transition border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                             />

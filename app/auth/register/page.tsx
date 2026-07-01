@@ -204,7 +204,7 @@ export default function Page() {
                                 id="name"
                                 type="text"
                                 value={name}
-                                className="!bg-card border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
+                                className="!bg-card transition border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
                                 onChange={(e) => setName(e.target.value)}
                                 required
                             />
@@ -217,7 +217,7 @@ export default function Page() {
                                 id="username"
                                 type="text"
                                 value={username}
-                                className="!bg-card border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
+                                className="!bg-card transition border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
                                 onChange={(e) => setUsername(e.target.value)}
                                 required
                             />
@@ -230,7 +230,7 @@ export default function Page() {
                                 id="email"
                                 type="email"
                                 value={email}
-                                className="!bg-card border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
+                                className="!bg-card transition border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                             />
@@ -243,7 +243,7 @@ export default function Page() {
                                 id="password"
                                 type="password"
                                 value={password}
-                                className="!bg-card border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
+                                className="!bg-card transition border-2 border-border focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-[hsl(288,100%,86%)] h-8"
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                             />
