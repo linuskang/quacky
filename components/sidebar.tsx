@@ -20,6 +20,9 @@ import {
     MessageCircleCheck,
     GraduationCap,
     FerrisWheel,
+    Store,
+    BadgeQuestionMark,
+    Swords,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -47,7 +50,11 @@ export function Sidebar({ session }: Props) {
         { href: "/trending", label: "trending", icon: TrendingUp },
         { href: "/check-in", label: "daily check in", icon: MessageCircleCheck },
         { href: "/emotion-wheel", label: "emotion wheel", icon: FerrisWheel },
+        { href: "/games", label: "games", icon: Swords },
         { href: "/bookmarks", label: "bookmarks", icon: Bookmark },
+        { href: "/shop", label: "shop", icon: Store },
+        { href: "/resources", label: "resources", icon: GraduationCap },
+        { href: "/missions", label: "missions", icon: BadgeQuestionMark },
         { href: "/notifications", label: "notifications", icon: Bell },
         { href: `/@${session.user.handle}`, label: "profile", icon: User },
     ];
