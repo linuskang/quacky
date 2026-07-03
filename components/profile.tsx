@@ -27,7 +27,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 
-const subscribe = () => () => {};
+const subscribe = () => () => { };
 
 function ThemeToggle() {
     const { theme, setTheme } = useTheme()
@@ -165,7 +165,7 @@ export function Profile() {
                     />
 
                     <div className="min-w-0">
-                        <h2 className="truncate font-semibold text-sm leading-none">
+                        <h2 className="truncate font-semibold text-primary text-sm leading-none">
                             {user.name}
                         </h2>
 
@@ -182,7 +182,7 @@ export function Profile() {
                                 aria-label="Settings"
                                 className="flex h-8 w-8 items-center justify-center"
                             >
-                                <Settings className="h-5 w-5" strokeWidth={3} />
+                                <Settings className="h-5 w-5 text-primary" strokeWidth={3} />
                             </button>
                         </DialogTrigger>
 
@@ -373,7 +373,7 @@ export function Profile() {
 
                     <button
                         aria-label="Log out"
-                        className="flex h-8 w-8 items-center justify-center"
+                        className="flex h-8 w-8 text-primary items-center justify-center"
                         onClick={() => authClient.signOut()}
                     >
                         <LogOut className="h-5 w-5" strokeWidth={3} />

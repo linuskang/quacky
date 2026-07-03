@@ -23,6 +23,11 @@ ENV UPSTREAM_API_KEY="dummy-upstream-api-key"
 ENV RESEND_API_KEY="dummy-api-key"
 ENV EMAIL_FROM="dummy@example.com"
 ENV BETTER_AUTH_URL="http://localhost:3000"
+ENV RUSTFS_ENDPOINT="https://nuhuh.com"
+ENV AI_URL="https://nolooking.com"
+ENV DESCRIPTION="no"
+ENV RUSTFS_ACCESS_KEY_ID="dummy-access-key"
+ENV RUSTFS_SECRET_ACCESS_KEY="dummy-secret-access-key"
 
 RUN npx prisma generate
 RUN npm run build
