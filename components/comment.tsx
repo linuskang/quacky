@@ -3,7 +3,7 @@ import { Comment } from "@/types";
 import { BadgeCheck, SendHorizontal, MoreHorizontal } from "lucide-react";
 import Image from "next/image";
 import { Admin } from "./icons";
-import { formatTimeAgo } from "@/client/utils";
+import { useTimeAgo } from "@/client/utils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
@@ -163,7 +163,7 @@ export function CommentCard(
     const [reportPending, setReportPending] = useState(false);
     const [deletePending, setDeletePending] = useState(false);
     const { data: session } = authClient.useSession();
-    const timeAgo = formatTimeAgo(comment.createdAt);
+    const timeAgo = useTimeAgo(comment.createdAt);
     const canDelete = session && (session.user.username === comment.author.username || session.user.role === "admin");
 
     const reportComment = async () => {
@@ -246,9 +246,11 @@ export function CommentCard(
                             @{comment.author.username}
                         </span>
 
-                        <span className="text-sm text-muted-foreground">
-                            · {timeAgo}
-                        </span>
+                        {timeAgo && (
+                            <span className="text-sm text-muted-foreground">
+                                · {timeAgo}
+                            </span>
+                        )}
 
                         <span
                             className="ml-auto shrink-0"

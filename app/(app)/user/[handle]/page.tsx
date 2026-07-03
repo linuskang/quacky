@@ -1,4 +1,3 @@
-"use client";
 
 import { notFound } from "next/navigation";
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
@@ -6,106 +5,60 @@ import { SearchBar } from "@/components/search-bar";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { BadgeCheck, CalendarDays, ExternalLink, MapPin } from "lucide-react";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { authClient } from "@/client/auth";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { requireSession } from "@/server/auth";
+import { getUser } from "@/server/users";
+import { ProfileAction } from "./action";
+import { PurpleWarning } from "@/components/warning";
+import Link from "next/link";
+import { Markdown } from "@/components/md";
 
-type ProfileUser = {
-    id: string;
-    name?: string;
-    username: string;
-    image?: string | null;
-    bannerImage?: string | null;
-    createdAt: string;
-    verified?: boolean;
-    private?: boolean;
-    bio?: string | null;
-    website?: string | null;
-    location?: string | null;
-    pronoun?: string | null;
-    followers?: string[];
-};
+// This profile page is split into multiple parts:
+// Server utilities (server functions for fetching user data, and follow/unfollow functions)
+// Server component (this page)
+// Client component (profile action e.g. follow/edit profile, along with its server sided utilities at ./action.tsx and ./helpers.ts)
 
-export default function Page() {
-    const [user, setUser] = useState<ProfileUser | null>(null);
-    const [following, setFollowing] = useState(false);
-    const [followPending, setFollowPending] = useState(false);
-    const { handle } = useParams();
-    const { data: session, isPending } = authClient.useSession();
+export default async function Page(
+    { params }: { params: Promise<{ handle: string }> }
+) {
+    // Basics: Fetch session, and user from param.
+    const session = await requireSession();
+    const { handle } = await params;
+    const user = await getUser(handle);
 
-    useEffect(() => {
-        async function fetchUser() {
-            const res = await fetch(`/api/user/${handle}`);
-
-            if (!res.ok) {
-                notFound();
-            } else {
-                const data = await res.json() as ProfileUser;
-                if (!data.id) {
-                    notFound();
-                }
-                setUser(data);
-                setFollowing(data.followers?.includes(session?.user.username ?? "") ?? false);
-            }
-        }
-        fetchUser();
-    }, [handle, session?.user.username]);
-
-    async function toggleFollow() {
-        if (!user || followPending) return;
-
-        setFollowPending(true);
-
-        const nextFollowing = !following;
-        const res = await fetch(`/api/user/${user.username}/follow`, {
-            method: nextFollowing ? "POST" : "DELETE",
-        });
-
-        if (!res.ok) {
-            toast.error(res.statusText);
-            setFollowPending(false);
-            return;
-        }
-
-        setFollowing(nextFollowing);
-        setFollowPending(false);
-    }
-
-
-    if (isPending) {
-        return null;
-    }
-
-    if (!session) return null;
-
+    // if the user doesn't exist.
     if (!user) {
-        return null;
+        notFound();
     }
+
+    const followsYou = user.following.includes(session.user.username);
+    const following = user.followers.includes(session.user.username);
 
     return (
         <PageLayout>
             <PageCenter>
+                <Link href="/" className="mb-3 flex items-center gap-2 text-sm font-semibold text-primary hover:underline">
+                    Go back
+                </Link>
                 <Card className="overflow-hidden !bg-profile-card">
                     <CardHeader className="p-0 -mt-4">
-                        <Image
-                            src={user.bannerImage || "https://avatars.linus.my/10.x/micah/svg?seed=sushi"}
-                            alt={user.name!}
-                            width={1200}
-                            height={320}
-                            unoptimized
-                            className="w-full h-40 object-cover rounded-t-lg"
-                        />
-
+                        {!user.banned && user.bannerImage && (
+                            <Image
+                                src={user.bannerImage}
+                                alt={user.name!}
+                                width={1200}
+                                height={320}
+                                unoptimized
+                                className="w-full h-40 object-cover rounded-t-lg"
+                            />
+                        )}
                     </CardHeader>
                     <CardContent>
                         <div className="flex">
                             <div className="flex items-start gap-4">
                                 <Image
-                                    src={user.image!}
-                                    alt={user.name!}
+                                    src={user.image}
+                                    alt={user.name}
                                     width={50}
                                     height={50}
                                     unoptimized
@@ -115,15 +68,24 @@ export default function Page() {
                                 <div className="flex flex-col">
                                     <h1 className="text-2xl font-bold flex items-center gap-1">
                                         {user.name}
-                                        {user.verified && (
-                                            <BadgeCheck
-                                                className="h-[20px] w-[20px] fill-primary text-profile-card"
-                                            />
-                                        )}
-                                        {user.pronoun && (
-                                            <span className="text-sm text-muted-foreground">
-                                                ({user.pronoun})
-                                            </span>
+                                        {!user.banned && (
+                                            <>
+                                                {user.verified && (
+                                                    <BadgeCheck
+                                                        className="h-[20px] w-[20px] fill-primary text-profile-card"
+                                                    />
+                                                )}
+                                                {user.pronoun && (
+                                                    <span className="text-sm text-muted-foreground">
+                                                        ({user.pronoun})
+                                                    </span>
+                                                )}
+                                                {followsYou && (
+                                                    <span className="ml-1 rounded-full bg-card px-2 py-0.5 text-xs font-semibold text-primary">
+                                                        Follows you
+                                                    </span>
+                                                )}
+                                            </>
                                         )}
                                     </h1>
                                     <p className="text-base text-muted-foreground">
@@ -132,91 +94,110 @@ export default function Page() {
                                 </div>
                             </div>
 
-                            <div className="ml-auto mb-auto">
-                                {user.id === session.user.id ? (
-                                    <Button
-                                        variant="secondary"
-                                        className="h-8 rounded-full bg-primary-2 px-4 text-sm font-semibold text-background hover:bg-primary-2/80"
-                                    >
-                                        Edit Profile
-                                    </Button>
-                                ) : (
-                                    <Button
-                                        variant={following ? "secondary" : "default"}
-                                        disabled={followPending}
-                                        onClick={toggleFollow}
-                                        className="h-8 rounded-full bg-primary-2 px-4 text-sm font-semibold text-background hover:bg-primary-2/80"
-                                    >
-                                        {followPending ? "Saving..." : following ? "Unfollow" : "Follow"}
-                                    </Button>
-                                )}
-                            </div>
+                            {!user.banned && (
+                                <div className="ml-auto mb-auto">
+                                    <ProfileAction
+                                        currentUserId={session.user.id}
+                                        initialBio={user.bio}
+                                        initialBannerImage={user.bannerImage}
+                                        initialFollowing={following}
+                                        initialImage={user.image}
+                                        initialLocation={user.location}
+                                        initialName={user.name}
+                                        initialPronoun={user.pronoun}
+                                        initialWebsite={user.website}
+                                        userId={user.id}
+                                        username={user.username}
+                                    />
+                                </div>
+                            )}
                         </div>
 
-                        {user.bio ? (
-                            <p className="mt-3 whitespace-pre-wrap text-base">
-                                {user.bio}
-                            </p>
-                        ) : (
-                            <p className="mt-3 whitespace-pre-wrap text-muted-foreground italic text-base">
-                                {user.private ? "This profile is private." : "No bio yet."}
-                            </p>
+                        {user.banned && (
+                            <div className="mt-3">
+                                <PurpleWarning text="This user is banned." />
+                            </div>
                         )}
 
-                        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
-                            <span className="flex items-center gap-1 font-semibold">
-                                <CalendarDays className="h-4 w-4" strokeWidth={3} />
-                                Joined {new Date(user.createdAt).toLocaleDateString("en-US", {
-                                    year: "numeric",
-                                    month: "long",
-                                })}
-                            </span>
+                        {!user.banned && (
+                            user.bio ? (
+                                <Markdown>
+                                    {user.bio}
+                                </Markdown>
+                            ) : (
+                                <p className="mt-3 whitespace-pre-wrap text-muted-foreground italic text-base">
+                                    {user.private ? "This profile is private." : "No bio yet."}
+                                </p>
+                            )
+                        )}
 
-                            {user.location && (
-                                <span className="flex items-center font-semibold gap-1">
-                                    <MapPin className="h-4 w-4" strokeWidth={3} />
-                                    {user.location}
+                        {!user.banned && (
+                            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                                <span className="flex items-center gap-1 font-semibold">
+                                    <CalendarDays className="h-4 w-4" strokeWidth={3} />
+                                    Joined {new Date(user.createdAt).toLocaleDateString("en-US", {
+                                        year: "numeric",
+                                        month: "long",
+                                    })}
                                 </span>
-                            )}
 
-                            {user.website && (
-                                <a
-                                    href={user.website}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="flex items-center font-semibold gap-1 hover:underline"
-                                >
-                                    <ExternalLink className="h-4 w-4" strokeWidth={3} />
-                                    {user.website.replace(/^https?:\/\//, "")}
-                                </a>
-                            )}
-                        </div>
+                                {user.location && (
+                                    <span className="flex items-center font-semibold gap-1">
+                                        <MapPin className="h-4 w-4" strokeWidth={3} />
+                                        {user.location}
+                                    </span>
+                                )}
+
+                                {user.website && (
+                                    <a
+                                        href={user.website}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="flex items-center font-semibold gap-1 hover:underline"
+                                    >
+                                        <ExternalLink className="h-4 w-4" strokeWidth={3} />
+                                        {user.website.replace(/^https?:\/\//, "")}
+                                    </a>
+                                )}
+                            </div>
+                        )}
                     </CardContent>
+                </Card>
 
-                    <Tabs defaultValue="posts" className="w-full gap-0 border-t-2 -mt-2 border-border">
-                        <TabsList variant="line" className="h-11 w-full justify-start rounded-none bg-profile-card px-4">
-                            <TabsTrigger value="posts" className="px-3 text-sm font-bold">
+                {!user.banned && (
+                    <Tabs defaultValue="posts" className="w-full gap-0 -mt-2">
+                        <TabsList className="mt-3 grid h-auto w-full grid-cols-3 gap-3 rounded-none bg-transparent p-0">
+                            <TabsTrigger
+                                value="posts"
+                                className="h-10 rounded-full border-2 border-border bg-background/80 px-5 text-base font-extrabold text-foreground hover:border-primary data-active:!border-primary data-active:!bg-background"
+                            >
                                 Posts
                             </TabsTrigger>
-                            <TabsTrigger value="replies" className="px-3 text-sm font-bold">
+                            <TabsTrigger
+                                value="replies"
+                                className="h-10 rounded-full border-2 border-border bg-background/80 px-5 text-base font-extrabold text-foreground hover:border-primary data-active:!border-primary data-active:!bg-background"
+                            >
                                 Replies
                             </TabsTrigger>
-                            <TabsTrigger value="badges" className="px-3 text-sm font-bold">
+                            <TabsTrigger
+                                value="badges"
+                                className="h-10 rounded-full border-2 border-border bg-background/80 px-5 text-base font-extrabold text-foreground hover:border-primary data-active:!border-primary data-active:!bg-background"
+                            >
                                 Badges
                             </TabsTrigger>
                         </TabsList>
 
-                        <TabsContent value="posts" className="border-t-2 border-border p-4 text-sm text-muted-foreground">
+                        <TabsContent value="posts" className="p-4 text-sm text-muted-foreground">
                             Posts will show here soon.
                         </TabsContent>
-                        <TabsContent value="replies" className="border-t-2 border-border p-4 text-sm text-muted-foreground">
+                        <TabsContent value="replies" className="p-4 text-sm text-muted-foreground">
                             Replies will show here soon.
                         </TabsContent>
-                        <TabsContent value="badges" className="border-t-2 border-border p-4 text-sm text-muted-foreground">
+                        <TabsContent value="badges" className="p-4 text-sm text-muted-foreground">
                             Badges will show here soon.
                         </TabsContent>
                     </Tabs>
-                </Card>
+                )}
 
             </PageCenter>
             <PageRight>

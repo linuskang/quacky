@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { formatTimeAgo } from "@/client/utils";
+import { useTimeAgo } from "@/client/utils";
 
 // Types
 import { Notification } from "@/types";
@@ -34,7 +34,7 @@ export function NotificationCard(
     }
 ) {
 
-    const timeAgo = formatTimeAgo(notification.createdAt);
+    const timeAgo = useTimeAgo(notification.createdAt);
     const actor = notification.actor;
 
     return (
@@ -85,9 +85,11 @@ export function NotificationCard(
                                 </Link>
                             )}
 
-                            <span className="text-sm text-muted-foreground">
-                                · {timeAgo}
-                            </span>
+                            {timeAgo && (
+                                <span className="text-sm text-muted-foreground">
+                                    · {timeAgo}
+                                </span>
+                            )}
                         </div>
                     </div>
                     <Markdown>

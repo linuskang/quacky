@@ -11,7 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import {
-    formatTimeAgo,
+    useTimeAgo,
     useFormattedDate
 } from "@/client/utils";
 
@@ -201,7 +201,7 @@ export function PostCard({
         setBookmarkPending(false);
     };
 
-    const timeAgo = formatTimeAgo(post.createdAt);
+    const timeAgo = useTimeAgo(post.createdAt);
     const postedAt = useFormattedDate(post.createdAt);
 
     return (
@@ -257,9 +257,11 @@ export function PostCard({
                                 @{post.author.username}
                             </Link>
 
-                            <span className="text-sm text-muted-foreground">
-                                · {timeAgo}
-                            </span>
+                            {timeAgo && (
+                                <span className="text-sm text-muted-foreground">
+                                    · {timeAgo}
+                                </span>
+                            )}
 
                             {post.edited && (
                                 <span className="text-xs text-muted-foreground font-medium">

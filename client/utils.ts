@@ -66,6 +66,17 @@ export function formatDate(time: string) {
 
 import { useState, useEffect } from "react";
 
+export function useTimeAgo(time: string) {
+    const [formatted, setFormatted] = useState<string>("");
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setFormatted(formatTimeAgo(time));
+    }, [time]);
+
+    return formatted;
+}
+
 export function useFormattedDate(time: string) {
     const [formatted, setFormatted] = useState<string>("");
 
