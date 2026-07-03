@@ -45,7 +45,7 @@ export function Sidebar({ session }: Props) {
         { href: "/emotion-wheel", label: "emotion wheel", icon: FerrisWheel },
         // { href: "/games", label: "games", icon: Swords },
         { href: "/bookmarks", label: "bookmarks", icon: Bookmark },
-        { href: "/shop", label: "shop", icon: Store },
+        // { href: "/shop", label: "shop", icon: Store },
         // { href: "/resources", label: "resources", icon: GraduationCap },
         // { href: "/missions", label: "missions", icon: BadgeQuestionMark },
         { href: "/notifications", label: "notifications", icon: Bell },
