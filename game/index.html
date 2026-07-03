@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>quacky: the game</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet" />
+    <script src="tailwind.config.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="globals.css" />
+</head>
+
+<body class="absolute inset-0 m-0 overflow-hidden bg-background-1 p-0 font-mono text-lg text-[#333] select-none">
+
+    <!-- Loading Veil -->
+    <div id="loading-veil"
+        class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background-1 opacity-100 transition-opacity duration-[3000ms] pointer-events-auto">
+
+        <div id="main-loading"
+            class="absolute left-1/2 top-1/2 flex w-[100vmin] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center">
+
+            <div id="loading-top" class="flex flex-col items-center">
+                <div id="reset-string"
+                    class="hidden cursor-pointer border border-black px-3 py-1.5 text-center text-[0.7em]"></div>
+                <img class="mx-auto block h-auto w-full max-w-[50vmin]" src="Assets/Images/logo.png" alt="Quacky" />
+            </div>
+
+            <div id="loading-progress-bar-container" class="mx-auto my-5 h-5 w-1/4 bg-[#ccc] border border-black">
+                <div id="loading-progress-bar" class="h-full w-0 bg-pink-1 w-1/4"></div>
+            </div>
+
+            <div id="loading-string" class="cursor-pointer px-3 py-1.5 text-white underline">click to begin</div>
+
+            <div id="feedback-line" class="text-center text-white text-sm font-normal">
+                <br />Have ideas or feedback? Please reach out at
+                <a href="mailto:linus@linus.my" class="text-pink-1 hover:underline font-semibold">linus@linus.my</a>
+            </div>
+        </div>
+
+        <div id="loading-bottom"
+            class="absolute bottom-5 left-0 right-0 mx-auto w-full max-w-[80vmin] px-[10%] py-2.5 text-center">
+            <div id="github-string">
+                <a href="https://github.com/linusdotmy/quacky" id="github-link"
+                    class="inline-block text-center align-middle font-semibold text-[12px] text-pink-1 hover:underline">
+                    Built by Linus. CC BY-NC 4.0.
+                </a>
+            </div>
+        </div>
+        <img src="Assets/Images/parrot.gif" class="-left-2 w-20 h-20 -bottom-10 absolute" alt="Logo">
+        <img src="Assets/Images/quacky-bin.png" class="-right-20 w-60 h-60 -bottom-20 absolute" alt="Logo">
+    </div>
+
+    <!-- Game Canvas -->
+    <canvas id="game" class="block h-screen w-screen select-none"></canvas>
+
+</body>
+<script src="Modules/main.js"></script>
+
+</html>

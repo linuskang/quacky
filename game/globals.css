@@ -1,0 +1,28 @@
+:root {
+    --pink-1: #ED9CE5;
+    --background-1: #0b0920;
+}
+
+.text-pink-1 {
+    color: var(--pink-1);
+}
+
+.bg-pink-1 {
+    background-color: var(--pink-1);
+}
+
+.border-pink-1 {
+    border-color: var(--pink-1);
+}
+
+.text-background-1 {
+    color: var(--background-1);
+}
+
+.bg-background-1 {
+    background-color: var(--background-1);
+}
+
+.border-background-1 {
+    border-color: var(--background-1);
+}
