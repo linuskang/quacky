@@ -3,17 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { exo2, patrickHand, playfairDisplay } from "@/app/layout";
+import { exo2, playfairDisplay } from "@/app/layout";
 
 import {
     Home,
     Search,
     Bell,
     User,
-    Plus,
     MessagesSquare,
-    Clapperboard,
-    Settings,
     Briefcase,
     Bookmark,
     TrendingUp,
@@ -21,14 +18,10 @@ import {
     GraduationCap,
     FerrisWheel,
     Store,
-    BadgeQuestionMark,
-    Swords,
 } from "lucide-react";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
-
-import { CurvedLine } from "@/components/curved_parabola";
 
 interface Props {
     session: {
@@ -50,11 +43,11 @@ export function Sidebar({ session }: Props) {
         { href: "/trending", label: "trending", icon: TrendingUp },
         { href: "/check-in", label: "daily check in", icon: MessageCircleCheck },
         { href: "/emotion-wheel", label: "emotion wheel", icon: FerrisWheel },
-        { href: "/games", label: "games", icon: Swords },
+        // { href: "/games", label: "games", icon: Swords },
         { href: "/bookmarks", label: "bookmarks", icon: Bookmark },
         { href: "/shop", label: "shop", icon: Store },
-        { href: "/resources", label: "resources", icon: GraduationCap },
-        { href: "/missions", label: "missions", icon: BadgeQuestionMark },
+        // { href: "/resources", label: "resources", icon: GraduationCap },
+        // { href: "/missions", label: "missions", icon: BadgeQuestionMark },
         { href: "/notifications", label: "notifications", icon: Bell },
         { href: `/@${session.user.handle}`, label: "profile", icon: User },
     ];

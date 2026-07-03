@@ -2,8 +2,15 @@
 
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import type { ComponentProps } from "react";
 
-export function SearchBar() {
+type SearchBarProps = ComponentProps<typeof Input>;
+
+export function SearchBar({
+    placeholder = "Search for stuff...",
+    className,
+    ...props
+}: SearchBarProps) {
     return (
         <div className="flex items-center gap-2 w-full">
             <div className="relative w-full">
@@ -14,8 +21,9 @@ export function SearchBar() {
 
                 <Input
                     type="text"
-                    placeholder="Search for stuff..."
-                    className="w-full rounded-md border-2 border-border focus:!border-chart-3 !bg-card pl-8 h-9 !ring-0 !text-primary"
+                    placeholder={placeholder}
+                    className={`w-full rounded-md border-2 border-border focus:!border-chart-3 !bg-card pl-8 h-9 !ring-0 !text-primary ${className ?? ""}`}
+                    {...props}
                 />
             </div>
         </div>
