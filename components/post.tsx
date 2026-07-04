@@ -69,6 +69,22 @@ export function PostList({
     );
 }
 
+export function Feed(
+    {
+        posts,
+    }: {
+        posts: Post[];
+    }
+) {
+    return (
+        <div className="flex flex-col gap-4 max-w-lg w-full">
+            {posts.map((post) => (
+                <PostCard key={post.id} post={post} />
+            ))}
+        </div>
+    )
+}
+
 type PostCardPost = Post | EmbeddedPost;
 
 function isFullPost(post: PostCardPost): post is Post {

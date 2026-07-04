@@ -188,7 +188,7 @@ export default async function Page(
                         </TabsList>
 
                         <TabsContent value="posts" className="p-4 text-sm text-muted-foreground">
-                            Posts will show here soon.
+
                         </TabsContent>
                         <TabsContent value="replies" className="p-4 text-sm text-muted-foreground">
                             Replies will show here soon.
