@@ -1,8 +1,11 @@
 import { prisma } from "@/server/prisma";
-import { auth } from '@/server/auth';
+import { getSession } from '@/server/auth';
 import { NextRequest, NextResponse } from "next/server";
 import type { Comment, Post, User } from "@/types";
 import { NotificationService } from "@/server/helpers";
+import { deleteComment, getComment, getCommentByPostId } from "@/server/comment";
+import { getPost } from "@/server/posts";
+import type { Attachment } from "@/types";
 
 type PrismaUser = Omit<User, "role"> & {
     role: string | null;
@@ -21,12 +24,10 @@ function serializeUser(user: PrismaUser): User {
 }
 
 export async function GET(
-    req: NextRequest,
+    _req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const session = await auth.api.getSession({
-        headers: req.headers,
-    })
+    const session = await getSession()
 
     if (!session) {
         return NextResponse.json(
@@ -41,38 +42,7 @@ export async function GET(
 
     const { id } = await params;
 
-    const comment = await prisma.comment.findFirst(
-        {
-            where: {
-                id,
-                author: {
-                    banned: false,
-                },
-                post: {
-                    author: {
-                        banned: false,
-                    },
-                },
-            },
-            select: {
-                id: true,
-                postId: true,
-                content: true,
-                flagged: true,
-                createdAt: true,
-                updatedAt: true,
-                author: {
-                    select: {
-                        name: true,
-                        username: true,
-                        image: true,
-                        verified: true,
-                        role: true,
-                    }
-                },
-            },
-        }
-    )
+    const comment = await getComment(id);
 
     if (!comment) {
         return NextResponse.json(
@@ -85,122 +55,7 @@ export async function GET(
         )
     }
 
-    const post = await prisma.post.findFirst({
-        where: {
-            id: comment.postId,
-            author: {
-                banned: false,
-            },
-            OR: [
-                {
-                    repostOfId: null,
-                },
-                {
-                    repostOf: {
-                        author: {
-                            banned: false,
-                        },
-                    },
-                },
-            ],
-        },
-        select: {
-            id: true,
-            author: {
-                select: {
-                    name: true,
-                    username: true,
-                    image: true,
-                    verified: true,
-                    role: true,
-                },
-            },
-            content: true,
-            repostOfId: true,
-            repostOf: {
-                select: {
-                    id: true,
-                    author: {
-                        select: {
-                            name: true,
-                            username: true,
-                            image: true,
-                            verified: true,
-                            role: true,
-                        },
-                    },
-                    content: true,
-                    flagged: true,
-                    edited: true,
-                    createdAt: true,
-                    updatedAt: true,
-                    views: true,
-                    attachments: {
-                        select: {
-                            name: true,
-                            url: true,
-                            type: true,
-                        },
-                    },
-                },
-            },
-            flagged: true,
-            edited: true,
-            createdAt: true,
-            updatedAt: true,
-            views: true,
-            _count: {
-                select: {
-                    likes: true,
-                    reposts: true,
-                    comments: {
-                        where: {
-                            flagged: false,
-                        }
-                    },
-                },
-            },
-            likes: {
-                where: {
-                    userId: session.user.id,
-                },
-                select: {
-                    userId: true,
-                },
-            },
-            reposts: {
-                where: {
-                    authorId: session.user.id,
-                },
-                select: {
-                    id: true,
-                },
-            },
-            comments: {
-                where: {
-                    authorId: session.user.id,
-                },
-                select: {
-                    id: true,
-                },
-            },
-            bookmarks: {
-                where: {
-                    userId: session.user.id,
-                },
-                select: {
-                    userId: true,
-                },
-            },
-            attachments: {
-                select: {
-                    name: true,
-                    url: true,
-                    type: true,
-                },
-            },
-        },
-    });
+    const post = await getPost(comment.postId, session);
 
     if (!post) {
         return NextResponse.json(
@@ -213,32 +68,7 @@ export async function GET(
         )
     }
 
-    const postComments = await prisma.comment.findMany({
-        where: {
-            postId: post.id,
-            flagged: false,
-        },
-        select: {
-            id: true,
-            postId: true,
-            content: true,
-            flagged: true,
-            createdAt: true,
-            updatedAt: true,
-            author: {
-                select: {
-                    name: true,
-                    username: true,
-                    image: true,
-                    verified: true,
-                    role: true,
-                },
-            },
-        },
-        orderBy: {
-            createdAt: "asc",
-        },
-    });
+    const postComments = await getCommentByPostId(post.id);
 
     const postView = await prisma.postView.createMany({
         data: [
@@ -288,7 +118,7 @@ export async function GET(
                     createdAt: post.repostOf.createdAt.toISOString(),
                     updatedAt: post.repostOf.updatedAt.toISOString(),
                     views: post.repostOf.views,
-                    attachments: post.repostOf.attachments.map((attachment) => ({
+                    attachments: post.repostOf.attachments.map((attachment: Attachment) => ({
                         name: attachment.name,
                         url: attachment.url,
                         type: attachment.type,
@@ -328,12 +158,10 @@ export async function GET(
 }
 
 export async function DELETE(
-    req: NextRequest,
+    _req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const session = await auth.api.getSession({
-        headers: req.headers,
-    })
+    const session = await getSession()
 
     if (!session) {
         return NextResponse.json(
@@ -348,21 +176,7 @@ export async function DELETE(
 
     const { id } = await params;
 
-    const comment = await prisma.comment.findUnique({
-        where: {
-            id,
-        },
-        select: {
-            id: true,
-            authorId: true,
-            postId: true,
-            post: {
-                select: {
-                    authorId: true,
-                },
-            },
-        },
-    });
+    const comment = await getComment(id);
 
     if (!comment) {
         return NextResponse.json(
@@ -386,11 +200,7 @@ export async function DELETE(
         )
     }
 
-    await prisma.comment.delete({
-        where: {
-            id,
-        },
-    });
+    await deleteComment(id);
 
     await NotificationService.removeEngagement(
         "comment",

@@ -1,5 +1,5 @@
 import { prisma } from "@/server/prisma";
-import { auth } from '@/server/auth';
+import { getSession } from '@/server/auth';
 import { NextRequest, NextResponse } from "next/server";
 import { sendMentionNotifications } from "@/server/mentions";
 import { env } from "@/env";
@@ -13,9 +13,7 @@ export async function POST(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const session = await auth.api.getSession({
-        headers: req.headers,
-    })
+    const session = await getSession()
 
     if (!session) {
         return NextResponse.json(

@@ -1,16 +1,17 @@
 import { prisma } from "@/server/prisma";
-import { auth } from '@/server/auth';
+import { getSession } from '@/server/auth';
 import { NextRequest, NextResponse } from "next/server";
 import type { Post } from "@/types";
 import { NotificationService } from "@/server/helpers";
+import { getCommentsByPostId } from "@/server/comment";
+import { getPost } from "@/server/posts";
+import type { Attachment } from "@/types"
 
 export async function GET(
-    req: NextRequest,
+    _req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const session = await auth.api.getSession({
-        headers: req.headers,
-    })
+    const session = await getSession()
 
     if (!session) {
         return NextResponse.json(
@@ -25,142 +26,7 @@ export async function GET(
 
     const { id } = await params;
 
-    const post = await prisma.post.findFirst(
-        {
-            where: {
-                id,
-                author: {
-                    banned: false,
-                },
-                OR: [
-                    {
-                        repostOfId: null,
-                    },
-                    {
-                        repostOf: {
-                            author: {
-                                banned: false,
-                            },
-                        },
-                    },
-                ],
-            },
-            select: {
-                id: true,
-
-                author: {
-                    select: {
-                        name: true,
-                        username: true,
-                        image: true,
-                        verified: true,
-                        role: true,
-                    },
-                },
-
-                content: true,
-
-                repostOfId: true,
-
-                repostOf: {
-                    select: {
-                        id: true,
-
-                        author: {
-                            select: {
-                                name: true,
-                                username: true,
-                                image: true,
-                                verified: true,
-                                role: true,
-                            },
-                        },
-
-                        content: true,
-                        flagged: true,
-                        edited: true,
-                        createdAt: true,
-                        updatedAt: true,
-                        views: true,
-
-                        attachments: {
-                            select: {
-                                name: true,
-                                url: true,
-                                type: true,
-                            },
-                        },
-                    },
-                },
-
-                flagged: true,
-                edited: true,
-                createdAt: true,
-                updatedAt: true,
-                views: true,
-
-                _count: {
-                    select: {
-                        likes: true,
-                        reposts: true,
-                        comments: {
-                            where: {
-                                flagged: false,
-                            }
-                        },
-                    },
-                },
-
-                likes: {
-                    where: {
-                        userId: session.user.id,
-                    },
-                    select: {
-                        userId: true,
-                    },
-                },
-
-                reposts: {
-                    where: {
-                        authorId: session.user.id,
-                    },
-                    select: {
-                        id: true,
-                    },
-                },
-
-                comments: {
-                    where: {
-                        authorId: session.user.id,
-                    },
-                    select: {
-                        id: true,
-                    },
-                },
-
-                bookmarks: {
-                    where: {
-                        userId: session.user.id,
-                    },
-                    select: {
-                        userId: true,
-                    },
-                },
-
-                attachments: {
-                    select: {
-                        name: true,
-                        url: true,
-                        type: true,
-                    },
-                },
-            },
-
-            orderBy: {
-                createdAt: "desc",
-            },
-        }
-    );
+    const post = await getPost(id, session);
 
     if (!post) {
         return NextResponse.json(
@@ -196,26 +62,7 @@ export async function GET(
         });
     }
 
-    const comments = await prisma.comment.findMany({
-        where: { postId: id, flagged: false },
-        select: {
-            id: true,
-            postId: true,
-            content: true,
-            createdAt: true,
-            updatedAt: true,
-            author: {
-                select: {
-                    name: true,
-                    username: true,
-                    image: true,
-                    verified: true,
-                    role: true,
-                },
-            },
-        },
-        orderBy: { createdAt: "asc" },
-    });
+    const comments = await getCommentsByPostId(post.id);
 
     const res = {
         id: post.id,
@@ -233,7 +80,7 @@ export async function GET(
                 createdAt: post.repostOf.createdAt.toISOString(),
                 updatedAt: post.repostOf.updatedAt.toISOString(),
                 views: post.repostOf.views,
-                attachments: post.repostOf.attachments.map((attachment) => ({
+                attachments: post.repostOf.attachments.map((attachment: Attachment) => ({
                     name: attachment.name,
                     url: attachment.url,
                     type: attachment.type,
@@ -277,12 +124,10 @@ export async function GET(
 }
 
 export async function DELETE(
-    req: NextRequest,
+    _req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const session = await auth.api.getSession({
-        headers: req.headers,
-    })
+    const session = await getSession()
 
     if (!session) {
         return NextResponse.json(
@@ -367,9 +212,7 @@ export async function PATCH(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const session = await auth.api.getSession({
-        headers: req.headers,
-    })
+    const session = await getSession()
 
     if (!session) {
         return NextResponse.json(

@@ -1,15 +1,13 @@
 import { prisma } from "@/server/prisma";
-import { auth } from '@/server/auth';
+import { getSession } from '@/server/auth';
 import { NextRequest, NextResponse } from "next/server";
 import { NotificationService } from "@/server/helpers";
 
 export async function POST(
-    req: NextRequest,
+    _req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const session = await auth.api.getSession({
-        headers: req.headers,
-    })
+    const session = await getSession()
 
     if (!session) {
         return NextResponse.json(
@@ -73,18 +71,16 @@ export async function POST(
             res,
         },
         {
-            status: res.count === 1 ? 201 : 200,
+            status: 200,
         }
     )
 }
 
 export async function DELETE(
-    req: NextRequest,
+    _req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const session = await auth.api.getSession({
-        headers: req.headers,
-    })
+    const session = await getSession()
 
     if (!session) {
         return NextResponse.json(

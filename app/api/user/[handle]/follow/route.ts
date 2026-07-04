@@ -2,6 +2,7 @@ import { auth } from "@/server/auth";
 import { NotificationService } from "@/server/helpers";
 import { prisma } from "@/server/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { follow, unfollow } from "@/server/follow";
 
 export async function POST(
     req: NextRequest,
@@ -29,21 +30,16 @@ export async function POST(
         return NextResponse.json({ err: "You cannot follow yourself" }, { status: 400 });
     }
 
-    const follow = await prisma.follow.createMany({
-        data: [
-            {
-                userId: session.user.id,
-                followId: user.id,
-            },
-        ],
-        skipDuplicates: true,
-    });
+    await follow(session.user.id, user.id);
 
-    if (follow.count === 1) {
-        await NotificationService.sendFollow(user.id, session.user.id);
-    }
-
-    return NextResponse.json({ success: true, following: true });
+    return NextResponse.json(
+        {
+            success: true,
+        },
+        {
+            status: 201
+        }
+    );
 }
 
 export async function DELETE(
@@ -68,16 +64,14 @@ export async function DELETE(
         return NextResponse.json({ err: "User not found" }, { status: 404 });
     }
 
-    const follow = await prisma.follow.deleteMany({
-        where: {
-            userId: session.user.id,
-            followId: user.id,
+    await unfollow(session.user.id, user.id);
+
+    return NextResponse.json(
+        {
+            success: true,
         },
-    });
-
-    if (follow.count === 1) {
-        await NotificationService.removeFollow(user.id, session.user.id);
-    }
-
-    return NextResponse.json({ success: true, following: false });
+        {
+            status: 200
+        }
+    );
 }

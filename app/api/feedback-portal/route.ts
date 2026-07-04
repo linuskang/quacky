@@ -1,13 +1,9 @@
 import { Up } from "@/server/upstream";
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/server/auth";
+import { getSession } from "@/server/auth";
 
 export async function POST(req: NextRequest) {
-    const session = await auth.api.getSession({
-        headers: req.headers,
-    })
-
-    console.log(await req.headers.get("cookie"));
+    const session = await getSession()
 
     if (!session) {
         return NextResponse.json(

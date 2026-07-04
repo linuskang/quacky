@@ -216,3 +216,125 @@ export async function fetchTrending() {
         count: hashtag._count.tag,
     }));
 }
+
+export async function getPost(postId: string, session: { user: { id: string } }) {
+    const post = await prisma.post.findFirst({
+        where: {
+            id: postId,
+            author: {
+                banned: false,
+            },
+            flagged: false,
+            OR: [
+                {
+                    repostOfId: null,
+                },
+                {
+                    repostOf: {
+                        author: {
+                            banned: false,
+                        },
+                    },
+                },
+            ],
+        },
+        select: {
+            id: true,
+            author: {
+                select: {
+                    name: true,
+                    username: true,
+                    image: true,
+                    verified: true,
+                    role: true,
+                },
+            },
+            content: true,
+            repostOfId: true,
+            repostOf: {
+                select: {
+                    id: true,
+                    author: {
+                        select: {
+                            name: true,
+                            username: true,
+                            image: true,
+                            verified: true,
+                            role: true,
+                        },
+                    },
+                    content: true,
+                    flagged: true,
+                    edited: true,
+                    createdAt: true,
+                    updatedAt: true,
+                    views: true,
+                    attachments: {
+                        select: {
+                            name: true,
+                            url: true,
+                            type: true,
+                        },
+                    },
+                },
+            },
+            flagged: true,
+            edited: true,
+            createdAt: true,
+            updatedAt: true,
+            views: true,
+            _count: {
+                select: {
+                    likes: true,
+                    reposts: true,
+                    comments: {
+                        where: {
+                            flagged: false,
+                        }
+                    },
+                },
+            },
+            likes: {
+                where: {
+                    userId: session.user.id,
+                },
+                select: {
+                    userId: true,
+                },
+            },
+            reposts: {
+                where: {
+                    authorId: session.user.id,
+                },
+                select: {
+                    id: true,
+                },
+            },
+            comments: {
+                where: {
+                    authorId: session.user.id,
+                },
+                select: {
+                    id: true,
+                },
+            },
+            bookmarks: {
+                where: {
+                    userId: session.user.id,
+                },
+                select: {
+                    userId: true,
+                },
+            },
+            attachments: {
+                select: {
+                    name: true,
+                    url: true,
+                    type: true,
+                },
+            },
+        },
+    });
+
+    return post
+}

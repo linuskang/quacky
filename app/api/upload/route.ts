@@ -1,11 +1,9 @@
-import { auth } from "@/server/auth";
 import { getPublicObjectUrl, getStorageKey, uploadObject } from "@/server/storage";
 import { NextRequest, NextResponse } from "next/server";
+import { getSession } from "@/server/auth";
 
 export async function POST(req: NextRequest) {
-    const session = await auth.api.getSession({
-        headers: req.headers,
-    });
+    const session = await getSession();
 
     if (!session) {
         return NextResponse.json(
@@ -18,8 +16,8 @@ export async function POST(req: NextRequest) {
         );
     }
 
-    const formData = await req.formData();
-    const file = formData.get("file") as File | null;
+    const data = await req.formData();
+    const file = data.get("file") as File; // typesafety baby!
 
     if (!file) {
         return NextResponse.json(
@@ -34,19 +32,23 @@ export async function POST(req: NextRequest) {
 
     const key = getStorageKey(
         session.user.id,
-        `${crypto.randomUUID()}-${file.name}`
+        crypto.randomUUID(),
     );
 
-    await uploadObject({
-        key,
-        body: Buffer.from(await file.arrayBuffer()),
-        contentType: file.type || undefined,
-    });
+    await uploadObject(
+        {
+            key,
+            body: Buffer.from(await file.arrayBuffer()),
+            contentType: file.type,
+        }
+    );
 
-    return NextResponse.json({
-        name: file.name,
-        type: file.type || null,
-        key,
-        url: getPublicObjectUrl(key),
-    });
+    return NextResponse.json(
+        {
+            name: file.name,
+            type: file.type,
+            key,
+            url: getPublicObjectUrl(key),
+        }
+    );
 }

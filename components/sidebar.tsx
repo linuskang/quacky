@@ -55,7 +55,7 @@ export function Sidebar({ session }: Props) {
     return (
         <div className={`h-full flex flex-col ${exo2.className}`}>
             <Link href="/">
-                <Image className="mx-auto mt-4"
+                <Image className="mx-auto mt-4 h-auto"
                     src="/quacky.png"
                     alt="Quacky logo"
                     width={200}

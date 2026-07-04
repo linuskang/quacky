@@ -1,5 +1,5 @@
 import { prisma } from "@/server/prisma";
-import { auth } from '@/server/auth';
+import { getSession } from '@/server/auth';
 import { NextRequest, NextResponse } from "next/server";
 import type { Post } from "@/types";
 import { sendMentionNotifications } from "@/server/mentions";
@@ -31,9 +31,7 @@ import { extractHashtags } from "@/lib/hashtags";
 import { fetchPosts } from "@/server/posts";
 
 export async function GET(req: NextRequest) {
-    const session = await auth.api.getSession({
-        headers: req.headers,
-    })
+    const session = await getSession();
 
     if (!session) {
         return NextResponse.json(
@@ -75,9 +73,7 @@ export type AttachmentBody = {
 }
 
 export async function POST(req: NextRequest) {
-    const session = await auth.api.getSession({
-        headers: req.headers,
-    });
+    const session = await getSession();
 
     if (!session) {
         return NextResponse.json(

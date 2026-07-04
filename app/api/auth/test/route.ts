@@ -1,10 +1,8 @@
-import { auth } from "@/server/auth";
+import { getSession } from "@/server/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-    const session = await auth.api.getSession({
-        headers: req.headers,
-    })
+    const session = await getSession();
 
     if (!session) {
         return NextResponse.json(
@@ -19,7 +17,6 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(
         {
-            msg: "You are authenticated",
             user: session.user,
         },
         {
