@@ -17,6 +17,7 @@ import { PostList } from "@/components/post";
 import { CommentCard } from "@/components/comment";
 import { getCommentsByUserId } from "@/server/comment";
 import { ReportUser } from "@/components/report";
+import { FollowCounts } from "@/components/follow-dialog";
 
 // This profile page is split into multiple parts:
 // Server utilities (server functions for fetching user data, and follow/unfollow functions)
@@ -85,10 +86,12 @@ export default async function Page(
                                                         className="h-[20px] w-[20px] fill-primary text-profile-card"
                                                     />
                                                 )}
-                                                {user.pronoun && (
-                                                    <span className="text-sm text-muted-foreground">
-                                                        ({user.pronoun})
-                                                    </span>
+                                                {!user.private && (
+                                                    user.pronoun && (
+                                                        <span className="text-sm text-muted-foreground">
+                                                            ({user.pronoun})
+                                                        </span>
+                                                    )
                                                 )}
                                                 {followsYou && (
                                                     <span className="ml-1 rounded-full bg-card px-2 py-0.5 text-xs font-semibold text-primary">
@@ -101,6 +104,13 @@ export default async function Page(
                                     <p className="text-base text-muted-foreground">
                                         @{user.username}
                                     </p>
+                                    {!user.private && (
+                                        <FollowCounts
+                                            handle={user.username}
+                                            followingCount={user.following.length}
+                                            followersCount={user.followers.length}
+                                        />
+                                    )}
                                 </div>
                             </div>
 
@@ -130,13 +140,19 @@ export default async function Page(
                         )}
 
                         {!user.banned && (
-                            user.bio ? (
-                                <Markdown>
-                                    {user.bio}
-                                </Markdown>
+                            !user.private ? (
+                                user.bio ? (
+                                    <Markdown>
+                                        {user.bio}
+                                    </Markdown>
+                                ) : (
+                                    <p className="mt-3 whitespace-pre-wrap text-muted-foreground italic text-base">
+                                        {user.private ? "This profile is private." : "No bio yet."}
+                                    </p>
+                                )
                             ) : (
                                 <p className="mt-3 whitespace-pre-wrap text-muted-foreground italic text-base">
-                                    {user.private ? "This profile is private." : "No bio yet."}
+                                    This account is private
                                 </p>
                             )
                         )}
@@ -151,93 +167,105 @@ export default async function Page(
                                     })}
                                 </span>
 
-                                {user.location && (
-                                    <span className="flex items-center font-semibold gap-1">
-                                        <MapPin className="h-4 w-4" strokeWidth={3} />
-                                        {user.location}
-                                    </span>
+                                {!user.private && (
+                                    <>
+                                        {user.location && (
+                                            <span className="flex items-center font-semibold gap-1">
+                                                <MapPin className="h-4 w-4" strokeWidth={3} />
+                                                {user.location}
+                                            </span>
+                                        )}
+
+                                        {user.website && (
+                                            <a
+                                                href={user.website}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="flex items-center font-semibold gap-1 hover:underline"
+                                            >
+                                                <ExternalLink className="h-4 w-4" strokeWidth={3} />
+                                                {user.website.replace(/^https?:\/\//, "")}
+                                            </a>
+                                        )}
+                                    </>
                                 )}
 
-                                {user.website && (
-                                    <a
-                                        href={user.website}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="flex items-center font-semibold gap-1 hover:underline"
-                                    >
-                                        <ExternalLink className="h-4 w-4" strokeWidth={3} />
-                                        {user.website.replace(/^https?:\/\//, "")}
-                                    </a>
+                                {session.user.id !== user.id && (
+                                    <ReportUser offenderHandle={user.username} />
                                 )}
-
-                                <ReportUser offenderHandle={user.username} />
                             </div>
                         )}
                     </CardContent>
                 </Card>
 
                 {!user.banned && (
-                    <Tabs defaultValue="posts" className="w-full max-w-lg mx-auto gap-0 -mt-2">
-                        <TabsList className="mt-3 grid h-auto w-full grid-cols-3 gap-3 rounded-none bg-transparent p-0">
-                            <TabsTrigger
-                                value="posts"
-                                className="h-10 rounded-full border-2 border-border bg-background/80 px-5 text-base font-extrabold text-foreground hover:border-primary data-active:!border-primary data-active:!bg-background"
-                            >
-                                Recent Posts
-                            </TabsTrigger>
-                            <TabsTrigger
-                                value="replies"
-                                className="h-10 rounded-full border-2 border-border bg-background/80 px-5 text-base font-extrabold text-foreground hover:border-primary data-active:!border-primary data-active:!bg-background"
-                            >
-                                Comments
-                            </TabsTrigger>
-                            <TabsTrigger
-                                value="badges"
-                                className="h-10 rounded-full border-2 border-border bg-background/80 px-5 text-base font-extrabold text-foreground hover:border-primary data-active:!border-primary data-active:!bg-background"
-                            >
-                                Badges
-                            </TabsTrigger>
-                        </TabsList>
+                    !user.private ? (
+                        <Tabs defaultValue="posts" className="w-full max-w-lg mx-auto gap-0 -mt-2">
+                            <TabsList className="mt-3 grid h-auto w-full grid-cols-3 gap-3 rounded-none bg-transparent p-0">
+                                <TabsTrigger
+                                    value="posts"
+                                    className="h-10 rounded-full border-2 border-border bg-background/80 px-5 text-base font-extrabold text-foreground hover:border-primary data-active:!border-primary data-active:!bg-background"
+                                >
+                                    Recent Posts
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="replies"
+                                    className="h-10 rounded-full border-2 border-border bg-background/80 px-5 text-base font-extrabold text-foreground hover:border-primary data-active:!border-primary data-active:!bg-background"
+                                >
+                                    Comments
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="badges"
+                                    className="h-10 rounded-full border-2 border-border bg-background/80 px-5 text-base font-extrabold text-foreground hover:border-primary data-active:!border-primary data-active:!bg-background"
+                                >
+                                    Badges
+                                </TabsTrigger>
+                            </TabsList>
 
-                        <TabsContent value="posts" className="p-0 pt-6 w-full text-sm text-muted-foreground">
-                            <PostList
-                                posts={posts}
-                            />
-                        </TabsContent>
-                        <TabsContent value="replies" className="p-0 pt-6 w-full text-sm text-muted-foreground">
-                            {replies.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">User has not commented on any posts yet. Sad face {":("}</p>
-                            ) : (
-                                <div className="flex flex-col gap-4 w-full">
-                                    {replies.map((reply) => (
-                                        <div key={reply.id}>
-                                            <Link
-                                                href={`/post/${reply.post.id}`}
-                                                className="mb-1 inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:underline"
-                                            >
-                                                Replying to
-                                                <Image
-                                                    src={reply.post.author.image}
-                                                    alt={reply.post.author.name}
-                                                    width={20}
-                                                    height={20}
-                                                    unoptimized
-                                                    className="inline-block rounded-full"
-                                                />
-                                                @{reply.post.author.username}
-                                            </Link>
-                                            <CommentCard comment={reply} />
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </TabsContent>
-                        <TabsContent value="badges" className="p-0 pt-6 text-sm text-muted-foreground">
-                            <Card className="p-4">
-                                <h1 className="text-lg font-bold">soon.</h1>
-                            </Card>
-                        </TabsContent>
-                    </Tabs>
+                            <TabsContent value="posts" className="p-0 pt-6 w-full text-sm text-muted-foreground">
+                                <PostList
+                                    posts={posts}
+                                />
+                            </TabsContent>
+                            <TabsContent value="replies" className="p-0 pt-6 w-full text-sm text-muted-foreground">
+                                {replies.length === 0 ? (
+                                    <p className="text-sm text-muted-foreground">User has not commented on any posts yet. Sad face {":("}</p>
+                                ) : (
+                                    <div className="flex flex-col gap-4 w-full">
+                                        {replies.map((reply) => (
+                                            <div key={reply.id}>
+                                                <Link
+                                                    href={`/post/${reply.post.id}`}
+                                                    className="mb-1 inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:underline"
+                                                >
+                                                    Replying to
+                                                    <Image
+                                                        src={reply.post.author.image}
+                                                        alt={reply.post.author.name}
+                                                        width={20}
+                                                        height={20}
+                                                        unoptimized
+                                                        className="inline-block rounded-full"
+                                                    />
+                                                    @{reply.post.author.username}
+                                                </Link>
+                                                <CommentCard comment={reply} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </TabsContent>
+                            <TabsContent value="badges" className="p-0 pt-6 text-sm text-muted-foreground">
+                                <Card className="p-4">
+                                    <h1 className="text-lg font-bold">soon.</h1>
+                                </Card>
+                            </TabsContent>
+                        </Tabs>
+                    ) : (
+                        <p className="mt-3 whitespace-pre-wrap text-center text-muted-foreground italic text-base">
+                            This account is private
+                        </p>
+                    )
                 )}
 
             </PageCenter>
