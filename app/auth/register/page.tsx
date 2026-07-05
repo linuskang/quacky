@@ -107,7 +107,7 @@ export default function Page() {
 
         await authClient.signUp.email({
             name,
-            username,
+            username: username.trim().toLowerCase(),
             email,
             password,
             callbackURL: "/",
