@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
+import { MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { setFollowing } from "./helpers";
 import { authClient } from "@/client/auth";
@@ -286,13 +288,27 @@ export function ProfileAction({
     }
 
     return (
-        <Button
-            variant={following ? "secondary" : "default"}
-            disabled={pending}
-            onClick={toggleFollow}
-            className="h-8 rounded-full bg-primary-2 px-4 text-sm font-semibold text-background hover:bg-primary-2/80"
-        >
-            {pending ? "Saving..." : following ? "Unfollow" : "Follow"}
-        </Button>
+        <div className="flex items-center gap-2">
+            <Button
+                variant={following ? "secondary" : "default"}
+                disabled={pending}
+                onClick={toggleFollow}
+                className="h-8 rounded-full bg-primary-2 px-4 text-sm font-semibold text-background hover:bg-primary-2/80"
+            >
+                {pending ? "Saving..." : following ? "Unfollow" : "Follow"}
+            </Button>
+
+            <Button
+                asChild
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 rounded-full border-2 border-border bg-card hover:border-primary"
+                aria-label={`Message ${username}`}
+            >
+                <Link href={`/dms/${username}`}>
+                    <MessageSquare strokeWidth={2.5} />
+                </Link>
+            </Button>
+        </div>
     );
 }

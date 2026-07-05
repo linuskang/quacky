@@ -1,136 +1,90 @@
-// wip
-
-import { ArrowUp, MoreHorizontal } from "lucide-react";
+import Link from "next/link";
+import { MessagesSquare } from "lucide-react";
+import { requireSession } from "@/server/auth";
+import { fetchConversations } from "@/server/dms";
+import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
+import { SearchBar } from "@/components/search-bar";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Bubble, BubbleContent } from "@/components/ui/bubble";
-import { Button } from "@/components/ui/button";
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group";
-import { Message, MessageContent } from "@/components/ui/message";
-import { PageCenter, PageLayout } from "@/components/page-layout";
-import { Card, CardTitle, CardContent, CardHeader, CardDescription } from "@/components/ui/card";
+import { Title } from "@/components/text";
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyMedia,
+    EmptyTitle,
+} from "@/components/ui/empty";
 
-export default function MessagesPage() {
+export default async function MessagesPage() {
+    const session = await requireSession();
+    const conversations = await fetchConversations({
+        userId: session.user.id,
+    });
+
     return (
         <PageLayout>
             <PageCenter>
-                <section className="flex min-h-0 flex-col">
-                    <header className="fixed top-0 z-10 flex w-full max-w-xl items-center justify-between bg-background px-4 py-3">
-                        <div className="flex gap-3">
-                            <Avatar className="h-11 w-11">
-                                <AvatarImage src="https://avatars.linus.my/10.x/micah/svg?seed=janedoe" />
-                            </Avatar>
+                <Title>Direct Messages</Title>
 
-                            <div>
-                                <h2 className="truncate text-base font-bold">Jane Doe</h2>
-                                <p className="truncate text-sm text-muted-foreground">@janedoe</p>
-                            </div>
-                        </div>
-
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="rounded-full"
-                        >
-                            <MoreHorizontal strokeWidth={3} />
-                        </Button>
-                    </header>
-
-
-                    <div className="fixed top-[68px] bottom-[88px] w-full max-w-xl scrollbar-none overflow-y-auto px-4">
-                        <div className="flex min-h-full flex-col justify-end space-y-4">
-
-                            <Card className="mx-auto w-full max-w-xs">
-                                <CardHeader className="justify-center">
-                                    <Avatar className="mb-2 h-16 w-16">
-                                        <AvatarImage src="https://avatars.linus.my/10.x/micah/svg?seed=janedoe" />
+                {conversations.length === 0 ? (
+                    <Empty className="mt-8">
+                        <EmptyContent>
+                            <EmptyMedia>
+                                <MessagesSquare className="size-8 text-muted-foreground" />
+                            </EmptyMedia>
+                            <EmptyTitle>No conversations yet</EmptyTitle>
+                            <EmptyDescription>
+                                DM someone from their profile to start a conversation.
+                            </EmptyDescription>
+                        </EmptyContent>
+                    </Empty>
+                ) : (
+                    <ul className="flex flex-col gap-1">
+                        {conversations.map((convo) => (
+                            <li key={convo.user.username}>
+                                <Link
+                                    href={`/dms/${convo.user.username}`}
+                                    className="flex items-center gap-3 rounded-2xl p-3 transition-colors hover:bg-card"
+                                >
+                                    <Avatar className="h-11 w-11 shrink-0">
+                                        <AvatarImage src={convo.user.image} />
                                     </Avatar>
 
-                                    <CardTitle>Jane Doe</CardTitle>
-                                    <CardDescription className="-mt-1">@janedoe</CardDescription>
-                                </CardHeader>
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-center justify-between gap-2">
+                                            <span className="truncate font-semibold">
+                                                {convo.user.name}
+                                            </span>
+                                            <span className="shrink-0 text-xs text-muted-foreground">
+                                                {new Date(
+                                                    convo.lastMessageAt
+                                                ).toLocaleString("en-US", {
+                                                    hour: "numeric",
+                                                    minute: "numeric",
+                                                    month: "short",
+                                                    day: "numeric",
+                                                })}
+                                            </span>
+                                        </div>
+                                        <p className="truncate text-sm text-muted-foreground">
+                                            {convo.lastMessage}
+                                        </p>
+                                    </div>
 
-                                <CardContent className="-mt-2 text-center">
-                                    <p className="text-sm text-muted-foreground">
-                                        This is the beginning of your conversation with Jane Doe.
-                                    </p>
-                                    <Button
-                                        variant="default"
-                                        className="rounded-full bg-primary-2 mr-2 mt-2 font-semibold"
-                                    >
-                                        Report
-                                    </Button>
-                                    <Button
-                                        variant="default"
-                                        className="rounded-full mt-2 font-semibold"
-                                    >
-                                        Block User
-                                    </Button>
-                                </CardContent>
-                            </Card>
-
-                            <Message align="end">
-                                <MessageContent>
-                                    <Bubble variant="ghost">
-                                        <BubbleContent
-                                            className="!rounded-2xl !rounded-br-md !bg-primary-2 !px-3 !py-2 text-sm leading-5 !text-primary-foreground"
-                                        >
-                                            Hi
-                                        </BubbleContent>
-                                    </Bubble>
-                                </MessageContent>
-                            </Message>
-
-                            <Message>
-                                <MessageContent>
-                                    <Bubble variant="ghost">
-                                        <BubbleContent
-                                            className="!rounded-2xl !rounded-bl-md !bg-card !px-3 !py-2 text-sm leading-5"
-                                        >
-                                            What&apos;s gooooood
-                                        </BubbleContent>
-                                    </Bubble>
-                                </MessageContent>
-                            </Message>
-                            <Message>
-                                <MessageContent>
-                                    <Bubble variant="ghost">
-                                        <BubbleContent
-                                            className="!rounded-2xl !rounded-bl-md !bg-card !px-3 !py-2 text-sm leading-5"
-                                        >
-                                            Hru
-                                        </BubbleContent>
-                                    </Bubble>
-                                </MessageContent>
-                            </Message>
-
-                            <Message align="end">
-                                <MessageContent>
-                                    <Bubble variant="ghost">
-                                        <BubbleContent
-                                            className="!rounded-2xl !rounded-br-md !bg-primary-2 !px-3 !py-2 text-sm leading-5 !text-primary-foreground"
-                                        >
-                                            ive been good
-                                        </BubbleContent>
-                                    </Bubble>
-                                </MessageContent>
-                            </Message>
-                        </div>
-                    </div>
-
-                    <div className="fixed bottom-4 w-full max-w-xl bg-background px-4 pt-2 ">
-                        <InputGroup className="h-auto items-end !rounded-full !ring-0 border-2 border-border p-2 focus-within:border-primary-2 dark:bg-background">
-                            <InputGroupInput
-                                placeholder="Message Jane Doe..."
-                            />
-                            <InputGroupAddon align="inline-end" className="p-0">
-                                <InputGroupButton size="icon-sm" className="mr-1 rounded-full bg-primary-2 text-primary-foreground hover:!bg-primary-2/80">
-                                    <ArrowUp strokeWidth={3} />
-                                </InputGroupButton>
-                            </InputGroupAddon>
-                        </InputGroup>
-                    </div>
-                </section>
+                                    {convo.unread > 0 && (
+                                        <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-primary-2 px-1.5 text-xs font-bold text-primary-foreground">
+                                            {convo.unread}
+                                        </span>
+                                    )}
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                )}
             </PageCenter>
+
+            <PageRight>
+                <SearchBar />
+            </PageRight>
         </PageLayout>
     );
 }

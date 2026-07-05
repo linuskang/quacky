@@ -24,6 +24,7 @@ export type FullUser = {
 };
 
 export type User = {
+    id?: string;
     name: string;
     username: string;
     image: string;
@@ -105,4 +106,20 @@ export type Follow = {
     userId: string;
     followId: string;
     createdAt: string;
+};
+
+export type Dm = {
+    id: string;
+    sender: User;
+    receiver: User;
+    message: string;
+    read: boolean;
+    createdAt: string;
+};
+
+export type Conversation = {
+    user: User;
+    lastMessage: string;
+    lastMessageAt: string;
+    unread: number;
 };
