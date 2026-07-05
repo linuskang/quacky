@@ -9,6 +9,8 @@ import { admin } from "better-auth/plugins"
 import { NotificationService } from "@/server/helpers";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { haveIBeenPwned } from "better-auth/plugins"
+import { openAPI } from "better-auth/plugins"
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -36,7 +38,13 @@ export const auth = betterAuth(
         }),
 
         plugins: [
-            admin()
+            admin({
+                bannedUserMessage: "Your account is banned. Please see an administrator for assistance.",
+            }),
+            haveIBeenPwned({
+                customPasswordCompromisedMessage: "This password has been compromised in a data breach. Please choose a different password."
+            }),
+            openAPI()
         ],
 
         emailAndPassword: {

@@ -1,5 +1,24 @@
 import { prisma } from "@/server/prisma";
 import { env } from "@/env";
+import OpenAI from "openai";
+
+export const AI = new OpenAI(
+    {
+        apiKey: env.AI_KEY,
+        baseURL: env.AI_URL
+    }
+);
+
+export async function chat(messages: OpenAI.Chat.ChatCompletionMessageParam[]) {
+    const response = await AI.chat.completions.create(
+        {
+            model: env.AI_MODEL!,
+            messages,
+        }
+    );
+
+    return response.choices[0].message.content ?? "";
+}
 
 type EngagementNotificationType = "like" | "repost" | "quote" | "comment";
 

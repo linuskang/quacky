@@ -16,6 +16,7 @@ import { Markdown } from "@/components/md";
 import { PostList } from "@/components/post";
 import { CommentCard } from "@/components/comment";
 import { getCommentsByUserId } from "@/server/comment";
+import { ReportUser } from "@/components/report";
 
 // This profile page is split into multiple parts:
 // Server utilities (server functions for fetching user data, and follow/unfollow functions)
@@ -168,6 +169,8 @@ export default async function Page(
                                         {user.website.replace(/^https?:\/\//, "")}
                                     </a>
                                 )}
+
+                                <ReportUser offenderHandle={user.username} />
                             </div>
                         )}
                     </CardContent>

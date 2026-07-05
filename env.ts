@@ -16,6 +16,8 @@ export const env = createEnv(
             BETTER_AUTH_URL: z.string(),
             DESCRIPTION: z.string(),
             AI_URL: z.string(),
+            AI_KEY: z.string(),
+            AI_MODEL: z.string(),
             RUSTFS_ENDPOINT: z.url(),
             RUSTFS_REGION: z.string().default("auto"),
             RUSTFS_ACCESS_KEY_ID: z.string(),
