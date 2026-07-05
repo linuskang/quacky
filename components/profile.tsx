@@ -374,7 +374,10 @@ export function Profile() {
                     <button
                         aria-label="Log out"
                         className="flex h-8 w-8 text-primary items-center justify-center"
-                        onClick={() => authClient.signOut()}
+                        onClick={async () => {
+                            await authClient.signOut();
+                            window.location.reload();
+                        }}
                     >
                         <LogOut className="h-5 w-5" strokeWidth={3} />
                     </button>
