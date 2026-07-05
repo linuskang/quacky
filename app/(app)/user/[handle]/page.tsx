@@ -8,10 +8,14 @@ import { BadgeCheck, CalendarDays, ExternalLink, MapPin } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { requireSession } from "@/server/auth";
 import { getUser } from "@/server/users";
+import { getPostsByUserId } from "@/server/posts";
 import { ProfileAction } from "./action";
 import { PurpleWarning } from "@/components/warning";
 import Link from "next/link";
 import { Markdown } from "@/components/md";
+import { PostList } from "@/components/post";
+import { CommentCard } from "@/components/comment";
+import { getCommentsByUserId } from "@/server/comment";
 
 // This profile page is split into multiple parts:
 // Server utilities (server functions for fetching user data, and follow/unfollow functions)
@@ -31,8 +35,13 @@ export default async function Page(
         notFound();
     }
 
+    // same as below
     const followsYou = user.following.includes(session.user.username);
     const following = user.followers.includes(session.user.username);
+
+    // for dropdowns. pre fetch on load.
+    const posts = await getPostsByUserId(user.id, session);
+    const replies = await getCommentsByUserId(user.id);
 
     return (
         <PageLayout>
@@ -40,7 +49,7 @@ export default async function Page(
                 <Link href="/" className="mb-3 flex items-center gap-2 text-sm font-semibold text-primary hover:underline">
                     Go back
                 </Link>
-                <Card className="overflow-hidden !bg-profile-card">
+                <Card className="overflow-hidden !bg-profile-card max-w-lg w-full mx-auto">
                     <CardHeader className="p-0 -mt-4">
                         {!user.banned && user.bannerImage && (
                             <Image
@@ -165,19 +174,19 @@ export default async function Page(
                 </Card>
 
                 {!user.banned && (
-                    <Tabs defaultValue="posts" className="w-full gap-0 -mt-2">
+                    <Tabs defaultValue="posts" className="w-full max-w-lg mx-auto gap-0 -mt-2">
                         <TabsList className="mt-3 grid h-auto w-full grid-cols-3 gap-3 rounded-none bg-transparent p-0">
                             <TabsTrigger
                                 value="posts"
                                 className="h-10 rounded-full border-2 border-border bg-background/80 px-5 text-base font-extrabold text-foreground hover:border-primary data-active:!border-primary data-active:!bg-background"
                             >
-                                Posts
+                                Recent Posts
                             </TabsTrigger>
                             <TabsTrigger
                                 value="replies"
                                 className="h-10 rounded-full border-2 border-border bg-background/80 px-5 text-base font-extrabold text-foreground hover:border-primary data-active:!border-primary data-active:!bg-background"
                             >
-                                Replies
+                                Comments
                             </TabsTrigger>
                             <TabsTrigger
                                 value="badges"
@@ -187,14 +196,43 @@ export default async function Page(
                             </TabsTrigger>
                         </TabsList>
 
-                        <TabsContent value="posts" className="p-4 text-sm text-muted-foreground">
-
+                        <TabsContent value="posts" className="p-0 pt-6 w-full text-sm text-muted-foreground">
+                            <PostList
+                                posts={posts}
+                            />
                         </TabsContent>
-                        <TabsContent value="replies" className="p-4 text-sm text-muted-foreground">
-                            Replies will show here soon.
+                        <TabsContent value="replies" className="p-0 pt-6 w-full text-sm text-muted-foreground">
+                            {replies.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">User has not commented on any posts yet. Sad face {":("}</p>
+                            ) : (
+                                <div className="flex flex-col gap-4 w-full">
+                                    {replies.map((reply) => (
+                                        <div key={reply.id}>
+                                            <Link
+                                                href={`/post/${reply.post.id}`}
+                                                className="mb-1 inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:underline"
+                                            >
+                                                Replying to
+                                                <Image
+                                                    src={reply.post.author.image}
+                                                    alt={reply.post.author.name}
+                                                    width={20}
+                                                    height={20}
+                                                    unoptimized
+                                                    className="inline-block rounded-full"
+                                                />
+                                                @{reply.post.author.username}
+                                            </Link>
+                                            <CommentCard comment={reply} />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </TabsContent>
-                        <TabsContent value="badges" className="p-4 text-sm text-muted-foreground">
-                            Badges will show here soon.
+                        <TabsContent value="badges" className="p-0 pt-6 text-sm text-muted-foreground">
+                            <Card className="p-4">
+                                <h1 className="text-lg font-bold">soon.</h1>
+                            </Card>
                         </TabsContent>
                     </Tabs>
                 )}

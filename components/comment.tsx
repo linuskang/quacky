@@ -8,7 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
-
+import Link from "next/link";
 import {
     InputGroup,
     InputGroupAddon,
@@ -229,8 +229,14 @@ export function CommentCard(
                     />
                 </div>
                 <div className="flex flex-col gap-2 min-w-0 flex-1">
-                    <div className="flex items-center gap-1 text-base font-semibold flex-wrap">
-                        <span className="text-primary">{comment.author.name}</span>
+                    <div className="flex items-center gap-1 text-base -mt-1 font-semibold flex-wrap">
+                        <Link
+                            href={`/@${comment.author.username}`}
+                            onClick={(event) => event.stopPropagation()}
+                            className="text-primary text-sm font-semibold hover:underline"
+                        >
+                            {comment.author.name}
+                        </Link>
 
                         {comment.author.verified && (
                             <BadgeCheck
@@ -242,9 +248,13 @@ export function CommentCard(
                             <Admin />
                         )}
 
-                        <span className="text-sm text-muted-foreground">
+                        <Link
+                            href={`/@${comment.author.username}`}
+                            onClick={(event) => event.stopPropagation()}
+                            className="text-sm text-muted-foreground font-semibold hover:underline"
+                        >
                             @{comment.author.username}
-                        </span>
+                        </Link>
 
                         {timeAgo && (
                             <span className="text-sm text-muted-foreground">

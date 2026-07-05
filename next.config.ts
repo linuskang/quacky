@@ -6,18 +6,18 @@ const nextConfig: NextConfig = {
         remotePatterns: [
             {
                 protocol: "https",
-                hostname: "api.dicebear.com",
-                pathname: "/9.x/glass/**",
+                hostname: "cdn.linus.my",
+                pathname: "/qky/**",
             },
             {
                 protocol: "https",
-                hostname: "api.dicebear.com",
-                pathname: "/10.x/disco/**",
+                hostname: "avatars.linus.my",
+                pathname: "/10.x/micah/**",
             },
             {
                 protocol: "https",
-                hostname: "github.com",
-                pathname: "/**",
+                hostname: "avatars.githubusercontent.com",
+                pathname: "/u/**",
             }
         ],
     },
@@ -30,7 +30,6 @@ const nextConfig: NextConfig = {
         ];
     },
     allowedDevOrigins: [
-        "localhost.linus.my",
         "qky.linus.my",
     ],
 }

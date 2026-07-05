@@ -31,8 +31,6 @@ model User {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(3)
 
-  sessions   Session[]
-  accounts   Account[]
   role       String?
   banned     Boolean?  @default(false)
   banReason  String?
@@ -47,23 +45,27 @@ model User {
   actorNotifications Notification[] @relation("NotificationActor")
   bookmarks          Bookmark[]
   postViews          PostView[]
+  sentDms            Dm[]           @relation("SentMessages")
+  receivedDms        Dm[]           @relation("ReceivedMessages")
+  sessions           Session[]
+  accounts           Account[]
 
   @@map("user")
 }
 
 model Post {
-  id          String       @id @default(uuid())
+  id          String        @id @default(uuid())
   authorId    String
-  author      User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  content     String       @default("")
-  flagged     Boolean      @default(false)
-  edited      Boolean      @default(false)
-  createdAt   DateTime     @default(now()) @db.Timestamptz(3)
-  updatedAt   DateTime     @updatedAt @db.Timestamptz(3)
-  views       Int          @default(1)
+  author      User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content     String        @default("")
+  flagged     Boolean       @default(false)
+  edited      Boolean       @default(false)
+  createdAt   DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime      @updatedAt @db.Timestamptz(3)
+  views       Int           @default(1)
   repostOfId  String?
-  repostOf    Post?        @relation("PostReposts", fields: [repostOfId], references: [id], onDelete: Cascade)
-  reposts     Post[]       @relation("PostReposts")
+  repostOf    Post?         @relation("PostReposts", fields: [repostOfId], references: [id], onDelete: Cascade)
+  reposts     Post[]        @relation("PostReposts")
   likes       Like[]
   comments    Comment[]
   attachments Attachment[]
@@ -189,6 +191,23 @@ model Notification {
   read Boolean @default(false)
 
   createdAt DateTime @default(now())
+}
+
+model Dm {
+  id         String @id @default(uuid())
+  senderId   String
+  receiverId String
+  message    String
+
+  createdAt DateTime @default(now())
+  read      Boolean  @default(false)
+
+  sender   User @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId, receiverId])
+  @@index([receiverId, senderId])
+  @@index([createdAt])
 }
 
 model Session {

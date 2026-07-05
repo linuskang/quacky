@@ -457,8 +457,47 @@ export async function getPostsByUserId(userId: string, session: { user: { id: st
                     },
                 },
             },
+            orderBy: {
+                createdAt: "desc",
+            },
         }
     );
 
-    return posts;
+    return posts.map((post) => ({
+        id: post.id,
+        author: post.author,
+        content: post.content,
+
+        repostOfId: post.repostOfId,
+        repostOf: post.repostOf
+            ? {
+                id: post.repostOf.id,
+                author: post.repostOf.author,
+                content: post.repostOf.content,
+                flagged: post.repostOf.flagged,
+                edited: post.repostOf.edited,
+                createdAt: post.repostOf.createdAt.toISOString(),
+                updatedAt: post.repostOf.updatedAt.toISOString(),
+                views: post.repostOf.views,
+                attachments: post.repostOf.attachments,
+            }
+            : null,
+
+        flagged: post.flagged,
+        edited: post.edited,
+        createdAt: post.createdAt.toISOString(),
+        updatedAt: post.updatedAt.toISOString(),
+        views: post.views,
+
+        likes: post._count.likes,
+        reposts: post._count.reposts,
+        comments: post._count.comments,
+
+        liked: post.likes.length > 0,
+        reposted: post.reposts.length > 0,
+        commented: post.comments.length > 0,
+        bookmarked: post.bookmarks.length > 0,
+
+        attachments: post.attachments,
+    })) as Post[];
 }
