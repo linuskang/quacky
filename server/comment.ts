@@ -5,7 +5,6 @@ export async function getComment(commentId: string) {
         {
             where: {
                 id: commentId,
-                flagged: false,
                 author: {
                     banned: false
                 }

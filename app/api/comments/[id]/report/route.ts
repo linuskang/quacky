@@ -1,22 +1,22 @@
-import { prisma } from "@/server/prisma";
-import { auth } from '@/server/auth';
+
+import { getSession } from '@/server/auth';
 import { NextRequest, NextResponse } from "next/server";
+import { getComment } from "@/server/comment";
 import { Up } from "@/server/upstream"
+import { Admin } from "@/server/administration"
+import { chat } from "@/server/helpers"
+import { NotificationService } from "@/server/helpers";
 import { env } from "@/env";
 
 export async function POST(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const session = await auth.api.getSession({
-        headers: req.headers,
-    })
+    const session = await getSession();
 
     if (!session) {
-        return NextResponse.json(
-            {
-                err: "Unauthorized",
-            },
+        return new NextResponse(
+            "Unauthorized",
             {
                 status: 401,
             }
@@ -24,20 +24,11 @@ export async function POST(
     }
 
     const { id } = await params;
-
-    const comment = await prisma.comment.findUnique(
-        {
-            where: {
-                id,
-            },
-        }
-    );
+    const comment = await getComment(id);
 
     if (!comment) {
-        return NextResponse.json(
-            {
-                err: "Comment not found",
-            },
+        return new NextResponse(
+            "Comment not found",
             {
                 status: 404,
             }
@@ -47,133 +38,111 @@ export async function POST(
     const body = await req.json();
 
     if (!body.reason) {
-        return NextResponse.json(
-            {
-                err: "Reason is required",
-            },
+        return new NextResponse(
+            "Reason is required",
             {
                 status: 400,
             }
         )
     }
 
-    const startTime = new Date().toLocaleTimeString("en-AU", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-    });
+    const output = await chat([
+        {
+            role: "system",
+            content: `
+You are a content moderation system for Quacky.
 
-    const res = await fetch(`${env.AI_URL}/moderate`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
+Determine whether a user's comment violates Quacky's rules.
+
+A comment is inappropriate if it contains or promotes:
+- hate speech
+- threats or encouragement of violence
+- harassment or targeted bullying
+- explicit sexual content
+- spam, scams, or impersonation
+- encouragement of self-harm
+- private personal information (doxxing)
+- usernames or profile text designed primarily to abuse or evade moderation
+
+The report reason is only additional context. Do NOT assume the report is truthful.
+However, with your own judgement, if the user's comment is inappropriate, return true even if the report reason is not entirely accurate.
+
+Return ONLY valid JSON.
+
+{
+  "is_inappropriate": boolean,
+  "reason": string
+}
+
+If the comment is acceptable, return:
+
+{
+  "is_inappropriate": false,
+  "reason": ""
+}
+`,
         },
-        body: JSON.stringify({
-            content: comment.content,
-        }),
-    });
+        {
+            role: "user",
+            content: `
+Comment: ${comment.content}
+User: ${comment.author.username}
 
-    const endTime = new Date().toLocaleTimeString("en-AU", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-    });
+Reporter's reason:
+${body.reason}
+`,
+        },
+    ])
 
-    let moderation: {
-        is_inappropriate: boolean;
-        reason: string;
-    } | null = null;
+    const result = JSON.parse(output);
 
-    if (res.ok) {
-        moderation = await res.json();
-        console.log("Moderation result:", moderation);
+    if (result.is_inappropriate) {
+        await Admin.flagComment(comment.id);
+        await NotificationService.send(
+            comment.authorId,
+            'quacky',
+            `Hello, ${comment.author.name}. \n\nYour [comment](${env.BETTER_AUTH_URL}/comment/${comment.id}) which you made on **${new Date().toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric", })}** has been flagged for review due to a violation of our [Community Guidelines](https://quacky.space/terms).\n\nReason given: **${result.reason}**\n\nIf you believe this is a mistake, please contact an school administrator.`
+        )
     }
 
-    const events = [
-        {
-            time: startTime,
-            icon: "📨",
-            content: "AI Moderation Request Sent",
+    await Up.ingest({
+        title: "Comment Report - " + comment.id,
+        icon: "🚩",
+        content: `A new report has been submitted for comment ${comment.id}. Reason: ${body.reason}`,
+        fields: [
+            {
+                name: "Author Username",
+                value: comment.author.username,
+            },
+            {
+                name: "Author ID",
+                value: comment.authorId,
+            },
+            {
+                name: "Auto Flagged?",
+                value: result.is_inappropriate ? "Yes" : "No",
+            },
+            {
+                name: "AI Reason",
+                value: result.reason,
+            }
+        ],
+        data: {
+            offender: comment,
+            reportReason: body.reason,
+            ai: {
+                isInappropriate: result.is_inappropriate,
+                reason: result.reason,
+            }
         },
-    ];
-
-    if (!res.ok || !moderation) {
-        events.push(
+        actions: [
             {
-                time: endTime,
-                icon: "⚠️",
-                content: "Request Failed.",
+                title: "View Comment",
+                type: "default",
+                url: `https://quacky.space/comment/${comment.id}`,
             }
-        );
-    } else if (moderation.is_inappropriate) {
-        await prisma.comment.update({
-            where: {
-                id: comment.id,
-            },
-            data: {
-                flagged: true,
-            },
-        });
-        events.push(
-            {
-                time: endTime,
-                icon: "🚫",
-                content: `${moderation.reason}`,
-            },
-            {
-                time: endTime,
-                icon: "⚠️",
-                content: `Comment flagged for review`,
-            }
-        );
-    } else {
-        events.push(
-            {
-                time: endTime,
-                icon: "✅",
-                content: `No violation found`,
-            }
-        );
-    }
-
-    await Up.ingest(
-        {
-            title: `Comment Report: ${comment.id}`,
-            content: `Reason: ${body.reason}`,
-            fields: [
-                {
-                    name: "Comment ID",
-                    value: comment.id,
-                },
-                {
-                    name: "Reported By",
-                    value: `${session.user.email}`,
-                },
-                {
-                    name: "Comment Content",
-                    value: comment.content,
-                },
-                {
-                    name: "Comment Author",
-                    value: `${comment.authorId}`,
-                },
-            ],
-            data: {
-                comment,
-                session,
-                moderation,
-            },
-            events,
-            actions: [
-                {
-                    title: "View Comment",
-                    url: `${env.BETTER_AUTH_URL}/comment/${comment.id}`,
-                    type: "default",
-                },
-            ],
-            icon: "🚨",
-        }
-    );
+        ]
+    });
 
     return NextResponse.json(
         {

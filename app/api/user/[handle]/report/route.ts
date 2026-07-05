@@ -8,7 +8,7 @@ import { Up } from "@/server/upstream"
 export async function POST(req: NextRequest, { params }: { params: Promise<{ handle: string }> }) {
     const session = await getSession();
     if (!session) {
-        return new Response("Unauthorized", { status: 401 });
+        return new NextResponse("Unauthorized", { status: 401 });
     }
 
     const { handle } = await params;

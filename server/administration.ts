@@ -71,4 +71,32 @@ export class Admin {
 
         return true
     }
+
+    static async flagComment(commentId: string) {
+        await prisma.comment.update(
+            {
+                where: {
+                    id: commentId
+                },
+                data: {
+                    flagged: true
+                }
+            }
+        );
+        return true
+    }
+
+    static async unflagComment(commentId: string) {
+        await prisma.comment.update(
+            {
+                where: {
+                    id: commentId
+                },
+                data: {
+                    flagged: false
+                }
+            }
+        );
+        return true
+    }
 }

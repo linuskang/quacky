@@ -224,7 +224,6 @@ export async function getPost(postId: string, session: { user: { id: string } })
             author: {
                 banned: false,
             },
-            flagged: false,
             OR: [
                 {
                     repostOfId: null,
@@ -249,6 +248,7 @@ export async function getPost(postId: string, session: { user: { id: string } })
                     role: true,
                 },
             },
+            authorId: true,
             content: true,
             repostOfId: true,
             repostOf: {

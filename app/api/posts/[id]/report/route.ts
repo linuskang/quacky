@@ -4,6 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { Up } from "@/server/upstream"
 import { env } from "@/env";
 import { NotificationService } from "@/server/helpers";
+import { getPost } from "@/server/posts";
+import { Admin } from "@/server/administration";
+import { chat } from "@/server/helpers";
 
 export async function POST(
     req: NextRequest,
@@ -12,10 +15,8 @@ export async function POST(
     const session = await getSession()
 
     if (!session) {
-        return NextResponse.json(
-            {
-                err: "Unauthorized",
-            },
+        return new NextResponse(
+            "Unauthorized",
             {
                 status: 401,
             }
@@ -24,31 +25,11 @@ export async function POST(
 
     const { id } = await params;
 
-    const post = await prisma.post.findUnique(
-        {
-            where: {
-                id,
-            },
-            include: {
-                author: {
-                    select: {
-                        id: true,
-                        name: true,
-                        username: true,
-                        image: true,
-                        verified: true,
-                        role: true,
-                    }
-                }
-            }
-        }
-    );
+    const post = await getPost(id, session);
 
     if (!post) {
-        return NextResponse.json(
-            {
-                err: "Post not found",
-            },
+        return new NextResponse(
+            "Post not found",
             {
                 status: 404,
             }
@@ -58,139 +39,111 @@ export async function POST(
     const body = await req.json();
 
     if (!body.reason) {
-        return NextResponse.json(
-            {
-                err: "Reason is required",
-            },
+        return new NextResponse(
+            "Reason is required",
             {
                 status: 400,
             }
         )
     }
 
-    const startTime = new Date().toLocaleTimeString("en-AU", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-    });
-
-    const res = await fetch(`${env.AI_URL}/moderate`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            content: post.content,
-        }),
-    });
-
-    const endTime = new Date().toLocaleTimeString("en-AU", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-    });
-
-    let moderation: {
-        is_inappropriate: boolean;
-        reason: string;
-    } | null = null;
-
-    if (res.ok) {
-        moderation = await res.json();
-        console.log("Moderation result:", moderation);
-    }
-
-    const events = [
+    const output = await chat([
         {
-            time: startTime,
-            icon: "📨",
-            content: "AI Moderation Request Sent",
+            role: "system",
+            content: `
+You are a content moderation system for Quacky.
+
+Determine whether a user post violates Quacky's rules.
+
+A post is inappropriate if it contains or promotes:
+- hate speech
+- threats or encouragement of violence
+- harassment or targeted bullying
+- explicit sexual content
+- spam, scams, or impersonation
+- encouragement of self-harm
+- private personal information (doxxing)
+- usernames or profile text designed primarily to abuse or evade moderation
+
+The report reason is only additional context. Do NOT assume the report is truthful.
+However, with your own judgement, if the user's post is inappropriate, return true even if the report reason is not entirely accurate.
+
+Return ONLY valid JSON.
+
+{
+  "is_inappropriate": boolean,
+  "reason": string
+}
+
+If the post is acceptable, return:
+
+{
+  "is_inappropriate": false,
+  "reason": ""
+}
+`,
         },
-    ];
+        {
+            role: "user",
+            content: `
+Post content: ${post.content}
+Author: ${post.author}
 
-    if (!res.ok || !moderation) {
-        events.push(
-            {
-                time: endTime,
-                icon: "⚠️",
-                content: "Request Failed.",
-            }
-        );
-    } else if (moderation.is_inappropriate) {
-        await prisma.post.update({
-            where: {
-                id: post.id,
-            },
-            data: {
-                flagged: true,
-            },
-        })
-        events.push(
-            {
-                time: endTime,
-                icon: "🚫",
-                content: `${moderation.reason}`,
-            },
-            {
-                time: endTime,
-                icon: "⚠️",
-                content: `Post flagged for review`,
-            }
-        );
+Reporter's reason:
+${body.reason}
+`,
+        },
+    ]);
 
+    const result = JSON.parse(output);
+
+    if (result.is_inappropriate) {
+        await Admin.flagPost(post.id);
         await NotificationService.send(
             post.authorId,
             'quacky',
-            `Hello, ${post.author.name}. \n\nYour [post](${env.BETTER_AUTH_URL}/post/${post.id}) which you made on **${new Date().toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric", })}** has been taken down due to a violation of our [Community Guidelines](https://quacky.space/terms).\n\nReason given: **${moderation?.reason}**\n\nIf you believe this is a mistake, please contact an school administrator.`
+            `Hello, ${post.author.name}. \n\nYour [post](${env.BETTER_AUTH_URL}/post/${post.id}) which you made on **${new Date().toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric", })}** has been taken down due to a violation of our [Community Guidelines](https://quacky.space/terms).\n\nReason given: **${result.reason}**\n\nIf you believe this is a mistake, please contact an school administrator.`
         )
-    } else {
-        events.push(
-            {
-                time: endTime,
-                icon: "✅",
-                content: `No violation found`,
-            }
-        );
     }
 
-    await Up.ingest(
-        {
-            title: `Post Report: ${post.id}`,
-            content: `Reason: ${body.reason}`,
-            fields: [
-                {
-                    name: "Post ID",
-                    value: post.id,
-                },
-                {
-                    name: "Reported By",
-                    value: `${session.user.email}`,
-                },
-                {
-                    name: "Post Content",
-                    value: post.content,
-                },
-                {
-                    name: "Post Author",
-                    value: `${post.author.name} (${post.authorId})`,
-                },
-            ],
-            data: {
-                post,
-                session,
-                moderation,
+    await Up.ingest({
+        title: "Post Report - " + post.id,
+        icon: "🚩",
+        content: `A new report has been submitted for post ${post.id}. Reason: ${body.reason}`,
+        fields: [
+            {
+                name: "Author Username",
+                value: post.author.username,
             },
-            events,
-            actions: [
-                {
-                    title: "View Post",
-                    url: `${env.BETTER_AUTH_URL}/post/${post.id}`,
-                    type: "default",
-                },
-            ],
-            icon: "🚨",
-        }
-    );
+            {
+                name: "Author ID",
+                value: post.authorId,
+            },
+            {
+                name: "Auto Flagged?",
+                value: result.is_inappropriate ? "Yes" : "No",
+            },
+            {
+                name: "AI Reason",
+                value: result.reason,
+            }
+        ],
+        data: {
+            offender: post,
+            reportReason: body.reason,
+            ai: {
+                isInappropriate: result.is_inappropriate,
+                reason: result.reason,
+            }
+        },
+        actions: [
+            {
+                title: "View Post",
+                type: "default",
+                url: `https://quacky.space/post/${post.id}`,
+            }
+        ]
+    });
 
     return NextResponse.json(
         {
