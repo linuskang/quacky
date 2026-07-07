@@ -49,6 +49,7 @@ model User {
   receivedDms        Dm[]           @relation("ReceivedMessages")
   sessions           Session[]
   accounts           Account[]
+  checkIns           CheckIn[]
 
   @@map("user")
 }
@@ -208,6 +209,24 @@ model Dm {
   @@index([senderId, receiverId])
   @@index([receiverId, senderId])
   @@index([createdAt])
+}
+
+model CheckIn {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  wellbeing  Int
+  happiness  Int
+  stress     Int
+  sleep      Int
+  energy     Int
+  assistance Boolean
+
+  date      DateTime @db.Date
+  createdAt DateTime @default(now())
+
+  @@unique([userId, date])
 }
 
 model Session {

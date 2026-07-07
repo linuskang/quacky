@@ -11,7 +11,7 @@ export function HomepageWidgets() {
             <SearchBar />
             <StreakWidget />
             <AboutWidget />
-            <RngWidget />
+            {/* <RngWidget /> */}
             <TrendingWidget />
         </>
     )

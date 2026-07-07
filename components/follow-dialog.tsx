@@ -1,16 +1,15 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { BadgeCheck } from "lucide-react";
 import { Admin } from "@/components/icons";
 import { toast } from "sonner";
 import type { User } from "@/types";
 import { Button } from "@/components/ui/button";
-import { DialogClose } from "@/components/ui/dialog";
 import { playfairDisplay } from "@/app/layout";
 
 type DialogType = "following" | "followers" | null;
@@ -29,19 +28,62 @@ export function FollowCounts({
     followersCount: number;
 }) {
     const [open, setOpen] = useState<DialogType>(null);
+    const [search, setSearch] = useState("");
+    const [data, setData] = useState<ApiResponse | null>(null);
+    const [loading, setLoading] = useState(false);
+
+    const fetchData = useCallback(async (type: DialogType, query: string) => {
+        if (!type) return;
+
+        setLoading(true);
+        try {
+            const endpoint = type === "following" ? "following" : "followers";
+            const params = new URLSearchParams();
+            if (query.trim()) params.set("search", query.trim());
+
+            const res = await fetch(`/api/user/${handle}/${endpoint}?${params.toString()}`);
+            if (!res.ok) {
+                toast.error(res.statusText);
+            }
+            const json = await res.json();
+            setData(json);
+        } catch {
+            toast.error("something happened");
+        } finally {
+            setLoading(false);
+        }
+    }, [handle]);
+
+    const openDialog = (type: DialogType) => {
+        setOpen(type);
+        setSearch("");
+        setData(null);
+        fetchData(type, "");
+    };
+
+    const closeDialog = () => {
+        setOpen(null);
+    };
+
+    const handleSearchChange = (value: string) => {
+        setSearch(value);
+        if (open) {
+            fetchData(open, value);
+        }
+    };
 
     return (
         <>
             <p className="mt-0.5 text-sm text-muted-foreground">
                 <button
-                    onClick={() => setOpen("following")}
+                    onClick={() => openDialog("following")}
                     className="hover:underline"
                 >
                     <span className="font-bold text-primary">{followingCount}</span> Following
                 </button>
                 <span className="mx-1.5">·</span>
                 <button
-                    onClick={() => setOpen("followers")}
+                    onClick={() => openDialog("followers")}
                     className="hover:underline"
                 >
                     <span className="font-bold text-primary">{followersCount}</span> Followers
@@ -49,55 +91,37 @@ export function FollowCounts({
             </p>
 
             <FollowDialog
-                handle={handle}
                 type={open}
-                onClose={() => setOpen(null)}
+                search={search}
+                data={data}
+                loading={loading}
+                onClose={closeDialog}
+                onSearchChange={handleSearchChange}
+                onSearchSubmit={() => open && fetchData(open, search)}
             />
         </>
     );
 }
 
 function FollowDialog({
-    handle,
     type,
+    search,
+    data,
+    loading,
     onClose,
+    onSearchChange,
+    onSearchSubmit,
 }: {
-    handle: string;
     type: DialogType;
+    search: string;
+    data: ApiResponse | null;
+    loading: boolean;
     onClose: () => void;
+    onSearchChange: (value: string) => void;
+    onSearchSubmit: () => void;
 }) {
-    const [search, setSearch] = useState("");
-    const [data, setData] = useState<ApiResponse | null>(null);
-    const [loading, setLoading] = useState(false);
-
     const isOpen = type !== null;
     const title = type === "following" ? "Following" : "Followers";
-    const endpoint = type === "following" ? "following" : "followers";
-
-    const fetchData = useCallback(async () => {
-        setLoading(true);
-        try {
-            const params = new URLSearchParams();
-            if (search.trim()) params.set("search", search.trim());
-
-            const res = await fetch(`/api/user/${handle}/${endpoint}?${params.toString()}`);
-            if (!res.ok) {
-                toast.error(res.statusText)
-            }
-            const json = await res.json()
-            setData(json);
-        } catch {
-            toast.error("something happened");
-        } finally {
-            setLoading(false);
-        }
-    }, [handle, type, endpoint, search]);
-
-    useEffect(() => {
-        if (isOpen) {
-            fetchData();
-        }
-    }, [isOpen, fetchData]);
 
     return (
         <Dialog open={isOpen} onOpenChange={(v) => !v && onClose()}>
@@ -111,8 +135,8 @@ function FollowDialog({
                     <Input
                         placeholder="Search users..."
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && fetchData()}
+                        onChange={(e) => onSearchChange(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && onSearchSubmit()}
                         className="flex-1 !bg-card border-2 border-border focus:!border-chart-3 !ring-0 h-8"
                     />
                 </div>

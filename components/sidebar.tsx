@@ -63,7 +63,7 @@ export function Sidebar({ session }: Props) {
                 />
             </Link>
 
-            <nav className="flex flex-col gap-1 px-2 flex-1 justify-center">
+            <nav className="flex flex-col flex-1 justify-center gap-1 px-2 ">
                 {items.map(({ href, label, icon: Icon }) => {
                     const active = pathname === href;
 

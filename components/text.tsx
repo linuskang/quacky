@@ -18,3 +18,16 @@ export function Title({ children, className }: Props) {
         </h1>
     );
 }
+
+export function Description({ children, className }: Props) {
+    return (
+        <p
+            className={cn(
+                "text-sm text-muted-foreground",
+                className
+            )}
+        >
+            {children}
+        </p>
+    );
+}

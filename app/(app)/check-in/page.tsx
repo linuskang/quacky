@@ -1,0 +1,184 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { authClient } from "@/client/auth";
+import Loading from "@/components/loading";
+import { Title, Description } from "@/components/text";
+import { PageLayout, PageCenter } from "@/components/page-layout";
+import { PurpleWarning } from "@/components/warning";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { Card } from "@/components/ui/card";
+import axios from "axios";
+import { toast } from "sonner";
+import Image from "next/image";
+
+interface CheckInFormData {
+    wellbeing: number;
+    happiness: number;
+    stress: number;
+    sleep: number;
+    energy: number;
+    assistance: boolean;
+}
+
+
+
+function Star({ value, onChange }: { value: number, onChange: (value: number) => void }) {
+    const [hover, setHover] = useState<number | null>(null);
+    const display = hover ?? value;
+
+    return (
+        <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-1">
+                {Array.from({ length: 5 }, (_, i) => {
+                    const starValue = i + 1;
+                    const filled = starValue <= display;
+
+                    return (
+                        <button
+                            key={starValue}
+                            type="button"
+                            onClick={() => onChange(starValue)}
+                            onMouseEnter={() => setHover(starValue)}
+                            onMouseLeave={() => setHover(null)}
+                            className="relative h-8 w-8 cursor-pointer transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+                            aria-label={`Rate ${starValue} out of 5`}
+                        >
+                            <Image
+                                src={filled ? "/star.svg" : "/star-empty.svg"}
+                                alt=""
+                                fill
+                                className="object-contain"
+                                sizes="32px"
+                            />
+                        </button>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
+
+const questions = [
+    { id: 1, name: "wellbeing" as const, label: "How do you feel overall today?" },
+    { id: 2, name: "happiness" as const, label: "How happy do you feel right now?" },
+    { id: 3, name: "stress" as const, label: "How stressed do you feel right now?" },
+    { id: 4, name: "sleep" as const, label: "How well did you sleep last night?" },
+    { id: 5, name: "energy" as const, label: "How much energy do you have right now?" },
+];
+
+export default function Page() {
+    const { data: session, isPending } = authClient.useSession();
+    const [hasCheckedIn, setHasCheckedIn] = useState(false);
+
+    const {
+        control,
+        handleSubmit,
+        reset,
+        formState: { isSubmitting },
+    } = useForm<CheckInFormData>({
+        defaultValues: {
+            wellbeing: 3,
+            happiness: 3,
+            stress: 3,
+            sleep: 3,
+            energy: 3,
+            assistance: false,
+        },
+    });
+
+    useEffect(() => {
+        axios.get("/api/me").then((res) => {
+
+            const data = res.data
+            if (data.hasCheckedIn) {
+                setHasCheckedIn(true);
+            }
+        })
+    }, [session]);
+
+    const onSubmit = async (data: CheckInFormData) => {
+        try {
+            await axios.post("/api/check-in", data);
+            toast.success("Thanks for checking in today! Come back tomorrow to submit another review.");
+            setHasCheckedIn(true);
+            reset();
+        } catch {
+            toast.error("Something went wrong. sorry!")
+        }
+    };
+
+    if (isPending) {
+        return <Loading />
+    }
+
+    return (
+        <PageLayout>
+            <PageCenter>
+                <Title>Check In</Title>
+                <Description>
+                    Welcome! Please try and complete this check in everyday to help school staff gather anonymous student wellbeing data.
+                </Description>
+
+                {hasCheckedIn ? (
+                    <PurpleWarning text="Thanks for checking in today! Come back tomorrow to submit another review." />
+                ) : (
+                    <Card className="bg-card-primary p-4">
+                        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-10">
+                            {questions.map((field) => (
+                                <Field key={field.name}>
+                                    <FieldLabel className="text-base">
+                                        {field.id}. {field.label}
+                                    </FieldLabel>
+                                    <Controller
+                                        name={field.name}
+                                        control={control}
+                                        rules={{
+                                            required: "Please select a value",
+                                            min: { value: 1, message: "Value must be at least 1" },
+                                            max: { value: 5, message: "Value must be at most 5" },
+                                        }}
+                                        render={({ field: { value, onChange } }) => (
+                                            <Star value={value} onChange={onChange} />
+                                        )}
+                                    />
+                                </Field>
+                            ))}
+
+                            <Field orientation="horizontal">
+                                <Controller
+                                    name="assistance"
+                                    control={control}
+                                    render={({ field: { value, onChange } }) => (
+                                        <Switch
+                                            checked={value}
+                                            onCheckedChange={onChange}
+                                            id="assistance"
+                                        />
+                                    )}
+                                />
+
+
+                                <FieldLabel htmlFor="assistance" className="cursor-pointer">
+                                    I would like to talk to a school staff member
+                                </FieldLabel>
+                            </Field>
+
+                            <Button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="w-full border-2 border-border bg-background text-primary font-semibold h-10 rounded-full text-sm hover:!bg-background hover:!border-primary"
+                            >
+                                {isSubmitting ? "Submitting..." : "Submit Check-in"}
+                            </Button>
+                        </form>
+                    </Card>
+
+                )}
+            </PageCenter>
+        </PageLayout>
+    );
+}
