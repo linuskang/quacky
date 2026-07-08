@@ -54,6 +54,7 @@ export type EmbeddedPost = {
 
 export type Post = {
     id: string;
+    authorId: string;
     author: User;
     content: string;
 

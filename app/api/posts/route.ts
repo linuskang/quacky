@@ -45,9 +45,12 @@ export async function GET(req: NextRequest) {
         )
     }
 
+    const feed = req.nextUrl.searchParams.get("feed") as "recent" | "following" | "popular" | "foryou" | null;
+
     const posts = await fetchPosts({
         userId: session.user.id,
         hashtag: req.nextUrl.searchParams.get("hashtag"),
+        feed: feed ?? "recent",
     });
 
     return NextResponse.json(posts);

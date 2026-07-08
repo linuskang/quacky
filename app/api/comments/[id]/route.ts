@@ -107,6 +107,7 @@ export async function GET(
         },
         post: {
             id: post.id,
+            authorId: post.authorId,
             author: serializeUser(post.author),
             content: post.content,
             repostOfId: post.repostOfId,

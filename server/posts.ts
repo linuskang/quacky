@@ -6,18 +6,50 @@ import type { Post } from "@/types";
 export async function fetchPosts({
     userId,
     hashtag,
+    feed = "recent",
+    take = 10000000, // will need to come back and sort this out later.
 }: {
     userId: string;
     hashtag?: string | null;
+    feed?: "recent" | "following" | "popular" | "foryou";
+    take?: number;
 }) {
     const normalisedHashtag = hashtag?.toLowerCase();
+    const isScoredFeed = feed === "popular" || feed === "foryou";
+
+    const since = new Date();
+    since.setDate(since.getDate() - 7);
+
+    const followingIds = feed === "following" || feed === "foryou"
+        ? new Set(
+            (await prisma.follow.findMany({
+                where: { userId },
+                select: { followId: true },
+            })).map((follow) => follow.followId)
+        )
+        : null;
 
     const posts = await prisma.post.findMany({
         where: {
             flagged: false,
+            // TODO:
+            // start ai
             author: {
                 banned: false,
+                ...(feed === "following" && followingIds && {
+                    followers: {
+                        some: {
+                            userId,
+                        },
+                    },
+                }),
             },
+            ...(isScoredFeed && {
+                createdAt: {
+                    gte: since,
+                },
+            }),
+            // end ai
             hashtags: normalisedHashtag
                 ? {
                     some: {
@@ -41,6 +73,7 @@ export async function fetchPosts({
         },
         select: {
             id: true,
+            authorId: true,
 
             author: {
                 select: {
@@ -148,10 +181,12 @@ export async function fetchPosts({
         orderBy: {
             createdAt: "desc",
         },
+        take: take,
     });
 
-    return posts.map((post) => ({
+    let mapped = posts.map((post) => ({
         id: post.id,
+        authorId: post.authorId,
         author: post.author,
         content: post.content,
 
@@ -186,7 +221,36 @@ export async function fetchPosts({
         bookmarked: post.bookmarks.length > 0,
 
         attachments: post.attachments,
-    })) as Post[];
+    }));
+
+
+    // TODO: implement my own algo using python api server
+    // done by ai, will be coming back to do my own algorithm later
+    if (feed === "popular") {
+        mapped = mapped
+            .map((post) => [post, post.likes + post.reposts * 2 + post.comments * 1.5 + post.views * 0.5] as const)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, take)
+            .map(([post]) => post);
+    }
+
+    if (feed === "foryou") {
+        const now = Date.now();
+        mapped = mapped
+            .map((post) => {
+                const hoursAgo = (now - new Date(post.createdAt).getTime()) / 36e5;
+                const followed = followingIds?.has(post.authorId) ? 50 : 0;
+                const score = post.likes + post.reposts * 2 + post.comments * 1.5 + post.views * 0.5 - hoursAgo * 2 + followed;
+                return [post, score] as const;
+            })
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, take)
+            .map(([post]) => post);
+    }
+
+    // end ai
+
+    return mapped as Post[];
 }
 
 export async function fetchTrending() {
