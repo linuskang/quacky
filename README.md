@@ -83,6 +83,7 @@ this project is governed under the CC BY-NC 4.0 license. see the [license](LICEN
 
 ## credits
 
-Project by [LInus Kang](https://github.com/linuskang). Artwork by [my sister](https://sushi.kang.software).
+Project by [LInus Kang](https://github.com/linuskang). Artwork by [my sister](https://sushi.kang.software). For any questions, send them to linus@linus.my.
 
-For any questions, send them to linus@linus.my.
+the following studies also helped me develop Quacky:
+- Edelson, L., Haugen, F., & McCoy, D. (2025). A Comparative Survey Of Algorithmic Feed Recommendation System Designs. ACM Transactions on Recommender Systems. https://doi.org/10.1145/3757327
