@@ -33,4 +33,5 @@ export const xp = {
     like: 1,//
     follow: 5,//
     report: 1,//
+    checkIn: 15,
 }

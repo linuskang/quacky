@@ -3,6 +3,8 @@ import { hasCheckedIn, checkIn } from "@/server/check-in";
 import { NextRequest, NextResponse } from "next/server";
 import { Up } from "@/server/upstream"
 import { env } from "@/env";
+import { xp } from "@/lib/var";
+import { addXP } from "@/server/users";
 
 interface CheckInProps {
     wellbeing: number;
@@ -47,6 +49,11 @@ export async function POST(req: NextRequest) {
         energy: body.energy,
         assistance: body.assistance
     });
+
+    await addXP(
+        session.user.username,
+        xp.checkIn
+    )
 
     if (res.assistance) {
         await Up.ingest({
