@@ -26,3 +26,11 @@ export const rules = [
         description: "Do not share personal information about others without their consent. No doxxing, surveillance, or stalking.",
     }
 ]
+
+export const xp = {
+    post: 10, //
+    comment: 5,//
+    like: 1,//
+    follow: 5,//
+    report: 1,//
+}

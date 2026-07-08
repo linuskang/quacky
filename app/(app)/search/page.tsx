@@ -1,6 +1,6 @@
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
 import { TrendingWidget } from "@/components/widgets/trending";
-import { Title } from "@/components/text";
+import { Description, Title } from "@/components/text";
 import { requireSession } from "@/server/auth";
 import { fetchPosts } from "@/server/posts";
 import { fetchSearchHashtags, fetchSearchUsers } from "@/server/search";
@@ -21,9 +21,9 @@ export default async function Page() {
             <PageCenter>
                 <Title>Search {":>"}</Title>
 
-                <p className="text-xs -mt-2 text-muted-foreground">
+                <Description>
                     &quot;the feature that will be used by the 1% of users&quot; - facedev
-                </p>
+                </Description>
                 <SearchResults posts={posts} users={users} hashtags={hashtags} />
             </PageCenter>
             <PageRight>

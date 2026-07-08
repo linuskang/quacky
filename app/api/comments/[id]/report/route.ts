@@ -7,6 +7,8 @@ import { Admin } from "@/server/administration"
 import { chat } from "@/server/helpers"
 import { NotificationService } from "@/server/helpers";
 import { env } from "@/env";
+import { xp } from "@/lib/var";
+import { addXP } from "@/server/users";
 
 export async function POST(
     req: NextRequest,
@@ -104,6 +106,11 @@ ${body.reason}
             `Hello, ${comment.author.name}. \n\nYour [comment](${env.BETTER_AUTH_URL}/comment/${comment.id}) which you made on **${new Date().toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric", })}** has been flagged for review due to a violation of our [Community Guidelines](https://quacky.space/terms).\n\nReason given: **${result.reason}**\n\nIf you believe this is a mistake, please contact an school administrator.`
         )
     }
+
+    await addXP(
+        session.user.username,
+        xp.report
+    )
 
     await Up.ingest({
         title: "Comment Report - " + comment.id,

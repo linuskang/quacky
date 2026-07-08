@@ -7,6 +7,8 @@ import { NotificationService } from "@/server/helpers";
 import { getPost } from "@/server/posts";
 import { Admin } from "@/server/administration";
 import { chat } from "@/server/helpers";
+import { xp } from "@/lib/var";
+import { addXP } from "@/server/users";
 
 export async function POST(
     req: NextRequest,
@@ -105,6 +107,11 @@ ${body.reason}
             `Hello, ${post.author.name}. \n\nYour [post](${env.BETTER_AUTH_URL}/post/${post.id}) which you made on **${new Date().toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric", })}** has been taken down due to a violation of our [Community Guidelines](https://quacky.space/terms).\n\nReason given: **${result.reason}**\n\nIf you believe this is a mistake, please contact an school administrator.`
         )
     }
+
+    await addXP(
+        session.user.username,
+        xp.report
+    )
 
     await Up.ingest({
         title: "Post Report - " + post.id,

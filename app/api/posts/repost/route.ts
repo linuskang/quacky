@@ -2,6 +2,8 @@ import { prisma } from "@/server/prisma";
 import { auth } from '@/server/auth';
 import { NextRequest, NextResponse } from "next/server";
 import { NotificationService } from "@/server/helpers";
+import { xp } from "@/lib/var";
+import { addXP } from "@/server/users"
 
 export async function POST(req: NextRequest) {
     const session = await auth.api.getSession({
@@ -77,6 +79,11 @@ export async function POST(req: NextRequest) {
         session.user.id,
         res.id,
     );
+
+    await addXP(
+        session.user.username,
+        xp.post
+    )
 
     return NextResponse.json(
         {

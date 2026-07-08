@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { sendMentionNotifications } from "@/server/mentions";
 import { env } from "@/env";
 import { NotificationService } from "@/server/helpers";
+import { xp } from "@/lib/var";
+import { addXP } from "@/server/users";
 
 export interface CommentBody {
     content: string;
@@ -94,6 +96,11 @@ export async function POST(
         actorUsername: session.user.username,
         message: `mentioned you in a [comment](${env.BETTER_AUTH_URL}/post/${post.id})`,
     });
+
+    await addXP(
+        session.user.username,
+        xp.comment
+    );
 
     return NextResponse.json(
         {

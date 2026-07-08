@@ -36,6 +36,9 @@ model User {
   banReason  String?
   banExpires DateTime?
 
+  xp     Int @default(0)
+  points Int @default(0)
+
   posts              Post[]
   following          Follow[]       @relation("UserFollowing")
   followers          Follow[]       @relation("UserFollowers")

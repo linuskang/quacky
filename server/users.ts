@@ -45,3 +45,98 @@ export async function getUser(handle: string) {
         followers,
     }
 }
+
+export async function addXP(handle: string, increase: number) {
+    const user = await getUser(handle);
+
+    if (!user) {
+        return null;
+    }
+
+    const xp = user.xp + increase;
+
+    await prisma.user.update({
+        where: {
+            username: handle,
+        },
+        data: {
+            xp
+        }
+    })
+
+    return true
+
+}
+
+export async function addPoints(handle: string, increase: number) {
+    const user = await getUser(handle);
+
+    if (!user) {
+        return null;
+    }
+
+    const points = user.points + increase;
+
+    await prisma.user.update({
+
+        where: {
+            username: handle,
+        },
+
+        data: {
+            points
+        }
+    })
+
+    return true
+}
+
+export async function removePoints(handle: string, decrease: number) {
+    const user = await getUser(handle);
+
+    if (!user) {
+        return null;
+    }
+
+    let points = user.points - decrease;
+
+    if (points < 0) {
+        points = 0
+    }
+
+    await prisma.user.update({
+        where: {
+            username: handle,
+        },
+        data: {
+            points
+        }
+    })
+
+    return true;
+}
+
+export async function removeXP(handle: string, decrease: number) {
+    const user = await getUser(handle);
+
+    if (!user) {
+        return null;
+    }
+
+    let xp = user.xp - decrease;
+
+    if (xp < 0) {
+        xp = 0
+    }
+
+    await prisma.user.update({
+        where: {
+            username: handle,
+        },
+        data: {
+            xp
+        }
+    })
+
+    return true
+}

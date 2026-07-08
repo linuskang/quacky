@@ -4,7 +4,7 @@ import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
 import { SearchBar } from "@/components/search-bar";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import Image from "next/image";
-import { BadgeCheck, CalendarDays, ExternalLink, MapPin } from "lucide-react";
+import { AtSign, BadgeCheck, CalendarDays, ExternalLink, Landmark, MapPin, Star } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { requireSession } from "@/server/auth";
 import { getUser } from "@/server/users";
@@ -158,10 +158,10 @@ export default async function Page(
                         )}
 
                         {!user.banned && (
-                            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                            <div className="mt-3 flex flex-wrap gap-x-2 gap-y-2 text-sm text-muted-foreground">
                                 <span className="flex items-center gap-1 font-semibold">
-                                    <CalendarDays className="h-4 w-4" strokeWidth={3} />
-                                    Joined {new Date(user.createdAt).toLocaleDateString("en-US", {
+                                    <AtSign className="h-4 w-4" strokeWidth={3} />
+                                    {new Date(user.createdAt).toLocaleDateString("en-US", {
                                         year: "numeric",
                                         month: "long",
                                     })}
@@ -169,6 +169,14 @@ export default async function Page(
 
                                 {!user.private && (
                                     <>
+                                        <span className="flex items-center font-semibold gap-1">
+                                            <Star className="h-4 w-4" strokeWidth={3} />
+                                            {user.xp} xp
+                                        </span>
+                                        <span className="flex items-center font-semibold gap-1">
+                                            <Landmark className="h-4 w-4" strokeWidth={3} />
+                                            {user.points}$
+                                        </span>
                                         {user.location && (
                                             <span className="flex items-center font-semibold gap-1">
                                                 <MapPin className="h-4 w-4" strokeWidth={3} />
@@ -235,7 +243,7 @@ export default async function Page(
                                         {replies.map((reply) => (
                                             <div key={reply.id}>
                                                 <Link
-                                                    href={`/post/${reply.post.id}`}
+                                                    href={`/comment/${reply.id}`}
                                                     className="mb-1 inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:underline"
                                                 >
                                                     Replying to

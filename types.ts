@@ -11,6 +11,8 @@ export type FullUser = {
     streamerMode: boolean;
     hideTips: boolean;
     bio?: string | null;
+    xp: number;
+    points: number;
     bannerImage?: string | null;
     pronoun?: string | null;
     location?: string | null;

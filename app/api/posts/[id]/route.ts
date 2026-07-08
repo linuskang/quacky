@@ -6,6 +6,8 @@ import { NotificationService } from "@/server/helpers";
 import { getCommentsByPostId } from "@/server/comment";
 import { getPost } from "@/server/posts";
 import type { Attachment } from "@/types"
+import { removeXP } from "@/server/users";
+import { xp } from "@/lib/var";
 
 export async function GET(
     _req: NextRequest,
@@ -131,9 +133,7 @@ export async function DELETE(
 
     if (!session) {
         return NextResponse.json(
-            {
-                err: "Unauthorized",
-            },
+            "Unauthorized",
             {
                 status: 401,
             }
@@ -196,6 +196,11 @@ export async function DELETE(
     }
 
     await NotificationService.removeEngagementsForPost(post.id);
+
+    await removeXP(
+        session.user.username,
+        xp.post
+    )
 
     return NextResponse.json(
         {

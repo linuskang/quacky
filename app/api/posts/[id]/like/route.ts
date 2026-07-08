@@ -2,6 +2,8 @@ import { prisma } from "@/server/prisma";
 import { getSession } from '@/server/auth';
 import { NextRequest, NextResponse } from "next/server";
 import { NotificationService } from "@/server/helpers";
+import { xp } from "@/lib/var";
+import { addXP, removeXP } from "@/server/users"
 
 export async function POST(
     _req: NextRequest,
@@ -63,6 +65,11 @@ export async function POST(
             post.id,
         );
     }
+
+    await addXP(
+        session.user.username,
+        xp.like
+    )
 
     return NextResponse.json(
         {
@@ -133,6 +140,11 @@ export async function DELETE(
             post.id,
         );
     }
+
+    await removeXP(
+        session.user.username,
+        xp.like
+    )
 
     return NextResponse.json(
         {

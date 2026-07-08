@@ -6,6 +6,8 @@ import { NotificationService } from "@/server/helpers";
 import { deleteComment, getComment, getCommentByPostId } from "@/server/comment";
 import { getPost } from "@/server/posts";
 import type { Attachment } from "@/types";
+import { xp } from "@/lib/var";
+import { removeXP } from "@/server/users";
 
 type PrismaUser = Omit<User, "role"> & {
     role: string | null;
@@ -201,6 +203,11 @@ export async function DELETE(
     }
 
     await deleteComment(id);
+
+    await removeXP(
+        session.user.username,
+        xp.comment
+    );
 
     await NotificationService.removeEngagement(
         "comment",

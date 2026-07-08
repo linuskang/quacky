@@ -99,6 +99,8 @@ export async function GET(
             createdAt: user.createdAt,
             verified: user.verified,
             private: user.private,
+            xp: user.xp,
+            points: user.points,
             role: user.role,
             bio: user.bio,
             website: user.website,

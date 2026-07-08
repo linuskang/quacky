@@ -1,10 +1,11 @@
 import { prisma } from "@/server/prisma";
 import { getSession } from '@/server/auth';
 import { NextRequest, NextResponse } from "next/server";
-import type { Post } from "@/types";
 import { sendMentionNotifications } from "@/server/mentions";
 import { env } from "@/env";
 import { extractHashtags } from "@/lib/hashtags";
+import { addXP } from "@/server/users";
+import { xp } from "@/lib/var";
 
 // This is the main endpoint for fetching the most recent posts.
 // Returns normal posts, reposts, and quoted posts.
@@ -77,9 +78,7 @@ export async function POST(req: NextRequest) {
 
     if (!session) {
         return NextResponse.json(
-            {
-                err: "Unauthorized",
-            },
+            "Unauthorized",
             {
                 status: 401,
             }
@@ -88,24 +87,11 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json() as PostBody;
 
-    if (!body.content) {
-        return NextResponse.json(
-            {
-                err: "Content is required",
-            },
-            {
-                status: 400,
-            }
-        );
-    }
 
     const content = body.content.trim();
-
-    if (content.length === 0 || content.length > 400) {
+    if (!content || content.length === 0 || content.length > 400) {
         return NextResponse.json(
-            {
-                err: "Invalid content length",
-            },
+            "Invalid content",
             {
                 status: 400,
             }
@@ -184,36 +170,15 @@ export async function POST(req: NextRequest) {
         }
     );
 
-    const newPost: Post = {
-        id: post.id,
-        author: {
-            name: post.author.name,
-            username: post.author.username,
-            image: post.author.image,
-            verified: post.author.verified,
-        },
-        content: post.content,
-        repostOfId: null,
-        repostOf: null,
-        flagged: post.flagged,
-        edited: post.edited,
-        createdAt: post.createdAt.toISOString(),
-        updatedAt: post.updatedAt.toISOString(),
-        views: post.views,
-        likes: post._count.likes,
-        comments: post._count.comments,
-        reposts: post._count.reposts,
-        attachments: post.attachments.map((attachment) => ({
-            id: attachment.id,
-            name: attachment.name,
-            url: attachment.url,
-            type: attachment.type,
-            createdAt: attachment.createdAt.toISOString(),
-        })),
-    };
+    await addXP(
+        session.user.username,
+        xp.post
+    );
 
     return NextResponse.json(
-        newPost,
+        {
+            success: true
+        },
         {
             status: 201
         }
