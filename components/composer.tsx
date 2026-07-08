@@ -287,7 +287,7 @@ export function Composer() {
                 <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-md bg-card-primary/70 p-4 text-center">
                     <Lock className="h-6 w-6 text-primary" strokeWidth={3} />
                     <p className="text-sm font-bold text-primary">
-                        The Posting Module is Locked
+                        Posting is Locked!
                     </p>
                     <Button size="sm" className="mt-1 rounded-full" asChild>
                         <Link href="/quiz/post">

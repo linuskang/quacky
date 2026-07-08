@@ -1,9 +1,9 @@
 import { getSession } from "@/server/auth";
-import { hasCheckedIn } from "@/server/check-in";
-import { NextRequest, NextResponse } from "next/server";
+import { getCheckInSummary, hasCheckedIn } from "@/server/check-in";
+import { NextResponse } from "next/server";
 import { prisma } from "@/server/prisma";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     const session = await getSession();
 
     if (!session) {
@@ -15,7 +15,10 @@ export async function GET(req: NextRequest) {
         );
     }
 
-    const hasCheckedInToday = await hasCheckedIn(session.user.id);
+    const [hasCheckedInToday, streak] = await Promise.all([
+        hasCheckedIn(session.user.id),
+        getCheckInSummary(session.user.id),
+    ]);
     const canPost = await prisma.user.findUnique({
         where: {
             id: session.user.id
@@ -41,10 +44,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(
         {
             hasCheckedIn: hasCheckedInToday,
-            canPost: canPost.unlockedPosting
+            canPost: canPost.unlockedPosting,
+            streak,
         },
         {
-            status: 200
+            status: 200,
         }
     );
 }

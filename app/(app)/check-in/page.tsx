@@ -105,6 +105,7 @@ export default function Page() {
             await axios.post("/api/check-in", data);
             toast.success("Thanks for checking in today! Come back tomorrow to submit another review.");
             setHasCheckedIn(true);
+            window.dispatchEvent(new Event("quacky:check-in"));
             reset();
         } catch {
             toast.error("Something went wrong. sorry!")
