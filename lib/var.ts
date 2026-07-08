@@ -35,3 +35,26 @@ export const xp = {
     report: 1,//
     checkIn: 15,
 }
+
+export const quizes = [
+    {
+        id: "post",
+        name: "Posting",
+        description: "Complete this quiz to unlock posting! (Please note that the questions for this quiz havent been finalised yet, so just press the correct option in Question 1 to unlock the posting module.",
+        to: "/quiz/post",
+        time: "8 min",
+        xp: 50,
+        questions: [
+            {
+                id: 1,
+                question: "Press on Option B to complete this quiz.",
+                options: [
+                    { id: "a", text: "Im incorrect" },
+                    { id: "b", text: "Im correct", correct: true },
+                    { id: "c", text: "Im incorrect" },
+                    { id: "d", text: "Im incorrect" }
+                ],
+            },
+        ]
+    }
+]

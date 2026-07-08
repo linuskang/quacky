@@ -140,3 +140,100 @@ export async function removeXP(handle: string, decrease: number) {
 
     return true
 }
+
+export async function unlockPosting(handle: string) {
+    const user = await getUser(handle);
+
+    if (!user) {
+        return null;
+    }
+
+    await prisma.user.update({
+        where: {
+            username: handle,
+        },
+        data: {
+            unlockedPosting: true
+        }
+    })
+
+    console.log(`Unlocked posting for ${handle}`)
+
+    return true
+}
+
+export async function unlockCommenting(handle: string) {
+    const user = await getUser(handle);
+
+    if (!user) {
+        return null;
+    }
+
+    await prisma.user.update({
+        where: {
+            username: handle,
+        },
+        data: {
+            unlockedCommenting: true
+        }
+    })
+
+    return true
+}
+
+export async function unlockDms(handle: string) {
+    const user = await getUser(handle);
+
+    if (!user) {
+        return null;
+    }
+
+    await prisma.user.update({
+        where: {
+            username: handle,
+        },
+        data: {
+            unlockedDms: true
+        }
+    })
+
+    return true
+}
+
+export async function unlockFuzzies(handle: string) {
+    const user = await getUser(handle);
+
+    if (!user) {
+        return null;
+    }
+
+    await prisma.user.update({
+        where: {
+            username: handle,
+        },
+        data: {
+            unlockedFuzzies: true
+        }
+    })
+
+    return true
+}
+
+export async function unlockProfiles(handle: string) {
+    const user = await getUser(handle);
+
+    if (!user) {
+        return null;
+    }
+
+    await prisma.user.update({
+        where: {
+            username: handle,
+        },
+        data: {
+            unlockedProfiles: true
+        }
+    })
+
+    return true
+}

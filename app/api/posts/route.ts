@@ -85,6 +85,13 @@ export async function POST(req: NextRequest) {
         );
     }
 
+    if (!session.user.unlockedPosting) {
+        return new NextResponse(
+            "Posting is locked for your account. Please complete the quiz at /quiz/post to unlock posting!",
+            { status: 403 }
+        )
+    }
+
     const body = await req.json() as PostBody;
 
 

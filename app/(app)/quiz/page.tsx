@@ -1,0 +1,90 @@
+"use client";
+
+import { Title, Description } from "@/components/text";
+import { PageLayout, PageCenter } from "@/components/page-layout";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Star, Clock } from "lucide-react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { toast } from "sonner";
+import Loading from "@/components/loading";
+
+interface Quiz {
+    name: string;
+    description: string;
+    to: string;
+    time: string;
+    xp: number;
+}[]
+
+export default function Page() {
+    const [quiz, setQuiz] = useState<Quiz[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchQuizzes() {
+            try {
+                setLoading(true);
+                const response = await axios.get("/api/quizes");
+                setQuiz(response.data.quizes);
+            } catch {
+                toast.error("something exploded. sorry please try again later");
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchQuizzes();
+    }, []);
+
+    return (
+        <PageLayout>
+            <PageCenter>
+                <Title>Quizes</Title>
+                <Description>Complete various quizes to unlock new account features like posting and commenting! Doing questions earns you cash for the shop.</Description>
+
+                {loading ? (
+                    <Loading />
+                ) : (
+                    <div className="mt-4 grid grid-cols-1 gap-2 md:grid-cols-2">
+                        {quiz.map((quiz, index) => (
+                            <Card key={index} className="flex h-full gap-2 flex-col bg-card-primary">
+                                <CardHeader>
+                                    <CardTitle>{quiz.name}</CardTitle>
+                                </CardHeader>
+
+                                <CardContent className="flex-1">
+                                    <p className="text-sm text-muted-foreground">
+                                        {quiz.description}
+                                    </p>
+                                </CardContent>
+
+                                <CardFooter>
+                                    <Button
+                                        size="sm"
+                                        className="h-7 rounded-md border-2 border-border bg-card hover:!bg-card hover:!border-primary font-semibold text-primary"
+                                        asChild
+                                    >
+                                        <Link href={quiz.to}>Attempt Quiz</Link>
+                                    </Button>
+                                    <div className="flex items-center ml-1">
+                                        <div className="flex items-center gap-1">
+                                            <Clock className="size-4 text-muted-foreground" strokeWidth={3} />
+                                            <span className="text-xs font-semibold text-muted-foreground">{quiz.time}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1 ml-1">
+                                            <Star className="size-4 text-muted-foreground" strokeWidth={3} />
+                                            <span className="text-xs font-semibold text-muted-foreground">{quiz.xp} xp</span>
+                                        </div>
+                                    </div>
+                                </CardFooter>
+                            </Card>
+                        ))}
+                    </div>
+                )}
+            </PageCenter>
+        </PageLayout>
+    )
+}

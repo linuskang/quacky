@@ -18,6 +18,7 @@ import {
     GraduationCap,
     FerrisWheel,
     Store,
+    BookCheck,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -42,7 +43,8 @@ export function Sidebar({ session }: Props) {
         { href: "/fuzzies", label: "warm fuzzies", icon: Briefcase },
         { href: "/trending", label: "trending", icon: TrendingUp },
         { href: "/check-in", label: "daily check in", icon: MessageCircleCheck },
-        { href: "/emotion-wheel", label: "emotion wheel", icon: FerrisWheel },
+        { href: "/quiz", label: "quizes", icon: BookCheck },
+        //{ href: "/emotion-wheel", label: "emotion wheel", icon: FerrisWheel },
         // { href: "/games", label: "games", icon: Swords },
         { href: "/bookmarks", label: "bookmarks", icon: Bookmark },
         // { href: "/shop", label: "shop", icon: Store },

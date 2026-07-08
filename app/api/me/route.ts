@@ -1,6 +1,7 @@
 import { getSession } from "@/server/auth";
 import { hasCheckedIn } from "@/server/check-in";
 import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/server/prisma";
 
 export async function GET(req: NextRequest) {
     const session = await getSession();
@@ -15,10 +16,32 @@ export async function GET(req: NextRequest) {
     }
 
     const hasCheckedInToday = await hasCheckedIn(session.user.id);
+    const canPost = await prisma.user.findUnique({
+        where: {
+            id: session.user.id
+        },
+        select: {
+            unlockedPosting: true
+        }
+    })
+
+    // type checking is weird man....
+    // already declared that if the session isnt valid above
+    // then return 401 but typescript is like "nah bro what if it is still null"
+    // talk about redundant....
+    if (!canPost) {
+        return new NextResponse(
+            "User not found",
+            {
+                status: 404
+            }
+        );
+    }
 
     return NextResponse.json(
         {
-            hasCheckedIn: hasCheckedInToday
+            hasCheckedIn: hasCheckedInToday,
+            canPost: canPost.unlockedPosting
         },
         {
             status: 200

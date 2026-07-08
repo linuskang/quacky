@@ -36,6 +36,12 @@ model User {
   banReason  String?
   banExpires DateTime?
 
+  unlockedPosting    Boolean @default(false)
+  unlockedCommenting Boolean @default(false)
+  unlockedDms        Boolean @default(false)
+  unlockedFuzzies    Boolean @default(false)
+  unlockedProfiles   Boolean @default(false)
+
   xp     Int @default(0)
   points Int @default(0)
 

@@ -89,7 +89,7 @@ export default async function Page(
                                                 {!user.private && (
                                                     user.pronoun && (
                                                         <span className="text-sm text-muted-foreground">
-                                                            ({user.pronoun})
+                                                            {user.pronoun}
                                                         </span>
                                                     )
                                                 )}

@@ -137,6 +137,31 @@ export const auth = betterAuth(
                 website: {
                     type: "string",
                     required: false
+                },
+                unlockedPosting: {
+                    type: "boolean",
+                    required: true,
+                    default: false
+                },
+                unlockedCommenting: {
+                    type: "boolean",
+                    required: false,
+                    default: false
+                },
+                unlockedDms: {
+                    type: "boolean",
+                    required: false,
+                    default: false
+                },
+                unlockedFuzzies: {
+                    type: "boolean",
+                    required: false,
+                    default: false,
+                },
+                unlockedProfiles: {
+                    type: "boolean",
+                    required: false,
+                    default: false
                 }
             }
         },
