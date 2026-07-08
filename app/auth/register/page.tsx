@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import Loading from "@/components/loading"
 
 type Step = 1 | 2 | 3;
 
@@ -79,8 +80,10 @@ export default function Page() {
     const [error, setError] = useState("");
     const [rules, setRules] = useState<{ title: string; description: string }[]>([]);
     const [orgName, setOrgName] = useState("");
+    const [loadingAssets, setLoadingAssets] = useState(false);
 
     useEffect(() => {
+        setLoadingAssets(true);
         fetch("/api/meta")
             .then((res) => res.json())
             .then((data) => {
@@ -90,8 +93,7 @@ export default function Page() {
             .catch((err) => {
                 toast.error(err.message);
             });
-
-        console.log(rules);
+        setLoadingAssets(false);
     }, [])
 
     const createAccount = async (e: React.FormEvent) => {
@@ -154,6 +156,8 @@ export default function Page() {
 
                 <Stepper step={step} />
 
+                {loadingAssets && <Loading />}
+
                 {step === 1 && (
                     <div className="space-y-3">
                         <div>
@@ -164,7 +168,6 @@ export default function Page() {
                                 These are set and enforced by moderators.
                             </p>
                         </div>
-
                         <div className="space-y-0 rounded-xl border-2 border-border overflow-hidden bg-card">
                             {rules?.map((rule, i) => (
                                 <div key={rule.title}>
@@ -268,7 +271,7 @@ export default function Page() {
                         </div>
 
                         {error && (
-                            <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2.5 text-sm text-destructive">
+                            <div className="rounded-md border-2 border-destructive bg-destructive/10 px-3 py-2.5 text-sm text-destructive">
                                 {error}
                             </div>
                         )}
