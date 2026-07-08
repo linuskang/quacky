@@ -1,38 +1,71 @@
-// Libraries
-import { fetchPosts } from "@/server/posts";
-import { requireSession } from "@/server/auth";
+"use client";
 
-// Components
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { toast } from "sonner";
+
 import { PostList } from "@/components/post";
 import { Composer } from "@/components/composer";
 import { Tabs } from "@/components/post-tabs";
 import { HomepageWidgets } from "./widgets";
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
+import type { Post } from "@/types";
+import Loading from "../loading";
 
-export default async function Page() {
-    const session = await requireSession();
+const tabs = [
+    { name: "Recent", id: "recent" },
+    { name: "For you", id: "foryou" },
+    { name: "Following", id: "following" },
+    { name: "Popular", id: "popular" },
+];
 
-    const posts = await fetchPosts({
-        userId: session.user.id
-    });
+export default function Page() {
+    const [activeTab, setActiveTab] = useState("recent");
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function loadPosts() {
+            setLoading(true);
+            try {
+                const endpoints: Record<string, string> = {
+                    recent: "/api/posts",
+                    foryou: "/api/posts/foryou",
+                    following: "/api/posts/following",
+                    popular: "/api/posts/popular",
+                };
+
+                const res = await axios.get(endpoints[activeTab]);
+                setPosts(res.data);
+            } catch {
+                toast.error("i think my server blew up because I CANT LOAD POSTS RIGHT NOW 😭😭😭");
+                setPosts([])
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadPosts();
+    }, [activeTab]);
 
     return (
         <PageLayout>
             <PageCenter>
                 <Composer />
                 <Tabs
-                    tabs={[
-                        { name: "Recent", href: "#", current: true },
-                        { name: "For you", href: "#foryou", current: false },
-                        { name: "Following", href: "#following", current: false },
-                        { name: "Popular", href: "#popular", current: false },
-                    ]}
+                    tabs={tabs}
+                    activeTab={activeTab}
+                    onSelect={setActiveTab}
                 />
-                <PostList posts={posts} />
+                {loading ? (
+                    <Loading />
+                ) : (
+                    <PostList posts={posts} />
+                )}
             </PageCenter>
             <PageRight>
                 <HomepageWidgets />
             </PageRight>
         </PageLayout>
-    )
+    );
 }
