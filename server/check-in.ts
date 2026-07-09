@@ -107,11 +107,13 @@ export async function getCheckInSummary(userId: string) {
     });
 
     const checkedDates = new Set(
-        checkIns.map((checkIn) => dateKey(checkIn.createdAt))
+        checkIns.map((checkIn) => dateKey(checkIn.date))
     );
 
     let currentStreak = 0;
-    const cursor = new Date(today);
+    const cursor = checkedDates.has(dateKey(today))
+        ? new Date(today)
+        : addDays(today, -1);
 
     while (checkedDates.has(dateKey(cursor))) {
         currentStreak++;

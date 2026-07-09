@@ -1,21 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { authClient } from "@/client/auth";
 import Link from "next/link";
 import Image from "next/image";
+import axios from "axios"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Github } from "@/components/icons"
 
-
 export default function Page() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [bannermsg, setBannerMsg] = useState("");
+
+    useEffect(() => {
+        const fetchMsg = async () => {
+            try {
+                await axios.get('/api/meta').then((res) => {
+                    setBannerMsg(res.data.org.loginBannerMsg)
+                })
+            } catch {
+                toast.error('somethign blew up. please try again later.')
+            }
+        }
+        fetchMsg()
+    }, []);
 
     const login = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -101,6 +116,12 @@ export default function Page() {
                     </p>
                 </div>
 
+                {bannermsg && (
+                    <div className="rounded-md border-2 border-primary-2 bg-primary-2/10 px-3 py-2.5 text-sm text-primary-2 space-y-2 mb-4">
+                        <p className="whitespace-pre-line">{bannermsg}</p>
+                    </div>
+                )}
+
                 <div className="space-y-2 mb-4">
                     <Button
                         onClick={loginGithub}
@@ -160,7 +181,7 @@ export default function Page() {
                         />
                         <div className="mt-1 text-right">
                             <Link href="/auth/forgot-password" className="text-xs text-primary-2 hover:underline">
-                                Forgot password?
+                                Forgot your password?
                             </Link>
                         </div>
                     </div>

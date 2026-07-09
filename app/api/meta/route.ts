@@ -13,7 +13,8 @@ export async function GET() {
             org: {
                 name: env.ORG_NAME,
                 description: env.DESCRIPTION,
-                rules
+                rules,
+                loginBannerMsg: env.LOGIN_BANNER_MESSAGE
             },
             version: version,
             stats: {
