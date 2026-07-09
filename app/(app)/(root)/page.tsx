@@ -11,6 +11,7 @@ import { HomepageWidgets } from "./widgets";
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
 import type { Post } from "@/types";
 import Loading from "../loading";
+import { SuggestedPeopleFeedCard } from "@/components/suggested-people";
 
 const tabs = [
     { name: "Recent", id: "recent" },
@@ -60,7 +61,7 @@ export default function Page() {
                 {loading ? (
                     <Loading />
                 ) : (
-                    <PostList posts={posts} />
+                    <PostList posts={posts} afterFirst={<SuggestedPeopleFeedCard />} />
                 )}
             </PageCenter>
             <PageRight>

@@ -53,16 +53,21 @@ import { Card } from "./ui/card";
 
 export function PostList({
     posts,
+    afterFirst,
 }: {
     posts: Post[];
+    afterFirst?: React.ReactNode;
 }) {
     return (
         <div className="flex flex-col gap-4 max-w-lg w-full">
             {posts.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No posts yet.</p>
             ) : (
-                posts.map((post) => (
-                    <PostCard key={post.id} post={post} />
+                posts.map((post, index) => (
+                    <div key={post.id} className="contents">
+                        <PostCard post={post} />
+                        {index === 0 && afterFirst}
+                    </div>
                 ))
             )}
         </div>

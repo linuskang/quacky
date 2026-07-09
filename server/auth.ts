@@ -196,7 +196,7 @@ export const auth = betterAuth(
                             return {
                                 data: {
                                     ...user,
-                                    image: `https://avatars.linus.my/10.x/micah/svg?seed=${encodeURIComponent(user.name)}`
+                                    image: `https://avatars.lkang.au/10.x/micah/svg?seed=${encodeURIComponent(user.name)}`
                                 }
                             };
                         }

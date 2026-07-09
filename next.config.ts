@@ -3,6 +3,10 @@ import type { NextConfig } from "next"
 const nextConfig: NextConfig = {
     output: "standalone",
     images: {
+        dangerouslyAllowLocalIP: true,
+        dangerouslyAllowSVG: true,
+        contentDispositionType: "attachment",
+        contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
         remotePatterns: [
             {
                 protocol: "https",
@@ -11,13 +15,13 @@ const nextConfig: NextConfig = {
             },
             {
                 protocol: "https",
-                hostname: "avatars.linus.my",
-                pathname: "/10.x/micah/**",
+                hostname: "avatars.githubusercontent.com",
+                pathname: "/u/**",
             },
             {
                 protocol: "https",
-                hostname: "avatars.githubusercontent.com",
-                pathname: "/u/**",
+                hostname: "avatars.lkang.au",
+                pathname: "/10.x/**",
             }
         ],
     },
