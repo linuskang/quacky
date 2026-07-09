@@ -46,6 +46,50 @@ export async function getUser(handle: string) {
     }
 }
 
+export async function getUserById(id: string) {
+
+    const user = await prisma.user.findUnique(
+        {
+            where: {
+                id,
+            },
+            include: {
+                following: {
+                    select: {
+                        follow: {
+                            select: {
+                                username: true,
+                            },
+                        },
+                    },
+                },
+                followers: {
+                    select: {
+                        user: {
+                            select: {
+                                username: true,
+                            },
+                        },
+                    },
+                },
+            },
+        }
+    )
+
+    if (!user) {
+        return null;
+    }
+
+    const following = user.following.map(({ follow }) => follow.username);
+    const followers = user.followers.map(({ user }) => user.username);
+
+    return {
+        ...user,
+        following,
+        followers,
+    }
+}
+
 export async function addXP(handle: string, increase: number) {
     const user = await getUser(handle);
 

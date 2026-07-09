@@ -42,6 +42,9 @@ model User {
   unlockedFuzzies    Boolean @default(false)
   unlockedProfiles   Boolean @default(false)
 
+  fuzzySent     Fuzzy[] @relation("FuzzyAuthor")
+  fuzzyReceived Fuzzy[] @relation("FuzzyReceiver")
+
   xp     Int @default(0)
   points Int @default(0)
 
@@ -61,6 +64,19 @@ model User {
   checkIns           CheckIn[]
 
   @@map("user")
+}
+
+model Fuzzy {
+    id         String @id @default(uuid())
+
+    authorId   String
+    author     User @relation("FuzzyAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+    receiverId String
+    receiver   User @relation("FuzzyReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+    message    String
+    flagged    Boolean @default(false)
 }
 
 model Post {
