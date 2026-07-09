@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Flag } from "lucide-react";
@@ -28,7 +28,7 @@ export function ReportUser({ offenderHandle }: Props) {
             toast.success("Report submitted. Thank you for helping us keep the community safe.");
             setOpen(false);
             setReportReason("");
-        } catch (error) {
+        } catch {
             toast.error("uh oh, something went wrong. Please try again later.");
         } finally {
             setReportPending(false);

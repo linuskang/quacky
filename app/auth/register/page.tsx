@@ -80,20 +80,24 @@ export default function Page() {
     const [error, setError] = useState("");
     const [rules, setRules] = useState<{ title: string; description: string }[]>([]);
     const [orgName, setOrgName] = useState("");
-    const [loadingAssets, setLoadingAssets] = useState(false);
+    const [loadingAssets, setLoadingAssets] = useState(true);
 
     useEffect(() => {
-        setLoadingAssets(true);
-        fetch("/api/meta")
-            .then((res) => res.json())
-            .then((data) => {
+        async function loadMeta() {
+            try {
+                const res = await fetch("/api/meta");
+                const data = await res.json();
+
                 setRules(data.org.rules);
                 setOrgName(data.org.name);
-            })
-            .catch((err) => {
-                toast.error(err.message);
-            });
-        setLoadingAssets(false);
+            } catch (err) {
+                toast.error(err instanceof Error ? err.message : "Failed to load metadata.");
+            } finally {
+                setLoadingAssets(false);
+            }
+        }
+
+        loadMeta();
     }, [])
 
     const createAccount = async (e: React.FormEvent) => {
