@@ -28,6 +28,10 @@ ENV AI_URL="https://nolooking.com"
 ENV DESCRIPTION="no"
 ENV RUSTFS_ACCESS_KEY_ID="dummy-access-key"
 ENV RUSTFS_SECRET_ACCESS_KEY="dummy-secret-access-key"
+ENV GOOGLE_CLIENT_ID="dummy-google-client-id"
+ENV GOOGLE_CLIENT_SECRET="dummy-google-client-secret"
+ENV AI_KEY="dummy-ai-key"
+ENV AI_MODEL="dummy-ai-model"
 
 RUN npx prisma generate
 RUN npm run build
