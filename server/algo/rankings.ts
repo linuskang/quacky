@@ -21,6 +21,7 @@
 // https://doi.org/10.1145/3757327
 
 import { fetchPosts } from "@/server/posts"
+import { prisma } from "@/server/prisma"
 
 export default class Algorithms {
     // this function takes in all posts and sorts them
@@ -110,6 +111,30 @@ export default class Algorithms {
     }
 
     static async forYou(userId: string) {
-        const popular = await this.popular(userId)
+        return this.popular(userId)
+    }
+
+    static async following(userId: string) {
+        const [posts, following] = await Promise.all([
+            fetchPosts({ userId }),
+            prisma.follow.findMany({
+                where: {
+                    userId,
+                },
+                select: {
+                    followId: true,
+                },
+            }),
+        ])
+
+        const followingIds = new Set(following.map((follow) => follow.followId))
+
+        return posts.filter((post) => {
+            if (followingIds.has(post.author.id ?? "")) return true
+
+            return post.repostOf
+                ? followingIds.has(post.repostOf.author.id ?? "")
+                : false
+        })
     }
 }
