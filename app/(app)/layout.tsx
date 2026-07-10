@@ -24,36 +24,36 @@ import { PageLayout, PageLeft, PageCenter } from "@/components/page-layout"
 import { Feedback } from "@/components/feedback"
 
 export const metadata = {
-  title: "Quacky",
-  description: "A social media platform by linus.",
+    title: "Quacky",
+    description: "A social media platform by linus.",
 }
 
 export default async function QuackyLayout({
-  children,
+    children,
 }: {
-  children: React.ReactNode
+    children: React.ReactNode
 }) {
-  const session = await requireSession()
-  return (
-    <PageLayout>
-      <PageLeft>
-        <Sidebar
-          session={{
-            user: {
-              handle: session.user.username,
-              image: session.user.image,
-            },
-          }}
-        />
+    const session = await requireSession()
+    return (
+        <PageLayout>
+            <PageLeft>
+                <Sidebar
+                    session={{
+                        user: {
+                            handle: session.user.username,
+                            image: session.user.image,
+                        },
+                    }}
+                />
 
-        <div className="mt-auto">
-          <Profile />
-        </div>
-      </PageLeft>
+                <div className="mt-auto">
+                    <Profile />
+                </div>
+            </PageLeft>
 
-      <PageCenter>{children}</PageCenter>
+            <PageCenter>{children}</PageCenter>
 
-      <Feedback />
-    </PageLayout>
-  )
+            <Feedback />
+        </PageLayout>
+    )
 }

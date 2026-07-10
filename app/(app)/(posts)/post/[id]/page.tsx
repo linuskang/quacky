@@ -34,54 +34,59 @@ import Loading from "@/components/loading"
 import type { Post, User } from "@/types"
 
 export default function Page() {
-  const params = useParams()
-  const id = params.id
+    const params = useParams()
+    const id = params.id
 
-  const [post, setPost] = useState<Post>()
-  const [load, setLoad] = useState(false)
+    const [post, setPost] = useState<Post>()
+    const [load, setLoad] = useState(false)
 
-  const relevantUsers: User[] = post
-    ? Array.from(
-        new Map(
-          [
-            post.author,
-            ...(post.postComments ?? []).map((comment) => comment.author),
-          ].map((user) => [user.username, user])
-        ).values()
-      )
-    : []
+    const relevantUsers: User[] = post
+        ? Array.from(
+              new Map(
+                  [
+                      post.author,
+                      ...(post.postComments ?? []).map(
+                          (comment) => comment.author
+                      ),
+                  ].map((user) => [user.username, user])
+              ).values()
+          )
+        : []
 
-  useEffect(() => {
-    async function fetchPost() {
-      setLoad(true)
-      try {
-        await axios.get(`/api/posts/${id}`).then((res) => {
-          setPost(res.data)
-        })
-      } catch {
-        toast.error("Post not found")
-      } finally {
-        setLoad(false)
-      }
-    }
-    fetchPost()
-  }, [id])
+    useEffect(() => {
+        async function fetchPost() {
+            setLoad(true)
+            try {
+                await axios.get(`/api/posts/${id}`).then((res) => {
+                    setPost(res.data)
+                })
+            } catch {
+                toast.error("Post not found")
+            } finally {
+                setLoad(false)
+            }
+        }
+        fetchPost()
+    }, [id])
 
-  return (
-    <PageLayout>
-      <PageCenter>
-        {load && <Loading />}
-        {post && (
-          <>
-            <PostCard post={post} />
-            <CommentList comments={post.postComments || []} postId={post.id} />
-          </>
-        )}
-      </PageCenter>
-      <PageRight>
-        <SearchBar />
-        <RelevantPeopleWidget users={relevantUsers} />
-      </PageRight>
-    </PageLayout>
-  )
+    return (
+        <PageLayout>
+            <PageCenter>
+                {load && <Loading />}
+                {post && (
+                    <>
+                        <PostCard post={post} />
+                        <CommentList
+                            comments={post.postComments || []}
+                            postId={post.id}
+                        />
+                    </>
+                )}
+            </PageCenter>
+            <PageRight>
+                <SearchBar />
+                <RelevantPeopleWidget users={relevantUsers} />
+            </PageRight>
+        </PageLayout>
+    )
 }

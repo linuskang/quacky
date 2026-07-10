@@ -26,29 +26,29 @@ import { Title } from "@/components/text"
 
 // Types
 type Props = {
-  params: {
-    tag: string
-  }
+    params: {
+        tag: string
+    }
 }
 
 export default async function TrendingTagPage({ params }: Props) {
-  const { tag } = await params
+    const { tag } = await params
 
-  const session = await requireSession()
-  const posts = await fetchPosts({
-    userId: session.user.id,
-    hashtag: tag,
-  })
+    const session = await requireSession()
+    const posts = await fetchPosts({
+        userId: session.user.id,
+        hashtag: tag,
+    })
 
-  return (
-    <PageLayout>
-      <PageCenter>
-        <Title className="text-primary-2">#{tag}</Title>
-        <PostList posts={posts} />
-      </PageCenter>
-      <PageRight>
-        <SearchBar />
-      </PageRight>
-    </PageLayout>
-  )
+    return (
+        <PageLayout>
+            <PageCenter>
+                <Title className="text-primary-2">#{tag}</Title>
+                <PostList posts={posts} />
+            </PageCenter>
+            <PageRight>
+                <SearchBar />
+            </PageRight>
+        </PageLayout>
+    )
 }

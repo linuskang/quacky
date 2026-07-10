@@ -22,31 +22,31 @@ import { Admin } from "@/server/administration"
 import { Up } from "@/server/upstream"
 
 export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ handle: string }> }
+    req: NextRequest,
+    { params }: { params: Promise<{ handle: string }> }
 ) {
-  const session = await getSession()
-  if (!session) {
-    return new NextResponse("Unauthorized", { status: 401 })
-  }
+    const session = await getSession()
+    if (!session) {
+        return new NextResponse("Unauthorized", { status: 401 })
+    }
 
-  const { handle } = await params
-  const { reason } = await req.json()
+    const { handle } = await params
+    const { reason } = await req.json()
 
-  if (!reason) {
-    return new Response("Reason is required", { status: 400 })
-  }
+    if (!reason) {
+        return new Response("Reason is required", { status: 400 })
+    }
 
-  const user = await getUser(handle)
+    const user = await getUser(handle)
 
-  if (!user) {
-    return new Response("User not found", { status: 404 })
-  }
+    if (!user) {
+        return new Response("User not found", { status: 404 })
+    }
 
-  const output = await chat([
-    {
-      role: "system",
-      content: `
+    const output = await chat([
+        {
+            role: "system",
+            content: `
 You are a content moderation system for Quacky.
 
 Determine whether a user's profile violates Quacky's rules.
@@ -78,10 +78,10 @@ If the profile is acceptable, return:
   "reason": ""
 }
 `,
-    },
-    {
-      role: "user",
-      content: `
+        },
+        {
+            role: "user",
+            content: `
 Display name: ${user.name}
 Username: ${user.username}
 Bio: ${user.bio ?? ""}
@@ -92,56 +92,56 @@ Website: ${user.website ?? ""}
 Reporter's reason:
 ${reason}
 `,
-    },
-  ])
+        },
+    ])
 
-  const result = JSON.parse(output)
+    const result = JSON.parse(output)
 
-  if (result.is_inappropriate) {
-    await Admin.banUser(user.id, result.reason)
-  }
+    if (result.is_inappropriate) {
+        await Admin.banUser(user.id, result.reason)
+    }
 
-  await Up.ingest({
-    title: "User Report - " + user.username,
-    icon: "🚩",
-    content: `A new report has been submitted for user ${user.username}. Reason: ${reason}`,
-    fields: [
-      {
-        name: "User ID",
-        value: user.id,
-      },
-      {
-        name: "User Email",
-        value: user.email,
-      },
-      {
-        name: "Auto Banned?",
-        value: result.is_inappropriate ? "Yes" : "No",
-      },
-      {
-        name: "AI Reason",
-        value: result.reason,
-      },
-    ],
-    data: {
-      offender: user,
-      reportReason: reason,
-      ai: {
-        isInappropriate: result.is_inappropriate,
-        reason: result.reason,
-      },
-    },
-    actions: [
-      {
-        title: "View User",
-        type: "default",
-        url: `https://quacky.space/@${user.username}`,
-      },
-    ],
-  })
+    await Up.ingest({
+        title: "User Report - " + user.username,
+        icon: "🚩",
+        content: `A new report has been submitted for user ${user.username}. Reason: ${reason}`,
+        fields: [
+            {
+                name: "User ID",
+                value: user.id,
+            },
+            {
+                name: "User Email",
+                value: user.email,
+            },
+            {
+                name: "Auto Banned?",
+                value: result.is_inappropriate ? "Yes" : "No",
+            },
+            {
+                name: "AI Reason",
+                value: result.reason,
+            },
+        ],
+        data: {
+            offender: user,
+            reportReason: reason,
+            ai: {
+                isInappropriate: result.is_inappropriate,
+                reason: result.reason,
+            },
+        },
+        actions: [
+            {
+                title: "View User",
+                type: "default",
+                url: `https://quacky.space/@${user.username}`,
+            },
+        ],
+    })
 
-  return NextResponse.json(
-    { message: "Report submitted successfully" },
-    { status: 201 }
-  )
+    return NextResponse.json(
+        { message: "Report submitted successfully" },
+        { status: 201 }
+    )
 }

@@ -26,30 +26,35 @@ import { Description, Title } from "@/components/text"
 import { SearchResults } from "./search-results"
 
 export default async function Page() {
-  const session = await requireSession()
+    const session = await requireSession()
 
-  const posts = await fetchPosts({
-    userId: session.user.id,
-  })
+    const posts = await fetchPosts({
+        userId: session.user.id,
+    })
 
-  const [users, hashtags] = await Promise.all([
-    fetchSearchUsers(),
-    fetchSearchHashtags(),
-  ])
+    const [users, hashtags] = await Promise.all([
+        fetchSearchUsers(),
+        fetchSearchHashtags(),
+    ])
 
-  return (
-    <PageLayout>
-      <PageCenter>
-        <Title>Search {":>"}</Title>
+    return (
+        <PageLayout>
+            <PageCenter>
+                <Title>Search {":>"}</Title>
 
-        <Description>
-          &quot;the feature that will be used by the 1% of users&quot; - facedev
-        </Description>
-        <SearchResults posts={posts} users={users} hashtags={hashtags} />
-      </PageCenter>
-      <PageRight>
-        <TrendingWidget />
-      </PageRight>
-    </PageLayout>
-  )
+                <Description>
+                    &quot;the feature that will be used by the 1% of users&quot;
+                    - facedev
+                </Description>
+                <SearchResults
+                    posts={posts}
+                    users={users}
+                    hashtags={hashtags}
+                />
+            </PageCenter>
+            <PageRight>
+                <TrendingWidget />
+            </PageRight>
+        </PageLayout>
+    )
 }

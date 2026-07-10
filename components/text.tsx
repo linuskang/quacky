@@ -19,34 +19,36 @@ import { cn } from "@/lib/utils"
 import { playfairDisplay } from "@/app/layout"
 
 type Props = {
-  children: ReactNode
-  className?: string
+    children: ReactNode
+    className?: string
 }
 
 export function Title({ children, className }: Props) {
-  return (
-    <h1 className={cn("text-2xl font-semibold text-primary", className)}>
-      {children}
-    </h1>
-  )
+    return (
+        <h1 className={cn("text-2xl font-semibold text-primary", className)}>
+            {children}
+        </h1>
+    )
 }
 
 export function Description({ children, className }: Props) {
-  return (
-    <p className={cn("text-sm text-muted-foreground", className)}>{children}</p>
-  )
+    return (
+        <p className={cn("text-sm text-muted-foreground", className)}>
+            {children}
+        </p>
+    )
 }
 
 export function PrimaryTitle({ children, className }: Props) {
-  return (
-    <h1
-      className={cn(
-        "text-4xl font-semibold text-primary italic",
-        playfairDisplay.className,
-        className
-      )}
-    >
-      {children}
-    </h1>
-  )
+    return (
+        <h1
+            className={cn(
+                "text-4xl font-semibold text-primary italic",
+                playfairDisplay.className,
+                className
+            )}
+        >
+            {children}
+        </h1>
+    )
 }

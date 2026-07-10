@@ -23,105 +23,105 @@ import { xp } from "@/lib/var"
 import { addXP } from "@/server/users"
 
 export async function POST(req: NextRequest) {
-  const session = await auth.api.getSession({
-    headers: req.headers,
-  })
+    const session = await auth.api.getSession({
+        headers: req.headers,
+    })
 
-  if (!session) {
-    return NextResponse.json(
-      {
-        err: "Unauthorized",
-      },
-      {
-        status: 401,
-      }
-    )
-  }
-
-  const body = (await req.json()) as {
-    postId: string
-    content: string
-  }
-
-  if (!body.postId || !body.content) {
-    return NextResponse.json(
-      {
-        err: "Post ID and content are required",
-      },
-      {
-        status: 400,
-      }
-    )
-  }
-
-  const content = body.content.trim()
-
-  if (!body.postId || !content) {
-    return NextResponse.json(
-      {
-        err: "Post ID and content are required",
-      },
-      {
-        status: 400,
-      }
-    )
-  }
-
-  const res = await prisma.post.findFirst({
-    where: {
-      id: body.postId,
-      flagged: false,
-      author: {
-        banned: false,
-      },
-    },
-  })
-
-  if (!res) {
-    return NextResponse.json(
-      {
-        err: "Post not found",
-      },
-      {
-        status: 404,
-      }
-    )
-  }
-
-  const post = await prisma.post.create({
-    data: {
-      authorId: session.user.id,
-      repostOfId: body.postId,
-      content: content,
-      postViews: {
-        create: {
-          userId: session.user.id,
-        },
-      },
-      hashtags: {
-        create: extractHashtags(content).map((tag) => ({
-          tag,
-        })),
-      },
-    },
-  })
-
-  await NotificationService.sendEngagement(
-    "quote",
-    res.authorId,
-    session.user.id,
-    res.id
-  )
-
-  await addXP(session.user.username, xp.post)
-
-  return NextResponse.json(
-    {
-      success: true,
-      post,
-    },
-    {
-      status: 201,
+    if (!session) {
+        return NextResponse.json(
+            {
+                err: "Unauthorized",
+            },
+            {
+                status: 401,
+            }
+        )
     }
-  )
+
+    const body = (await req.json()) as {
+        postId: string
+        content: string
+    }
+
+    if (!body.postId || !body.content) {
+        return NextResponse.json(
+            {
+                err: "Post ID and content are required",
+            },
+            {
+                status: 400,
+            }
+        )
+    }
+
+    const content = body.content.trim()
+
+    if (!body.postId || !content) {
+        return NextResponse.json(
+            {
+                err: "Post ID and content are required",
+            },
+            {
+                status: 400,
+            }
+        )
+    }
+
+    const res = await prisma.post.findFirst({
+        where: {
+            id: body.postId,
+            flagged: false,
+            author: {
+                banned: false,
+            },
+        },
+    })
+
+    if (!res) {
+        return NextResponse.json(
+            {
+                err: "Post not found",
+            },
+            {
+                status: 404,
+            }
+        )
+    }
+
+    const post = await prisma.post.create({
+        data: {
+            authorId: session.user.id,
+            repostOfId: body.postId,
+            content: content,
+            postViews: {
+                create: {
+                    userId: session.user.id,
+                },
+            },
+            hashtags: {
+                create: extractHashtags(content).map((tag) => ({
+                    tag,
+                })),
+            },
+        },
+    })
+
+    await NotificationService.sendEngagement(
+        "quote",
+        res.authorId,
+        session.user.id,
+        res.id
+    )
+
+    await addXP(session.user.username, xp.post)
+
+    return NextResponse.json(
+        {
+            success: true,
+            post,
+        },
+        {
+            status: 201,
+        }
+    )
 }

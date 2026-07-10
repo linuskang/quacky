@@ -26,43 +26,43 @@ import { TrendingWidget } from "@/components/widgets/trending"
 import { Title } from "@/components/text"
 
 export default async function TrendingPage() {
-  const hashtags = await fetchTrending()
-  return (
-    <PageLayout>
-      <PageCenter>
-        <Title>trending now</Title>
+    const hashtags = await fetchTrending()
+    return (
+        <PageLayout>
+            <PageCenter>
+                <Title>trending now</Title>
 
-        <div className="rounded-lg border-2 border-border bg-card">
-          {hashtags.length === 0 ? (
-            <p className="p-4 text-sm text-muted-foreground">
-              no hashtags trending yet.
-            </p>
-          ) : (
-            hashtags.map((hashtag) => (
-              <Link
-                key={hashtag.tag}
-                href={`/trending/${hashtag.tag}`}
-                className="flex items-center justify-between px-4 py-3"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="font-semibold text-primary-2">
-                    #{hashtag.tag}
-                  </span>
+                <div className="rounded-lg border-2 border-border bg-card">
+                    {hashtags.length === 0 ? (
+                        <p className="p-4 text-sm text-muted-foreground">
+                            no hashtags trending yet.
+                        </p>
+                    ) : (
+                        hashtags.map((hashtag) => (
+                            <Link
+                                key={hashtag.tag}
+                                href={`/trending/${hashtag.tag}`}
+                                className="flex items-center justify-between px-4 py-3"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <span className="font-semibold text-primary-2">
+                                        #{hashtag.tag}
+                                    </span>
+                                </div>
+
+                                <span className="text-sm text-muted-foreground">
+                                    {hashtag.count.toLocaleString()}
+                                </span>
+                            </Link>
+                        ))
+                    )}
                 </div>
-
-                <span className="text-sm text-muted-foreground">
-                  {hashtag.count.toLocaleString()}
-                </span>
-              </Link>
-            ))
-          )}
-        </div>
-      </PageCenter>
-      <PageRight>
-        <SearchBar />
-        <TrendingWidget />
-        <AboutWidget />
-      </PageRight>
-    </PageLayout>
-  )
+            </PageCenter>
+            <PageRight>
+                <SearchBar />
+                <TrendingWidget />
+                <AboutWidget />
+            </PageRight>
+        </PageLayout>
+    )
 }

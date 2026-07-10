@@ -38,63 +38,69 @@ import { TrendingWidget } from "@/components/widgets/trending"
 import type { Post } from "@/types"
 
 const tabs = [
-  { name: "Recent", id: "recent" },
-  { name: "For you", id: "foryou" },
-  { name: "Following", id: "following" },
-  { name: "Popular", id: "popular" },
+    { name: "Recent", id: "recent" },
+    { name: "For you", id: "foryou" },
+    { name: "Following", id: "following" },
+    { name: "Popular", id: "popular" },
 ]
 
 export default function Page() {
-  const [activeTab, setActiveTab] = useState("recent")
-  const [posts, setPosts] = useState<Post[]>([])
-  const [loading, setLoading] = useState(true)
+    const [activeTab, setActiveTab] = useState("recent")
+    const [posts, setPosts] = useState<Post[]>([])
+    const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    async function loadPosts() {
-      setLoading(true)
-      try {
-        const endpoints: Record<string, string> = {
-          recent: "/api/posts",
-          foryou: "/api/posts/foryou",
-          following: "/api/posts/following",
-          popular: "/api/posts/popular",
+    useEffect(() => {
+        async function loadPosts() {
+            setLoading(true)
+            try {
+                const endpoints: Record<string, string> = {
+                    recent: "/api/posts",
+                    foryou: "/api/posts/foryou",
+                    following: "/api/posts/following",
+                    popular: "/api/posts/popular",
+                }
+
+                await axios.get(endpoints[activeTab]).then((res) => {
+                    setPosts(res.data)
+                })
+            } catch {
+                toast.error("Something went wrong")
+                setPosts([])
+            } finally {
+                setLoading(false)
+            }
         }
 
-        await axios.get(endpoints[activeTab]).then((res) => {
-          setPosts(res.data)
-        })
-      } catch {
-        toast.error("Something went wrong")
-        setPosts([])
-      } finally {
-        setLoading(false)
-      }
-    }
+        loadPosts()
+    }, [activeTab])
 
-    loadPosts()
-  }, [activeTab])
-
-  return (
-    <PageLayout>
-      <PageCenter>
-        <Composer />
-        <Tabs tabs={tabs} activeTab={activeTab} onSelect={setActiveTab} />
-        {loading ? (
-          <Loading />
-        ) : (
-          <PostList
-            posts={posts}
-            afterFirst={activeTab == "recent" && <SuggestedPeopleFeedCard />}
-          />
-        )}
-      </PageCenter>
-      <PageRight>
-        <SearchBar />
-        <StreakWidget />
-        <AboutWidget />
-        <RngWidget />
-        <TrendingWidget />
-      </PageRight>
-    </PageLayout>
-  )
+    return (
+        <PageLayout>
+            <PageCenter>
+                <Composer />
+                <Tabs
+                    tabs={tabs}
+                    activeTab={activeTab}
+                    onSelect={setActiveTab}
+                />
+                {loading ? (
+                    <Loading />
+                ) : (
+                    <PostList
+                        posts={posts}
+                        afterFirst={
+                            activeTab == "recent" && <SuggestedPeopleFeedCard />
+                        }
+                    />
+                )}
+            </PageCenter>
+            <PageRight>
+                <SearchBar />
+                <StreakWidget />
+                <AboutWidget />
+                <RngWidget />
+                <TrendingWidget />
+            </PageRight>
+        </PageLayout>
+    )
 }
