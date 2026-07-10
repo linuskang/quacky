@@ -24,7 +24,7 @@ type Props = {
 export function PageLayout({ children, className }: Props) {
     return (
         <main
-            className={cn("relative min-h-dvh w-full bg-background", className)}
+            className={cn("relative min-h-dvh w-full", className)}
         >
             {children}
         </main>
@@ -35,7 +35,7 @@ export function PageCenter({ children, className }: Props) {
     return (
         <div
             className={cn(
-                "mx-auto flex w-full max-w-xl flex-col gap-3 px-4 py-4",
+                "mx-auto my-0 flex w-full max-w-xl flex-col gap-3 px-4 py-4",
                 className
             )}
         >

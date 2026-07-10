@@ -125,7 +125,7 @@ export function Feedback() {
                     <button
                         type="button"
                         aria-label="Interactive Button"
-                        className="fixed -right-15 -bottom-10 z-0 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-95"
+                        className="fixed -right-15 -bottom-10 z-30 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-95"
                         onMouseEnter={() => setIsHovered(true)}
                         onMouseLeave={() => setIsHovered(false)}
                     >
