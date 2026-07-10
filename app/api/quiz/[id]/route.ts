@@ -26,6 +26,8 @@ import {
 } from "@/server/users"
 import { Up } from "@/server/upstream"
 import { addXP } from "@/server/users"
+import { NotificationService } from "@/server/helpers"
+import { env } from "@/env"
 
 export async function GET(
     req: NextRequest,
@@ -155,6 +157,11 @@ export async function POST(
                 title: `@${session.user.username} unlocked the posting module`,
                 icon: "🔓",
             })
+            await NotificationService.send(
+                session.user.id,
+                "quacky",
+                `Hey!\n\nAfter successfully completing the quiz, you have unlocked the posting module! You can now post things on Quacky!\n\nBefore you post, please read our [community guidelines](${env.BETTER_AUTH_URL}/legal/terms) to ensure your posts are appropriate and safe for the community.\n\nThe Quacky Team`
+            )
         }
     } else if (id == "comment") {
         if (!session.user.unlockedCommenting) {
@@ -163,6 +170,11 @@ export async function POST(
                 title: `@${session.user.username} unlocked the commenting module`,
                 icon: "🔓",
             })
+            await NotificationService.send(
+                session.user.id,
+                "quacky",
+                `Hey!\n\nAfter successfully completing the quiz, you have unlocked the commenting module! You can now comment on posts!\n\nBefore you comment, please read our [community guidelines](${env.BETTER_AUTH_URL}/legal/terms) to ensure your comments are appropriate and safe for the community.\n\nThe Quacky Team`
+            )
         }
     } else if (id == "dms") {
         if (!session.user.unlockedDms) {
@@ -171,6 +183,11 @@ export async function POST(
                 title: `@${session.user.username} unlocked the direct messages module`,
                 icon: "🔓",
             })
+            await NotificationService.send(
+                session.user.id,
+                "quacky",
+                `Hey!\n\nAfter successfully completing the quiz, you have unlocked the direct messages module! You can now send direct messages to other users.\n\nBefore you send a message, please read our [community guidelines](${env.BETTER_AUTH_URL}/legal/terms) to ensure your messages are appropriate and safe for the community.\n\nThe Quacky Team`
+            )
         }
     } else if (id == "profiles") {
         if (!session.user.unlockedProfiles) {
@@ -179,6 +196,11 @@ export async function POST(
                 title: `@${session.user.username} unlocked the profiles module`,
                 icon: "🔓",
             })
+            await NotificationService.send(
+                session.user.id,
+                "quacky",
+                `Hey!\n\nAfter successfully completing the quiz, you have unlocked the profiles module! You can now view other users' profiles.\n\nBefore you view profiles, please read our [community guidelines](${env.BETTER_AUTH_URL}/legal/terms) to ensure your actions are appropriate and safe for the community.\n\nThe Quacky Team`
+            )
         }
     } else if (id == "fuzzies") {
         if (!session.user.unlockedFuzzies) {
@@ -187,6 +209,11 @@ export async function POST(
                 title: `@${session.user.username} unlocked the fuzzies module`,
                 icon: "🔓",
             })
+            await NotificationService.send(
+                session.user.id,
+                "quacky",
+                `Hey!\n\nAfter successfully completing the quiz, you have unlocked the fuzzies module! You can now send fuzzies to other users.\n\nBefore you send a fuzzy, please read our [community guidelines](${env.BETTER_AUTH_URL}/legal/terms) to ensure your fuzzies are appropriate and safe for the community.\n\nThe Quacky Team`
+            )
         }
     }
 
