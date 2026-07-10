@@ -1,3 +1,19 @@
+//   ______                                 __
+//  /      \                               /  |
+// /$$$$$$  | __    __   ______    _______ $$ |   __  __    __
+// $$ |  $$ |/  |  /  | /      \  /       |$$ |  /  |/  |  /  |
+// $$ |  $$ |$$ |  $$ | $$$$$$  |/$$$$$$$/ $$ |_/$$/ $$ |  $$ |
+// $$ |_ $$ |$$ |  $$ | /    $$ |$$ |      $$   $$<  $$ |  $$ |
+// $$ / \$$ |$$ \__$$ |/$$$$$$$ |$$ \_____ $$$$$$  \ $$ \__$$ |
+// $$ $$ $$< $$    $$/ $$    $$ |$$       |$$ | $$  |$$    $$ |
+//  $$$$$$  | $$$$$$/   $$$$$$$/  $$$$$$$/ $$/   $$/  $$$$$$$ |
+//      $$$/                                         /  \__$$ |
+//                                                   $$    $$/
+//                                                    $$$$$$/
+//
+// Linus Kang, 2026
+// Work is licensed under the CC BY-NC 4.0 license.
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -42,53 +58,49 @@ export function useMentionSuggestions({
 }) {
     const [users, setUsers] = useState<MentionUser[]>([]);
     const match = getMentionMatch(value, caret);
-    const active = Boolean(match);
-    const query = match?.query ?? "";
-    const visibleUsers = match ? users : [];
-    const open = visibleUsers.length > 0;
+    const query = match?.query ?? null;
 
     useEffect(() => {
-        const controller = new AbortController();
-
-        if (!active) {
+        if (query === null) {
             return;
         }
 
-        async function fetchUsers() {
-            const res = await fetch(`/api/users/mentions?q=${encodeURIComponent(query)}`, {
-                signal: controller.signal,
+        const controller = new AbortController();
+
+        void fetch(`/api/users/mentions?q=${encodeURIComponent(query)}`, {
+            signal: controller.signal,
+        })
+            .then(async (res) => {
+                if (!res.ok) return [];
+
+                const data = await res.json() as { users?: MentionUser[] };
+                return data.users ?? [];
+            })
+            .then(setUsers)
+            .catch((error) => {
+                if (error instanceof DOMException && error.name === "AbortError") return;
+                setUsers([]);
             });
 
-            if (!res.ok) {
-                setUsers([]);
-                return;
-            }
-
-            const data = await res.json() as { users?: MentionUser[] };
-            setUsers(data.users ?? []);
-        }
-
-        fetchUsers().catch((error) => {
-            if (error instanceof DOMException && error.name === "AbortError") return;
-            setUsers([]);
-        });
-
         return () => controller.abort();
-    }, [active, query]);
+    }, [query]);
 
     function selectUser(username: string) {
-        if (!match) return;
+        const currentMatch = getMentionMatch(value, caret);
+        if (!currentMatch) return;
 
         const mention = `@${username} `;
-        const nextValue = `${value.slice(0, match.start)}${mention}${value.slice(match.end)}`;
+        const nextValue = `${value.slice(0, currentMatch.start)}${mention}${value.slice(currentMatch.end)}`;
 
         onChange(nextValue);
-        onCaretChange(match.start + mention.length);
+        onCaretChange(currentMatch.start + mention.length);
         setUsers([]);
     }
 
+    const visibleUsers = match ? users : [];
+
     return {
-        open,
+        open: visibleUsers.length > 0,
         users: visibleUsers,
         selectUser,
     };
@@ -110,15 +122,12 @@ export function MentionSuggestions({
     if (!open) return null;
 
     return (
-        <div className={`absolute left-0 z-50 w-72 overflow-hidden rounded-md border-2 border-border bg-background shadow-sm ${positionClassName} ${className}`}>
+        <div className={`absolute left-0 z-50 w-60 overflow-hidden rounded-md border-2 border-border bg-background shadow-sm ${positionClassName} ${className}`}>
             {users.map((user) => (
                 <button
                     key={user.username}
                     type="button"
-                    onMouseDown={(event) => {
-                        event.preventDefault();
-                        onSelect(user.username);
-                    }}
+                    onMouseDown={() => onSelect(user.username)}
                     className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary/10"
                 >
                     <Image
@@ -132,13 +141,6 @@ export function MentionSuggestions({
                     <span className="min-w-0 truncate text-sm font-semibold text-primary">
                         @{user.username}
                     </span>
-                    {user.verified && (
-                        <BadgeCheck className="h-4 w-4 shrink-0 fill-primary text-background" />
-                    )}
-                    {user.role === "admin" && (
-                        <Admin />
-                    )}
-                    <span className="flex-1" />
                 </button>
             ))}
         </div>

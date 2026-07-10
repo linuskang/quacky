@@ -1,3 +1,19 @@
+//   ______                                 __
+//  /      \                               /  |
+// /$$$$$$  | __    __   ______    _______ $$ |   __  __    __
+// $$ |  $$ |/  |  /  | /      \  /       |$$ |  /  |/  |  /  |
+// $$ |  $$ |$$ |  $$ | $$$$$$  |/$$$$$$$/ $$ |_/$$/ $$ |  $$ |
+// $$ |_ $$ |$$ |  $$ | /    $$ |$$ |      $$   $$<  $$ |  $$ |
+// $$ / \$$ |$$ \__$$ |/$$$$$$$ |$$ \_____ $$$$$$  \ $$ \__$$ |
+// $$ $$ $$< $$    $$/ $$    $$ |$$       |$$ | $$  |$$    $$ |
+//  $$$$$$  | $$$$$$/   $$$$$$$/  $$$$$$$/ $$/   $$/  $$$$$$$ |
+//      $$$/                                         /  \__$$ |
+//                                                   $$    $$/
+//                                                    $$$$$$/
+//
+// Linus Kang, 2026
+// Work is licensed under the CC BY-NC 4.0 license.
+
 "use client";
 
 interface CharCounterProps {
@@ -14,17 +30,12 @@ export function CharCounter(
         width = 10,
         height = 10,
     }: CharCounterProps) {
-    // get remaining characters
-    const remaining = maxLength - length;
-    const isOverLimit = remaining < 0;
-    const isNearLimit = remaining <= 20 && remaining >= 0;
 
-    // crazy math
-    const percentage = (length / maxLength) * 100; // divide the length by max times 100 to get x/100
-    const radius = 15; // radius of the circle, u can aadjust the size here
-    const circumference = 2 * Math.PI * radius; // circumference of the circle
+    const remaningChars = maxLength - length
 
-    const dash = (percentage / 100) * circumference; // percentage/100 times by circumference to get length
+    const percentage = (length / maxLength) * 100; // get x/100
+    const circumference = 2 * Math.PI * 15; // circumference of the circle
+    const dash = (percentage / 100) * circumference; // length
 
     return (
         <div className="relative">
@@ -32,7 +43,7 @@ export function CharCounter(
                 <circle
                     cx="20"
                     cy="20"
-                    r={radius}
+                    r="15"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
@@ -42,14 +53,14 @@ export function CharCounter(
                 <circle
                     cx="20"
                     cy="20"
-                    r={radius}
+                    r="15"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
                     strokeDasharray={`${dash} ${circumference - dash}`}
-                    className={`transition-colors ${isOverLimit
+                    className={`transition-colors ${remaningChars < 0
                         ? "text-destructive"
-                        : isNearLimit
+                        : remaningChars <= 20 && remaningChars >= 0
                             ? "text-primary-2"
                             : "text-primary"
                         }`}
@@ -60,14 +71,14 @@ export function CharCounter(
                     y="20"
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    className={`text-xs font-bold ${isOverLimit
+                    className={`text-xs font-bold ${remaningChars < 0
                         ? "fill-destructive"
-                        : isNearLimit
+                        : remaningChars <= 20 && remaningChars >= 0
                             ? "fill-primary-2"
                             : "fill-muted-foreground"
                         }`}
                 >
-                    {remaining}
+                    {remaningChars}
                 </text>
             </svg>
         </div>
