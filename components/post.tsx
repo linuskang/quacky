@@ -52,11 +52,11 @@ import {
     Bookmark
 } from "lucide-react";
 
-import { Markdown } from "@/components/md";
+import { Markdown } from "@/components/markdown-renderer";
 import { Admin } from "@/components/icons";
-import { CharCounter } from "@/components/char-counter";
+import { CharCounter } from "@/components/character-counter";
 import { MoreActions } from "@/components/more-actions";
-import { PurpleEyeWarning } from "@/components/warning";
+import { PurpleEyeWarning } from "@/components/warning-cards";
 import { SharePost } from "@/components/share";
 
 // Types

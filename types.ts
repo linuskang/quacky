@@ -48,6 +48,7 @@ export type User = {
     image: string;
     verified: boolean;
     role?: string | null;
+    following?: boolean;
 };
 
 export type Attachment = {

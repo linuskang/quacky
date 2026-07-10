@@ -25,6 +25,13 @@ import type { Attachment } from "@/types"
 import { removeXP } from "@/server/users";
 import { xp } from "@/lib/var";
 
+function withFollowing<T extends { id?: string }>(user: T, followingIds: Set<string>) {
+    return {
+        ...user,
+        following: user.id ? followingIds.has(user.id) : false,
+    };
+}
+
 export async function GET(
     _req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -82,16 +89,35 @@ export async function GET(
 
     const comments = await getCommentsByPostId(post.id);
 
+    const relevantUserIds = Array.from(
+        new Set([
+            post.author.id,
+            ...comments.map((comment) => comment.author.id),
+        ].filter(Boolean))
+    );
+    const following = await prisma.follow.findMany({
+        where: {
+            userId: session.user.id,
+            followId: {
+                in: relevantUserIds,
+            },
+        },
+        select: {
+            followId: true,
+        },
+    });
+    const followingIds = new Set(following.map((follow) => follow.followId));
+
     const res = {
         id: post.id,
-        author: post.author,
+        author: withFollowing(post.author, followingIds),
         content: post.content,
 
         repostOfId: post.repostOfId,
         repostOf: post.repostOf
             ? {
                 id: post.repostOf.id,
-                author: post.repostOf.author,
+                author: withFollowing(post.repostOf.author, followingIds),
                 content: post.repostOf.content,
                 flagged: post.repostOf.flagged,
                 edited: post.repostOf.edited,
@@ -129,7 +155,7 @@ export async function GET(
         postComments: comments.map((c) => ({
             id: c.id,
             postId: c.postId,
-            author: c.author,
+            author: withFollowing(c.author, followingIds),
             content: c.content,
             createdAt: c.createdAt.toISOString(),
             updatedAt: c.updatedAt.toISOString(),

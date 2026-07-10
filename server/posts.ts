@@ -60,6 +60,7 @@ export async function fetchPosts({
 
             author: {
                 select: {
+                    id: true,
                     name: true,
                     username: true,
                     image: true,
@@ -76,6 +77,7 @@ export async function fetchPosts({
                     id: true,
                     author: {
                         select: {
+                            id: true,
                             name: true,
                             username: true,
                             image: true,
@@ -257,6 +259,7 @@ export async function getPost(postId: string, session: { user: { id: string } })
             id: true,
             author: {
                 select: {
+                    id: true,
                     name: true,
                     username: true,
                     image: true,
@@ -272,6 +275,7 @@ export async function getPost(postId: string, session: { user: { id: string } })
                     id: true,
                     author: {
                         select: {
+                            id: true,
                             name: true,
                             username: true,
                             image: true,

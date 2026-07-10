@@ -24,7 +24,7 @@ import { Notification } from "@/types";
 import Link from "next/link";
 import { BadgeCheck } from "lucide-react";
 import { Admin } from "./icons";
-import { Markdown } from "./md";
+import { Markdown } from "./markdown-renderer";
 
 export function Notifications(
     {

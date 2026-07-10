@@ -76,6 +76,7 @@ export async function getCommentsByPostId(postId: string) {
             updatedAt: true,
             author: {
                 select: {
+                    id: true,
                     name: true,
                     username: true,
                     image: true,

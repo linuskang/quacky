@@ -55,7 +55,7 @@ export default function Page() {
                 const res = await axios.get(endpoints[activeTab]);
                 setPosts(res.data);
             } catch {
-                toast.error("i think my server blew up because I CANT LOAD POSTS RIGHT NOW 😭😭😭");
+                toast.error("Something went wrong");
                 setPosts([])
             } finally {
                 setLoading(false);

@@ -25,10 +25,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MoreHorizontal } from "lucide-react";
 import { authClient } from "@/client/auth";
 import { Post } from "@/types";
-import { CharCounter } from "@/components/char-counter";
+import { CharCounter } from "@/components/character-counter";
 import { useRouter } from "next/navigation";
 
-const subscribe = () => () => {};
+const subscribe = () => () => { };
 
 export function MoreActions({ post }: { post: Post }) {
 

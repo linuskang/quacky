@@ -20,7 +20,7 @@ import { PostCard } from "@/components/post";
 import { SearchBar } from "@/components/search-bar";
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
 import { useState, useEffect } from "react";
-import { Post } from "@/types";
+import type { Post, User } from "@/types";
 import { toast } from "sonner";
 import RelevantPeopleWidget from "@/components/widgets/relevant-people";
 import { useParams } from "next/navigation";
@@ -30,9 +30,18 @@ export default function Page() {
     const params = useParams<{ id: string }>();
     const id = params.id;
 
-    console.log(id)
-
     const [post, setPost] = useState<Post>();
+
+    const relevantUsers: User[] = post
+        ? Array.from(
+            new Map(
+                [
+                    post.author,
+                    ...(post.postComments ?? []).map((comment) => comment.author),
+                ].map((user) => [user.username, user])
+            ).values()
+        )
+        : [];
 
     useEffect(() => {
         async function fetchPost() {
@@ -53,7 +62,7 @@ export default function Page() {
             setPost(data);
         }
         fetchPost();
-    }, []);
+    }, [id]);
 
     return (
         <PageLayout>
@@ -73,22 +82,7 @@ export default function Page() {
             <PageRight>
                 <SearchBar />
                 <RelevantPeopleWidget
-                    users={[
-                        {
-                            name: "Linus",
-                            username: "linusdotmy",
-                            image: "https://avatars.githubusercontent.com/u/10000000?v=4",
-                            verified: true,
-                            role: "admin",
-                        },
-                        {
-                            name: "John Doe",
-                            username: "johndoe",
-                            image: "https://avatars.linus.my/10.x/glass/svg?seed=linus",
-                            verified: false,
-                            role: "user",
-                        },
-                    ]}
+                    users={relevantUsers}
                 />
             </PageRight>
         </PageLayout>

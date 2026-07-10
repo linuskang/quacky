@@ -45,15 +45,15 @@ import {
     InputGroupButton,
     InputGroupInput,
 } from "@/components/ui/input-group"
-import { CharCounter } from "@/components/char-counter";
+import { CharCounter } from "@/components/character-counter";
 import { ReportAbuse } from "@/components/report-abuse";
-import { PurpleEyeWarning } from "./warning";
+import { PurpleEyeWarning } from "./warning-cards";
 import { authClient } from "@/client/auth";
 import {
     MentionSuggestions,
     useMentionSuggestions
 } from "@/components/mention-suggestions";
-import { Markdown } from "@/components/md";
+import { Markdown } from "@/components/markdown-renderer";
 
 // Types
 import { Comment } from "@/types";

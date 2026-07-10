@@ -19,7 +19,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Patrick_Hand } from "next/font/google";
-import { CurvedLine } from "./curved_parabola";
+import { CurvedLine } from "./line-generator";
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";

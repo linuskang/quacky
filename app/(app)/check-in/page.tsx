@@ -22,7 +22,7 @@ import { authClient } from "@/client/auth";
 import Loading from "@/components/loading";
 import { Title, Description } from "@/components/text";
 import { PageLayout, PageCenter } from "@/components/page-layout";
-import { PurpleWarning } from "@/components/warning";
+import { PurpleWarning } from "@/components/warning-cards";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Field, FieldLabel } from "@/components/ui/field";

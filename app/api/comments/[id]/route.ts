@@ -34,10 +34,11 @@ type CommentPageResponse = {
     post: Post;
 };
 
-function serializeUser(user: PrismaUser): User {
+function serializeUser(user: PrismaUser, followingIds = new Set<string>()): User {
     return {
         ...user,
         role: user.role ?? undefined,
+        following: user.id ? followingIds.has(user.id) : false,
     };
 }
 
@@ -88,6 +89,26 @@ export async function GET(
 
     const postComments = await getCommentByPostId(post.id);
 
+    const relevantUserIds = Array.from(
+        new Set([
+            post.author.id,
+            comment.author.id,
+            ...postComments.map((postComment) => postComment.author.id),
+        ].filter(Boolean))
+    );
+    const following = await prisma.follow.findMany({
+        where: {
+            userId: session.user.id,
+            followId: {
+                in: relevantUserIds,
+            },
+        },
+        select: {
+            followId: true,
+        },
+    });
+    const followingIds = new Set(following.map((follow) => follow.followId));
+
     const postView = await prisma.postView.createMany({
         data: [
             {
@@ -115,7 +136,7 @@ export async function GET(
         comment: {
             id: comment.id,
             postId: comment.postId,
-            author: serializeUser(comment.author),
+            author: serializeUser(comment.author, followingIds),
             content: comment.content,
             flagged: comment.flagged,
             createdAt: comment.createdAt.toISOString(),
@@ -123,13 +144,13 @@ export async function GET(
         },
         post: {
             id: post.id,
-            author: serializeUser(post.author),
+            author: serializeUser(post.author, followingIds),
             content: post.content,
             repostOfId: post.repostOfId,
             repostOf: post.repostOf
                 ? {
                     id: post.repostOf.id,
-                    author: serializeUser(post.repostOf.author),
+                    author: serializeUser(post.repostOf.author, followingIds),
                     content: post.repostOf.content,
                     flagged: post.repostOf.flagged,
                     edited: post.repostOf.edited,
@@ -163,7 +184,7 @@ export async function GET(
             postComments: postComments.map((postComment) => ({
                 id: postComment.id,
                 postId: postComment.postId,
-                author: serializeUser(postComment.author),
+                author: serializeUser(postComment.author, followingIds),
                 content: postComment.content,
                 flagged: postComment.flagged,
                 createdAt: postComment.createdAt.toISOString(),
