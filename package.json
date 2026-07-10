@@ -13,8 +13,7 @@
         "format": "prettier --write \"**/*.{ts,tsx}\"",
         "typecheck": "tsc --noEmit",
         "generate-env": "node scripts/generate-env-template.js",
-        "license:headers": "node scripts/add-license-header.js",
-        "license:headers:check": "node scripts/add-license-header.js --check",
+        "generate-credits": "node scripts/add-license-header.js",
         "generate": "prisma generate",
         "migrate": "prisma migrate dev"
     },

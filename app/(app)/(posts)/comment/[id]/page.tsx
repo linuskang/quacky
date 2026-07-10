@@ -18,18 +18,21 @@
 
 // Libraries
 import axios from "axios"
+import { toast } from "sonner";
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 
 // Components
 import Loading from "@/components/loading"
 import { PostCard } from "@/components/post";
 import { SearchBar } from "@/components/search-bar";
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
-import { useState, useEffect } from "react";
-import type { Comment, Post, User } from "@/types";
-import { toast } from "sonner";
 import RelevantPeople from "@/components/widgets/relevant-people";
-import { useParams } from "next/navigation";
+
 import { CommentCard, CommentList } from "@/components/comment";
+
+// Types
+import type { Comment, Post, User } from "@/types";
 
 type CommentData = {
     comment: Comment;

@@ -14,11 +14,18 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
+// Libraries
 import Link from "next/link";
-import { MessagesSquare } from "lucide-react";
 import { requireSession } from "@/server/auth";
 import { fetchConversations } from "@/server/dms";
-import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
+
+// Components
+import { MessagesSquare } from "lucide-react";
+import {
+    PageLayout,
+    PageCenter,
+    PageRight
+} from "@/components/page-layout";
 import { SearchBar } from "@/components/search-bar";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Title } from "@/components/text";
@@ -32,6 +39,7 @@ import {
 
 export default async function MessagesPage() {
     const session = await requireSession();
+
     const conversations = await fetchConversations({
         userId: session.user.id,
     });

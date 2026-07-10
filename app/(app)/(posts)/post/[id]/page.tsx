@@ -16,21 +16,33 @@
 
 "use client";
 
+// Libraries
+import axios from "axios"
+import { toast } from "sonner";
+import { useParams } from "next/navigation";
+import { useState, useEffect } from "react";
+
+// Components
 import { PostCard } from "@/components/post";
 import { SearchBar } from "@/components/search-bar";
-import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
-import { useState, useEffect } from "react";
-import type { Post, User } from "@/types";
-import { toast } from "sonner";
+import {
+    PageLayout,
+    PageCenter,
+    PageRight
+} from "@/components/page-layout";
 import RelevantPeopleWidget from "@/components/widgets/relevant-people";
-import { useParams } from "next/navigation";
 import { CommentList } from "@/components/comment";
+import Loading from "@/components/loading"
+
+// Types
+import type { Post, User } from "@/types";
 
 export default function Page() {
-    const params = useParams<{ id: string }>();
+    const params = useParams();
     const id = params.id;
 
     const [post, setPost] = useState<Post>();
+    const [load, setLoad] = useState(false)
 
     const relevantUsers: User[] = post
         ? Array.from(
@@ -45,21 +57,16 @@ export default function Page() {
 
     useEffect(() => {
         async function fetchPost() {
-            const res = await fetch(`/api/posts/${id}`);
-
-            if (!res.ok) {
-                toast.error(res.statusText);
-                return;
+            setLoad(true)
+            try {
+                await axios.get(`/api/posts/${id}`).then((res) => {
+                    setPost(res.data)
+                });
+            } catch {
+                toast.error("Post not found")
+            } finally {
+                setLoad(false)
             }
-
-            const data = await res.json();
-
-            if (!data) {
-                toast.error("Post not found");
-                return;
-            }
-
-            setPost(data);
         }
         fetchPost();
     }, [id]);
@@ -67,6 +74,7 @@ export default function Page() {
     return (
         <PageLayout>
             <PageCenter>
+                {load && <Loading />}
                 {post && (
                     <>
                         <PostCard

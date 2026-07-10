@@ -16,13 +16,18 @@
 
 "use client";
 
+// Libraries
 import { useDeferredValue, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+
+// Components
 import { BadgeCheck, Hash } from "lucide-react";
 import { PostList } from "@/components/post";
 import { SearchBar } from "@/components/search-bar";
 import { Admin } from "@/components/icons";
+
+// Types
 import type { Post } from "@/types";
 
 export type SearchUser = {

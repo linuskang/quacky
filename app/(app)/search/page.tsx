@@ -14,19 +14,24 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
+// Libraries
+import { fetchSearchHashtags, fetchSearchUsers } from "@/server/search";
+import { requireSession } from "@/server/auth";
+import { fetchPosts } from "@/server/posts";
+
+// Components
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
 import { TrendingWidget } from "@/components/widgets/trending";
 import { Description, Title } from "@/components/text";
-import { requireSession } from "@/server/auth";
-import { fetchPosts } from "@/server/posts";
-import { fetchSearchHashtags, fetchSearchUsers } from "@/server/search";
 import { SearchResults } from "./search-results";
 
 export default async function Page() {
     const session = await requireSession();
+
     const posts = await fetchPosts({
         userId: session.user.id,
     });
+
     const [users, hashtags] = await Promise.all([
         fetchSearchUsers(),
         fetchSearchHashtags(),

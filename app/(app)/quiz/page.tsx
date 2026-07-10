@@ -16,17 +16,21 @@
 
 "use client";
 
+// Libraries
+import axios from "axios";
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+
+// Components
 import { Title, Description } from "@/components/text";
 import { PageLayout, PageCenter } from "@/components/page-layout";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Star, Clock } from "lucide-react";
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { toast } from "sonner";
 import Loading from "@/components/loading";
 
+// Types
 interface Quiz {
     name: string;
     description: string;
@@ -43,8 +47,9 @@ export default function Page() {
         async function fetchQuizzes() {
             try {
                 setLoading(true);
-                const response = await axios.get("/api/quizes");
-                setQuiz(response.data.quizes);
+                await axios.get("/api/quizes").then((res) => {
+                    setQuiz(res.data.quizes);
+                });
             } catch {
                 toast.error("something exploded. sorry please try again later");
             } finally {

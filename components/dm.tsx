@@ -16,7 +16,11 @@
 
 "use client";
 
+// Libraries
+import axios from "axios";
 import { useState, useRef, useEffect } from "react";
+
+// Components
 import { ArrowUp } from "lucide-react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
@@ -28,46 +32,36 @@ import {
     InputGroupInput,
 } from "@/components/ui/input-group";
 import { Card, CardTitle, CardContent, CardHeader, CardDescription } from "@/components/ui/card";
+
+// Types
 import type { Dm, User } from "@/types";
-import { toast } from "sonner";
-
-function dayKey(iso: string) {
-    const d = new Date(iso);
-    return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-}
-
-function formatDayDivider(iso: string) {
-    const d = new Date(iso);
-    const now = new Date();
-    const sameDay =
-        d.getFullYear() === now.getFullYear() &&
-        d.getMonth() === now.getMonth() &&
-        d.getDate() === now.getDate();
-    if (sameDay) return "Today";
-
-    const yesterday = new Date(now);
-    yesterday.setDate(now.getDate() - 1);
-    const isYesterday =
-        d.getFullYear() === yesterday.getFullYear() &&
-        d.getMonth() === yesterday.getMonth() &&
-        d.getDate() === yesterday.getDate();
-    if (isYesterday) return "Yesterday";
-
-    return d.toLocaleDateString(undefined, {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-        year: now.getFullYear() === d.getFullYear() ? undefined : "numeric",
-    });
-}
-
 interface Props {
     other: User;
     currentUserId: string;
     initialMessages: Dm[];
 }
 
-export function DmConversation({ other, currentUserId, initialMessages }: Props) {
+// Utils
+function dayKey(iso: string) {
+    const d = new Date(iso);
+    return `${d.getUTCFullYear()}-${d.getUTCMonth()}-${d.getUTCDate()}`;
+}
+
+function formatDay(iso: string) {
+    const d = new Date(iso);
+    const now = new Date();
+    if (dayKey(iso) === dayKey(now.toISOString())) return "Today";
+
+    return d.toLocaleDateString("en-GB", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        year: now.getUTCFullYear() === d.getUTCFullYear() ? undefined : "numeric",
+        timeZone: "UTC",
+    });
+}
+
+export function Dm({ other, currentUserId, initialMessages }: Props) {
     const [messages, setMessages] = useState<Dm[]>(initialMessages);
     const [draft, setDraft] = useState("");
     const bottomRef = useRef<HTMLDivElement>(null);
@@ -79,23 +73,11 @@ export function DmConversation({ other, currentUserId, initialMessages }: Props)
 
     async function send() {
         const message = draft.trim();
-        if (!message) return;
-
         setDraft("");
-
-        const res = await fetch(`/api/dms/${other.username}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message }),
+        const res = await axios.post(`/api/dms/${other.username}`, {
+            message
         });
-
-        if (!res.ok) {
-            toast.error(res.statusText);
-            setDraft(message);
-            return;
-        }
-
-        const dm = (await res.json()) as Dm;
+        const dm = (await res.data) as Dm;
         setMessages((prev) => [...prev, dm]);
     }
 
@@ -144,7 +126,7 @@ export function DmConversation({ other, currentUserId, initialMessages }: Props)
                                     {showDay && (
                                         <div className="flex justify-center">
                                             <span className="text-xs font-semibold text-primary">
-                                                {formatDayDivider(dm.createdAt)}
+                                                {formatDay(dm.createdAt)}
                                             </span>
                                         </div>
                                     )}
@@ -172,7 +154,7 @@ export function DmConversation({ other, currentUserId, initialMessages }: Props)
             </div>
 
             <div className="fixed bottom-4 w-full max-w-xl bg-background px-4 pt-2">
-                <InputGroup className="h-auto items-end !rounded-full !ring-0 border-2 border-border p-2 focus-within:border-primary-2 dark:bg-background">
+                <InputGroup className="h-auto items-end !rounded-full p-2">
                     <InputGroupInput
                         ref={inputRef}
                         placeholder={`Message ${other.name}...`}
@@ -181,7 +163,7 @@ export function DmConversation({ other, currentUserId, initialMessages }: Props)
                         onKeyDown={(e) => {
                             if (e.key === "Enter" && !e.shiftKey) {
                                 e.preventDefault();
-                                void send();
+                                send();
                             }
                         }}
                     />
@@ -189,7 +171,7 @@ export function DmConversation({ other, currentUserId, initialMessages }: Props)
                         <InputGroupButton
                             size="icon-sm"
                             className="mr-1 rounded-full bg-primary-2 text-primary-foreground hover:!bg-primary-2/80"
-                            onClick={() => void send()}
+                            onClick={() => send()}
                             disabled={!draft.trim()}
                         >
                             <ArrowUp strokeWidth={3} />

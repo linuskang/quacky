@@ -16,16 +16,20 @@
 
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+// Libraries
 import axios from "axios";
+import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+
+// Components
+import { Button } from "@/components/ui/button";
 import { PageLayout, PageCenter } from "@/components/page-layout";
 import { Title, Description } from "@/components/text";
-import { cn } from "@/lib/utils";
 import Loading from "@/components/loading";
 
+// Types
 interface Question {
     no: number;
     question: string;
@@ -42,7 +46,7 @@ export default function Page() {
     const [answers, setAnswers] = useState<Record<number, string>>({});
     const [wrongQuestions, setWrongQuestions] = useState<number[]>([]);
     const [loading, setLoading] = useState(true);
-    const [meta, setMeta] = useState<{ name: string; description: string } | null>(null);
+    const [meta, setMeta] = useState<{ name: string; description: string }>({ name: "", description: "" });
 
     useEffect(() => {
         async function fetchQuestions() {
@@ -71,9 +75,7 @@ export default function Page() {
                 const wrong = error.response.data.wrong as number[] | undefined;
                 if (wrong && wrong.length > 0) {
                     setWrongQuestions(wrong);
-                    toast.error(
-                        `Wrong answer${wrong.length > 1 ? "s" : ""} for question${wrong.length > 1 ? "s" : ""}: ${wrong.join(", ")}`
-                    );
+                    toast.error(`Incorrect answers for questions: ${wrong.join(", ")}`);
                     return;
                 }
             }
@@ -84,8 +86,8 @@ export default function Page() {
     return (
         <PageLayout>
             <PageCenter>
-                <Title>{meta?.name}</Title>
-                <Description>{meta?.description}</Description>
+                <Title>{meta.name}</Title>
+                <Description>{meta.description}</Description>
                 {loading && <Loading />}
                 {questions.map((question) => {
                     const isWrong = wrongQuestions.includes(question.no);

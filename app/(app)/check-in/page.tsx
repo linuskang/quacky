@@ -16,9 +16,15 @@
 
 "use client";
 
+// Libraries
+import axios from "axios";
+import Image from "next/image";
+import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { authClient } from "@/client/auth";
+
+// Components
 import Loading from "@/components/loading";
 import { Title, Description } from "@/components/text";
 import { PageLayout, PageCenter } from "@/components/page-layout";
@@ -27,10 +33,8 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Card } from "@/components/ui/card";
-import axios from "axios";
-import { toast } from "sonner";
-import Image from "next/image";
 
+// Types
 interface CheckInFormData {
     wellbeing: number;
     happiness: number;
@@ -39,8 +43,6 @@ interface CheckInFormData {
     energy: number;
     assistance: boolean;
 }
-
-
 
 function Star({ value, onChange }: { value: number, onChange: (value: number) => void }) {
     const [hover, setHover] = useState<number | null>(null);
@@ -143,7 +145,7 @@ export default function Page() {
                 {hasCheckedIn ? (
                     <PurpleWarning text="Thanks for checking in today! Come back tomorrow to submit another review." />
                 ) : (
-                    <Card className="bg-card-primary p-4">
+                    <Card className="bg-card-primary p-6">
                         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-10">
                             {questions.map((field) => (
                                 <Field key={field.name}>
@@ -177,7 +179,6 @@ export default function Page() {
                                         />
                                     )}
                                 />
-
 
                                 <FieldLabel htmlFor="assistance" className="cursor-pointer">
                                     I would like to talk to a school staff member

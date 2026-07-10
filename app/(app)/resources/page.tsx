@@ -14,6 +14,7 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
+// Components
 import { PageLayout, PageCenter } from "@/components/page-layout";
 
 export default function Page() {

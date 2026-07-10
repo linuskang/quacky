@@ -16,18 +16,30 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+// Libraries
 import axios from "axios";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+// Components
 import { PostList } from "@/components/post";
 import { Composer } from "@/components/composer";
 import { Tabs } from "@/components/post-tabs";
-import { HomepageWidgets } from "./widgets";
-import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
-import type { Post } from "@/types";
+import {
+    PageLayout,
+    PageCenter,
+    PageRight
+} from "@/components/page-layout";
 import Loading from "../loading";
 import { SuggestedPeopleFeedCard } from "@/components/suggested-people";
+import { SearchBar } from "@/components/search-bar";
+import { StreakWidget } from "@/components/widgets/streak";
+import { AboutWidget } from "@/components/widgets/about";
+import { RngWidget } from "@/components/widgets/rng";
+import { TrendingWidget } from "@/components/widgets/trending";
+
+// Types
+import type { Post } from "@/types";
 
 const tabs = [
     { name: "Recent", id: "recent" },
@@ -52,8 +64,9 @@ export default function Page() {
                     popular: "/api/posts/popular",
                 };
 
-                const res = await axios.get(endpoints[activeTab]);
-                setPosts(res.data);
+                await axios.get(endpoints[activeTab]).then((res) => {
+                    setPosts(res.data);
+                })
             } catch {
                 toast.error("Something went wrong");
                 setPosts([])
@@ -77,11 +90,15 @@ export default function Page() {
                 {loading ? (
                     <Loading />
                 ) : (
-                    <PostList posts={posts} afterFirst={<SuggestedPeopleFeedCard />} />
+                    <PostList posts={posts} afterFirst={activeTab == "recent" && <SuggestedPeopleFeedCard />} />
                 )}
             </PageCenter>
             <PageRight>
-                <HomepageWidgets />
+                <SearchBar />
+                <StreakWidget />
+                <AboutWidget />
+                <RngWidget />
+                <TrendingWidget />
             </PageRight>
         </PageLayout>
     );

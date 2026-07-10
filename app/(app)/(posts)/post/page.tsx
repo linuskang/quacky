@@ -16,6 +16,7 @@
 
 "use client";
 
+// Components
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout";
 import { Composer } from "@/components/composer";
 import { SearchBar } from "@/components/search-bar";

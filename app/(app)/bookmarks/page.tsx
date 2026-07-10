@@ -34,14 +34,10 @@ export default async function Page() {
         <PageLayout>
             <PageCenter>
                 <Title>Your Bookmarks</Title>
-                <PostList
-                    posts={bookmarks}
-                />
+                <PostList posts={bookmarks} />
             </PageCenter>
             <PageRight>
-                <SearchBar
-
-                />
+                <SearchBar />
             </PageRight>
         </PageLayout>
     )

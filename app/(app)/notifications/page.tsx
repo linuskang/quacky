@@ -14,7 +14,6 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
-
 // Libraries
 import { requireSession } from "@/server/auth";
 import { fetchNotifications } from "@/server/notifications";
@@ -27,6 +26,7 @@ import { Title } from "@/components/text";
 
 export default async function Page() {
     const session = await requireSession();
+
     const notifications = await fetchNotifications({
         userId: session.user.id
     });

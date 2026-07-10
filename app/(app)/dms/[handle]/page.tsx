@@ -14,14 +14,17 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
+// Libraries
 import { notFound } from "next/navigation";
 import { requireSession } from "@/server/auth";
 import { prisma } from "@/server/prisma";
 import { fetchMessages, markConversationRead } from "@/server/dms";
-import { PageLayout, PageCenter } from "@/components/page-layout";
-import { DmConversation } from "@/components/dm-conversation";
 
-export default async function ConversationPage({
+// Components
+import { PageLayout, PageCenter } from "@/components/page-layout";
+import { Dm } from "@/components/dm";
+
+export default async function Page({
     params,
 }: {
     params: Promise<{ handle: string }>;
@@ -57,7 +60,7 @@ export default async function ConversationPage({
     return (
         <PageLayout>
             <PageCenter>
-                <DmConversation
+                <Dm
                     other={other}
                     currentUserId={session.user.id}
                     initialMessages={messages}
