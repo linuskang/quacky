@@ -14,134 +14,141 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
-"use client";
+"use client"
 
 // Libraries
-import axios from "axios";
-import { useParams, useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import axios from "axios"
+import { useParams, useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { useState, useEffect } from "react"
+import { cn } from "@/lib/utils"
 
 // Components
-import { Button } from "@/components/ui/button";
-import { PageLayout, PageCenter } from "@/components/page-layout";
-import { Title, Description } from "@/components/text";
-import Loading from "@/components/loading";
+import { Button } from "@/components/ui/button"
+import { PageLayout, PageCenter } from "@/components/page-layout"
+import { Title, Description } from "@/components/text"
+import Loading from "@/components/loading"
 
 // Types
 interface Question {
-    no: number;
-    question: string;
-    options: {
-        id: string;
-        text: string;
-    }[];
+  no: number
+  question: string
+  options: {
+    id: string
+    text: string
+  }[]
 }
 
 export default function Page() {
-    const params = useParams();
-    const router = useRouter();
-    const [questions, setQuestions] = useState<Question[]>([]);
-    const [answers, setAnswers] = useState<Record<number, string>>({});
-    const [wrongQuestions, setWrongQuestions] = useState<number[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [meta, setMeta] = useState<{ name: string; description: string }>({ name: "", description: "" });
+  const params = useParams()
+  const router = useRouter()
+  const [questions, setQuestions] = useState<Question[]>([])
+  const [answers, setAnswers] = useState<Record<number, string>>({})
+  const [wrongQuestions, setWrongQuestions] = useState<number[]>([])
+  const [loading, setLoading] = useState(true)
+  const [meta, setMeta] = useState<{ name: string; description: string }>({
+    name: "",
+    description: "",
+  })
 
-    useEffect(() => {
-        async function fetchQuestions() {
-            setLoading(true);
-            try {
-                const response = await axios.get(`/api/quiz/${params.slug}`);
-                setQuestions(response.data.questions);
-                setMeta(response.data.meta);
-            } catch {
-                toast.error("something blew up. sorry.");
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        fetchQuestions();
-    }, [params.slug]);
-
-    async function submitQuiz() {
-        try {
-            await axios.post(`/api/quiz/${params.slug}`, answers);
-            toast.success(`congrats! you passed the quiz and unlocked the ${params.slug} module. redirecting...`);
-            router.push("/quiz");
-        } catch (error) {
-            if (axios.isAxiosError(error) && error.response?.status === 400) {
-                const wrong = error.response.data.wrong as number[] | undefined;
-                if (wrong && wrong.length > 0) {
-                    setWrongQuestions(wrong);
-                    toast.error(`Incorrect answers for questions: ${wrong.join(", ")}`);
-                    return;
-                }
-            }
-            toast.error("something blew up. please try later.");
-        }
+  useEffect(() => {
+    async function fetchQuestions() {
+      setLoading(true)
+      try {
+        const response = await axios.get(`/api/quiz/${params.slug}`)
+        setQuestions(response.data.questions)
+        setMeta(response.data.meta)
+      } catch {
+        toast.error("something blew up. sorry.")
+      } finally {
+        setLoading(false)
+      }
     }
 
-    return (
-        <PageLayout>
-            <PageCenter>
-                <Title>{meta.name}</Title>
-                <Description>{meta.description}</Description>
-                {loading && <Loading />}
-                {questions.map((question) => {
-                    const isWrong = wrongQuestions.includes(question.no);
-                    return (
-                        <div
-                            key={question.no}
-                        >
-                            <p className="mb-3 font-bold">{question.no}. {question.question}</p>
-                            <div className="flex flex-col gap-2">
-                                {question.options.map((option) => {
-                                    const selected = answers[question.no] === option.id;
-                                    return (
-                                        <Button
-                                            key={option.id}
-                                            type="button"
-                                            variant="outline"
-                                            className={cn(
-                                                "justify-start text-left h-auto py-3 border-2 text-sm px-4",
-                                                selected
-                                                    ? "border-primary bg-primary text-primary"
-                                                    : "border-border",
-                                                selected && isWrong && "border-destructive bg-destructive/10"
-                                            )}
-                                            onClick={() => {
-                                                setAnswers((prev) => ({
-                                                    ...prev,
-                                                    [question.no]: option.id,
-                                                }));
-                                                if (isWrong) {
-                                                    setWrongQuestions((prev) =>
-                                                        prev.filter((no) => no !== question.no)
-                                                    );
-                                                }
-                                            }}
-                                        >
-                                            {option.text}
-                                        </Button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    );
-                })}
+    fetchQuestions()
+  }, [params.slug])
 
-                {!loading && (
+  async function submitQuiz() {
+    try {
+      await axios.post(`/api/quiz/${params.slug}`, answers)
+      toast.success(
+        `congrats! you passed the quiz and unlocked the ${params.slug} module. redirecting...`
+      )
+      router.push("/quiz")
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 400) {
+        const wrong = error.response.data.wrong as number[] | undefined
+        if (wrong && wrong.length > 0) {
+          setWrongQuestions(wrong)
+          toast.error(`Incorrect answers for questions: ${wrong.join(", ")}`)
+          return
+        }
+      }
+      toast.error("something blew up. please try later.")
+    }
+  }
+
+  return (
+    <PageLayout>
+      <PageCenter>
+        <Title>{meta.name}</Title>
+        <Description>{meta.description}</Description>
+        {loading && <Loading />}
+        {questions.map((question) => {
+          const isWrong = wrongQuestions.includes(question.no)
+          return (
+            <div key={question.no}>
+              <p className="mb-3 font-bold">
+                {question.no}. {question.question}
+              </p>
+              <div className="flex flex-col gap-2">
+                {question.options.map((option) => {
+                  const selected = answers[question.no] === option.id
+                  return (
                     <Button
-                        className="w-full h-10 border-2 border-border text-sm bg-card !text-primary hover:!bg-card hover:!border-primary"
-                        disabled={Object.keys(answers).length !== questions.length}
-                        onClick={submitQuiz}
+                      key={option.id}
+                      type="button"
+                      variant="outline"
+                      className={cn(
+                        "h-auto justify-start border-2 px-4 py-3 text-left text-sm",
+                        selected
+                          ? "border-primary bg-primary text-primary"
+                          : "border-border",
+                        selected &&
+                          isWrong &&
+                          "border-destructive bg-destructive/10"
+                      )}
+                      onClick={() => {
+                        setAnswers((prev) => ({
+                          ...prev,
+                          [question.no]: option.id,
+                        }))
+                        if (isWrong) {
+                          setWrongQuestions((prev) =>
+                            prev.filter((no) => no !== question.no)
+                          )
+                        }
+                      }}
                     >
-                        Submit
+                      {option.text}
                     </Button>
-                )}
-            </PageCenter>
-        </PageLayout>
-    );
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })}
+
+        {!loading && (
+          <Button
+            className="h-10 w-full border-2 border-border bg-card text-sm !text-primary hover:!border-primary hover:!bg-card"
+            disabled={Object.keys(answers).length !== questions.length}
+            onClick={submitQuiz}
+          >
+            Submit
+          </Button>
+        )}
+      </PageCenter>
+    </PageLayout>
+  )
 }

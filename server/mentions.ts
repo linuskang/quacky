@@ -14,52 +14,52 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
-import { prisma } from "@/server/prisma";
-import { NotificationService } from "@/server/helpers";
+import { prisma } from "@/server/prisma"
+import { NotificationService } from "@/server/helpers"
 
-const MENTION_REGEX = /(^|[^\w])@([a-zA-Z0-9_]+)/g;
+const MENTION_REGEX = /(^|[^\w])@([a-zA-Z0-9_]+)/g
 
 export function extractMentionUsernames(content: string) {
-    const usernames = new Set<string>();
+  const usernames = new Set<string>()
 
-    for (const match of content.matchAll(MENTION_REGEX)) {
-        usernames.add(match[2].toLowerCase());
-    }
+  for (const match of content.matchAll(MENTION_REGEX)) {
+    usernames.add(match[2].toLowerCase())
+  }
 
-    return [...usernames];
+  return [...usernames]
 }
 
 export async function sendMentionNotifications({
-    content,
-    actorId,
-    actorUsername,
-    message,
+  content,
+  actorId,
+  actorUsername,
+  message,
 }: {
-    content: string;
-    actorId: string;
-    actorUsername: string;
-    message: string;
+  content: string
+  actorId: string
+  actorUsername: string
+  message: string
 }) {
-    const usernames = extractMentionUsernames(content).filter(
-        (username) => username !== actorUsername.toLowerCase()
-    );
+  const usernames = extractMentionUsernames(content).filter(
+    (username) => username !== actorUsername.toLowerCase()
+  )
 
-    if (usernames.length === 0) return;
+  if (usernames.length === 0) return
 
-    const users = await prisma.user.findMany({
-        where: {
-            username: {
-                in: usernames,
-                mode: "insensitive",
-            },
-            banned: false,
-        },
-        select: {
-            id: true,
-        },
-    });
+  const users = await prisma.user.findMany({
+    where: {
+      username: {
+        in: usernames,
+        mode: "insensitive",
+      },
+      banned: false,
+    },
+    select: {
+      id: true,
+    },
+  })
 
-    await Promise.all(
-        users.map((user) => NotificationService.send(user.id, actorId, message))
-    );
+  await Promise.all(
+    users.map((user) => NotificationService.send(user.id, actorId, message))
+  )
 }

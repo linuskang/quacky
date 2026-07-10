@@ -21,55 +21,46 @@ import { chat } from "@/server/helpers"
 import { Up } from "@/server/upstream"
 
 type Fuzzy = {
-    id: string,
-    reason: string
+  id: string
+  reason: string
 }
 
 export async function POST(req: NextRequest) {
-    const session = await getSession()
+  const session = await getSession()
 
-    if (!session) {
-        return new NextResponse(
-            "Unauthorised",
-            {
-                status: 401
-            }
-        )
-    }
-
-    const body = await req.json() as Fuzzy
-
-    if (!body.id || !body.reason) {
-        return new NextResponse(
-            "Missing required fields",
-            {
-                status: 400
-            }
-        )
-    }
-
-    const fuzzy = await prisma.fuzzy.findUnique({
-        where: {
-            id: body.id
-        },
-        include: {
-            author: true
-        }
+  if (!session) {
+    return new NextResponse("Unauthorised", {
+      status: 401,
     })
+  }
 
-    if (!fuzzy) {
-        return new NextResponse(
-            "Fuzzy not found",
-            {
-                status: 404
-            }
-        )
-    }
+  const body = (await req.json()) as Fuzzy
 
-    const output = await chat([
-        {
-            role: "system",
-            content: `
+  if (!body.id || !body.reason) {
+    return new NextResponse("Missing required fields", {
+      status: 400,
+    })
+  }
+
+  const fuzzy = await prisma.fuzzy.findUnique({
+    where: {
+      id: body.id,
+    },
+    include: {
+      author: true,
+    },
+  })
+
+  if (!fuzzy) {
+    return new NextResponse("Fuzzy not found", {
+      status: 404,
+    })
+  }
+
+  const output = await chat([
+    {
+      role: "system",
+      content: `
 You are a content moderation system for Quacky.
 
 Determine whether a warm fuzzy violates Quacky's rules.
@@ -103,70 +94,73 @@ If the post is acceptable, return:
   "reason": ""
 }
 `,
-        },
-        {
-            role: "user",
-            content: `
+    },
+    {
+      role: "user",
+      content: `
 The following content was reported by the user: "${fuzzy.message}".
 
 The user reported the content for the following reason: "${body.reason}".
-            `
-        }
-    ])
+            `,
+    },
+  ])
 
-    const result = JSON.parse(output)
+  const result = JSON.parse(output)
 
-    let aiFlagged = false
+  let aiFlagged = false
 
-    if (result.is_inappropriate) {
-        aiFlagged = true
-        await prisma.fuzzy.update({
-            where: {
-                id: fuzzy.id
-            },
-            data: {
-                flagged: true
-            }
-        })
-    }
-
-    await Up.ingest({
-        title: `Warm fuzzy reported by ${session.user.email}`,
-        icon: "🚨",
-        content: `${session.user.name} (${session.user.id}) reported a warm fuzzy sent by ${fuzzy.author.username} (${fuzzy.author.id}).`,
-        fields: [
-            {
-                name: "User Reason",
-                value: body.reason
-            },
-            {
-                name: "AI Flagged",
-                value: aiFlagged.toString()
-            },
-            {
-                name: "AI Reason",
-                value: result.reason
-            },
-            {
-                name: "Warm Fuzzy Content",
-                value: fuzzy.message
-            }
-        ],
-        actions: [
-            {
-                title: "View Warm Fuzzy",
-                type: "default",
-                url: `${process.env.BETTER_AUTH_URL}/fuzzy/${fuzzy.id}`
-            },
-            {
-                title: "View Reported Sender",
-                type: "secondary",
-                url: `${process.env.BETTER_AUTH_URL}/@${fuzzy.author.username}`
-            }
-        ]
+  if (result.is_inappropriate) {
+    aiFlagged = true
+    await prisma.fuzzy.update({
+      where: {
+        id: fuzzy.id,
+      },
+      data: {
+        flagged: true,
+      },
     })
+  }
 
-    return NextResponse.json({
-        success: true,
-    }, { status: 200 })
+  await Up.ingest({
+    title: `Warm fuzzy reported by ${session.user.email}`,
+    icon: "🚨",
+    content: `${session.user.name} (${session.user.id}) reported a warm fuzzy sent by ${fuzzy.author.username} (${fuzzy.author.id}).`,
+    fields: [
+      {
+        name: "User Reason",
+        value: body.reason,
+      },
+      {
+        name: "AI Flagged",
+        value: aiFlagged.toString(),
+      },
+      {
+        name: "AI Reason",
+        value: result.reason,
+      },
+      {
+        name: "Warm Fuzzy Content",
+        value: fuzzy.message,
+      },
+    ],
+    actions: [
+      {
+        title: "View Warm Fuzzy",
+        type: "default",
+        url: `${process.env.BETTER_AUTH_URL}/fuzzy/${fuzzy.id}`,
+      },
+      {
+        title: "View Reported Sender",
+        type: "secondary",
+        url: `${process.env.BETTER_AUTH_URL}/@${fuzzy.author.username}`,
+      },
+    ],
+  })
+
+  return NextResponse.json(
+    {
+      success: true,
+    },
+    { status: 200 }
+  )
 }

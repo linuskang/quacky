@@ -14,7 +14,7 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
-import { auth } from "@/server/auth";
-import { toNextJsHandler } from "better-auth/next-js";
+import { auth } from "@/server/auth"
+import { toNextJsHandler } from "better-auth/next-js"
 
-export const { POST, GET } = toNextJsHandler(auth);
+export const { POST, GET } = toNextJsHandler(auth)

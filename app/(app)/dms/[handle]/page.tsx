@@ -15,57 +15,57 @@
 // Work is licensed under the CC BY-NC 4.0 license.
 
 // Libraries
-import { notFound } from "next/navigation";
-import { requireSession } from "@/server/auth";
-import { prisma } from "@/server/prisma";
-import { fetchMessages, markConversationRead } from "@/server/dms";
+import { notFound } from "next/navigation"
+import { requireSession } from "@/server/auth"
+import { prisma } from "@/server/prisma"
+import { fetchMessages, markConversationRead } from "@/server/dms"
 
 // Components
-import { PageLayout, PageCenter } from "@/components/page-layout";
-import { Dm } from "@/components/dm";
+import { PageLayout, PageCenter } from "@/components/page-layout"
+import { Dm } from "@/components/dm"
 
 export default async function Page({
-    params,
+  params,
 }: {
-    params: Promise<{ handle: string }>;
+  params: Promise<{ handle: string }>
 }) {
-    const session = await requireSession();
-    const { handle } = await params;
+  const session = await requireSession()
+  const { handle } = await params
 
-    const other = await prisma.user.findUnique({
-        where: { username: handle },
-        select: {
-            id: true,
-            name: true,
-            username: true,
-            image: true,
-            verified: true,
-            role: true,
-        },
-    });
+  const other = await prisma.user.findUnique({
+    where: { username: handle },
+    select: {
+      id: true,
+      name: true,
+      username: true,
+      image: true,
+      verified: true,
+      role: true,
+    },
+  })
 
-    if (!other) {
-        notFound();
-    }
+  if (!other) {
+    notFound()
+  }
 
-    if (other.id === session.user.id) {
-        notFound();
-    }
+  if (other.id === session.user.id) {
+    notFound()
+  }
 
-    const [messages] = await Promise.all([
-        fetchMessages({ userId: session.user.id, otherUserId: other.id }),
-        markConversationRead({ userId: session.user.id, otherUserId: other.id }),
-    ]);
+  const [messages] = await Promise.all([
+    fetchMessages({ userId: session.user.id, otherUserId: other.id }),
+    markConversationRead({ userId: session.user.id, otherUserId: other.id }),
+  ])
 
-    return (
-        <PageLayout>
-            <PageCenter>
-                <Dm
-                    other={other}
-                    currentUserId={session.user.id}
-                    initialMessages={messages}
-                />
-            </PageCenter>
-        </PageLayout>
-    );
+  return (
+    <PageLayout>
+      <PageCenter>
+        <Dm
+          other={other}
+          currentUserId={session.user.id}
+          initialMessages={messages}
+        />
+      </PageCenter>
+    </PageLayout>
+  )
 }

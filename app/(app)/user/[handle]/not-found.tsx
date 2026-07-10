@@ -15,7 +15,10 @@
 // Work is licensed under the CC BY-NC 4.0 license.
 
 export default function NotFound() {
-    return (
-        <h1>whoops! looks like this user doesn&apos;t exist yet. try a different query!</h1>
-    )
+  return (
+    <h1>
+      whoops! looks like this user doesn&apos;t exist yet. try a different
+      query!
+    </h1>
+  )
 }
