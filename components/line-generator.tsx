@@ -33,8 +33,14 @@ interface CurvedLineProps {
 }
 
 function seededRandom(seed: number) {
-    const x = Math.sin(seed * 12.9898) * 43758.5453
-    return x - Math.floor(x)
+    let x = Math.trunc(seed) | 0
+    x = Math.imul(x ^ (x >>> 16), 2246822507)
+    x = Math.imul(x ^ (x >>> 13), 3266489909)
+    return ((x ^ (x >>> 16)) >>> 0) / 4294967296
+}
+
+function formatCoord(value: number) {
+    return Number(value.toFixed(3))
 }
 
 export function CurvedLine({
@@ -52,7 +58,7 @@ export function CurvedLine({
         const cx = wobble ? mx + (seededRandom(seed) - 0.5) * wobble : mx
         const cy = wobble ? my + (seededRandom(seed + 1) - 0.5) * wobble : my
 
-        return `M ${from.x} ${from.y} Q ${cx} ${cy} ${to.x} ${to.y}`
+        return `M ${formatCoord(from.x)} ${formatCoord(from.y)} Q ${formatCoord(cx)} ${formatCoord(cy)} ${formatCoord(to.x)} ${formatCoord(to.y)}`
     }, [from, to, wobble])
 
     return (

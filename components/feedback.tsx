@@ -16,10 +16,15 @@
 
 "use client"
 
+// Libraries
+import axios from "axios"
 import { useState } from "react"
 import Image from "next/image"
+import { toast } from "sonner"
+
+// Components
 import { Patrick_Hand } from "next/font/google"
-import { CurvedLine } from "./line-generator"
+import { CurvedLine } from "@/components/line-generator"
 import {
     Dialog,
     DialogClose,
@@ -27,12 +32,11 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "./ui/dialog"
-import { Label } from "./ui/label"
-import { Button } from "./ui/button"
-import { Textarea } from "./ui/textarea"
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
 import { playfairDisplay } from "@/app/layout"
-import { toast } from "sonner"
 
 const patrickHand = Patrick_Hand({
     subsets: ["latin"],
@@ -72,18 +76,7 @@ export function Feedback() {
     const [visual, setVisual] = useState(0)
     const [comments, setComments] = useState("")
 
-    const handleSend = async () => {
-        if (
-            usability === 0 ||
-            satisfaction === 0 ||
-            recommend === 0 ||
-            visual === 0 ||
-            comments.trim() === ""
-        ) {
-            toast.error("Please answer all required fields.")
-            return
-        }
-
+    async function sendFeedback() {
         const data = {
             usability,
             satisfaction,
@@ -92,36 +85,34 @@ export function Feedback() {
             comments,
         }
 
-        await fetch("/api/feedback-portal", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        })
+        try {
+            await axios.get("/api/feedback", { params: data })
 
-        toast.success("Feedback sent! Thank you for trying out Quacky.")
-
-        setUsability(0)
-        setSatisfaction(0)
-        setRecommend(0)
-        setVisual(0)
-        setComments("")
-        setOpen(false)
+            toast.success("Feedback sent! Thank you for trying out Quacky.")
+        } catch {
+            toast.error("Something blew up.try again later please")
+        } finally {
+            setUsability(0)
+            setSatisfaction(0)
+            setRecommend(0)
+            setVisual(0)
+            setComments("")
+            setOpen(false)
+        }
     }
 
     return (
         <>
             <div className="pointer-events-none fixed right-24 bottom-44 z-10">
-                <div className="relative h-32 w-64">
+                <div className="relative h-30 w-64">
                     <span
-                        className={`${patrickHand.className} absolute top-0 left-0 text-2xl font-bold`}
+                        className={`${patrickHand.className} absolute top-15 left-0 text-2xl font-bold`}
                     >
                         have any feedback for me?
                     </span>
 
                     <CurvedLine
-                        from={{ x: 100, y: 50 }}
+                        from={{ x: 130, y: 110 }}
                         to={{ x: 220, y: 160 }}
                         strokeWidth={4}
                         wobble={-50}
@@ -240,7 +231,7 @@ export function Feedback() {
                         <Button
                             variant="default"
                             className="h-10 rounded-full bg-primary-2 px-5 text-base font-semibold text-background"
-                            onClick={handleSend}
+                            onClick={sendFeedback}
                         >
                             Send Feedback
                         </Button>
