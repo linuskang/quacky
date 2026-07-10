@@ -62,23 +62,24 @@ model User {
   sessions           Session[]
   accounts           Account[]
   checkIns           CheckIn[]
+  rngEntries         RngEntry[]
 
   @@map("user")
 }
 
 model Fuzzy {
-    id         String @id @default(uuid())
+  id String @id @default(uuid())
 
-    authorId   String
-    author     User @relation("FuzzyAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+  author   User   @relation("FuzzyAuthor", fields: [authorId], references: [id], onDelete: Cascade)
 
-    receiverId String
-    receiver   User @relation("FuzzyReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver   User   @relation("FuzzyReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
 
-    message    String
-    flagged    Boolean @default(false)
+  message String
+  flagged Boolean @default(false)
 
-    createdAt DateTime @db.Timestamptz(3) @default(now())
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
 }
 
 model Post {
@@ -104,6 +105,17 @@ model Post {
   @@index([authorId])
   @@index([repostOfId])
   @@map("post")
+}
+
+model RngEntry {
+  id        String   @id @default(uuid())
+  date      DateTime @db.Date
+  createdAt DateTime @default(now())
+  number    Int
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
 }
 
 model PostHashtag {
