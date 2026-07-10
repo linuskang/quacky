@@ -216,7 +216,7 @@ export default function Page() {
                     {error === "EMAIL_NOT_VERIFIED" ? (
                         <div className="space-y-2 rounded-md border-2 border-destructive bg-destructive/10 px-3 py-2.5 text-sm text-destructive">
                             <p>
-                                Your email is not verified. We&aposve resent a
+                                Your email is not verified. We resent a
                                 verification email to your inbox.
                             </p>
                         </div>

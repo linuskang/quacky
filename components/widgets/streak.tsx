@@ -124,7 +124,7 @@ export function StreakWidget() {
                         className="shrink-0"
                     />
                     <div className="flex flex-col justify-center">
-                        <h1 className="text-lg font-bold">
+                        <h1 className="text-lg font-bold text-primary">
                             {streak.current} DAY STREAK
                         </h1>
                         <p className="text-xs">

@@ -46,7 +46,7 @@ export function QOTD() {
             <WidgetSecondaryHeader>
                 <div className="flex items-center gap-3">
                     <div className="flex flex-col justify-center">
-                        <h1 className="text-lg font-bold">Quote of the Day</h1>
+                        <h1 className="text-lg font-bold text-primary">Quote of the Day</h1>
                     </div>
                 </div>
             </WidgetSecondaryHeader>

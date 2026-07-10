@@ -32,7 +32,7 @@ export function RngWidget() {
             <WidgetSecondaryHeader>
                 <div className="flex items-center">
                     <div className="flex items-center">
-                        <h1 className="text-lg font-bold">rng?</h1>
+                        <h1 className="text-lg font-bold text-primary">rng?</h1>
                         <Dices className="ml-2 h-5 w-5" strokeWidth={3} />
                     </div>
                 </div>

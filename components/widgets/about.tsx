@@ -49,12 +49,12 @@ export function AboutWidget() {
             <WidgetSecondaryHeader>
                 <div className="flex items-center gap-3">
                     <div className="flex flex-col justify-center">
-                        <h1 className="text-lg font-bold">{name}</h1>
+                        <h1 className="text-lg font-bold text-primary">{name}</h1>
                     </div>
                 </div>
             </WidgetSecondaryHeader>
             <WidgetContent>
-                <p className="text-sm text-muted-foreground">{description}</p>
+                <p className="text-sm text-muted-foreground whitespace-pre-line">{description}</p>
 
                 <div className="grid grid-cols-2 gap-3 text-sm">
                     <div>

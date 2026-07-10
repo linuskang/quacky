@@ -48,7 +48,7 @@ export function TrendingWidget() {
             <WidgetSecondaryHeader>
                 <div className="flex items-center">
                     <div className="flex flex-col justify-center">
-                        <h1 className="text-lg font-bold">trending now</h1>
+                        <h1 className="text-lg font-bold text-primary">trending now</h1>
                     </div>
                     <TrendingUp className="ml-2 h-5 w-5" strokeWidth={3} />
                 </div>
