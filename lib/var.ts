@@ -63,7 +63,7 @@ export const quizes = [
         id: "post",
         name: "Posting",
         description:
-            "Complete this quiz to unlock posting! (Please note that the questions for this quiz havent been finalised yet, so just press the correct option in Question 1 to unlock the posting module.",
+            "Complete this quiz to unlock posting!",
         to: "/quiz/post",
         time: "8 min",
         xp: 50,
@@ -80,4 +80,24 @@ export const quizes = [
             },
         ],
     },
+    {
+        id: "comment",
+        name: "Commenting",
+        description: "Complete this quiz to unlock commenting!",
+        to: "/quiz/comment",
+        time: "5 min",
+        xp: 30,
+        questions: [
+            {
+                id: 1,
+                question: "Press on Option C to complete this quiz.",
+                options: [
+                    { id: "a", text: "Im incorrect" },
+                    { id: "b", text: "Im incorrect" },
+                    { id: "c", text: "Im correct", correct: true },
+                    { id: "d", text: "Im incorrect" },
+                ],
+            }
+        ]
+    }
 ]

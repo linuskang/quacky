@@ -22,11 +22,11 @@ import Link from "next/link"
 import { useTimeAgo } from "@/client/utils"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 import axios from "axios"
 
 // Components
-import { BadgeCheck, SendHorizontal, MoreHorizontal } from "lucide-react"
+import { BadgeCheck, SendHorizontal, MoreHorizontal, Lock } from "lucide-react"
 import { Admin } from "./icons"
 import {
     DropdownMenu,
@@ -92,6 +92,7 @@ export function CommentList({
 
 export function Reply({ postId }: { postId: string }) {
     const [content, setContent] = useState("")
+    const [canComment, setCanComment] = useState(false)
     const [caret, setCaret] = useState(0)
     const inputRef = useRef<HTMLInputElement>(null)
     const mentions = useMentionSuggestions({
@@ -107,6 +108,20 @@ export function Reply({ postId }: { postId: string }) {
         },
     })
 
+    useEffect(() => {
+        async function getMe() {
+            try {
+                await axios.get("/api/me").then((res) => {
+                    setCanComment(res.data.canComment)
+                })
+            } catch {
+                toast.error("something went wrong, i think the server blew up")
+            }
+        }
+
+        getMe()
+    }, [])
+
     async function comment() {
         await axios.post(`/api/posts/${postId}/comment`, {
             content,
@@ -119,39 +134,53 @@ export function Reply({ postId }: { postId: string }) {
     return (
         <div className="relative">
             <InputGroup className="h-10">
-                <InputGroupInput
-                    ref={inputRef}
-                    placeholder="Write a reply..."
-                    value={content}
-                    onChange={(e) => {
-                        setContent(e.target.value)
-                        setCaret(e.target.selectionStart ?? 0)
-                    }}
-                    onClick={(e) =>
-                        setCaret(e.currentTarget.selectionStart ?? 0)
-                    }
-                    onKeyUp={(e) =>
-                        setCaret(e.currentTarget.selectionStart ?? 0)
-                    }
-                />
-                <InputGroupAddon align="inline-end">
-                    <CharCounter
-                        length={content.length}
-                        maxLength={100}
-                        width={8}
-                        height={8}
-                    />
-                    <InputGroupButton
-                        variant="ghost"
-                        className="hover:!bg-transparent"
-                        onClick={comment}
-                        disabled={
-                            content.trim().length == 0 || content.length > 100
-                        }
-                    >
-                        <SendHorizontal className="!size-5 text-foreground" />
-                    </InputGroupButton>
-                </InputGroupAddon>
+                {canComment ? (
+                    <>
+                        <InputGroupInput
+                            ref={inputRef}
+                            placeholder="Write a reply..."
+                            value={content}
+                            onChange={(e) => {
+                                setContent(e.target.value)
+                                setCaret(e.target.selectionStart ?? 0)
+                            }}
+                            onClick={(e) =>
+                                setCaret(e.currentTarget.selectionStart ?? 0)
+                            }
+                            onKeyUp={(e) =>
+                                setCaret(e.currentTarget.selectionStart ?? 0)
+                            }
+                        />
+                        <InputGroupAddon align="inline-end">
+                            <CharCounter
+                                length={content.length}
+                                maxLength={100}
+                                width={8}
+                                height={8}
+                            />
+                            <InputGroupButton
+                                variant="ghost"
+                                className="hover:!bg-transparent"
+                                onClick={comment}
+                                disabled={
+                                    content.trim().length == 0 || content.length > 100
+                                }
+                            >
+                                <SendHorizontal className="!size-5 text-foreground" />
+                            </InputGroupButton>
+                        </InputGroupAddon>
+                    </>
+                ) : (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center gap-2 rounded-md bg-card-primary/70 px-3 text-center">
+                        <Lock className="h-4 w-4 text-primary" strokeWidth={3} />
+                        <p className="text-xs font-bold text-primary">
+                            Commenting is Locked!
+                        </p>
+                        <Button size="xs" className="h-6 p-2 rounded-full ml-auto" asChild>
+                            <Link href="/quiz/comment">Complete the quiz</Link>
+                        </Button>
+                    </div>
+                )}
             </InputGroup>
             <MentionSuggestions
                 open={mentions.open}

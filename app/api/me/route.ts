@@ -32,12 +32,13 @@ export async function GET() {
         hasCheckedIn(session.user.id),
         getCheckInSummary(session.user.id),
     ])
-    const canPost = await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
         where: {
             id: session.user.id,
         },
         select: {
             unlockedPosting: true,
+            unlockedCommenting: true,
         },
     })
 
@@ -45,7 +46,7 @@ export async function GET() {
     // already declared that if the session isnt valid above
     // then return 401 but typescript is like "nah bro what if it is still null"
     // talk about redundant....
-    if (!canPost) {
+    if (!user) {
         return new NextResponse("User not found", {
             status: 404,
         })
@@ -54,7 +55,8 @@ export async function GET() {
     return NextResponse.json(
         {
             hasCheckedIn: hasCheckedInToday,
-            canPost: canPost.unlockedPosting,
+            canPost: user.unlockedPosting,
+            canComment: user.unlockedCommenting,
             streak,
         },
         {
