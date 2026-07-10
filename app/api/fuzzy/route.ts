@@ -26,6 +26,27 @@ type Fuzzy = {
     receiverId: string
 }
 
+export async function GET(req: NextRequest) {
+    const session = await getSession()
+
+    if (!session) {
+        return new NextResponse("Unauthorised", {
+            status: 401,
+        })
+    }
+
+    const fuzzies = await prisma.fuzzy.findMany({
+        where: {
+            receiverId: session.user.id,
+        },
+        orderBy: {
+            createdAt: "desc",
+        }
+    })
+
+    return NextResponse.json(fuzzies)
+}
+
 export async function POST(req: NextRequest) {
     const session = await getSession()
 

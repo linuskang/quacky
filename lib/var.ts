@@ -99,5 +99,25 @@ export const quizes = [
                 ],
             }
         ]
+    },
+    {
+        id: "fuzzies",
+        name: "Warm Fuzzies",
+        description: "Complete this quiz to unlock sending warm fuzzies!",
+        to: "/quiz/fuzzies",
+        time: "5 min",
+        xp: 30,
+        questions: [
+            {
+                id: 1,
+                question: "Press on Option A to complete this quiz.",
+                options: [
+                    { id: "a", text: "Im correct", correct: true },
+                    { id: "b", text: "Im incorrect" },
+                    { id: "c", text: "Im incorrect" },
+                    { id: "d", text: "Im incorrect" },
+                ],
+            }
+        ]
     }
 ]

@@ -45,6 +45,7 @@ export async function GET(req: NextRequest) {
             banned: false,
         },
         select: {
+            id: true,
             name: true,
             username: true,
             image: true,

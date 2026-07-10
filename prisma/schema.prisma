@@ -77,6 +77,8 @@ model Fuzzy {
 
     message    String
     flagged    Boolean @default(false)
+
+    createdAt DateTime @db.Timestamptz(3) @default(now())
 }
 
 model Post {
