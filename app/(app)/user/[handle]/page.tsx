@@ -335,7 +335,38 @@ export default async function Page({
                                 className="p-0 pt-6 text-sm text-muted-foreground"
                             >
                                 <Card className="p-4">
-                                    <h1 className="text-lg font-bold">soon.</h1>
+                                    {user.unlockedCommenting && (
+                                        <div className="mb-2 flex items-center gap-2">
+                                            <Star className="h-5 w-5 text-primary" />
+                                            <span className="font-bold">
+                                                Commenting Unlocked
+                                            </span>
+                                        </div>
+                                    )}
+                                    {user.unlockedPosting && (
+                                        <div className="mb-2 flex items-center gap-2">
+                                            <Star className="h-5 w-5 text-primary" />
+                                            <span className="font-bold">
+                                                Posting Unlocked
+                                            </span>
+                                        </div>
+                                    )}
+                                    {user.unlockedFuzzies && (
+                                        <div className="mb-2 flex items-center gap-2">
+                                            <Star className="h-5 w-5 text-primary" />
+                                            <span className="font-bold">
+                                                Fuzzies Unlocked
+                                            </span>
+                                        </div>
+                                    )}
+                                    {user.unlockedProfiles && (
+                                        <div className="mb-2 flex items-center gap-2">
+                                            <Star className="h-5 w-5 text-primary" />
+                                            <span className="font-bold">
+                                                Profiles Unlocked
+                                            </span>
+                                        </div>
+                                    )}
                                 </Card>
                             </TabsContent>
                         </Tabs>
