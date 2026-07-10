@@ -20,18 +20,11 @@ import { requireSession } from "@/server/auth"
 import { fetchConversations } from "@/server/dms"
 
 // Components
-import { MessagesSquare } from "lucide-react"
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout"
 import { SearchBar } from "@/components/search-bar"
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { Title } from "@/components/text"
-import {
-    Empty,
-    EmptyContent,
-    EmptyDescription,
-    EmptyMedia,
-    EmptyTitle,
-} from "@/components/ui/empty"
+import { DmUserSearch } from "@/components/dm-user-search"
 
 export default async function MessagesPage() {
     const session = await requireSession()
@@ -45,19 +38,14 @@ export default async function MessagesPage() {
             <PageCenter>
                 <Title>Direct Messages</Title>
 
+                <DmUserSearch />
+
                 {conversations.length === 0 ? (
-                    <Empty className="mt-8">
-                        <EmptyContent>
-                            <EmptyMedia>
-                                <MessagesSquare className="size-8 text-muted-foreground" />
-                            </EmptyMedia>
-                            <EmptyTitle>No conversations yet</EmptyTitle>
-                            <EmptyDescription>
-                                DM someone from their profile to start a
-                                conversation.
-                            </EmptyDescription>
-                        </EmptyContent>
-                    </Empty>
+                    <div className="mt-5">
+                        <p className="text-sm font-medium text-muted-foreground">
+                            Search for someone to start a conversation.
+                        </p>
+                    </div>
                 ) : (
                     <ul className="flex flex-col gap-1">
                         {conversations.map((convo) => (
