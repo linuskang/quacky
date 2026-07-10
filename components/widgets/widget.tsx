@@ -17,11 +17,12 @@
 "use client"
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 
-export function Widget({ children }: { children: React.ReactNode }) {
+export function Widget({ children, className }: { children: React.ReactNode; className?: string }) {
     return (
         <div className="flex w-full items-center">
-            <Card className="w-full overflow-hidden border-2 border-border p-0">
+            <Card className={cn("w-full rounded-md border-2 border-border bg-card text-card-foreground pt-0 pb-0 shadow-sm", className)}>
                 {children}
             </Card>
         </div>
@@ -30,11 +31,13 @@ export function Widget({ children }: { children: React.ReactNode }) {
 
 export function WidgetPrimaryHeader({
     children,
+    className,
 }: {
     children: React.ReactNode
+    className?: string
 }) {
     return (
-        <CardHeader className="rounded-tl-md rounded-tr-md !bg-card-header px-3 py-3">
+        <CardHeader className={cn("rounded-tl-md rounded-tr-md !bg-card-header px-3 py-3", className)}>
             {children}
         </CardHeader>
     )
@@ -42,19 +45,21 @@ export function WidgetPrimaryHeader({
 
 export function WidgetSecondaryHeader({
     children,
+    className
 }: {
     children: React.ReactNode
+    className?: string
 }) {
     return (
-        <CardHeader className="-mb-6 rounded-tl-md rounded-tr-md bg-card px-3 py-3">
+        <CardHeader className={cn("-mb-6 rounded-tl-md rounded-tr-md bg-card px-3 py-3", className)}>
             {children}
         </CardHeader>
     )
 }
 
-export function WidgetContent({ children }: { children: React.ReactNode }) {
+export function WidgetContent({ children, className }: { children: React.ReactNode; className?: string }) {
     return (
-        <CardContent className="-mt-4 flex flex-col gap-3 px-3 py-3">
+        <CardContent className={cn("-mt-4 flex flex-col gap-3 px-3 py-3", className)}>
             {children}
         </CardContent>
     )

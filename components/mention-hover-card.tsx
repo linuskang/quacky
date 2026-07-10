@@ -16,9 +16,13 @@
 
 "use client"
 
+// Libraries
+import axios from "axios"
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+
+// Components
 import { BadgeCheck } from "lucide-react"
 import { Admin } from "@/components/icons"
 import { Button } from "@/components/ui/button"
@@ -27,7 +31,9 @@ import {
     HoverCardContent,
     HoverCardTrigger,
 } from "@/components/ui/hover-card"
+import Loading from "./loading"
 
+// Types
 type MentionProfile = {
     name: string
     username: string
@@ -48,17 +54,11 @@ export function MentionHoverCard({ username }: { username: string }) {
         if (!open || profile) return
 
         async function fetchProfile() {
-            const res = await fetch(
-                `/api/user/${encodeURIComponent(username)}`,
-                {
-                    signal: controller.signal,
-                }
-            )
-
-            if (!res.ok) return
-
-            const data = (await res.json()) as MentionProfile
-            setProfile(data)
+            await axios.get(`/api/user/${username}`, {
+                signal: controller.signal,
+            }).then((res) => {
+                setProfile(res.data as MentionProfile)
+            })
         }
 
         fetchProfile().catch((error) => {
@@ -128,9 +128,7 @@ export function MentionHoverCard({ username }: { username: string }) {
                         </Button>
                     </div>
                 ) : (
-                    <div className="text-sm text-muted-foreground">
-                        Loading profile...
-                    </div>
+                    <Loading />
                 )}
             </HoverCardContent>
         </HoverCard>

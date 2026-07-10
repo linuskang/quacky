@@ -35,5 +35,6 @@ export async function GET() {
             posts,
             users,
         },
+        qotd: env.QOTD,
     })
 }

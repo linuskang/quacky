@@ -33,6 +33,7 @@ import { StreakWidget } from "@/components/widgets/streak"
 import { AboutWidget } from "@/components/widgets/about"
 import { RngWidget } from "@/components/widgets/rng"
 import { TrendingWidget } from "@/components/widgets/trending"
+import { QOTD } from "@/components/widgets/qotd"
 
 // Types
 import type { Post } from "@/types"
@@ -100,6 +101,7 @@ export default function Page() {
                 <AboutWidget />
                 <RngWidget />
                 <TrendingWidget />
+                <QOTD />
             </PageRight>
         </PageLayout>
     )
