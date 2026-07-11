@@ -16,7 +16,7 @@
 
 import { env } from "@/env"
 import { NextResponse } from "next/server"
-import { version, rules } from "@/lib/var"
+import { version, rules, canSignup } from "@/lib/var"
 import { prisma } from "@/server/prisma"
 
 export async function GET() {
@@ -36,5 +36,6 @@ export async function GET() {
             users,
         },
         qotd: env.QOTD,
+        canSignup
     })
 }

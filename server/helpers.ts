@@ -17,6 +17,7 @@
 import { prisma } from "@/server/prisma"
 import { env } from "@/env"
 import OpenAI from "openai"
+import { Resend } from "resend"
 
 let ai: OpenAI | null = null
 
@@ -29,6 +30,8 @@ function getAI() {
     }
     return ai
 }
+
+export const Email = new Resend(env.RESEND_API_KEY)
 
 export async function chat(messages: OpenAI.Chat.ChatCompletionMessageParam[]) {
     const response = await getAI().chat.completions.create({

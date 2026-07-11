@@ -48,7 +48,8 @@ export default async function QuackyLayout({
                     session={{
                         user: {
                             handle: session.user.username,
-                            image: session.user.image,
+                            image: session.user.image!,
+                            role: session.user.role!,
                         },
                     }}
                 />

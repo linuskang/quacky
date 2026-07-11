@@ -32,6 +32,7 @@ import {
     TrendingUp,
     MessageCircleCheck,
     GraduationCap,
+    Shield,
     FerrisWheel,
     Store,
     BookCheck,
@@ -44,7 +45,8 @@ interface Props {
     session: {
         user: {
             handle: string
-            image?: string | null
+            image: string
+            role: string
         }
     }
 }
@@ -72,7 +74,12 @@ export function Sidebar({ session }: Props) {
         // { href: "/missions", label: "missions", icon: BadgeQuestionMark },
         { href: "/notifications", label: "notifications", icon: Bell },
         { href: `/@${session.user.handle}`, label: "profile", icon: User },
+
     ]
+
+    if (session.user.role == "admin") {
+        items.push({ href: "/admin", label: "admin panel", icon: Shield })
+    }
 
     return (
         <div className={`flex h-full flex-col ${exo2.className}`}>

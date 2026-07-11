@@ -28,6 +28,7 @@ import { redirect } from "next/navigation"
 import { haveIBeenPwned } from "better-auth/plugins"
 import { openAPI } from "better-auth/plugins"
 import { Up } from "@/server/upstream"
+import { canSignup, allowProfileChange } from "@/lib/var"
 
 const resend = new Resend(env.RESEND_API_KEY)
 
@@ -195,6 +196,13 @@ export const auth = betterAuth({
         user: {
             create: {
                 before: async (user) => {
+                    if (!canSignup) {
+                        throw APIError.from("FORBIDDEN", {
+                            code: "SIGNUP_DISABLED",
+                            message:
+                                "Signups are currently disabled. Contact an admin.",
+                        })
+                    }
                     let username = (user as Record<string, unknown>)
                         .username as string | undefined
 
@@ -245,17 +253,25 @@ export const auth = betterAuth({
             },
             update: {
                 before: async (user) => {
-                    const username = (user as Record<string, unknown>)
-                        .username as string | undefined
-                    if (username) {
-                        const existing = await prisma.user.findUnique({
-                            where: { username },
+                    if (!allowProfileChange) {
+                        throw APIError.from("FORBIDDEN", {
+                            code: "PROFILE_CHANGE_DISABLED",
+                            message:
+                                "Profile changes are currently disabled. Contact an admin.",
                         })
-                        if (existing) {
-                            throw APIError.from("UNPROCESSABLE_ENTITY", {
-                                code: "USERNAME_ALREADY_EXISTS",
-                                message: "Username is already taken",
+                    } else {
+                        const username = (user as Record<string, unknown>)
+                            .username as string | undefined
+                        if (username) {
+                            const existing = await prisma.user.findUnique({
+                                where: { username },
                             })
+                            if (existing) {
+                                throw APIError.from("UNPROCESSABLE_ENTITY", {
+                                    code: "USERNAME_ALREADY_EXISTS",
+                                    message: "Username is already taken",
+                                })
+                            }
                         }
                     }
                 },

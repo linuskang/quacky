@@ -86,7 +86,7 @@ export function Feedback() {
         }
 
         try {
-            await axios.get("/api/feedback", { params: data })
+            await axios.post("/api/feedback-portal", data)
 
             toast.success("Feedback sent! Thank you for trying out Quacky.")
         } catch {
