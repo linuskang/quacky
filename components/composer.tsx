@@ -16,7 +16,9 @@
 
 "use client"
 
-import { useRef, useState, useSyncExternalStore, useEffect } from "react"
+// Libraries
+import axios from "axios"
+import { useRef, useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -33,9 +35,6 @@ import {
 } from "@/components/mention-suggestions"
 import { Paperclip } from "lucide-react"
 import { Lock } from "lucide-react"
-import axios from "axios"
-
-const subscribe = () => () => {}
 
 export function Composer() {
     const [content, setContent] = useState("")
@@ -69,11 +68,6 @@ export function Composer() {
         me()
     }, [])
 
-    const hydrated = useSyncExternalStore(
-        subscribe,
-        () => true,
-        () => false
-    )
     const { data: session } = authClient.useSession()
     const hasContent = content.trim().length > 0 || attachments.length > 0
     const mentions = useMentionSuggestions({
@@ -100,59 +94,46 @@ export function Composer() {
 
     async function post() {
         setPosting(true)
+        const assets = []
+        try {
+            for (const attachment of attachments) {
+                const formData = new FormData()
+                formData.append("file", attachment)
 
-        const uploadedAttachments = []
+                const uploadRes = await fetch("/api/upload", {
+                    method: "POST",
+                    body: formData,
+                })
 
-        for (const attachment of attachments) {
-            const formData = new FormData()
-            formData.append("file", attachment)
+                const upload = await uploadRes.json()
 
-            const uploadRes = await fetch("/api/upload", {
-                method: "POST",
-                body: formData,
-            })
+                assets.push({
+                    name: upload.name,
+                    url: upload.url,
+                    type: upload.type ?? null,
+                })
+            }
 
-            const upload = await uploadRes.json()
-
-            uploadedAttachments.push({
-                name: upload.name,
-                url: upload.url,
-                type: upload.type ?? null,
-            })
-        }
-
-        const res = await fetch("/api/posts", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
+            await axios.post("/api/posts", {
                 content,
-                attachments: uploadedAttachments,
-            }),
-        })
+                attachments: assets,
+            })
 
-        if (!res.ok) {
+            toast.success("Post created!")
+        } catch {
+            toast.error("Failed to upload attachments")
+
+        } finally {
             setPosting(false)
-            toast.error(res.statusText)
-            return
+            setSelectedAttachments([])
+            setContent("")
+            setMode("write")
         }
-
-        setContent("")
-        setSelectedAttachments([])
-        if (fileInputRef.current) {
-            fileInputRef.current.value = ""
-        }
-        setMode("write")
-        setPosting(false)
-        toast.success("Post created!")
     }
 
-    if (!hydrated || !session) {
-        return null
-    }
+    if (!session) return null
 
-    const greeting = getGreeting(new Date(), session.user.name ?? "there")
+    const greeting = getGreeting(new Date(), session.user.name)
 
     return (
         <div
