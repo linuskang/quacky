@@ -80,20 +80,30 @@ export default function Page() {
     const [error, setError] = useState("");
     const [rules, setRules] = useState<{ title: string; description: string }[]>([]);
     const [orgName, setOrgName] = useState("");
-    const [loadingAssets, setLoadingAssets] = useState(false);
+    const [loadingAssets, setLoadingAssets] = useState(true);
 
     useEffect(() => {
-        setLoadingAssets(true);
+        let isActive = true;
+
         fetch("/api/meta")
             .then((res) => res.json())
             .then((data) => {
+                if (!isActive) return;
                 setRules(data.org.rules);
                 setOrgName(data.org.name);
             })
             .catch((err) => {
+                if (!isActive) return;
                 toast.error(err.message);
+            })
+            .finally(() => {
+                if (!isActive) return;
+                setLoadingAssets(false);
             });
-        setLoadingAssets(false);
+
+        return () => {
+            isActive = false;
+        };
     }, [])
 
     const createAccount = async (e: React.FormEvent) => {
