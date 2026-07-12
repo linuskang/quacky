@@ -16,16 +16,28 @@
 
 // Components
 import { PageLayout, PageCenter } from "@/components/page-layout"
+import { Button } from "@/components/ui/button"
+import { Resources } from "@/server/resources"
+import Link from 'next/link'
 
-export default function Page() {
+
+export default async function Page() {
+
+    const resources = await Resources.getResources()
     return (
         <PageLayout>
             <PageCenter>
                 <h1 className="text-3xl font-bold">Resources</h1>
-                <p className="text-lg text-muted-foreground">
-                    No resources at the moment. This is part of Stage 2
-                    development. Stay tuned!
-                </p>
+                <ul className="mt-4 space-y-2">
+                    {resources.map((resource, index) => (
+                        <Button key={index} className="rounded border p-4">
+                            <Link href={`/resources/${resource.slug}`}>
+                                <h2 className="text-xl font-semibold">{resource.name}</h2>
+                                <p className="text-gray-600">{resource.description}</p>
+                            </Link>
+                        </Button>
+                    ))}
+                </ul>
             </PageCenter>
         </PageLayout>
     )

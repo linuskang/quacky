@@ -34,6 +34,7 @@ import {
     MessageCircleCheck,
     Shield,
     BookCheck,
+    GraduationCap,
 } from "lucide-react"
 import Image from "next/image"
 
@@ -127,7 +128,7 @@ export function Sidebar({ session }: Props) {
         // { href: "/games", label: "games", icon: Swords },
         { href: "/bookmarks", label: "bookmarks", icon: Bookmark },
         // { href: "/shop", label: "shop", icon: Store },
-        // { href: "/resources", label: "resources", icon: GraduationCap },
+        { href: "/resources", label: "resources", icon: GraduationCap },
         // { href: "/missions", label: "missions", icon: BadgeQuestionMark },
         {
             href: "/notifications",
