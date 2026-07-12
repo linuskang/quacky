@@ -20,7 +20,7 @@ import { requireSession } from "@/server/auth"
 
 // Components
 import { PageCenter, PageLayout, PageRight } from "@/components/page-layout"
-import { PostList } from "@/components/post"
+import { PostList } from "@/components/posts/post"
 import { SearchBar } from "@/components/search-bar"
 import { Title } from "@/components/text"
 

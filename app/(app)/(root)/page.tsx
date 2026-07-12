@@ -22,9 +22,9 @@ import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 // Components
-import { PostList } from "@/components/post"
+import { PostList } from "@/components/posts/post"
 import { Composer } from "@/components/composer"
-import { Tabs } from "@/components/post-tabs"
+import { Tabs } from "@/components/posts/post-tabs"
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout"
 import Loading from "../loading"
 import { SuggestedPeopleFeedCard } from "@/components/suggested-people"

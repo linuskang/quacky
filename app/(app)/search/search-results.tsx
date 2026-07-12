@@ -23,7 +23,7 @@ import Link from "next/link"
 
 // Components
 import { BadgeCheck, Hash } from "lucide-react"
-import { PostList } from "@/components/post"
+import { PostList } from "@/components/posts/post"
 import { SearchBar } from "@/components/search-bar"
 import { Admin } from "@/components/icons"
 
@@ -63,37 +63,37 @@ export function SearchResults({
 
     const postResults = normalizedQuery
         ? posts.filter((post) => {
-              const searchable = [
-                  post.content,
-                  post.author.name,
-                  post.author.username,
-                  post.repostOf?.content,
-                  post.repostOf?.author.name,
-                  post.repostOf?.author.username,
-              ]
-                  .filter(Boolean)
-                  .join(" ")
-                  .toLowerCase()
+            const searchable = [
+                post.content,
+                post.author.name,
+                post.author.username,
+                post.repostOf?.content,
+                post.repostOf?.author.name,
+                post.repostOf?.author.username,
+            ]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase()
 
-              return searchable.includes(normalizedQuery)
-          })
+            return searchable.includes(normalizedQuery)
+        })
         : []
 
     const userResults = normalizedQuery
         ? users.filter((user) => {
-              const searchable = [user.name, user.username, user.bio]
-                  .filter(Boolean)
-                  .join(" ")
-                  .toLowerCase()
+            const searchable = [user.name, user.username, user.bio]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase()
 
-              return searchable.includes(normalizedQuery)
-          })
+            return searchable.includes(normalizedQuery)
+        })
         : []
 
     const hashtagResults = normalizedQuery
         ? hashtags.filter((hashtag) =>
-              hashtag.tag.toLowerCase().includes(normalizedQuery)
-          )
+            hashtag.tag.toLowerCase().includes(normalizedQuery)
+        )
         : []
 
     const hasResults =

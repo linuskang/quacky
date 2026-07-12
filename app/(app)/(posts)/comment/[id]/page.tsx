@@ -24,7 +24,7 @@ import { useParams } from "next/navigation"
 
 // Components
 import Loading from "@/components/loading"
-import { PostCard } from "@/components/post"
+import { PostCard } from "@/components/posts/post"
 import { SearchBar } from "@/components/search-bar"
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout"
 import RelevantPeople from "@/components/widgets/relevant-people"
@@ -70,14 +70,14 @@ export default function Page() {
 
     const relevantUsers: User[] = data
         ? Array.from(
-              new Map(
-                  [
-                      data.post.author,
-                      data.comment.author,
-                      ...comments.map((comment) => comment.author),
-                  ].map((user) => [user.username, user])
-              ).values()
-          )
+            new Map(
+                [
+                    data.post.author,
+                    data.comment.author,
+                    ...comments.map((comment) => comment.author),
+                ].map((user) => [user.username, user])
+            ).values()
+        )
         : []
 
     return (

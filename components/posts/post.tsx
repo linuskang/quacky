@@ -17,16 +17,14 @@
 "use client"
 
 // Libraries
-import { useRef, useState } from "react"
+import axios from "axios"
+import { useState } from "react"
 import { authClient } from "@/client/auth"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
-
 import Image from "next/image"
 import Link from "next/link"
-
-import { useTimeAgo, useFormattedDate } from "@/client/utils"
 
 // Components
 import { Button } from "@/components/ui/button"
@@ -36,7 +34,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import {
     BadgeCheck,
     Heart,
@@ -44,19 +42,24 @@ import {
     MessagesSquare,
     BarChart2,
     Bookmark,
+    Share2,
 } from "lucide-react"
-
+import { Textarea } from "@/components/ui/textarea"
 import { Markdown } from "@/components/markdown-renderer"
 import { Admin } from "@/components/icons"
 import { CharCounter } from "@/components/character-counter"
-import { MoreActions } from "@/components/more-actions"
+import { MoreActions } from "@/components/posts/more-actions"
 import { PurpleEyeWarning } from "@/components/warning-cards"
-import { SharePost } from "@/components/share"
 
 // Types
 import { EmbeddedPost, Post } from "@/types"
-import { Card } from "./ui/card"
+import { Card } from "@/components/ui/card"
+import { Input } from "../ui/input"
 
+// Utilies
+import { useTimeAgo, useFormattedDate } from "@/client/utils"
+
+// Legacy
 export function PostList({
     posts,
     afterFirst,
@@ -80,6 +83,7 @@ export function PostList({
     )
 }
 
+// New
 export function Feed({ posts }: { posts: Post[] }) {
     return (
         <div className="flex w-full max-w-lg flex-col gap-4">
@@ -90,6 +94,10 @@ export function Feed({ posts }: { posts: Post[] }) {
     )
 }
 
+// [NOTE_TO_SELF]:
+// determine whether its a quote or post.
+// doing this because dont need to rewrite code twice,
+// just use the Post component as embed for Quotes
 type PostCardPost = Post | EmbeddedPost
 
 function isFullPost(post: PostCardPost): post is Post {
@@ -103,131 +111,96 @@ export function PostCard({
     post: PostCardPost
     showActions?: boolean
 }) {
+    const timeAgo = useTimeAgo(post.createdAt)
+    const postedAt = useFormattedDate(post.createdAt)
+
     const router = useRouter()
     const fullPost = isFullPost(post) ? post : null
     const repostOf = fullPost?.repostOf ?? null
 
     // User States
     const [liked, setLiked] = useState(fullPost?.liked ?? false)
+    const [likePending, setLikePending] = useState(false)
     const [likes, setLikes] = useState(fullPost?.likes ?? 0)
     const [bookmarked, setBookmarked] = useState(fullPost?.bookmarked ?? false)
-
-    // Pending States
-    const [likePending, setLikePending] = useState(false)
-    const likePendingRef = useRef(false)
     const [bookmarkPending, setBookmarkPending] = useState(false)
-
-    // Quote
     const [quoteRepostOpen, setQuoteRepostOpen] = useState(false)
     const [quoteContent, setQuoteContent] = useState("")
     const [quotePending, setQuotePending] = useState(false)
 
-    const shareUrl = `/post/${post.id}`
+    const shareUrl = `${window.location.origin}/post/${post.id}`
+
     const { data: session } = authClient.useSession()
 
-    const like = async () => {
-        if (likePendingRef.current) return
+    if (!session) return null
 
+    async function like() {
         const nextLiked = !liked
-        likePendingRef.current = true
         setLikePending(true)
         setLiked(nextLiked)
-        setLikes((current) => current + (nextLiked ? 1 : -1))
-
+        setLikes(likes + (nextLiked ? 1 : -1))
         try {
-            const res = await fetch(`/api/posts/${post.id}/like`, {
-                method: nextLiked ? "POST" : "DELETE",
-            })
-
-            if (!res.ok) {
-                const data = (await res.json().catch(() => null)) as {
-                    err?: string
-                } | null
-                setLiked(liked)
-                setLikes(likes)
-                toast.error(data?.err ?? "Failed to update like")
+            if (nextLiked) {
+                await axios.post(`/api/posts/${post.id}/like`)
+            } else {
+                await axios.delete(`/api/posts/${post.id}/like`)
             }
         } catch {
             setLiked(liked)
             setLikes(likes)
-            toast.error("Failed to update like")
+            toast.error("Something went wrong")
         } finally {
-            likePendingRef.current = false
             setLikePending(false)
         }
     }
 
-    const repost = async () => {
-        const res = await fetch(`/api/posts/repost`, {
-            method: "POST",
-            body: JSON.stringify({ postId: post.id }),
-        })
-
-        if (!res.ok) {
-            toast.error(res.statusText)
-        } else {
+    async function repost() {
+        try {
+            await axios.post(`/api/posts/repost`, {
+                postId: post.id,
+            })
             toast.success("Reposted")
+        } catch {
+            toast.error("Something went wrong")
+        } finally {
+            setQuoteRepostOpen(false)
         }
     }
 
-    const quote = async () => {
+    async function quote() {
         const content = quoteContent.trim()
-
-        if (!content || quotePending) return
-
-        if (content.length > 400) {
-            toast.error("Quote repost must be 400 characters or less.")
-            return
-        }
-
         setQuotePending(true)
-
-        const res = await fetch(`/api/posts/quote`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
+        try {
+            await axios.post(`/api/posts/quote`, {
                 postId: post.id,
                 content,
-            }),
-        })
-
-        if (!res.ok) {
-            const data = (await res.json().catch(() => null)) as {
-                err?: string
-            } | null
-            toast.error(data?.err ?? res.statusText)
+            })
+            toast.success("Quote reposted")
+        } catch {
+            toast.error("Something went wrong")
+        } finally {
             setQuotePending(false)
-            return
+            setQuoteRepostOpen(false)
         }
-
-        setQuoteContent("")
-        setQuoteRepostOpen(false)
-        setQuotePending(false)
-        toast.success("Quote reposted")
     }
 
     const bookmark = async () => {
-        if (bookmarkPending) return
-
         const nextBookmarked = !bookmarked
         setBookmarkPending(true)
         setBookmarked(nextBookmarked)
-
-        const res = await fetch(`/api/posts/${post.id}/bookmark`, {
-            method: nextBookmarked ? "POST" : "DELETE",
-        })
-
-        if (!res.ok) {
-            toast.error(res.statusText)
+        try {
+            if (nextBookmarked) {
+                await axios.post(`/api/posts/${post.id}/bookmark`)
+            } else {
+                await axios.delete(`/api/posts/${post.id}/bookmark`)
+            }
+        } catch {
+            setBookmarked(bookmarked)
+            toast.error("Something went wrong")
+        } finally {
+            setBookmarkPending(false)
         }
-
-        setBookmarkPending(false)
     }
-
-    const timeAgo = useTimeAgo(post.createdAt)
-    const postedAt = useFormattedDate(post.createdAt)
 
     return (
         <Card
@@ -399,21 +372,14 @@ export function PostCard({
                                         <div className="flex flex-col gap-3">
                                             <div className="flex items-start gap-2">
                                                 <Image
-                                                    src={
-                                                        session?.user.image ??
-                                                        "/default-avatar.png"
-                                                    }
-                                                    alt={
-                                                        session?.user.name ??
-                                                        "You"
-                                                    }
+                                                    src={session.user.image || ""}
+                                                    alt={session.user.name || ""}
                                                     width={30}
                                                     height={30}
                                                     unoptimized
                                                     className="h-8 w-8 shrink-0 rounded-full object-cover"
                                                 />
-
-                                                <textarea
+                                                <Textarea
                                                     value={quoteContent}
                                                     onChange={(e) =>
                                                         setQuoteContent(
@@ -421,7 +387,7 @@ export function PostCard({
                                                         )
                                                     }
                                                     placeholder="Add your thoughts..."
-                                                    className="min-h-10 w-full bg-transparent py-1 text-lg leading-normal outline-none placeholder:text-muted-foreground"
+                                                    className="min-h-20 w-full !border-none !bg-transparent py-1 !text-lg placeholder:text-muted-foreground"
                                                 />
                                             </div>
 
@@ -443,7 +409,7 @@ export function PostCard({
                                                     disabled={
                                                         !quoteContent.trim() ||
                                                         quoteContent.length >
-                                                            400 ||
+                                                        400 ||
                                                         quotePending
                                                     }
                                                     onClick={quote}
@@ -509,7 +475,45 @@ export function PostCard({
                                         }
                                     />
                                 </Button>
-                                <SharePost shareUrl={shareUrl} />
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button
+                                            variant="default"
+                                            size="sm"
+                                            className="text-md h-8 border-2 border-border !bg-card-primary px-1.5 py-1 font-semibold text-primary/80 hover:border-primary hover:bg-background hover:text-primary"
+                                        >
+                                            <Share2 strokeWidth={3} size={16} />
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent
+                                        className="w-full !max-w-lg border-2 border-border bg-card-primary"
+                                        showCloseButton={false}
+                                    >
+                                        <DialogHeader>
+                                            <DialogTitle className="text-lg font-bold text-primary">
+                                                Share post
+                                            </DialogTitle>
+                                        </DialogHeader>
+                                        <div className="flex flex-col gap-3 sm:flex-row">
+                                            <Input
+                                                value={shareUrl}
+                                                readOnly
+                                                onFocus={(e) => e.target.select()}
+                                                className="h-10 w-full rounded-full border-2 border-border !ring-0"
+                                            />
+                                            <Button
+                                                type="button"
+                                                onClick={async () => {
+                                                    await navigator.clipboard.writeText(shareUrl)
+                                                    toast.success("Copied link")
+                                                }}
+                                                className="h-10 rounded-full bg-primary-2 px-4 text-sm font-semibold hover:bg-primary-2/80"
+                                            >
+                                                Copy
+                                            </Button>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
                             </div>
                         </div>
                     )}

@@ -22,7 +22,6 @@ import Image from "next/image"
 import {
     AtSign,
     BadgeCheck,
-    CalendarDays,
     ExternalLink,
     Landmark,
     MapPin,
@@ -36,7 +35,7 @@ import { ProfileAction } from "./action"
 import { PurpleWarning } from "@/components/warning-cards"
 import Link from "next/link"
 import { Markdown } from "@/components/markdown-renderer"
-import { PostList } from "@/components/post"
+import { PostList } from "@/components/posts/post"
 import { CommentCard } from "@/components/comment"
 import { getCommentsByUserId } from "@/server/comment"
 import { ReportUser } from "@/components/report"

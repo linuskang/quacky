@@ -23,7 +23,7 @@ import { useParams } from "next/navigation"
 import { useState, useEffect } from "react"
 
 // Components
-import { PostCard } from "@/components/post"
+import { PostCard } from "@/components/posts/post"
 import { SearchBar } from "@/components/search-bar"
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout"
 import RelevantPeopleWidget from "@/components/widgets/relevant-people"
@@ -42,15 +42,15 @@ export default function Page() {
 
     const relevantUsers: User[] = post
         ? Array.from(
-              new Map(
-                  [
-                      post.author,
-                      ...(post.postComments ?? []).map(
-                          (comment) => comment.author
-                      ),
-                  ].map((user) => [user.username, user])
-              ).values()
-          )
+            new Map(
+                [
+                    post.author,
+                    ...(post.postComments ?? []).map(
+                        (comment) => comment.author
+                    ),
+                ].map((user) => [user.username, user])
+            ).values()
+        )
         : []
 
     useEffect(() => {
