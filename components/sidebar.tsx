@@ -20,6 +20,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { exo2, playfairDisplay } from "@/app/layout"
+import { useEffect, useState } from "react"
 
 import {
     Home,
@@ -31,10 +32,7 @@ import {
     Bookmark,
     TrendingUp,
     MessageCircleCheck,
-    GraduationCap,
     Shield,
-    FerrisWheel,
-    Store,
     BookCheck,
 } from "lucide-react"
 import Image from "next/image"
@@ -51,14 +49,73 @@ interface Props {
     }
 }
 
+type Unreads = {
+    notifications: number
+    dms: number
+    fuzzies: number
+}
+
+type MeResponse = {
+    unreads?: Partial<Unreads>
+}
+
+function UnreadBadge({ count }: { count?: number }) {
+    if (!count) return null
+
+    return (
+        <span className="ml-auto rounded-full bg-primary-2 px-2 py-0.5 text-xs font-bold leading-none text-background">
+            {count > 99 ? "99+" : count}
+        </span>
+    )
+}
+
 export function Sidebar({ session }: Props) {
     const pathname = usePathname()
+    const [unreads, setUnreads] = useState<Unreads>({
+        notifications: 0,
+        dms: 0,
+        fuzzies: 0,
+    })
+
+    useEffect(() => {
+        const controller = new AbortController()
+
+        void fetch("/api/me", { signal: controller.signal })
+            .then(async (res) => {
+                if (!res.ok) return null
+                return (await res.json()) as MeResponse
+            })
+            .then((data) => {
+                if (!data?.unreads) return
+
+                setUnreads({
+                    notifications: data.unreads.notifications ?? 0,
+                    dms: data.unreads.dms ?? 0,
+                    fuzzies: data.unreads.fuzzies ?? 0,
+                })
+            })
+            .catch((error) => {
+                if (
+                    error instanceof DOMException &&
+                    error.name === "AbortError"
+                ) {
+                    return
+                }
+            })
+
+        return () => controller.abort()
+    }, [pathname])
 
     const items = [
         { href: "/", label: "home", icon: Home },
         { href: "/search", label: "search", icon: Search },
-        { href: "/dms", label: "dms", icon: MessagesSquare },
-        { href: "/fuzzies", label: "warm fuzzies", icon: Briefcase },
+        { href: "/dms", label: "dms", icon: MessagesSquare, unread: unreads.dms },
+        {
+            href: "/fuzzies",
+            label: "warm fuzzies",
+            icon: Briefcase,
+            unread: unreads.fuzzies,
+        },
         { href: "/trending", label: "trending", icon: TrendingUp },
         {
             href: "/check-in",
@@ -72,7 +129,12 @@ export function Sidebar({ session }: Props) {
         // { href: "/shop", label: "shop", icon: Store },
         // { href: "/resources", label: "resources", icon: GraduationCap },
         // { href: "/missions", label: "missions", icon: BadgeQuestionMark },
-        { href: "/notifications", label: "notifications", icon: Bell },
+        {
+            href: "/notifications",
+            label: "notifications",
+            icon: Bell,
+            unread: unreads.notifications,
+        },
         { href: `/@${session.user.handle}`, label: "profile", icon: User },
 
     ]
@@ -94,7 +156,7 @@ export function Sidebar({ session }: Props) {
             </Link>
 
             <nav className="flex flex-1 flex-col justify-center gap-1 px-2">
-                {items.map(({ href, label, icon: Icon }) => {
+                {items.map(({ href, label, icon: Icon, unread }) => {
                     const active = pathname === href
 
                     return (
@@ -116,6 +178,7 @@ export function Sidebar({ session }: Props) {
                                 strokeWidth={active ? 2.5 : 2}
                             />
                             <span className="truncate">{label}</span>
+                            <UnreadBadge count={unread} />
                         </Link>
                     )
                 })}

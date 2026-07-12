@@ -17,6 +17,7 @@
 // Libraries
 import { requireSession } from "@/server/auth"
 import { fetchNotifications } from "@/server/notifications"
+import { prisma } from "@/server/prisma"
 
 // Components
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout"
@@ -27,9 +28,20 @@ import { Title } from "@/components/text"
 export default async function Page() {
     const session = await requireSession()
 
-    const notifications = await fetchNotifications({
-        userId: session.user.id,
-    })
+    const [notifications] = await Promise.all([
+        fetchNotifications({
+            userId: session.user.id,
+        }),
+        prisma.notification.updateMany({
+            where: {
+                userId: session.user.id,
+                read: false,
+            },
+            data: {
+                read: true,
+            },
+        }),
+    ])
 
     return (
         <PageLayout>

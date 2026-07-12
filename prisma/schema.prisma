@@ -78,6 +78,7 @@ model Fuzzy {
 
   message String
   flagged Boolean @default(false)
+  read    Boolean @default(false)
 
   createdAt DateTime @default(now()) @db.Timestamptz(3)
 }

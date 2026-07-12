@@ -19,6 +19,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/server/prisma"
 import { chat } from "@/server/helpers"
 import { Up } from "@/server/upstream"
+import { Fuzzy as FuzzyServer } from "@/server/fuzzy"
 import { getUserById } from "@/server/users"
 
 type Fuzzy = {
@@ -26,7 +27,7 @@ type Fuzzy = {
     receiverId: string
 }
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     const session = await getSession()
 
     if (!session) {
@@ -43,6 +44,8 @@ export async function GET(req: NextRequest) {
             createdAt: "desc",
         }
     })
+
+    await FuzzyServer.markAllAsRead(session.user.id)
 
     return NextResponse.json(fuzzies)
 }

@@ -17,8 +17,13 @@
 import { PageLayout, PageCenter } from "@/components/page-layout"
 import { Title } from "@/components/text"
 import { Fuzzies } from "@/components/fuzzies"
+import { requireSession } from "@/server/auth"
+import { Fuzzy } from "@/server/fuzzy"
+export default async function FuzziesPage() {
+    const session = await requireSession()
 
-export default function FuzziesPage() {
+    await Fuzzy.markAllAsRead(session.user.id)
+
     return (
         <PageLayout>
             <PageCenter>

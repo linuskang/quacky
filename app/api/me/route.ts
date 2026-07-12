@@ -18,6 +18,7 @@ import { getSession } from "@/server/auth"
 import { getCheckInSummary, hasCheckedIn } from "@/server/check-in"
 import { NextResponse } from "next/server"
 import { prisma } from "@/server/prisma"
+import { Fuzzy } from "@/server/fuzzy"
 
 export async function GET() {
     const session = await getSession()
@@ -28,9 +29,33 @@ export async function GET() {
         })
     }
 
-    const [hasCheckedInToday, streak] = await Promise.all([
+    const [
+        hasCheckedInToday,
+        streak,
+        unreadNotifications,
+        unreadDms,
+        unreadFuzzies,
+    ] = await Promise.all([
         hasCheckedIn(session.user.id),
         getCheckInSummary(session.user.id),
+        prisma.notification.count({
+            where: {
+                userId: session.user.id,
+                read: false,
+            },
+        }),
+        prisma.dm.count({
+            where: {
+                receiverId: session.user.id,
+                read: false,
+            },
+        }),
+        prisma.fuzzy.count({
+            where: {
+                receiverId: session.user.id,
+                read: false,
+            },
+        }),
     ])
     const user = await prisma.user.findUnique({
         where: {
@@ -57,6 +82,11 @@ export async function GET() {
             hasCheckedIn: hasCheckedInToday,
             canPost: user.unlockedPosting,
             canComment: user.unlockedCommenting,
+            unreads: {
+                notifications: unreadNotifications,
+                dms: unreadDms,
+                fuzzies: unreadFuzzies,
+            },
             streak,
         },
         {
