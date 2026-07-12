@@ -18,7 +18,7 @@
 
 // Libraries
 import axios from "axios"
-import { useRef, useState, useEffect } from "react"
+import { useRef, useState, useEffect, useSyncExternalStore } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -36,7 +36,14 @@ import {
 import { Paperclip } from "lucide-react"
 import { Lock } from "lucide-react"
 
+const subscribe = () => () => {}
+
 export function Composer() {
+    const hydrated = useSyncExternalStore(
+        subscribe,
+        () => true,
+        () => false
+    )
     const [content, setContent] = useState("")
     const [attachments, setAttachments] = useState<File[]>([])
     const [attachmentPreviews, setAttachmentPreviews] = useState<string[]>([])
@@ -131,7 +138,7 @@ export function Composer() {
         }
     }
 
-    if (!session) return null
+    if (!hydrated || !session) return null
 
     const greeting = getGreeting(new Date(), session.user.name)
 
