@@ -121,22 +121,22 @@ export async function GET(
         repostOfId: post.repostOfId,
         repostOf: post.repostOf
             ? {
-                  id: post.repostOf.id,
-                  author: withFollowing(post.repostOf.author, followingIds),
-                  content: post.repostOf.content,
-                  flagged: post.repostOf.flagged,
-                  edited: post.repostOf.edited,
-                  createdAt: post.repostOf.createdAt.toISOString(),
-                  updatedAt: post.repostOf.updatedAt.toISOString(),
-                  views: post.repostOf.views,
-                  attachments: post.repostOf.attachments.map(
-                      (attachment: Attachment) => ({
-                          name: attachment.name,
-                          url: attachment.url,
-                          type: attachment.type,
-                      })
-                  ),
-              }
+                id: post.repostOf.id,
+                author: withFollowing(post.repostOf.author, followingIds),
+                content: post.repostOf.content,
+                flagged: post.repostOf.flagged,
+                edited: post.repostOf.edited,
+                createdAt: post.repostOf.createdAt.toISOString(),
+                updatedAt: post.repostOf.updatedAt.toISOString(),
+                views: post.repostOf.views,
+                attachments: post.repostOf.attachments.map(
+                    (attachment: Attachment) => ({
+                        name: attachment.name,
+                        url: attachment.url,
+                        type: attachment.type,
+                    })
+                ),
+            }
             : null,
 
         flagged: post.flagged,
@@ -215,6 +215,17 @@ export async function DELETE(
         return NextResponse.json(
             {
                 err: "You are not the author of this post",
+            },
+            {
+                status: 403,
+            }
+        )
+    }
+
+    if (post.flagged && session.user.role !== "admin") {
+        return NextResponse.json(
+            {
+                err: "Post is flagged",
             },
             {
                 status: 403,

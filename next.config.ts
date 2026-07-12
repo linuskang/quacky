@@ -37,7 +37,7 @@ const nextConfig: NextConfig = {
             },
             {
                 protocol: "https",
-                hostname: "avatars.lkang.au",
+                hostname: "avatars.hel1.lkang.au",
                 pathname: "/10.x/**",
             },
         ],
