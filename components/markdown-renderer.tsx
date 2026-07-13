@@ -17,6 +17,7 @@
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { MentionHoverCard } from "@/components/mention-hover-card"
+import { cn } from "@/lib/utils"
 
 const MENTION_REGEX = /(^|[^\w])@([a-zA-Z0-9_]+)/g
 const HASHTAG_REGEX = /(^|[^\w])#([a-zA-Z0-9_]+)/g
@@ -39,7 +40,13 @@ function linkHashtags(content: string) {
     )
 }
 
-export function Markdown({ children }: { children: string }) {
+export function Markdown({
+    children,
+    imageDisplay = "preview",
+}: {
+    children: string
+    imageDisplay?: "preview" | "full"
+}) {
     return (
         <div className="max-w-full min-w-0 [overflow-wrap:anywhere] break-words">
             <ReactMarkdown
@@ -206,7 +213,12 @@ export function Markdown({ children }: { children: string }) {
                         <img
                             src={src ?? ""}
                             alt={alt ?? ""}
-                            className="my-3 max-h-[400px] w-full rounded-md border border-border object-cover"
+                            className={cn(
+                                "my-3 w-full rounded-md border border-border",
+                                imageDisplay === "full"
+                                    ? "h-auto object-contain"
+                                    : "max-h-[400px] object-cover"
+                            )}
                             loading="lazy"
                         />
                     ),

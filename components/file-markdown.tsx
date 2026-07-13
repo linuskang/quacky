@@ -35,5 +35,5 @@ export async function FileMarkdown({ src }: { src: string }) {
         notFound()
     }
 
-    return <Markdown>{markdown}</Markdown>
+    return <Markdown imageDisplay="full">{markdown}</Markdown>
 }
