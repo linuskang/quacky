@@ -58,13 +58,12 @@ function Stepper({ step }: { step: Step }) {
                         className="relative z-10 flex flex-col items-center rounded-full bg-background"
                     >
                         <div
-                            className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-semibold transition-all duration-300 ${
-                                completed
-                                    ? "border-primary bg-primary text-primary-foreground"
-                                    : active
-                                      ? "border-primary bg-background text-primary"
-                                      : "border-border bg-background text-muted-foreground"
-                            }`}
+                            className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-semibold transition-all duration-300 ${completed
+                                ? "border-primary bg-primary text-primary-foreground"
+                                : active
+                                    ? "border-primary bg-background text-primary"
+                                    : "border-border bg-background text-muted-foreground"
+                                }`}
                         >
                             {completed ? (
                                 <Check className="h-4 w-4" strokeWidth={4} />
@@ -73,13 +72,12 @@ function Stepper({ step }: { step: Step }) {
                             )}
                         </div>
                         <span
-                            className={`absolute top-10 text-xs whitespace-nowrap transition-colors duration-300 ${
-                                active
-                                    ? "font-medium text-foreground"
-                                    : completed
-                                      ? "text-primary"
-                                      : "text-muted-foreground"
-                            }`}
+                            className={`absolute top-10 text-xs whitespace-nowrap transition-colors duration-300 ${active
+                                ? "font-medium text-foreground"
+                                : completed
+                                    ? "text-primary"
+                                    : "text-muted-foreground"
+                                }`}
                         >
                             {label}
                         </span>
@@ -169,10 +167,10 @@ export default function Page() {
             <div className="w-full max-w-xs">
                 <div className="mb-6 text-center">
                     <Image
-                        src="/logo.png"
+                        src="/goose/Academic Scroll.png"
                         alt="Quacky Logo"
-                        width={100}
-                        height={100}
+                        width={120}
+                        height={120}
                         priority
                         className="mx-auto mb-4 h-auto w-auto"
                     />
@@ -333,6 +331,13 @@ export default function Page() {
                 {step === 3 && (
                     <div className="space-y-6 text-center">
                         <div className="space-y-4 rounded-lg border-2 border-border p-6">
+                            <Image
+                                src="/goose/Celebration.png"
+                                alt="A celebrating goose"
+                                width={112}
+                                height={112}
+                                className="mx-auto h-24 w-24 object-contain"
+                            />
                             <div className="space-y-2">
                                 <p className="text-sm text-muted-foreground">
                                     We&apos;ve sent a verification link to{" "}

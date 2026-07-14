@@ -54,7 +54,7 @@ export default function Page() {
             } | null
             setError(
                 data?.message ??
-                    "Could not send a reset link. Please try again."
+                "Could not send a reset link. Please try again."
             )
             return
         }
@@ -67,7 +67,7 @@ export default function Page() {
             <div className="w-full max-w-xs">
                 <div className="mb-6 text-center">
                     <Image
-                        src="/logo.png"
+                        src="/goose/book.png"
                         alt="Quacky Logo"
                         width={120}
                         height={120}
@@ -85,6 +85,13 @@ export default function Page() {
                 {sent ? (
                     <div className="space-y-4">
                         <div className="rounded-md border-2 border-border bg-card px-3 py-3 text-sm text-muted-foreground">
+                            <Image
+                                src="/goose/Hearts.png"
+                                alt="A goose with hearts"
+                                width={96}
+                                height={96}
+                                className="mx-auto mb-2 h-20 w-20 object-contain"
+                            />
                             If an account exists for{" "}
                             <span className="font-medium text-foreground">
                                 {email}

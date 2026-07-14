@@ -164,14 +164,35 @@ export default function Page() {
     return (
         <PageLayout>
             <PageCenter>
-                <Title>Check In</Title>
-                <Description>
-                    Welcome! Please try and complete this check in everyday to
-                    help school staff gather anonymous student wellbeing data.
-                </Description>
+                <div className="flex items-center justify-between gap-4">
+                    <div>
+                        <Title>Check In</Title>
+                        <Description className="mt-1">
+                            Welcome! Please try and complete this check in
+                            everyday to help school staff gather anonymous
+                            student wellbeing data.
+                        </Description>
+                    </div>
+                    <Image
+                        src="/goose/First Aid Nurse.png"
+                        alt="A nurse goose"
+                        width={112}
+                        height={112}
+                        className="h-24 w-24 shrink-0 object-contain"
+                    />
+                </div>
 
                 {hasCheckedIn ? (
-                    <PurpleWarning text="Thanks for checking in today! Come back tomorrow to submit another review." />
+                    <div className="rounded-xl border-2 border-primary-2 bg-primary-2/10 p-5 text-center">
+                        <Image
+                            src="/goose/Hearts.png"
+                            alt="A goose with hearts"
+                            width={128}
+                            height={128}
+                            className="mx-auto mb-3 h-28 w-28 object-contain"
+                        />
+                        <PurpleWarning text="Thanks for checking in today! Come back tomorrow to submit another review." />
+                    </div>
                 ) : (
                     <Card className="bg-card-primary p-6">
                         <form

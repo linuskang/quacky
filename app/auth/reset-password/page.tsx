@@ -75,7 +75,7 @@ function ResetPasswordForm() {
             } | null
             setError(
                 data?.message ??
-                    "Could not reset your password. Please request a new reset link."
+                "Could not reset your password. Please request a new reset link."
             )
             return
         }
@@ -88,7 +88,7 @@ function ResetPasswordForm() {
             <div className="w-full max-w-xs">
                 <div className="mb-6 text-center">
                     <Image
-                        src="/logo.png"
+                        src="/goose/First Aid Nurse.png"
                         alt="Quacky Logo"
                         width={120}
                         height={120}
@@ -106,6 +106,13 @@ function ResetPasswordForm() {
                 {success ? (
                     <div className="space-y-4">
                         <div className="rounded-md border-2 border-border bg-card px-3 py-3 text-sm text-muted-foreground">
+                            <Image
+                                src="/goose/Celebration.png"
+                                alt="A celebrating goose"
+                                width={96}
+                                height={96}
+                                className="mx-auto mb-2 h-20 w-20 object-contain"
+                            />
                             Your password has been reset. You can now sign in
                             with your new password.
                         </div>

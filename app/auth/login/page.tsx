@@ -116,10 +116,10 @@ export default function Page() {
             <div className="w-full max-w-xs">
                 <div className="mb-6 text-center">
                     <Image
-                        src="/logo.png"
+                        src="/goose/Hello Spanish Hola.png"
                         alt="Quacky Logo"
-                        width={150}
-                        height={150}
+                        width={120}
+                        height={120}
                         priority
                         className="mx-auto mb-4 h-auto w-auto"
                     />
