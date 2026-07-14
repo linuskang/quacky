@@ -17,14 +17,16 @@
 import Image from "next/image"
 
 const pictures = [
-    "/bottom-bar/Picture1.png",
-    "/bottom-bar/Picture2.png",
-    "/bottom-bar/Picture3.png",
-    "/bottom-bar/Picture4.png",
-    "/bottom-bar/Picture5.png",
-    "/bottom-bar/Picture6.png",
-    "/bottom-bar/Picture7.png",
-    "/bottom-bar/Picture8.png"
+    "/goose/Academic Scroll.png",
+    "/goose/Aquafest Whale 1.png",
+    "/goose/Backpack.png",
+    "/goose/Book.png",
+    "/goose/Goose.png",
+    "/goose/Hearts.png",
+    "/goose/Laptop.png",
+    "/goose/Music Instrument.png",
+    "/goose/Science Lab Coat.png",
+    "/goose/Winner Medal.png"
 ]
 
 const repeatedPictures = Array.from({ length: 12 }, () => pictures).flat()
