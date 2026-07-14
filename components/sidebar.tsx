@@ -35,6 +35,10 @@ import {
     Shield,
     BookCheck,
     GraduationCap,
+    RollerCoaster,
+    FerrisWheel,
+    Store,
+    BadgeQuestionMark,
 } from "lucide-react"
 import Image from "next/image"
 
@@ -123,13 +127,12 @@ export function Sidebar({ session }: Props) {
             label: "daily check in",
             icon: MessageCircleCheck,
         },
-        { href: "/quiz", label: "quizes", icon: BookCheck },
-        //{ href: "/emotion-wheel", label: "emotion wheel", icon: FerrisWheel },
-        // { href: "/games", label: "games", icon: Swords },
+        { href: "/memes", label: "memeland", icon: RollerCoaster },
+        { href: "/quiz", label: "quizzes", icon: BookCheck },
         { href: "/bookmarks", label: "bookmarks", icon: Bookmark },
-        // { href: "/shop", label: "shop", icon: Store },
+        { href: "/shop", label: "shop", icon: Store },
         { href: "/resources", label: "resources", icon: GraduationCap },
-        // { href: "/missions", label: "missions", icon: BadgeQuestionMark },
+        { href: "/missions", label: "missions", icon: BadgeQuestionMark },
         {
             href: "/notifications",
             label: "notifications",
