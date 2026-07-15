@@ -22,6 +22,7 @@ import { fetchPosts } from "@/server/posts"
 // Components
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout"
 import { TrendingWidget } from "@/components/widgets/trending"
+import { NewsWidget } from "@/components/widgets/news"
 import { Description, Title } from "@/components/text"
 import { SearchResults } from "./search-results"
 import Link from "next/link"
@@ -84,6 +85,9 @@ export default async function Page() {
                         ))
                     )}
                 </div>
+
+                <Title>news</Title>
+                <NewsWidget />
 
                 <SuggestedPeopleFeedCard />
             </PageCenter>
