@@ -183,7 +183,7 @@ export default function Page() {
                 </div>
 
                 {hasCheckedIn ? (
-                    <div className="rounded-xl border-2 border-primary-2 bg-primary-2/10 p-5 text-center">
+                    <>
                         <Image
                             src="/goose/Hearts.png"
                             alt="A goose with hearts"
@@ -191,8 +191,8 @@ export default function Page() {
                             height={128}
                             className="mx-auto mb-3 h-28 w-28 object-contain"
                         />
-                        <PurpleWarning text="Thanks for checking in today! Come back tomorrow to submit another review." />
-                    </div>
+                        <PurpleWarning text="Thanks for checking in today! Come back tomorrow to keep your steak alive" />
+                    </>
                 ) : (
                     <Card className="bg-card-primary p-6">
                         <form
