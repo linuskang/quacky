@@ -197,7 +197,7 @@ export async function POST(
         })
     }
 
-    let answers = await req.json()
+    const answers = await req.json()
 
     // array with just numbers.
     // e.g. [1,2,3] are incorrect

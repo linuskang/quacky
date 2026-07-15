@@ -39,6 +39,7 @@ import {
     FerrisWheel,
     Store,
     BadgeQuestionMark,
+    ChessQueen,
 } from "lucide-react"
 import Image from "next/image"
 
@@ -131,7 +132,7 @@ export function Sidebar({ session }: Props) {
         { href: "/bookmarks", label: "bookmarks", icon: Bookmark },
         { href: "/shop", label: "shop", icon: Store },
         { href: "/resources", label: "resources", icon: GraduationCap },
-        { href: "/missions", label: "missions", icon: BadgeQuestionMark },
+        { href: "/rng", label: "rng", icon: ChessQueen },
         {
             href: "/notifications",
             label: "notifications",

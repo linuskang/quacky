@@ -43,7 +43,7 @@ export default async function QuackyLayout({
                 </p>
             </div> */}
 
-            <PageLeft className="z-20 pt-10">
+            <PageLeft className="z-20">
                 <Sidebar
                     session={{
                         user: {
@@ -59,7 +59,7 @@ export default async function QuackyLayout({
                 </div>
             </PageLeft>
 
-            <PageCenter className="relative z-20 pt-10 pb-16">{children}</PageCenter>
+            <PageCenter className="relative z-20 pb-16">{children}</PageCenter>
 
             <Feedback />
             <BottomBar />

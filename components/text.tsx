@@ -25,7 +25,7 @@ type Props = {
 
 export function Title({ children, className }: Props) {
     return (
-        <h1 className={cn("text-2xl font-semibold text-primary", className)}>
+        <h1 className={cn("text-4xl font-semibold text-primary", className)}>
             {children}
         </h1>
     )
