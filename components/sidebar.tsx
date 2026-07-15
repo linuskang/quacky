@@ -121,7 +121,6 @@ export function Sidebar({ session }: Props) {
             icon: Briefcase,
             unread: unreads.fuzzies,
         },
-        { href: "/trending", label: "trending", icon: TrendingUp },
         {
             href: "/check-in",
             label: "daily check in",

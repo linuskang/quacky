@@ -24,6 +24,9 @@ import { PageLayout, PageCenter, PageRight } from "@/components/page-layout"
 import { TrendingWidget } from "@/components/widgets/trending"
 import { Description, Title } from "@/components/text"
 import { SearchResults } from "./search-results"
+import Link from "next/link"
+import { fetchTrending } from "@/server/posts"
+import { SuggestedPeopleFeedCard } from "@/components/suggested-people"
 
 export default async function Page() {
     const session = await requireSession()
@@ -36,6 +39,8 @@ export default async function Page() {
         fetchSearchUsers(),
         fetchSearchHashtags(),
     ])
+
+    const trendingTags = await fetchTrending()
 
     return (
         <PageLayout>
@@ -51,6 +56,36 @@ export default async function Page() {
                     users={users}
                     hashtags={hashtags}
                 />
+
+                <Title>trending now</Title>
+
+                <div className="rounded-lg border-2 border-border bg-card">
+                    {trendingTags.length === 0 ? (
+                        <p className="p-4 text-sm text-muted-foreground">
+                            no hashtags trending yet.
+                        </p>
+                    ) : (
+                        trendingTags.map((trendingTag) => (
+                            <Link
+                                key={trendingTag.tag}
+                                href={`/trending/${trendingTag.tag}`}
+                                className="flex items-center justify-between px-4 py-3"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <span className="font-semibold text-primary-2">
+                                        #{trendingTag.tag}
+                                    </span>
+                                </div>
+
+                                <span className="text-sm text-muted-foreground">
+                                    {trendingTag.count.toLocaleString()}
+                                </span>
+                            </Link>
+                        ))
+                    )}
+                </div>
+
+                <SuggestedPeopleFeedCard />
             </PageCenter>
             <PageRight>
                 <TrendingWidget />
