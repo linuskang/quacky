@@ -394,3 +394,15 @@ oh, and forgot to attach a screenshot of light mode. its a w.i.p:
 ![](https://cdn.linus.my/qky/Q2LxhdxwHu6JlYSnTMyyfIptOthI2SAu/07099fec-5886-4371-8d42-8f86c7261bf2)
 
 thats all i did for today! had some stuff i needed to cleanup in the house.
+
+
+# FOR LATER - ARCHIVE
+
+15/07/2026
+
+Hey! today i focused on making QoL improvemnets on UI, and introduced a new question type: Text!
+
+You can write guiding rubric prompts as the answer, and the ai will be able to automatically judge the user's input based on the rubric and provide guiding questions as feedback,
+
+which allows you to do cool stuff like this:
+![](https://cdn.linus.my/qky/Q2LxhdxwHu6JlYSnTMyyfIptOthI2SAu/85fb5304-62c0-4ab4-a5a7-5916beff0bda)

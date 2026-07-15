@@ -70,6 +70,7 @@ export const quizes = [
         questions: [
             {
                 id: 1,
+                type: "multiple-choice",
                 question: "Press on Option B to complete this quiz.",
                 options: [
                     { id: "a", text: "Im incorrect" },
@@ -90,6 +91,7 @@ export const quizes = [
         questions: [
             {
                 id: 1,
+                type: "multiple-choice",
                 question: "Press on Option C to complete this quiz.",
                 options: [
                     { id: "a", text: "Im incorrect" },
@@ -111,11 +113,39 @@ export const quizes = [
             {
                 id: 1,
                 question: "Press on Option A to complete this quiz.",
+                type: "multiple-choice",
                 options: [
                     { id: "a", text: "Im correct", correct: true },
                     { id: "b", text: "Im incorrect" },
                     { id: "c", text: "Im incorrect" },
                     { id: "d", text: "Im incorrect" },
+                ],
+            }
+        ]
+    },
+    {
+        id: "test-ai",
+        name: "Test AI",
+        description: "ai test quiz",
+        to: "/quiz/test-ai",
+        time: "5 min",
+        xp: 30,
+        questions: [
+            {
+                id: 1,
+                question: "How should AI be used?",
+                type: "text",
+                answer: "The answer needs to talk about how AI is a tool that can be used for good or bad, and that it is important to use it responsibly.",
+            },
+            {
+                id: 2,
+                question: "What is AI",
+                type: "multiple-choice",
+                options: [
+                    { id: "a", text: "A type of computer program", correct: true },
+                    { id: "b", text: "A type of animal" },
+                    { id: "c", text: "A type of food" },
+                    { id: "d", text: "A type of clothing" },
                 ],
             }
         ]

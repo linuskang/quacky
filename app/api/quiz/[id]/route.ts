@@ -26,8 +26,98 @@ import {
 } from "@/server/users"
 import { Up } from "@/server/upstream"
 import { addXP } from "@/server/users"
-import { NotificationService } from "@/server/helpers"
+import { NotificationService, chat } from "@/server/helpers"
 import { env } from "@/env"
+
+// Types
+type Option = {
+    id: string
+    text: string
+    correct?: boolean
+}
+
+type Question =
+    | {
+        id: number
+        question: string
+        type: "multiple-choice"
+        options: Option[]
+    }
+    | {
+        id: number
+        question: string
+        type: "text"
+        answer: string
+        options?: Option[]
+    }
+
+type Quiz = {
+    id: string
+    name: string
+    description: string
+    to: string
+    time: string
+    xp: number
+    questions: Question[]
+}
+
+// simple function for the ai grading of text based answers.
+async function evalResponse(
+    question: string,
+    rubric: string,
+    submitted: string
+): Promise<
+    {
+        correct: boolean;
+        feedback: string
+    }
+> {
+    if (!submitted) {
+        return {
+            correct: false,
+            feedback: "No answer submitted.",
+        }
+    }
+
+    const response = await chat([
+        {
+            role: "system",
+            content:
+                `
+                You are grading a quiz answer.
+                Respond with only a JSON object with two fields: 'correct' (boolean) and 'feedback' (string).
+
+                The feedback should be 1-2 sentences explaining why the answer is correct or how it could be improved.
+                Please remember when writing this feedback, you are directly explaining to the user, and how they can improve their answer.
+                Do not give them extremely obvious hints which they can easily identify from the rubric, instead, guide the user towards the correct answer by explaining what they did wrong, and how they can improve their answer.
+
+                Additionally, your feedback should be guiding questions, not direct answers in your feedback that explain how to pass the rubric
+
+                Do not add any other text outside the JSON.
+                `,
+        },
+        {
+            role: "user",
+            content:
+                `
+                The question is: ${question}
+                Mark the submitted answer against this rubric: ${rubric}
+
+                The user submitted: ${submitted}
+                `,
+        },
+    ])
+
+    const parsed = JSON.parse(response) as {
+        correct: boolean
+        feedback: string
+    }
+
+    return {
+        correct: parsed.correct,
+        feedback: parsed.feedback,
+    }
+}
 
 export async function GET(
     req: NextRequest,
@@ -42,8 +132,10 @@ export async function GET(
         })
     }
 
-    // find quiz by id in the array
-    const quiz = quizes.find((q) => q.id === id)
+    // find array by id
+    const quiz = quizes.find(
+        (q) => q.id === id
+    ) as Quiz
 
     if (!quiz) {
         return new NextResponse("Quiz not found", {
@@ -52,11 +144,27 @@ export async function GET(
     }
 
     return NextResponse.json({
-        questions: quiz.questions.map((question, index) => ({
-            ...question,
-            no: index + 1,
-            options: question.options.map(({ correct, ...option }) => option),
-        })),
+        questions: quiz.questions.map((question, index) => {
+            const base = {
+                no: index + 1, // from 0,1,2,3,etc
+                question: question.question,
+                type: question.type,
+            }
+
+            if (question.type === "text") {
+                return base
+            }
+
+            return {
+                ...base,
+                options: question.options.map((option) => (
+                    {
+                        id: option.id,
+                        text: option.text,
+                    }
+                )),
+            }
+        }),
         meta: {
             name: quiz.name,
             description: quiz.description,
@@ -77,7 +185,11 @@ export async function POST(
         })
     }
 
-    const quiz = quizes.find((q) => q.id === id)
+
+    // same as above
+    const quiz = quizes.find(
+        (q) => q.id === id
+    ) as Quiz
 
     if (!quiz) {
         return new NextResponse("Quiz not found", {
@@ -85,40 +197,48 @@ export async function POST(
         })
     }
 
-    let answers: Record<number, string>
-    try {
-        answers = await req.json()
-    } catch {
-        return NextResponse.json(
-            { success: false, error: "Invalid answers format" },
-            { status: 400 }
-        )
-    }
+    let answers = await req.json()
 
     // array with just numbers.
     // e.g. [1,2,3] are incorrect
     const wrong: number[] = []
+    // string array w/ feedback for each text q
+    const feedback: Record<number, string> = {}
 
-    // for every question, check if answer is correct by comparing the submitted choice to answer guide in /lib/var.ts
-    // for every question, (e.g. 5, run 5 times for each question indexed)
+    // for every question, check if answer is correct
     for (let i = 0; i < quiz.questions.length; i++) {
         // array index number
         const question = quiz.questions[i]
         // plus 1 because our questions start at 1, and go up using
         // 1,2,3,4,5
         const questionNo = i + 1
-        // check the answer index submitted by question
+        // check the answer submitted by question
         const submitted = answers[questionNo]
-        //check if the indexed answer is the same as the array in var.ts
-        const correctOption = question.options.find((option) => option.correct)
 
-        // if its not correct, add it to the wrong array.
-        if (!correctOption || submitted !== correctOption.id) {
-            wrong.push(questionNo)
+        if (question.type === "text") {
+            // text questions are evaluated by AI against the provided answer rubric
+            const result = await evalResponse(
+                question.question,
+                question.answer,
+                submitted
+            )
+
+            feedback[questionNo] = result.feedback
+
+            if (!result.correct) {
+                wrong.push(questionNo)
+            }
+        } else {
+            // multiple choice: compare submitted option id to the correct option
+            const correctOption = question.options.find((option) => option.correct)
+
+            if (!correctOption || submitted !== correctOption.id) {
+                wrong.push(questionNo)
+            }
         }
     }
 
-    // if some are wrong, return wrong questions back to the user.
+    // if some are wrong, return wrong questions and feedback back to the user.
     if (wrong.length > 0) {
         // currently logging whenever the user fails questions and which q numbers,
         // might be changed in the future, however this is to see if users,
@@ -130,11 +250,15 @@ export async function POST(
                 session,
                 quizId: id,
                 wrong,
+                feedback,
             },
         })
 
-        // return the wrong question numbers to the user.
-        return NextResponse.json({ success: false, wrong }, { status: 400 })
+        // return the wrong question numbers and feedback to the user.
+        return NextResponse.json(
+            { success: false, wrong, feedback },
+            { status: 400 }
+        )
     }
 
     // give xp that the quiz gives.
