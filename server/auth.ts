@@ -240,7 +240,7 @@ export const auth = betterAuth({
                     NotificationService.send(
                         user.id,
                         "quacky",
-                        `Welcome to Quacky, ${user.name}!\n\nWe're so glad you're here. You can now start posting and interacting with your school community.\n\nBefore you start, we recommend you check out our [Community Standards](https://quacky.space/terms) to ensure a safe and enjoyable experience for everyone.\n\nAfter, feel free to customise your [profile](${env.BETTER_AUTH_URL}/@${user.username}) to be yourself.\n\nIf you have any questions or need assistance, feel free to reach out at admin@quacky.space.\n\nHappy Quacking!\n**The Quacky Team**`
+                        `Welcome to Quacky, ${user.name}!\n\nWe're so glad you're here. You can now start posting and interacting with your school community.\n\nBefore you start, we recommend you check out our [Community Standards](${env.BETTER_AUTH_URL}/terms) to ensure a safe and enjoyable experience for everyone.\n\nAfter, feel free to customise your [profile](${env.BETTER_AUTH_URL}/@${user.username}) to be yourself.\n\nIf you have any questions or need assistance, feel free to reach out at admin@quacky.space.\n\nHappy Quacking!\n**The Quacky Team**`
                     )
                     Up.ingest({
                         title: "New user signed up",

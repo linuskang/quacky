@@ -25,6 +25,9 @@ import { SearchBar } from "@/components/search-bar"
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { Title } from "@/components/text"
 import { DmUserSearch } from "@/components/dm-user-search"
+import Image from "next/image"
+import { CurvedLine } from "@/components/line-generator"
+import { patrickHand } from "@/app/layout"
 
 export default async function MessagesPage() {
     const session = await requireSession()
@@ -41,10 +44,22 @@ export default async function MessagesPage() {
                 <DmUserSearch />
 
                 {conversations.length === 0 ? (
-                    <div className="mt-5">
-                        <p className="text-sm font-medium text-muted-foreground">
-                            Search for someone to start a conversation.
-                        </p>
+                    <div className="flex flex-col mt-10 items-center">
+                        <div className="relative h-30 w-64">
+                            <span
+                                className={`${patrickHand.className} absolute top-2 right-0 text-2xl font-bold text-right`}
+                            >
+                                go dm someone!
+                            </span>
+
+                            <CurvedLine
+                                from={{ x: 140, y: 120 }}
+                                to={{ x: 200, y: 50 }}
+                                strokeWidth={4}
+                                wobble={-30}
+                            />
+                        </div>
+                        <Image src="/goose/Aquafest Whale 1.png" alt="No messages" width={200} height={200} />
                     </div>
                 ) : (
                     <ul className="flex flex-col gap-1">
