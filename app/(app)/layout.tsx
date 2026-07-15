@@ -37,11 +37,11 @@ export default async function QuackyLayout({
     const session = await requireSession()
     return (
         <PageLayout>
-            <div className="fixed top-0 right-0 left-0 z-10 h-6 bg-primary-2">
+            {/* <div className="fixed top-0 right-0 left-0 z-10 h-6 bg-primary-2">
                 <p className="text-xs text-center leading-6 text-primary-foreground">
                     Quacky is in v0.2 beta. Thanks for trying my app out {":>"}
                 </p>
-            </div>
+            </div> */}
 
             <PageLeft className="z-20 pt-10">
                 <Sidebar

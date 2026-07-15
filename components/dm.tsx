@@ -25,6 +25,8 @@ import { ArrowUp } from "lucide-react"
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { Bubble, BubbleContent } from "@/components/ui/bubble"
 import { Message, MessageContent } from "@/components/ui/message"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft } from "lucide-react"
 import {
     InputGroup,
     InputGroupAddon,
@@ -92,6 +94,13 @@ export function Dm({ other, currentUserId, initialMessages }: Props) {
         <section className="flex min-h-0 flex-col">
             <header className="fixed top-0 z-10 flex w-full max-w-xl items-center justify-between bg-background px-4 py-3">
                 <div className="flex gap-3">
+                    <Button
+                        variant="ghost"
+                        className="h-10 w-10 rounded-full p-0"
+                        onClick={() => history.back()}
+                    >
+                        <ArrowLeft strokeWidth={4} />
+                    </Button>
                     <Avatar className="h-11 w-11">
                         <AvatarImage src={other.image} />
                     </Avatar>
