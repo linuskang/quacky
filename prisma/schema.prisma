@@ -45,7 +45,7 @@ model User {
   fuzzySent     Fuzzy[] @relation("FuzzyAuthor")
   fuzzyReceived Fuzzy[] @relation("FuzzyReceiver")
 
-  memes Memeland[] @relation("MemeAuthor")
+  memes     Memeland[] @relation("MemeAuthor")
   memeVotes MemeVote[]
 
   xp     Int @default(0)
@@ -66,10 +66,10 @@ model User {
   accounts           Account[]
   checkIns           CheckIn[]
   rngEntries         RngEntry[]
+  shorts             Short[]
 
   @@map("user")
 }
-
 
 enum MemeVoteType {
   UPVOTE
@@ -89,6 +89,7 @@ model Memeland {
   @@index([authorId])
   @@index([createdAt])
 }
+
 model MemeVote {
   id        String       @id @default(uuid())
   memeId    String
@@ -102,6 +103,16 @@ model MemeVote {
   @@unique([memeId, userId])
   @@index([userId])
   @@index([memeId, type])
+}
+
+model Short {
+  id        String   @id @default(uuid())
+  userId    String
+  description String?
+  flagged   Boolean  @default(false)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  url       String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Fuzzy {

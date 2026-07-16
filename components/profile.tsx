@@ -83,6 +83,9 @@ export function Profile() {
     const [statsForNerds, setStatsForNerds] = useState(false)
     const [hideTips, setHideTips] = useState(false)
     const imageInputRef = useRef<HTMLInputElement>(null)
+    const [currentPassword, setCurrentPassword] = useState("")
+    const [newPassword, setNewPassword] = useState("")
+    const [revokeOtherSessions, setRevokeOtherSessions] = useState(false)
 
     const handleOpenChange = (nextOpen: boolean) => {
         setOpen(nextOpen)
@@ -166,6 +169,22 @@ export function Profile() {
                 toast.error(ctx.error.message)
             },
         })
+    }
+
+    async function changePassword() {
+        const { error } = await authClient.changePassword({
+            newPassword: newPassword,
+            currentPassword: currentPassword,
+            revokeOtherSessions: revokeOtherSessions,
+        })
+
+        if (error) {
+            toast.error(error.message || "Failed to change password")
+        } else {
+            toast.success("Password changed successfully")
+            setCurrentPassword("")
+            setNewPassword("")
+        }
     }
 
     return (
@@ -423,6 +442,60 @@ export function Profile() {
                                             className="h-10 border-2 border-border !text-sm !ring-0 hover:border-primary focus:border-primary"
                                             placeholder="Username"
                                         />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold text-primary">
+                                        Change Password
+                                    </Label>
+                                    <div className="space-y-2">
+                                        <Input
+                                            type="password"
+                                            value={currentPassword}
+                                            onChange={(e) =>
+                                                setCurrentPassword(
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="h-10 border-2 border-border !text-sm !ring-0 hover:border-primary focus:border-primary"
+                                            placeholder="Current Password"
+                                        />
+                                        <Input
+                                            type="password"
+                                            value={newPassword}
+                                            onChange={(e) =>
+                                                setNewPassword(e.target.value)
+                                            }
+                                            className="h-10 border-2 border-border !text-sm !ring-0 hover:border-primary focus:border-primary"
+                                            placeholder="New Password"
+                                        />
+                                        <div className="flex items-center gap-3">
+                                            <Checkbox
+                                                id="revoke-sessions"
+                                                className="mt-1 border-2"
+                                                checked={revokeOtherSessions}
+                                                onCheckedChange={(checked) =>
+                                                    setRevokeOtherSessions(
+                                                        checked === true
+                                                    )
+                                                }
+                                            />
+                                            <Label
+                                                htmlFor="revoke-sessions"
+                                                className="text-sm font-semibold text-primary"
+                                            >
+                                                Revoke Other Sessions
+                                            </Label>
+                                        </div>
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                            className="h-10 rounded-full border-2 border-border bg-card px-5 text-base font-semibold hover:border-primary"
+                                            onClick={changePassword}
+                                        >
+                                            Change Password
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
