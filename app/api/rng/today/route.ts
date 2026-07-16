@@ -14,10 +14,9 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
-import { redirect } from "next/navigation"
 import { getSession } from "@/server/auth"
+import { NextResponse } from "next/server"
 import { prisma } from "@/server/prisma"
-import { RngCard } from "./rng-card"
 
 function todayDate() {
     const now = new Date()
@@ -26,45 +25,21 @@ function todayDate() {
     )
 }
 
-async function getRank(number: number, date: Date) {
-    const higher = await prisma.rngEntry.count({
-        where: {
-            date,
-            number: {
-                gt: number,
-            },
-        },
-    })
-    return higher + 1
-}
-
-export default async function Page() {
+export async function GET() {
     const session = await getSession()
 
     if (!session) {
-        redirect("/auth/login")
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const date = todayDate()
-
-    const todayEntry = await prisma.rngEntry.findUnique({
-        where: {
-            userId_date: {
-                userId: session.user.id,
-                date,
-            },
-        },
-    })
-
-    const rank = todayEntry ? await getRank(todayEntry.number, date) : null
 
     const [entries, total] = await Promise.all([
         prisma.rngEntry.findMany({
             where: { date },
             orderBy: { number: "desc" },
             take: 10,
-            select: {
-                number: true,
+            include: {
                 user: {
                     select: {
                         id: true,
@@ -80,17 +55,12 @@ export default async function Page() {
         }),
     ])
 
-    return (
-        <RngCard
-            initialEntry={{
-                number: todayEntry?.number ?? null,
-                rank,
-                hasRolled: !!todayEntry,
-            }}
-            initialLeaderboard={{
-                total,
-                entries,
-            }}
-        />
+    return NextResponse.json(
+        {
+            success: true,
+            total,
+            entries,
+        },
+        { status: 200 }
     )
 }
