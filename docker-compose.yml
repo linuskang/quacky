@@ -1,34 +1,44 @@
 services:
-  upstream:
+  app:
     image: ghcr.io/linusdotmy/quacky:latest
+    restart: unless-stopped
+    env_file: .env
     ports:
       - "5374:3000"
-    env_file: .env
-    restart: unless-stopped
     depends_on:
       - db
+      - cdn
     networks:
       - quacky_network
-
   db:
-    container_name: quacky-db
     image: postgres:16
     restart: unless-stopped
     environment:
-      POSTGRES_USER: quacky
-      POSTGRES_PASSWORD: quacky
-      POSTGRES_DB: quacky
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - quacky_data:/var/lib/postgresql/data
+      - quacky_db_data:/var/lib/postgresql/data
     ports:
       - "5731:5432"
-
     networks:
       - quacky_network
-
+  cdn:
+    image: rustfs/rustfs:latest
+    restart: unless-stopped
+    environment:
+      - RUSTFS_ACCESS_KEY=${RUSTFS_USER}
+      - RUSTFS_SECRET_KEY=${RUSTFS_PASSWORD}
+    volumes:
+      - quacky_s3_data:/data
+    command: /data
+    networks:
+      - quacky_network
+    ports:
+      - "5372:9001"
 volumes:
-  quacky_data:
-
+  quacky_db_data:
+  quacky_s3_data:
 networks:
   quacky_network:
     driver: bridge

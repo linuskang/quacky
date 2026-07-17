@@ -14,6 +14,13 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
+
+// Just some notes for whoever is looking here:
+// Yes, config is all hard coded for now, sensitive stuf is in the .env
+// there will be a config table eventually in the db when i decide to do it
+// its currently low prio.
+
+
 export const version = "0.2.0"
 
 export const rules = [
