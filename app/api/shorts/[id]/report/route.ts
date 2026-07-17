@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getSession } from "@/server/auth"
-import { getStorageKey, uploadObject } from "@/server/storage"
 import { Up } from "@/server/upstream"
 import { prisma } from "@/server/prisma"
 import { env } from "@/env"
-import { chat } from "@/server/helpers"
-import { NotificationService } from "@/server/helpers"
+import { chat, NotificationService } from "@/server/helpers"
 
 export async function POST(req: NextRequest) {
     const session = await getSession()
@@ -17,9 +15,13 @@ export async function POST(req: NextRequest) {
         )
     }
 
-    const data = await req.formData()
-    const reason = data.get("reason") as string
     const shortId = req.nextUrl.pathname.split("/")[3]
+
+    const body = await req.json() as {
+        reason: string
+    }
+
+    const reason = body.reason
 
     if (!reason) {
         return new NextResponse(
@@ -50,10 +52,6 @@ export async function POST(req: NextRequest) {
             "Short not found",
             { status: 404 }
         )
-    }
-
-    const body = await req.json() as {
-        reason: string
     }
 
     const out = await chat([
