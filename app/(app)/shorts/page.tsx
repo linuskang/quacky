@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
 
-export default function pg() {
+export default function Page() {
     const [showUpload, setShowUpload] = useState(false)
 
 
