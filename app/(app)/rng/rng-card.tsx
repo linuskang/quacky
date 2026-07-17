@@ -146,6 +146,8 @@ export function RngCard({ initialEntry, initialLeaderboard }: RngCardProps) {
         if (spinning) return
 
         setSpinning(true)
+        const MIN_SPIN_MS = 2000
+        const startedAt = Date.now()
         setDisplayNumber(Math.floor(Math.random() * 1000000) + 1)
 
         intervalRef.current = setInterval(() => {
@@ -155,6 +157,13 @@ export function RngCard({ initialEntry, initialLeaderboard }: RngCardProps) {
         try {
             const res = await axios.post<RngResponse>("/api/rng")
             const data = res.data
+
+            const elapsed = Date.now() - startedAt
+            if (elapsed < MIN_SPIN_MS) {
+                await new Promise((resolve) =>
+                    setTimeout(resolve, MIN_SPIN_MS - elapsed)
+                )
+            }
 
             if (intervalRef.current) {
                 clearInterval(intervalRef.current)
@@ -224,7 +233,7 @@ export function RngCard({ initialEntry, initialLeaderboard }: RngCardProps) {
                         <h1 className="text-sm font-bold text-muted-foreground">
                             {entry.hasRolled
                                 ? "YOUR NUMBER TODAY"
-                                : "READY TO ROLL?"}
+                                : "YOU HAVENT ROLLED TODAY"}
                         </h1>
                         <h1
                             className={cn(
@@ -234,12 +243,18 @@ export function RngCard({ initialEntry, initialLeaderboard }: RngCardProps) {
                         >
                             {displayNumber !== null
                                 ? displayNumber.toLocaleString()
-                                : "—"}
+                                : "???"}
                         </h1>
                         {entry.hasRolled && entry.rank !== null && (
-                            <p className="text-xs font-semibold text-muted-foreground">
-                                #{entry.rank} today
-                            </p>
+                            <>
+                                <p className="text-sm font-semibold text-primary-2">
+                                    not too shabby
+                                </p>
+
+                                <p className="text-xs font-semibold text-muted-foreground">
+                                    #{entry.rank} today
+                                </p>
+                            </>
                         )}
 
                         <div className="flex gap-2">
@@ -284,13 +299,7 @@ export function RngCard({ initialEntry, initialLeaderboard }: RngCardProps) {
                     </p>
                 </div>
 
-                {leaderboard.entries.length === 0 ? (
-                    <Card className="bg-card-primary p-4 text-center">
-                        <p className="text-sm font-semibold text-muted-foreground">
-                            No rolls yet. Be the first!
-                        </p>
-                    </Card>
-                ) : (
+                {leaderboard.entries.length !== 0 && (
                     <>
                         <div className="flex justify-center">
                             <Card className="mt-4 flex h-50 w-full max-w-[15rem] flex-col items-center justify-center gap-2 bg-card-primary p-4">
@@ -328,20 +337,17 @@ export function RngCard({ initialEntry, initialLeaderboard }: RngCardProps) {
                                             {leaderboard.entries[0].number.toLocaleString()}
                                         </p>
                                     </>
-                                ) : (
-                                    <p className="text-sm font-semibold text-muted-foreground">
-                                        waiting...
-                                    </p>
-                                )}
+                                ) : null}
                             </Card>
                         </div>
 
+
                         <div className="mt-4 flex justify-center gap-4">
-                            <Card className="mr-auto flex h-40 w-full max-w-[11rem] flex-col items-center justify-center gap-2 bg-card-primary p-4">
-                                <h1 className="text-base font-bold text-primary-2">
-                                    #2
-                                </h1>
-                                {leaderboard.entries[1] ? (
+                            {leaderboard.entries[1] && (
+                                <Card className="mr-auto flex h-40 w-full max-w-[11rem] flex-col items-center justify-center gap-2 bg-card-primary p-4">
+                                    <h1 className="text-base font-bold text-primary-2">
+                                        #2
+                                    </h1>
                                     <>
                                         <Image
                                             src={
@@ -372,18 +378,16 @@ export function RngCard({ initialEntry, initialLeaderboard }: RngCardProps) {
                                             {leaderboard.entries[1].number.toLocaleString()}
                                         </p>
                                     </>
-                                ) : (
-                                    <p className="text-xs font-semibold text-muted-foreground">
-                                        waiting...
-                                    </p>
-                                )}
-                            </Card>
 
-                            <Card className="ml-auto flex h-40 w-full max-w-[11rem] flex-col items-center justify-center gap-2 bg-card-primary p-4">
-                                <h1 className="text-base font-bold text-primary-2">
-                                    #3
-                                </h1>
-                                {leaderboard.entries[2] ? (
+                                </Card>
+                            )}
+
+                            {leaderboard.entries[2] && (
+                                <Card className="ml-auto flex h-40 w-full max-w-[11rem] flex-col items-center justify-center gap-2 bg-card-primary p-4">
+                                    <h1 className="text-base font-bold text-primary-2">
+                                        #3
+                                    </h1>
+
                                     <>
                                         <Image
                                             src={
@@ -414,12 +418,9 @@ export function RngCard({ initialEntry, initialLeaderboard }: RngCardProps) {
                                             {leaderboard.entries[2].number.toLocaleString()}
                                         </p>
                                     </>
-                                ) : (
-                                    <p className="text-xs font-semibold text-muted-foreground">
-                                        waiting...
-                                    </p>
-                                )}
-                            </Card>
+
+                                </Card>
+                            )}
                         </div>
 
                         <div className="flex flex-col gap-1.5">

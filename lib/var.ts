@@ -153,4 +153,4 @@ export const quizes = [
 ]
 
 export const canSignup = true;
-export const allowProfileChange = false;
+export const allowProfileChange = true;
