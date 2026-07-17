@@ -112,4 +112,4 @@ this project is governed under the CC BY-NC 4.0 license. see the [license](LICEN
 
 ### AI declarations
 
-See [ai.md](AI.MD) for declarations
+See [ai.md](ai.md)
