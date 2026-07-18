@@ -23,6 +23,7 @@ import { Profile } from "@/components/profile"
 import { PageLayout, PageLeft, PageCenter } from "@/components/page-layout"
 import { Feedback } from "@/components/feedback"
 import { BottomBar } from "@/components/bottom-bar"
+import { Debug } from "@/components/debug"
 
 export const metadata = {
     title: "Quacky",
@@ -63,6 +64,11 @@ export default async function QuackyLayout({
 
             <Feedback />
             <BottomBar />
+            {session.user.statsForNerds && (
+                <div className="bottom-3 justify-center items-center flex mb-15">
+                    <Debug />
+                </div>
+            )}
         </PageLayout>
     )
 }
