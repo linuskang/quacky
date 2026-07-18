@@ -29,6 +29,7 @@ import { haveIBeenPwned } from "better-auth/plugins"
 import { openAPI } from "better-auth/plugins"
 import { Up } from "@/server/upstream"
 import { canSignup, allowProfileChange } from "@/lib/var"
+import { apiKey } from "@better-auth/api-key"
 
 const resend = new Resend(env.RESEND_API_KEY)
 
@@ -64,6 +65,7 @@ export const auth = betterAuth({
                 "This password has been compromised in a data breach. Please choose a different password.",
         }),
         openAPI(),
+        apiKey()
     ],
 
     emailAndPassword: {
