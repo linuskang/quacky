@@ -2,7 +2,7 @@
 
 import axios from "axios"
 import { PageLayout, PageCenter } from "@/components/page-layout"
-import { useState } from "react"
+import { useState, useSyncExternalStore } from "react"
 import { Title, Description } from "@/components/text"
 import { authClient } from "@/client/auth"
 import { redirect } from "next/navigation"
@@ -22,16 +22,24 @@ import {
     NativeSelect,
     NativeSelectOption,
 } from "@/components/ui/native-select"
+import { AdminStats } from "@/components/admin-stats"
+
+const subscribe = () => () => {}
 
 export default function Page() {
     const { data: session, isPending } = authClient.useSession()
+    const hydrated = useSyncExternalStore(
+        subscribe,
+        () => true,
+        () => false
+    )
     const [newUserName, setNewUserName] = useState("")
     const [newUserEmail, setNewUserEmail] = useState("")
     const [newUserRole, setNewUserRole] = useState<"admin" | "user">("user")
     const [newUserUsername, setNewUserUsername] = useState("")
     const [creating, setCreating] = useState(false)
 
-    if (isPending) return <Loading />
+    if (!hydrated || isPending) return <Loading />
 
     if (!session) redirect("/auth/login")
 
@@ -71,8 +79,10 @@ export default function Page() {
     }
     return (
         <PageLayout>
-            <PageCenter>
+            <PageCenter className="max-w-6xl gap-6">
                 <Title>Admin Panel</Title>
+
+                <AdminStats />
 
                 <Card>
                     <CardHeader>
