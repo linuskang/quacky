@@ -290,7 +290,7 @@ export function Profile() {
                                                 Stats for Nerds
                                             </Label>
                                             <p className="text-xs text-muted-foreground">
-                                                For all you techy people out there
+                                                For all you techy people out there. Adds a debug bar at the bottom of every page.
                                             </p>
                                         </div>
                                     </div>
