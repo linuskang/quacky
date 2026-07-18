@@ -238,7 +238,7 @@ export function Profile() {
                                     className={`text-4xl font-semibold ${playfairDisplay.className} text-primary`}
                                     style={{ fontStyle: "italic" }}
                                 >
-                                    Settings
+                                    Account Settings
                                 </DialogTitle>
                             </DialogHeader>
 
@@ -266,8 +266,7 @@ export function Profile() {
                                                 Private Account
                                             </Label>
                                             <p className="text-xs text-muted-foreground">
-                                                Makes your account private, only
-                                                you can see your profile.
+                                                Makes your account private
                                             </p>
                                         </div>
                                     </div>
@@ -291,8 +290,7 @@ export function Profile() {
                                                 Stats for Nerds
                                             </Label>
                                             <p className="text-xs text-muted-foreground">
-                                                Some developer stats on pages.
-                                                Useful for debugging.
+                                                For all you techy people out there
                                             </p>
                                         </div>
                                     </div>
@@ -307,25 +305,8 @@ export function Profile() {
 
                                 <div className="grid gap-4">
                                     <Label className="text-sm font-semibold text-primary">
-                                        Profile
+                                        Your Account
                                     </Label>
-                                    <div className="space-y-2">
-                                        <Label
-                                            htmlFor="name"
-                                            className="font-semibold text-primary"
-                                        >
-                                            Name
-                                        </Label>
-                                        <Input
-                                            id="name"
-                                            value={name}
-                                            onChange={(e) =>
-                                                setName(e.target.value)
-                                            }
-                                            className="h-10 border-2 border-border !text-sm !ring-0 hover:border-primary focus:border-primary"
-                                            placeholder="Name"
-                                        />
-                                    </div>
 
                                     <div className="space-y-2">
                                         <Label className="font-semibold text-primary">
@@ -337,10 +318,10 @@ export function Profile() {
                                                 alt={
                                                     name || session.user.name || "User"
                                                 }
-                                                width={56}
-                                                height={56}
+                                                width={40}
+                                                height={40}
                                                 unoptimized
-                                                className="h-14 w-14 rounded-full object-cover"
+                                                className="h-10 w-10 rounded-full object-cover"
                                             />
                                             <div className="space-y-1">
                                                 <input
@@ -383,6 +364,25 @@ export function Profile() {
                                         </div>
                                     </div>
 
+
+                                    <div className="space-y-2">
+                                        <Label
+                                            htmlFor="name"
+                                            className="font-semibold text-primary"
+                                        >
+                                            Name
+                                        </Label>
+                                        <Input
+                                            id="name"
+                                            value={name}
+                                            onChange={(e) =>
+                                                setName(e.target.value)
+                                            }
+                                            className="h-10 border-2 border-border !text-sm !ring-0 hover:border-primary focus:border-primary"
+                                            placeholder="Name"
+                                        />
+                                    </div>
+
                                     <div className="space-y-2">
                                         <Label
                                             htmlFor="username"
@@ -400,15 +400,10 @@ export function Profile() {
                                             placeholder="Username"
                                         />
                                     </div>
-                                </div>
 
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-semibold text-primary">
-                                        Account
-                                    </Label>
                                     <div className="space-y-2">
                                         <Label className="font-semibold text-primary">
-                                            Email (cannot be changed)
+                                            Email
                                         </Label>
                                         <Input
                                             type="email"
@@ -419,6 +414,7 @@ export function Profile() {
                                         />
 
                                     </div>
+
                                     <div className="space-y-2">
                                         <Label className="font-semibold text-primary">
                                             Password
@@ -458,13 +454,13 @@ export function Profile() {
                                                 htmlFor="revoke-sessions"
                                                 className="text-sm font-semibold text-primary"
                                             >
-                                                Revoke Other Sessions
+                                                Revoke Sessions
                                             </Label>
                                         </div>
                                         <Button
                                             type="button"
                                             variant="secondary"
-                                            className="h-10 rounded-full border-2 border-border bg-card px-5 text-base font-semibold hover:border-primary"
+                                            className="h-7 rounded-full border-2 border-border bg-card text-xs font-semibold hover:border-primary"
                                             onClick={changePassword}
                                         >
                                             Change Password
@@ -472,26 +468,21 @@ export function Profile() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="h-px w-full">
-                                <Label className="text-sm font-semibold text-primary">
-                                    Credits
-                                </Label>
 
+                            <div className="flex justify-end gap-2">
                                 <Button
                                     variant="default"
+                                    className="h-10 mr-auto rounded-full bg-card border-2 border-border px-5 text-base font-semibold text-primary hover:border-primary hover:!bg-card"
                                     onClick={() => handleCreditsOpenChange(true)}
                                 >
-                                    View credits
+                                    view credits
                                 </Button>
-                            </div>
-
-                            <div className="mt-8 flex justify-end gap-2">
                                 <DialogClose asChild>
                                     <Button
                                         variant="secondary"
                                         className="h-10 rounded-full border-2 border-border bg-card px-5 text-base font-semibold hover:border-primary"
                                     >
-                                        Cancel
+                                        nevermind
                                     </Button>
                                 </DialogClose>
                                 <Button
@@ -500,7 +491,7 @@ export function Profile() {
                                     onClick={handleSave}
                                     disabled={saving}
                                 >
-                                    {saving ? "Saving..." : "Save"}
+                                    {saving ? "waiting..." : "save"}
                                 </Button>
                             </div>
                         </DialogContent>
@@ -591,7 +582,7 @@ export function Profile() {
                                 <Button
                                     className="mt-8 h-10 bg-card border-2 border-border hover:!bg-card hover:border-primary rounded-full px-5 text-lg text-primary font-semibold"
                                 >
-                                    Close
+                                    cool!
                                 </Button>
                             </DialogClose>
                         </DialogContent>
