@@ -64,7 +64,8 @@ export default function Page() {
                 await axios.get(endpoints[activeTab]).then((res) => {
                     setPosts(res.data)
                 })
-            } catch {
+            } catch (error) {
+                console.error(error)
                 toast.error("Something went wrong")
                 setPosts([])
             } finally {
@@ -90,7 +91,7 @@ export default function Page() {
                     <PostList
                         posts={posts}
                         afterFirst={
-                            activeTab == "recent" && <SuggestedPeopleFeedCard />
+                            activeTab == "recent" && <SuggestedPeopleFeedCard /> // jank i know lmao
                         }
                     />
                 )}

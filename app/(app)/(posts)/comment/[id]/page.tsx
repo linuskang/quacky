@@ -35,15 +35,20 @@ import { CommentCard, CommentList } from "@/components/comment"
 import type { Comment, Post, User } from "@/types"
 
 type CommentData = {
-    comment: Comment
-    post: Post
+    data: {
+        relevantUsers: User[]
+        comment: Comment & {
+            post: Post
+            comments: Comment[]
+        }
+    }
 }
 
 export default function Page() {
     const params = useParams()
     const id = params.id
 
-    const [data, setData] = useState<CommentData>()
+    const [res, setRes] = useState<CommentData>()
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -52,8 +57,9 @@ export default function Page() {
 
             try {
                 await axios.get(`/api/comments/${id}`).then((res) => {
-                    setData(res.data)
+                    setRes(res.data)
                 })
+
             } catch {
                 toast.error("Comment not found")
             } finally {
@@ -63,31 +69,14 @@ export default function Page() {
         fetchComment()
     }, [id])
 
-    const comments =
-        data?.post.postComments?.filter(
-            (comment) => comment.id !== data.comment.id
-        ) ?? []
-
-    const relevantUsers: User[] = data
-        ? Array.from(
-            new Map(
-                [
-                    data.post.author,
-                    data.comment.author,
-                    ...comments.map((comment) => comment.author),
-                ].map((user) => [user.username, user])
-            ).values()
-        )
-        : []
-
     return (
         <PageLayout>
             <PageCenter>
                 {loading && <Loading />}
-                {data && (
+                {res && (
                     <div>
                         <div className="mb-2 flex w-full max-w-lg flex-col gap-2">
-                            <CommentCard comment={data.comment} />
+                            <CommentCard comment={res.data.comment} />
                             <div className="flex h-16 items-center pl-10">
                                 <div className="relative flex h-full items-center justify-center border-l-2 border-dotted border-border">
                                     <span className="px-4 text-sm font-semibold text-muted-foreground">
@@ -95,18 +84,18 @@ export default function Page() {
                                     </span>
                                 </div>
                             </div>
-                            <PostCard post={data.post} />
+                            <PostCard post={res.data.comment.post} />
                         </div>
                         <CommentList
-                            comments={comments}
-                            postId={data.post.id}
+                            comments={res.data.comment.comments}
+                            postId={res.data.comment.post.id}
                         />
                     </div>
                 )}
             </PageCenter>
             <PageRight>
                 <SearchBar />
-                <RelevantPeople users={relevantUsers} />
+                {res && <RelevantPeople users={res.data.relevantUsers} />}
             </PageRight>
         </PageLayout>
     )

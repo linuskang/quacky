@@ -157,3 +157,47 @@
         @apply font-sans;
     }
 }
+
+.goose-wallpaper::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+        url("/goose/Sleeping%201.png"),
+        url("/goose/Music%20Dancing%201.png"),
+        url("/goose/V%20Formation%201.png"),
+        url("/goose/Book.png"),
+        url("/goose/Hearts.png"),
+        url("/goose/Laptop.png"),
+        url("/goose/Celebration.png"),
+        url("/goose/Knitting.png"),
+        url("/goose/Backpack.png");
+    background-repeat: no-repeat;
+    background-position:
+        left 17rem bottom 3rem,
+        right 3rem top 5rem,
+        right 14rem bottom 6rem,
+        left 2rem top 3rem,
+        left 19rem top 38%,
+        right 17rem top 45%,
+        left 2rem bottom 2rem,
+        calc(50% - 23rem) 18%,
+        calc(50% + 23rem) 68%;
+    background-size:
+        13rem auto,
+        11rem auto,
+        14rem auto,
+        9rem auto,
+        10rem auto,
+        10rem auto,
+        9rem auto,
+        8rem auto,
+        8rem auto;
+    opacity: 0.035;
+}
+
+.dark .goose-wallpaper::before {
+    opacity: 0.025;
+}

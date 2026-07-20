@@ -50,6 +50,7 @@ import { Admin } from "@/components/icons"
 import { CharCounter } from "@/components/character-counter"
 import { MoreActions } from "@/components/posts/more-actions"
 import { PurpleEyeWarning } from "@/components/warning-cards"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 // Types
 import { EmbeddedPost, Post } from "@/types"
@@ -225,14 +226,17 @@ export function PostCard({
 
             <div className="flex gap-2">
                 <div className="shrink-0">
-                    <Image
-                        src={post.author.image}
-                        alt={post.author.name}
-                        width={28}
-                        height={28}
-                        unoptimized
-                        className="rounded-full"
-                    />
+                    <Avatar className="size-7">
+                        {post.author.image && (
+                            <AvatarImage
+                                src={post.author.image}
+                                alt={post.author.name}
+                            />
+                        )}
+                        <AvatarFallback>
+                            {post.author.name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                    </Avatar>
                 </div>
                 <div className="mb-0 flex min-w-0 flex-1 flex-col gap-1">
                     <div className="-mb-2 flex min-w-0 items-start justify-between">

@@ -16,7 +16,7 @@
 
 import { prisma } from "@/server/prisma"
 
-export async function getComment(commentId: string) {
+export async function getCommentById(commentId: string) {
     const comment = await prisma.comment.findUnique({
         where: {
             id: commentId,
@@ -68,6 +68,7 @@ export async function getCommentsByPostId(postId: string) {
             id: true,
             postId: true,
             content: true,
+            flagged: true,
             createdAt: true,
             updatedAt: true,
             author: {

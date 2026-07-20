@@ -18,7 +18,6 @@
 
 // Libraries
 import axios from "axios"
-import Image from "next/image"
 import { toast } from "sonner"
 import { authClient } from "@/client/auth"
 import { useState } from "react"
@@ -26,6 +25,7 @@ import { useState } from "react"
 // Components
 import { Widget, WidgetContent, WidgetSecondaryHeader } from "./widget"
 import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 // Types
 import { User } from "@/types"
@@ -77,14 +77,17 @@ export default function RelevantPeople({ users }: { users: User[] }) {
                                 className="flex items-center justify-between"
                             >
                                 <div className="flex items-center space-x-3">
-                                    <Image
-                                        src={user.image}
-                                        alt={user.name}
-                                        width={40}
-                                        height={40}
-                                        unoptimized
-                                        className="h-10 w-10 rounded-full"
-                                    />
+                                    <Avatar size="lg">
+                                        {user.image && (
+                                            <AvatarImage
+                                                src={user.image}
+                                                alt={user.name}
+                                            />
+                                        )}
+                                        <AvatarFallback>
+                                            {user.name.charAt(0).toUpperCase()}
+                                        </AvatarFallback>
+                                    </Avatar>
                                     <div className="flex flex-col">
                                         <span className="font-semibold">
                                             {user.name}

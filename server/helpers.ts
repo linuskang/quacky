@@ -42,6 +42,22 @@ export async function chat(messages: OpenAI.Chat.ChatCompletionMessageParam[]) {
     return response.choices[0].message.content ?? ""
 }
 
+// i like to modularise everthing in my codebase that i need to constantly repeat, so here is a simple harness for ai chatting.
+export async function askAi(systemPrompt: string, userPrompt: string) {
+    const res = await chat([
+        {
+            role: "system",
+            content: systemPrompt,
+        },
+        {
+            role: "user",
+            content: userPrompt,
+        }
+    ])
+
+    return res
+}
+
 type EngagementNotificationType = "like" | "repost" | "quote" | "comment"
 
 const engagementCopy: Record<EngagementNotificationType, string> = {
