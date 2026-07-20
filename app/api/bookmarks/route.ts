@@ -14,6 +14,7 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
+// Libraries
 import { getSession } from "@/server/auth"
 import { NextResponse } from "next/server"
 import { fetchBookmarks } from "@/server/bookmarks"
@@ -24,11 +25,11 @@ export async function GET() {
     if (!session) {
         return NextResponse.json(
             {
-                err: "Unauthorized",
+                code: 401,
+                success: false,
+                message: "Unauthorized",
             },
-            {
-                status: 401,
-            }
+            { status: 401, }
         )
     }
 
@@ -36,5 +37,12 @@ export async function GET() {
         userId: session.user.id,
     })
 
-    return NextResponse.json(bookmarks)
+    return NextResponse.json(
+        {
+            code: 200,
+            success: true,
+            bookmarks
+        },
+        { status: 200 }
+    )
 }

@@ -14,16 +14,19 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
+// Libraries
 import { getSession } from "@/server/auth"
 import { NextRequest, NextResponse } from "next/server"
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
     const session = await getSession()
 
     if (!session) {
         return NextResponse.json(
             {
-                err: "Unauthorized",
+                code: 401,
+                success: false,
+                message: "Unauthorized",
             },
             {
                 status: 401,
@@ -33,6 +36,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(
         {
+            code: 200,
+            success: true,
             user: session.user,
         },
         {

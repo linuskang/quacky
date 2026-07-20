@@ -14,6 +14,7 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
+// Libraries
 import { getSession } from "@/server/auth"
 import { hasCheckedIn, checkIn } from "@/server/check-in"
 import { NextRequest, NextResponse } from "next/server"
@@ -22,6 +23,7 @@ import { env } from "@/env"
 import { xp } from "@/lib/var"
 import { addXP } from "@/server/users"
 
+// Types
 interface CheckInProps {
     wellbeing: number
     happiness: number
@@ -30,24 +32,35 @@ interface CheckInProps {
     energy: number
     assistance: boolean
 }
+
 export async function POST(req: NextRequest) {
     const session = await getSession()
 
     if (!session) {
-        return new NextResponse("Unauthorized", {
-            status: 401,
-        })
+        return NextResponse.json(
+            {
+                code: 401,
+                success: false,
+                message: "Unauthorized",
+            },
+            { status: 401 }
+        )
     }
 
     const hasCheckedInToday = await hasCheckedIn(session.user.id)
 
     if (hasCheckedInToday) {
-        return new NextResponse("You have already checked in today", {
-            status: 403,
-        })
+        return NextResponse.json(
+            {
+                code: 400,
+                success: false,
+                message: "You have already checked in today",
+            },
+            { status: 400 }
+        )
     }
 
-    const body = (await req.json()) as CheckInProps
+    const body = await req.json() as CheckInProps
 
     const res = await checkIn({
         userId: session.user.id,
@@ -60,8 +73,10 @@ export async function POST(req: NextRequest) {
         assistance: body.assistance,
     })
 
+    // xp.
     await addXP(session.user.username, xp.checkIn)
 
+    // send to admins for assistance.
     if (res.assistance) {
         await Up.ingest({
             title: "Student requested a talk with a staff member",
@@ -91,5 +106,14 @@ export async function POST(req: NextRequest) {
         })
     }
 
-    return NextResponse.json(res, { status: 201 })
+    // hooray
+    return NextResponse.json(
+        {
+            code: 201,
+            success: true,
+            message: "Thanks for checking in!",
+            data: res
+        },
+        { status: 201 }
+    )
 }

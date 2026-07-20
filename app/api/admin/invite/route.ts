@@ -1,3 +1,20 @@
+//   ______                                 __
+//  /      \                               /  |
+// /$$$$$$  | __    __   ______    _______ $$ |   __  __    __
+// $$ |  $$ |/  |  /  | /      \  /       |$$ |  /  |/  |  /  |
+// $$ |  $$ |$$ |  $$ | $$$$$$  |/$$$$$$$/ $$ |_/$$/ $$ |  $$ |
+// $$ |_ $$ |$$ |  $$ | /    $$ |$$ |      $$   $$<  $$ |  $$ |
+// $$ / \$$ |$$ \__$$ |/$$$$$$$ |$$ \_____ $$$$$$  \ $$ \__$$ |
+// $$ $$ $$< $$    $$/ $$    $$ |$$       |$$ | $$  |$$    $$ |
+//  $$$$$$  | $$$$$$/   $$$$$$$/  $$$$$$$/ $$/   $$/  $$$$$$$ |
+//      $$$/                                         /  \__$$ |
+//                                                   $$    $$/
+//                                                    $$$$$$/
+//
+// Linus Kang, 2026
+// Work is licensed under the CC BY-NC 4.0 license.
+
+// Libraries
 import { getSession } from "@/server/auth"
 import { NextResponse, NextRequest } from "next/server"
 import { auth } from "@/server/auth"
@@ -6,6 +23,7 @@ import { Up } from "@/server/upstream"
 import { env } from "@/env"
 import { v4 as uuidv4 } from "uuid"
 
+// Types
 type Invite = {
     email: string
     role: "admin" | "user"
@@ -49,10 +67,12 @@ export async function POST(req: NextRequest) {
         }
     })
 
-    const { error: emailError } = await Email.emails.send({
+    const { error } = await Email.emails.send({
         from: env.EMAIL_FROM,
         to: email,
         subject: "You've been invited to join Quacky!",
+
+        // https://html.onlineviewer.net/
         html: `
             <p>Hello ${displayName},</p>
             <p>You have been invited to join Quacky by your organisation (${env.ORG_NAME}).</p>
@@ -65,9 +85,10 @@ export async function POST(req: NextRequest) {
         `
     })
 
-    if (emailError) {
-        throw new Error(`Failed to send invitation email: ${emailError.message}`)
+    if (error) {
+        throw new Error(error.message)
     }
+
 
     await Up.ingest({
         title: `${email} has been invited to join Quacky`,
@@ -109,7 +130,12 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json(
-        { success: true, tempPassword: newPassword },
-        { status: 200 }
+        {
+            code: 200,
+            success: true,
+            message: "User invited",
+            tempPassword: newPassword
+        },
+        { status: 201 }
     )
 }
