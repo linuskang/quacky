@@ -16,7 +16,7 @@
 
 import { getSession } from "@/server/auth"
 import { NextRequest, NextResponse } from "next/server"
-import { getComment } from "@/server/comment"
+import { getCommentById } from "@/server/comment"
 import { Up } from "@/server/upstream"
 import { Admin } from "@/server/administration"
 import { chat } from "@/server/helpers"
@@ -38,7 +38,7 @@ export async function POST(
     }
 
     const { id } = await params
-    const comment = await getComment(id)
+    const comment = await getCommentById(id)
 
     if (!comment) {
         return new NextResponse("Comment not found", {
