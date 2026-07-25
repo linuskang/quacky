@@ -49,7 +49,6 @@ export async function POST(
     }
 
     const { id } = await params
-
     const comment = await getCommentById(id)
 
     if (!comment) {
