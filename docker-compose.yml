@@ -2,7 +2,30 @@ services:
   app:
     image: ghcr.io/linusdotmy/quacky:latest
     restart: unless-stopped
-    env_file: .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      ORG_NAME: ${ORG_NAME}
+      DESCRIPTION: ${DESCRIPTION}
+      UPSTREAM_API_KEY: ${UPSTREAM_API_KEY}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      EMAIL_FROM: ${EMAIL_FROM}
+      AI_URL: ${AI_URL}
+      AI_KEY: ${AI_KEY}
+      AI_MODEL: ${AI_MODEL}
+      QOTD: ${QOTD:-}
+      LOGIN_BANNER_MESSAGE: ${LOGIN_BANNER_MESSAGE:-}
+      RUSTFS_ENDPOINT: ${RUSTFS_ENDPOINT}
+      RUSTFS_REGION: ${RUSTFS_REGION:-auto}
+      RUSTFS_ACCESS_KEY_ID: ${RUSTFS_ACCESS_KEY_ID}
+      RUSTFS_SECRET_ACCESS_KEY: ${RUSTFS_SECRET_ACCESS_KEY}
+      RUSTFS_BUCKET: ${RUSTFS_BUCKET:-qky}
+      RUSTFS_PUBLIC_BASE_URL: ${RUSTFS_PUBLIC_BASE_URL:-https://cdn.linus.my/qky}
     ports:
       - "5374:3000"
     depends_on:
