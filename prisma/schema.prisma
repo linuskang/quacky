@@ -51,23 +51,25 @@ model User {
   xp     Int @default(0)
   points Int @default(0)
 
-  posts              Post[]
-  following          Follow[]       @relation("UserFollowing")
-  followers          Follow[]       @relation("UserFollowers")
-  likes              Like[]
-  comments           Comment[]
-  notifications      Notification[] @relation("NotificationUser")
-  actorNotifications Notification[] @relation("NotificationActor")
-  bookmarks          Bookmark[]
-  postViews          PostView[]
-  sentDms            Dm[]           @relation("SentMessages")
-  receivedDms        Dm[]           @relation("ReceivedMessages")
-  sessions           Session[]
-  accounts           Account[]
-  checkIns           CheckIn[]
-  rngEntries         RngEntry[]
-  shorts             Short[]
-  shopItems          ShopItem[]
+  posts               Post[]
+  following           Follow[]             @relation("UserFollowing")
+  followers           Follow[]             @relation("UserFollowers")
+  likes               Like[]
+  comments            Comment[]
+  notifications       Notification[]       @relation("NotificationUser")
+  actorNotifications  Notification[]       @relation("NotificationActor")
+  bookmarks           Bookmark[]
+  postViews           PostView[]
+  sentDms             Dm[]                 @relation("SentMessages")
+  receivedDms         Dm[]                 @relation("ReceivedMessages")
+  sessions            Session[]
+  accounts            Account[]
+  checkIns            CheckIn[]
+  rngEntries          RngEntry[]
+  shorts              Short[]
+  shopItems           ShopItem[]
+  shopSuggestions     ShopSuggestion[]     @relation("ShopSuggestionCreator")
+  shopSuggestionVotes ShopSuggestionVote[]
 
   @@map("user")
 }
@@ -134,8 +136,8 @@ model Fuzzy {
 
 model ShopItem {
   id            String   @id @default(uuid())
-  name String
-  description String
+  name          String
+  description   String
   addedByUserId String
   addedBy       User     @relation(fields: [addedByUserId], references: [id], onDelete: Cascade)
   imageUrl      String
@@ -146,6 +148,41 @@ model ShopItem {
   category      String
   available     Boolean  @default(true)
   featured      Boolean  @default(false)
+}
+
+model ShopSuggestion {
+  id                  String               @id @default(uuid())
+  name                String
+  image               String
+  description         String
+  createdByUserId     String
+  pending             Boolean              @default(true)
+  createdBy           User                 @relation("ShopSuggestionCreator", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  createdAt           DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime             @updatedAt @db.Timestamptz(3)
+  shopSuggestionVotes ShopSuggestionVote[]
+
+  @@index([createdByUserId])
+  @@index(pending)
+}
+
+enum ShopSuggestionVoteType {
+  UP
+  DOWN
+}
+
+model ShopSuggestionVote {
+  id           String                 @id @default(uuid())
+  suggestionId String
+  userId       String
+  type         ShopSuggestionVoteType
+  suggestion   ShopSuggestion         @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
+  user         User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime               @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime               @updatedAt @db.Timestamptz(3)
+
+  @@unique([suggestionId, userId])
+  @@index([userId])
 }
 
 model Post {

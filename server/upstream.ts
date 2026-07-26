@@ -14,7 +14,7 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
-import { Action, Field, TimelineEvent, Upstream } from "upstream-sdk"
+import { Action, Field, TimelineEvent, Upstream } from "@uplabs/sdk"
 import { env } from "@/env"
 
 const up = new Upstream(env.UPSTREAM_API_KEY)
