@@ -49,6 +49,8 @@ export async function POST(req: NextRequest) {
             code: 401,
             success: false,
             message: "Unauthorised"
+        }, {
+            status: 401
         })
     }
 
@@ -57,6 +59,8 @@ export async function POST(req: NextRequest) {
             code: 403,
             success: false,
             message: "Forbidden"
+        }, {
+            status: 403
         })
     }
 
@@ -127,6 +131,7 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json({
+        code: 201,
         success: true,
         result: res
     })
