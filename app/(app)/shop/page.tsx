@@ -5,6 +5,9 @@ import { SearchBar } from "@/components/search-bar"
 import Link from "next/link"
 import { CategoryList, type CategoryData } from "./category-list"
 import { ItemList, type ItemData } from "./item-list"
+import { WishlistWidget } from "@/components/widgets/wishlist"
+import { PageLayout, PageRight, PageCenter } from "@/components/page-layout"
+import { WishlistProvider } from "./wishlist-context"
 
 const newItems: ItemData[] = [
     {
@@ -55,29 +58,19 @@ const categories: CategoryData[] = [
         title: "Experiences",
     },
     {
-        id: "outpost",
-        imageUrl: "/goose/Backpack.png",
-        title: "Outpost",
-    },
-    {
         id: "hardware",
         imageUrl: "/goose/Laptop.png",
-        title: "Hardware",
-    },
-    {
-        id: "software",
-        imageUrl: "/goose/Maths Calculator.png",
-        title: "Software",
+        title: "Subscriptions",
     },
     {
         id: "swag",
-        imageUrl: "/goose/Pride Flag.png",
+        imageUrl: "/goose/Aquafest Whale 2.png",
         title: "Swag",
     },
     {
         id: "grants",
-        imageUrl: "/goose/Winner Medal.png",
-        title: "Grants",
+        imageUrl: "/goose/Music Dancing 2b.png",
+        title: "Vouchers",
     },
 ]
 
@@ -119,53 +112,61 @@ const featuredItems: ItemData[] = [
 
 export default function Shop() {
     return (
-        <div className="w-[calc(100vw-2rem)] max-w-none self-center lg:w-[calc(100vw-19rem)] lg:translate-x-[8.5rem]">
-            <Title>THE SHOP👾</Title>
-            <div className="mt-4 mb-6 flex w-full max-w-lg items-center">
-                <SearchBar
-                    className="h-12 !text-lg"
-                    onChange={(e) => {
-                        e.preventDefault()
-                        console.log(e.currentTarget.value)
-                    }}
-                />
-            </div>
-
-            <div className="flex flex-col w-full max-w-7xl">
-                <Title>Categories</Title>
-
-                <CategoryList categories={categories} />
-            </div>
-
-            <div className="space-y-4">
-                <div className="mt-6 flex items-center justify-start">
-                    <Subtitle>New to the shop</Subtitle>
-
-                    <Link
-                        href="/shop/category/new"
-                        className="ml-2 text-sm text-primary/80 underline hover:text-primary"
-                    >
-                        View all
-                    </Link>
+        <WishlistProvider>
+            <div className="w-[calc(100vw-2rem)] max-w-none self-center lg:w-[calc(100vw-19rem)] lg:translate-x-[8.5rem]">
+                <Title>THE SHOP👾</Title>
+                <div className="mt-4 mb-6 flex w-full max-w-lg items-center">
+                    <SearchBar
+                        className="h-12 !text-lg"
+                        onChange={(e) => {
+                            e.preventDefault()
+                            console.log(e.currentTarget.value)
+                        }}
+                    />
                 </div>
 
-                <ItemList items={newItems} />
-            </div>
+                <div className="flex flex-col w-full max-w-7xl">
+                    <Title>Categories</Title>
 
-            <div className="space-y-4">
-                <div className="mt-6 flex items-center justify-start">
-                    <Subtitle>Featured by Staff</Subtitle>
-
-                    <Link
-                        href="/shop/category/new"
-                        className="ml-2 text-sm text-primary/80 underline hover:text-primary"
-                    >
-                        View all
-                    </Link>
+                    <CategoryList categories={categories} />
                 </div>
 
-                <ItemList items={featuredItems} />
+                <div className="space-y-4">
+                    <div className="mt-6 flex items-center justify-start">
+                        <Subtitle>New to the shop</Subtitle>
+
+                        <Link
+                            href="/shop/category/new"
+                            className="ml-2 text-sm text-primary/80 underline hover:text-primary"
+                        >
+                            View all
+                        </Link>
+                    </div>
+
+                    <ItemList items={newItems} />
+                </div>
+
+                <div className="space-y-4">
+                    <div className="mt-6 flex items-center justify-start">
+                        <Subtitle>Featured by Staff</Subtitle>
+
+                        <Link
+                            href="/shop/category/new"
+                            className="ml-2 text-sm text-primary/80 underline hover:text-primary"
+                        >
+                            View all
+                        </Link>
+                    </div>
+
+                    <ItemList items={featuredItems} />
+                </div>
+
+                <WishlistWidget />
             </div>
-        </div>
+            <PageRight>
+                <WishlistWidget />
+            </PageRight>
+        </WishlistProvider>
+
     )
 }

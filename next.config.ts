@@ -40,6 +40,11 @@ const nextConfig: NextConfig = {
                 hostname: "avatars.lkang.au",
                 pathname: "/10.x/**",
             },
+            {
+                protocol: "https",
+                hostname: "github.com",
+                pathname: "**",
+            }
         ],
     },
     async rewrites() {
