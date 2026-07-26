@@ -52,3 +52,11 @@ export function PrimaryTitle({ children, className }: Props) {
         </h1>
     )
 }
+
+export function Subtitle({ children, className }: Props) {
+    return (
+        <h2 className={cn("text-xl font-medium text-primary", className)}>
+            {children}
+        </h2>
+    )
+}
