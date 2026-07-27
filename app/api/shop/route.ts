@@ -29,16 +29,27 @@ export async function GET(_req: NextRequest) {
         })
     }
 
-    const items = await prisma.shopItem.findMany({
-        where: {
-            available: true,
-        }
-    })
+    const [items, user] = await Promise.all([
+        prisma.shopItem.findMany({
+            where: {
+                available: true,
+            }
+        }),
+        prisma.user.findUnique({
+            where: {
+                id: sess.user.id,
+            },
+            select: {
+                points: true,
+            }
+        })
+    ])
 
     return NextResponse.json({
         code: 200,
         success: true,
-        items
+        items,
+        points: user?.points ?? 0,
     })
 }
 

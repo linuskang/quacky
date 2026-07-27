@@ -1,5 +1,8 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import axios from "axios"
+
 import { Title, Subtitle } from "@/components/text"
 import { SearchBar } from "@/components/search-bar"
 import Link from "next/link"
@@ -9,42 +12,7 @@ import { WishlistWidget } from "@/components/widgets/wishlist"
 import { PageLayout, PageRight, PageCenter } from "@/components/page-layout"
 import { WishlistProvider } from "./wishlist-context"
 
-const newItems: ItemData[] = [
-    {
-        id: "travel-stipends",
-        description:
-            "Get 5 USD in travel stipends to Outpost, a four-day hackathon followed by a showcase in San Francisco.",
-        featured: false,
-        imageUrl: "/goose/Backpack.png",
-        name: "Outpost Travel Stipends",
-        price: 10,
-        sufficient: true,
-        stock: 10,
-    },
-    {
-        id: "study-buddy",
-        description:
-            "Bring a focused little friend to your desk for late-night study sessions.",
-        featured: false,
-        imageUrl: "/goose/Book.png",
-        name: "Study Buddy Goose",
-        price: 18,
-        sufficient: true,
-        stock: 7,
-    },
-    {
-        id: "camera-goose",
-        description:
-            "A limited camera goose collectible for photographers and memory makers.",
-        featured: false,
-        imageUrl: "/goose/Camera.png",
-        name: "Camera Goose",
-        price: 24,
-        sufficient: false,
-        stock: 3,
-    },
-
-]
+type ShopApiItem = Omit<ItemData, "sufficient">
 
 const categories: CategoryData[] = [
     {
@@ -74,43 +42,31 @@ const categories: CategoryData[] = [
     },
 ]
 
-const featuredItems: ItemData[] = [
-    {
-        id: "celebration-goose",
-        description:
-            "The party starter. Redeem this festive goose for your next big celebration.",
-        featured: true,
-        imageUrl: "/goose/Celebration.png",
-        name: "Celebration Goose",
-        price: 30,
-        sufficient: true,
-        stock: 4,
-    },
-    {
-        id: "winner-medal",
-        description:
-            "A shiny reward reserved for champions, competitors, and excellent teammates.",
-        featured: true,
-        imageUrl: "/goose/Winner Medal.png",
-        name: "Winner Medal",
-        price: 35,
-        sufficient: false,
-        stock: 8,
-    },
-    {
-        id: "laptop-goose",
-        description:
-            "A coding companion that ships bugs, reviews pull requests, and guards your desk.",
-        featured: true,
-        imageUrl: "/goose/Laptop.png",
-        name: "Laptop Goose",
-        price: 42,
-        sufficient: true,
-        stock: 0,
-    },
-]
-
 export default function Shop() {
+    const [items, setItems] = useState<ItemData[]>([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        axios
+            .get("/api/shop")
+            .then((res) => {
+                const rawItems: ShopApiItem[] = res.data.items ?? []
+                const points: number = res.data.points ?? 0
+
+                setItems(
+                    rawItems.map((item) => ({
+                        ...item,
+                        sufficient: points >= item.price,
+                    }))
+                )
+            })
+            .catch(() => setItems([]))
+            .finally(() => setLoading(false))
+    }, [])
+
+    const newItems = items.filter((item) => !item.featured)
+    const featuredItems = items.filter((item) => item.featured)
+
     return (
         <WishlistProvider>
             <div className="w-[calc(100vw-2rem)] max-w-none self-center lg:w-[calc(100vw-19rem)] lg:translate-x-[8.5rem]">
@@ -131,37 +87,41 @@ export default function Shop() {
                     <CategoryList categories={categories} />
                 </div>
 
-                <div className="space-y-4">
-                    <div className="mt-6 flex items-center justify-start">
-                        <Subtitle>New to the shop</Subtitle>
+                {loading ? (
+                    <p className="mt-6 text-sm text-muted-foreground">loading...</p>
+                ) : (
+                    <>
+                        <div className="space-y-4">
+                            <div className="mt-6 flex items-center justify-start">
+                                <Subtitle>New to the shop</Subtitle>
 
-                        <Link
-                            href="/shop/category/new"
-                            className="ml-2 text-sm text-primary/80 underline hover:text-primary"
-                        >
-                            View all
-                        </Link>
-                    </div>
+                                <Link
+                                    href="/shop/category/new"
+                                    className="ml-2 text-sm text-primary/80 underline hover:text-primary"
+                                >
+                                    View all
+                                </Link>
+                            </div>
 
-                    <ItemList items={newItems} />
-                </div>
+                            <ItemList items={newItems} />
+                        </div>
 
-                <div className="space-y-4">
-                    <div className="mt-6 flex items-center justify-start">
-                        <Subtitle>Featured by Staff</Subtitle>
+                        <div className="space-y-4">
+                            <div className="mt-6 flex items-center justify-start">
+                                <Subtitle>Featured by Staff</Subtitle>
 
-                        <Link
-                            href="/shop/category/new"
-                            className="ml-2 text-sm text-primary/80 underline hover:text-primary"
-                        >
-                            View all
-                        </Link>
-                    </div>
+                                <Link
+                                    href="/shop/category/new"
+                                    className="ml-2 text-sm text-primary/80 underline hover:text-primary"
+                                >
+                                    View all
+                                </Link>
+                            </div>
 
-                    <ItemList items={featuredItems} />
-                </div>
-
-                <WishlistWidget />
+                            <ItemList items={featuredItems} />
+                        </div>
+                    </>
+                )}
             </div>
             <PageRight>
                 <WishlistWidget />
