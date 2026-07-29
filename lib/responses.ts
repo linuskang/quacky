@@ -13,6 +13,20 @@ export function Unauthorized() {
     )
 }
 
+export function NotFound(message?: string) {
+    return NextResponse.json(
+        {
+            code: 404,
+            success: false,
+            message: message ? message : "404 Not Found"
+        },
+        {
+            status: 404
+        }
+    )
+}
+
+
 export function BadRequest(message?: string) {
     return NextResponse.json(
         {

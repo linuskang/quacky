@@ -71,6 +71,7 @@ model User {
   shopSuggestions     ShopSuggestion[]     @relation("ShopSuggestionCreator")
   shopSuggestionVotes ShopSuggestionVote[]
   ShopWishlists       ShopWishlist[]
+  shopPurchases       ShopPurchase[]
 
   @@map("user")
 }
@@ -136,32 +137,51 @@ model Fuzzy {
 }
 
 model ShopItem {
-  id            String   @id @default(uuid())
+  id            String         @id @default(uuid())
   name          String
   description   String
   addedByUserId String
-  addedBy       User     @relation(fields: [addedByUserId], references: [id], onDelete: Cascade)
+  addedBy       User           @relation(fields: [addedByUserId], references: [id], onDelete: Cascade)
   imageUrl      String
   price         Int
-  createdAt     DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt     DateTime @updatedAt @db.Timestamptz(3)
+  createdAt     DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime       @updatedAt @db.Timestamptz(3)
   stock         Int
   category      String
-  available     Boolean  @default(true)
-  featured      Boolean  @default(false)
+  available     Boolean        @default(true)
+  featured      Boolean        @default(false)
   wishlists     ShopWishlist[]
+  shopPurchases ShopPurchase[]
 }
 
 model ShopWishlist {
-    id String @id @default(uuid())
-    userId String
-    user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    itemId String
-    item   ShopItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
-    createdAt DateTime @default(now()) @db.Timestamptz(3)
-    updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemId    String
+  item      ShopItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
-    @@unique([userId, itemId])
+  @@unique([userId, itemId])
+}
+
+enum PurchaseStatus {
+  PENDING
+  FULFILLED
+  REJECTED
+}
+
+model ShopPurchase {
+  id        String         @id @default(uuid())
+  itemId    String
+  item      ShopItem       @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  status    PurchaseStatus @default(PENDING)
+  userId    String
+  quantity Int @default(1)
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime       @default(now()) @updatedAt @db.Timestamptz(3)
 }
 
 model ShopSuggestion {

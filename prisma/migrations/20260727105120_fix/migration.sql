@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "ShopPurchase" ADD COLUMN     "quantity" INTEGER NOT NULL DEFAULT 1,
+ALTER COLUMN "status" SET DEFAULT 'PENDING';
