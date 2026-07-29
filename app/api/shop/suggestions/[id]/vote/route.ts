@@ -1,7 +1,23 @@
+//   ______                                 __
+//  /      \                               /  |
+// /$$$$$$  | __    __   ______    _______ $$ |   __  __    __
+// $$ |  $$ |/  |  /  | /      \  /       |$$ |  /  |/  |  /  |
+// $$ |  $$ |$$ |  $$ | $$$$$$  |/$$$$$$$/ $$ |_/$$/ $$ |  $$ |
+// $$ |_ $$ |$$ |  $$ | /    $$ |$$ |      $$   $$<  $$ |  $$ |
+// $$ / \$$ |$$ \__$$ |/$$$$$$$ |$$ \_____ $$$$$$  \ $$ \__$$ |
+// $$ $$ $$< $$    $$/ $$    $$ |$$       |$$ | $$  |$$    $$ |
+//  $$$$$$  | $$$$$$/   $$$$$$$/  $$$$$$$/ $$/   $$/  $$$$$$$ |
+//      $$$/                                         /  \__$$ |
+//                                                   $$    $$/
+//                                                    $$$$$$/
+//
+// Linus Kang, 2026
+// Work is licensed under the CC BY-NC 4.0 license.
+
 import { getSession } from "@/server/auth"
 import { NextRequest } from "next/server"
 import { prisma } from "@/server/prisma"
-import { Unauthorized, BadRequest, Success, Forbidden } from "@/lib/responses"
+import { Response } from "@/lib/responses"
 
 export async function GET(
     req: NextRequest,
@@ -9,12 +25,12 @@ export async function GET(
 ) {
     const session = await getSession();
     if (!session) {
-        return Unauthorized();
+        return Response.Unauthorized();
     }
 
     const { id } = await params;
 
-    return Success(await prisma.shopSuggestionVote.findMany({
+    return Response.Success(await prisma.shopSuggestionVote.findMany({
         where: {
             suggestionId: id
         },

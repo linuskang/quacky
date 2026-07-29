@@ -16,33 +16,22 @@
 
 // Libraries
 import { getSession } from "@/server/auth"
-import { NextResponse } from "next/server"
+
 import { fetchBookmarks } from "@/server/bookmarks"
+
+// Utilities
+import { Response } from "@/lib/responses"
 
 export async function GET() {
     const session = await getSession()
 
     if (!session) {
-        return NextResponse.json(
-            {
-                code: 401,
-                success: false,
-                message: "Unauthorized",
-            },
-            { status: 401, }
-        )
+        return Response.Unauthorized()
     }
 
     const bookmarks = await fetchBookmarks({
         userId: session.user.id,
     })
 
-    return NextResponse.json(
-        {
-            code: 200,
-            success: true,
-            bookmarks
-        },
-        { status: 200 }
-    )
+    return Response.Success(bookmarks)
 }

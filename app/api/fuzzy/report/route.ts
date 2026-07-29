@@ -14,12 +14,18 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
-import { NextRequest, NextResponse } from "next/server"
+// Libraries
+import { NextRequest } from "next/server"
+
+// Utilities
 import { getSession } from "@/server/auth"
 import { prisma } from "@/server/prisma"
 import { chat } from "@/server/helpers"
 import { Up } from "@/server/upstream"
 
+import { Response } from "@/lib/responses"
+
+// Types
 type Fuzzy = {
     id: string
     reason: string
@@ -29,17 +35,13 @@ export async function POST(req: NextRequest) {
     const session = await getSession()
 
     if (!session) {
-        return new NextResponse("Unauthorised", {
-            status: 401,
-        })
+        return Response.Unauthorized()
     }
 
     const body = (await req.json()) as Fuzzy
 
     if (!body.id || !body.reason) {
-        return new NextResponse("Missing required fields", {
-            status: 400,
-        })
+        return Response.BadRequest()
     }
 
     const fuzzy = await prisma.fuzzy.findUnique({
@@ -52,11 +54,12 @@ export async function POST(req: NextRequest) {
     })
 
     if (!fuzzy) {
-        return new NextResponse("Fuzzy not found", {
-            status: 404,
-        })
+        return Response.NotFound(
+            "Sorry, but we couldnt find that warm fuzzy."
+        )
     }
 
+    // parse
     const output = await chat([
         {
             role: "system",
@@ -121,6 +124,7 @@ The user reported the content for the following reason: "${body.reason}".
         })
     }
 
+    // log the report for school staff.
     await Up.ingest({
         title: `Warm fuzzy reported by ${session.user.email}`,
         icon: "🚨",
@@ -157,10 +161,7 @@ The user reported the content for the following reason: "${body.reason}".
         ],
     })
 
-    return NextResponse.json(
-        {
-            success: true,
-        },
-        { status: 200 }
+    return Response.Success(
+        "Reported, thanks!"
     )
 }

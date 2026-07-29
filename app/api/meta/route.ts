@@ -14,6 +14,7 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
+// Utilities
 import { env } from "@/env"
 import { NextResponse } from "next/server"
 import { version, rules, canSignup } from "@/lib/var"

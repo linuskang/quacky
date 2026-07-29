@@ -80,8 +80,8 @@ export default function Page() {
             try {
                 const res = await axios.get("/api/memes")
                 const memeDetails = await Promise.all(
-                    res.data.memes.map((meme: Meme) =>
-                        axios.get(`/api/memes/${meme.id}`).then((detail) => detail.data)
+                    res.data.data.map((meme: Meme) =>
+                        axios.get(`/api/memes/${meme.id}`).then((detail) => detail.data.data)
                     )
                 )
 
@@ -170,12 +170,12 @@ export default function Page() {
                 current.map((meme) =>
                     meme.id === memeId
                         ? {
-                              ...meme,
-                              upvotes: res.data.upvotes,
-                              downvotes: res.data.downvotes,
-                              score: res.data.score,
-                              me: res.data.vote,
-                          }
+                            ...meme,
+                            upvotes: res.data.data.upvotes,
+                            downvotes: res.data.data.downvotes,
+                            score: res.data.data.score,
+                            me: res.data.data.vote,
+                        }
                         : meme
                 )
             )

@@ -14,20 +14,23 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
+// Utilities
 import { getSession } from "@/server/auth"
+
 import { fetchConversations } from "@/server/dms"
-import { NextResponse } from "next/server"
+
+import { Response } from "@/lib/responses"
 
 export async function GET() {
     const session = await getSession()
 
     if (!session) {
-        return NextResponse.json({ err: "Unauthorized" }, { status: 401 })
+        return Response.Unauthorized()
     }
 
     const conversations = await fetchConversations({
         userId: session.user.id,
     })
 
-    return NextResponse.json(conversations)
+    return Response.Success(conversations)
 }

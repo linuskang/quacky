@@ -14,22 +14,21 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
-import { Up } from "@/server/upstream"
-import { NextRequest, NextResponse } from "next/server"
+// Libraries
+import { NextRequest } from "next/server"
+
+// Utilities
 import { getSession } from "@/server/auth"
+
+import { Up } from "@/server/upstream"
+
+import { Response } from "@/lib/responses"
 
 export async function POST(req: NextRequest) {
     const session = await getSession()
 
     if (!session) {
-        return NextResponse.json(
-            {
-                error: "Unauthorized",
-            },
-            {
-                status: 401,
-            }
-        )
+        return Response.Unauthorized()
     }
 
     const body = await req.json()
@@ -42,16 +41,10 @@ export async function POST(req: NextRequest) {
         !body.visual ||
         !body.comments
     ) {
-        return NextResponse.json(
-            {
-                error: "Invalid request body",
-            },
-            {
-                status: 400,
-            }
-        )
+        return Response.BadRequest("Missing required fields.")
     }
 
+    // log feedback
     await Up.ingest({
         title: `Feedback submitted from ${session.user.name} (${session.user.email})`,
         icon: "📋",
@@ -87,12 +80,7 @@ export async function POST(req: NextRequest) {
         ],
     })
 
-    return NextResponse.json(
-        {
-            message: "Feedback submitted successfully",
-        },
-        {
-            status: 200,
-        }
+    return Response.Success(
+        "Feedback submitted, thanks!"
     )
 }

@@ -14,9 +14,14 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
+// Libraries
+import { NextRequest, NextResponse } from "next/server"
+
+// Utilities
 import { getSession } from "@/server/auth"
 import { prisma } from "@/server/prisma"
-import { NextRequest, NextResponse } from "next/server"
+
+import { Response } from "@/lib/responses"
 
 export async function GET(
     request: NextRequest,
@@ -25,10 +30,7 @@ export async function GET(
     const session = await getSession()
 
     if (!session) {
-        return NextResponse.json(
-            { error: "Unauthorized" },
-            { status: 401 }
-        )
+        return Response.Unauthorized()
     }
 
     const { id } = await params
@@ -61,10 +63,7 @@ export async function GET(
     })
 
     if (!meme) {
-        return NextResponse.json(
-            { error: "Meme not found" },
-            { status: 404 }
-        )
+        return Response.NotFound()
     }
 
     const [upvotes, downvotes] = await prisma.$transaction([
@@ -84,7 +83,7 @@ export async function GET(
 
     const { votes, ...memeData } = meme
 
-    return NextResponse.json({
+    return Response.Success({
         ...memeData,
         upvotes,
         downvotes,

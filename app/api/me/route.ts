@@ -14,19 +14,21 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
+// Libraries
+import { NextResponse } from "next/server"
+
+// Utilities
 import { getSession } from "@/server/auth"
 import { getCheckInSummary, hasCheckedIn } from "@/server/check-in"
-import { NextResponse } from "next/server"
 import { prisma } from "@/server/prisma"
-import { Fuzzy } from "@/server/fuzzy"
+
+import { Response } from "@/lib/responses"
 
 export async function GET() {
     const session = await getSession()
 
     if (!session) {
-        return new NextResponse("Unauthorized", {
-            status: 401,
-        })
+        return Response.Unauthorized()
     }
 
     const [
@@ -57,6 +59,7 @@ export async function GET() {
             },
         }),
     ])
+
     const user = await prisma.user.findUnique({
         where: {
             id: session.user.id,
@@ -72,11 +75,11 @@ export async function GET() {
     // then return 401 but typescript is like "nah bro what if it is still null"
     // talk about redundant....
     if (!user) {
-        return new NextResponse("User not found", {
-            status: 404,
-        })
+        return Response.NotFound()
     }
 
+    // i wont use Response.Success() because a bunch of components are using this endpoint and
+    // i dont feel like adjusting schemas.
     return NextResponse.json(
         {
             hasCheckedIn: hasCheckedInToday,

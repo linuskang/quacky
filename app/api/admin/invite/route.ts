@@ -15,13 +15,19 @@
 // Work is licensed under the CC BY-NC 4.0 license.
 
 // Libraries
-import { getSession } from "@/server/auth"
 import { NextResponse, NextRequest } from "next/server"
+import { v4 as uuidv4 } from "uuid"
+
+// Utilities
+import { getSession } from "@/server/auth"
 import { auth } from "@/server/auth"
+
 import { Email } from "@/server/helpers"
 import { Up } from "@/server/upstream"
+
+import { Response } from "@/lib/responses"
+
 import { env } from "@/env"
-import { v4 as uuidv4 } from "uuid"
 
 // Types
 type Invite = {
@@ -35,19 +41,13 @@ export async function POST(req: NextRequest) {
     const session = await getSession()
 
     if (!session || session.user.role !== "admin") {
-        return NextResponse.json(
-            { error: "Unauthorized" },
-            { status: 401 }
-        )
+        return Response.Unauthorized()
     }
 
     const { email, role, displayName, username } = await req.json() as Invite
 
     if (!email || !role || !displayName || !username) {
-        return NextResponse.json(
-            { error: "Missing required fields" },
-            { status: 400 }
-        )
+        return Response.BadRequest()
     }
 
     // random password. user needs to change in profile settings.
@@ -129,13 +129,8 @@ export async function POST(req: NextRequest) {
         }
     })
 
-    return NextResponse.json(
-        {
-            code: 200,
-            success: true,
-            message: "User invited",
-            tempPassword: newPassword
-        },
-        { status: 201 }
-    )
+    return Response.Success({
+        message: "User invited",
+        tempPassword: newPassword
+    })
 }

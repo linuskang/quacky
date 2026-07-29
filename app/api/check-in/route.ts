@@ -15,53 +15,50 @@
 // Work is licensed under the CC BY-NC 4.0 license.
 
 // Libraries
+import { NextRequest } from "next/server"
+
+// Utilities
 import { getSession } from "@/server/auth"
-import { hasCheckedIn, checkIn } from "@/server/check-in"
-import { NextRequest, NextResponse } from "next/server"
+
+import {
+    hasCheckedIn,
+    checkIn
+} from "@/server/check-in"
+
+import { addXP } from "@/server/users"
 import { Up } from "@/server/upstream"
+
 import { env } from "@/env"
 import { xp } from "@/lib/var"
-import { addXP } from "@/server/users"
 
-// Types
-interface CheckInProps {
-    wellbeing: number
-    happiness: number
-    stress: number
-    sleep: number
-    energy: number
-    assistance: boolean
-}
+import { Response } from "@/lib/responses"
 
 export async function POST(req: NextRequest) {
     const session = await getSession()
 
     if (!session) {
-        return NextResponse.json(
-            {
-                code: 401,
-                success: false,
-                message: "Unauthorized",
-            },
-            { status: 401 }
-        )
+        return Response.Unauthorized()
     }
 
     const hasCheckedInToday = await hasCheckedIn(session.user.id)
 
     if (hasCheckedInToday) {
-        return NextResponse.json(
-            {
-                code: 400,
-                success: false,
-                message: "You have already checked in today",
-            },
-            { status: 400 }
+        return Response.BadRequest(
+            "You have already checked in today"
         )
     }
 
-    const body = await req.json() as CheckInProps
+    // gert stuff ig
+    const body = await req.json() as {
+        wellbeing: number
+        happiness: number
+        stress: number
+        sleep: number
+        energy: number
+        assistance: boolean
+    }
 
+    // check in (cool right)
     const res = await checkIn({
         userId: session.user.id,
         date: new Date(),
@@ -76,7 +73,7 @@ export async function POST(req: NextRequest) {
     // xp.
     await addXP(session.user.username, xp.checkIn)
 
-    // send to admins for assistance.
+    // send to admins for assistance if requested.
     if (res.assistance) {
         await Up.ingest({
             title: "Student requested a talk with a staff member",
@@ -107,13 +104,7 @@ export async function POST(req: NextRequest) {
     }
 
     // hooray
-    return NextResponse.json(
-        {
-            code: 201,
-            success: true,
-            message: "Thanks for checking in!",
-            data: res
-        },
-        { status: 201 }
+    return Response.Success(
+        "Thanks for checking in!"
     )
 }

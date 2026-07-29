@@ -15,33 +15,19 @@
 // Work is licensed under the CC BY-NC 4.0 license.
 
 // Libraries
+import { NextRequest } from "next/server"
+
+// Utilities
 import { getSession } from "@/server/auth"
-import { NextRequest, NextResponse } from "next/server"
+
+import { Response } from "@/lib/responses"
 
 export async function GET(_req: NextRequest) {
     const session = await getSession()
 
     if (!session) {
-        return NextResponse.json(
-            {
-                code: 401,
-                success: false,
-                message: "Unauthorized",
-            },
-            {
-                status: 401,
-            }
-        )
+        return Response.Unauthorized()
     }
 
-    return NextResponse.json(
-        {
-            code: 200,
-            success: true,
-            user: session.user,
-        },
-        {
-            status: 200,
-        }
-    )
+    return Response.Success(session)
 }

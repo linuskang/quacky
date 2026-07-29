@@ -14,10 +14,13 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
+// Utilities
 import { getSession } from "@/server/auth"
 import { prisma } from "@/server/prisma"
-import { NextResponse } from "next/server"
 
+import { Response } from "@/lib/responses"
+
+// Types
 type VoteBody = {
     type: "UPVOTE" | "DOWNVOTE"
 }
@@ -29,10 +32,7 @@ export async function POST(
     const session = await getSession()
 
     if (!session) {
-        return NextResponse.json(
-            { error: "Unauthorized" },
-            { status: 401 }
-        )
+        return Response.Unauthorized()
     }
 
     const { id: memeId } = await params
@@ -42,17 +42,11 @@ export async function POST(
     try {
         body = await request.json()
     } catch {
-        return NextResponse.json(
-            { error: "Invalid JSON body" },
-            { status: 400 }
-        )
+        return Response.BadRequest("Invalid JSON body")
     }
 
     if (body.type !== "UPVOTE" && body.type !== "DOWNVOTE") {
-        return NextResponse.json(
-            { error: "Vote type must be UPVOTE or DOWNVOTE" },
-            { status: 400 }
-        )
+        return Response.BadRequest("Vote type must be UPVOTE or DOWNVOTE")
     }
 
     const meme = await prisma.memeland.findFirst({
@@ -66,10 +60,7 @@ export async function POST(
     })
 
     if (!meme) {
-        return NextResponse.json(
-            { error: "Meme not found" },
-            { status: 404 }
-        )
+        return Response.NotFound()
     }
 
     const vote = await prisma.memeVote.upsert({
@@ -103,8 +94,7 @@ export async function POST(
             },
         }),
     ])
-
-    return NextResponse.json({
+    return Response.Success({
         vote: vote.type,
         upvotes,
         downvotes,

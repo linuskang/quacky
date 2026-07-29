@@ -14,14 +14,22 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
-import { getSession } from "@/server/auth"
+// Libraries
 import { NextRequest, NextResponse } from "next/server"
+
+// Utilities
+import { getSession } from "@/server/auth"
 import { prisma } from "@/server/prisma"
+
 import { chat } from "@/server/helpers"
-import { Up } from "@/server/upstream"
 import { Fuzzy as FuzzyServer } from "@/server/fuzzy"
 import { getUserById } from "@/server/users"
 
+import { Up } from "@/server/upstream"
+
+import { Response } from "@/lib/responses"
+
+// Types
 type Fuzzy = {
     message: string
     receiverId: string
@@ -31,9 +39,7 @@ export async function GET() {
     const session = await getSession()
 
     if (!session) {
-        return new NextResponse("Unauthorised", {
-            status: 401,
-        })
+        return Response.Unauthorized()
     }
 
     const fuzzies = await prisma.fuzzy.findMany({
@@ -54,36 +60,35 @@ export async function POST(req: NextRequest) {
     const session = await getSession()
 
     if (!session) {
-        return new NextResponse("Unauthorised", {
-            status: 401,
-        })
+        return Response.Unauthorized()
     }
 
     if (!session.user.unlockedFuzzies) {
-        return new NextResponse(
-            "This feature is locked, please complete the Warm Fuzzies Quiz to unlock it.",
-            {
-                status: 403,
-            }
+        return Response.Forbidden(
+            "This feature is locked, please complete the Warm Fuzzies Quiz to unlock it."
         )
     }
 
     const body = (await req.json()) as Fuzzy
 
     if (!body.message || !body.receiverId) {
-        return new NextResponse("Missing required fields", {
-            status: 400,
-        })
+        return Response.BadRequest(
+            "Missing: message, recieverId"
+        )
     }
 
     const receiver = await getUserById(body.receiverId)
 
     if (!receiver) {
-        return new NextResponse("User not found", {
-            status: 404,
-        })
+        return Response.NotFound()
     }
 
+
+    // for warm fuzzies, im currently automatically parsing each fuzzy into ai
+    // for inappropriateness.
+    // this will be changed in the future (student privacy), however,
+    // i dont feel its good for students to be able to recieve potentially harmful
+    // anonymous messages (fuzzies).
     const output = await chat([
         {
             role: "system",
@@ -129,7 +134,11 @@ The following was said in the user's warm fuzzy: "${body.message}".
     const result = JSON.parse(output)
     let flagged = false
 
+    // log to staff for review
     if (result.is_inappropriate) {
+        // in my other automated moderation steps,
+        // i notify the user via. notifications,
+        // however because of anonymousity, i wont here.
         flagged = true
         await Up.ingest({
             title: "AI Flagged an inappropriate warm fuzzy",
@@ -163,6 +172,7 @@ The following was said in the user's warm fuzzy: "${body.message}".
         })
     }
 
+    // create the fuzzy.
     await prisma.fuzzy.create({
         data: {
             message: body.message,
@@ -172,10 +182,5 @@ The following was said in the user's warm fuzzy: "${body.message}".
         },
     })
 
-    return NextResponse.json(
-        {
-            success: true,
-        },
-        { status: 201 }
-    )
+    return Response.Success()
 }

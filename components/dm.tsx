@@ -86,7 +86,7 @@ export function Dm({ other, currentUserId, initialMessages }: Props) {
         const res = await axios.post(`/api/dms/${other.username}`, {
             message,
         })
-        const dm = (await res.data) as Dm
+        const dm = (await res.data.data) as Dm
         setMessages((prev) => [...prev, dm])
     }
 

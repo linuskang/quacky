@@ -14,18 +14,20 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
+// Libraries
+import { NextRequest, NextResponse } from "next/server"
+
+// Utilities
 import { getSession } from "@/server/auth"
 import { prisma } from "@/server/prisma"
-import { NextRequest, NextResponse } from "next/server"
+
+import { Response } from "@/lib/responses"
 
 export async function GET() {
     const session = await getSession()
 
     if (!session) {
-        return NextResponse.json(
-            { error: "Unauthorized" },
-            { status: 401 }
-        )
+        return Response.Unauthorized()
     }
 
     const memes = await prisma.memeland.findMany({
@@ -57,7 +59,7 @@ export async function GET() {
         },
     })
 
-    return NextResponse.json({ memes })
+    return Response.Success(memes)
 }
 
 export async function POST(

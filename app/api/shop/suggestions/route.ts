@@ -1,14 +1,30 @@
+//   ______                                 __
+//  /      \                               /  |
+// /$$$$$$  | __    __   ______    _______ $$ |   __  __    __
+// $$ |  $$ |/  |  /  | /      \  /       |$$ |  /  |/  |  /  |
+// $$ |  $$ |$$ |  $$ | $$$$$$  |/$$$$$$$/ $$ |_/$$/ $$ |  $$ |
+// $$ |_ $$ |$$ |  $$ | /    $$ |$$ |      $$   $$<  $$ |  $$ |
+// $$ / \$$ |$$ \__$$ |/$$$$$$$ |$$ \_____ $$$$$$  \ $$ \__$$ |
+// $$ $$ $$< $$    $$/ $$    $$ |$$       |$$ | $$  |$$    $$ |
+//  $$$$$$  | $$$$$$/   $$$$$$$/  $$$$$$$/ $$/   $$/  $$$$$$$ |
+//      $$$/                                         /  \__$$ |
+//                                                   $$    $$/
+//                                                    $$$$$$/
+//
+// Linus Kang, 2026
+// Work is licensed under the CC BY-NC 4.0 license.
+
 import { getSession } from "@/server/auth"
 import { NextRequest } from "next/server"
 import { prisma } from "@/server/prisma"
-import { Unauthorized, BadRequest, Success, Forbidden } from "@/lib/responses"
+import { Response } from "@/lib/responses"
 import { Up } from "@/server/upstream"
 
 export async function GET(req: NextRequest) {
     const session = await getSession()
 
     if (!session) {
-        return Unauthorized()
+        return Response.Unauthorized()
     }
 
     const suggestions = await prisma.shopSuggestion.findMany({
@@ -36,17 +52,17 @@ export async function GET(req: NextRequest) {
         }
     })
 
-    return Success(suggestions)
+    return Response.Success(suggestions)
 }
 
 export async function PATCH(req: NextRequest) {
     const session = await getSession()
     if (!session) {
-        return Unauthorized()
+        return Response.Unauthorized()
     }
 
     if (session.user.role !== "admin") {
-        return Forbidden()
+        return Response.Forbidden()
     }
 
     const body = await req.json() as {
@@ -55,7 +71,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     if (!body.id) {
-        return BadRequest()
+        return Response.BadRequest()
     }
 
     const suggestion = await prisma.shopSuggestion.update({
@@ -67,13 +83,13 @@ export async function PATCH(req: NextRequest) {
         }
     })
 
-    return Success(suggestion)
+    return Response.Success(suggestion)
 }
 
 export async function POST(req: NextRequest) {
     const session = await getSession()
     if (!session) {
-        return Unauthorized()
+        return Response.Unauthorized()
     }
 
     const body = await req.json() as {
@@ -85,7 +101,7 @@ export async function POST(req: NextRequest) {
     if (!body.name
         || !body.image
         || !body.description) {
-        return BadRequest()
+        return Response.BadRequest()
     }
 
     const suggestion = await prisma.shopSuggestion.create({
@@ -122,5 +138,5 @@ export async function POST(req: NextRequest) {
         ]
     })
 
-    return Success(suggestion)
+    return Response.Success(suggestion)
 }

@@ -1,17 +1,37 @@
+//   ______                                 __
+//  /      \                               /  |
+// /$$$$$$  | __    __   ______    _______ $$ |   __  __    __
+// $$ |  $$ |/  |  /  | /      \  /       |$$ |  /  |/  |  /  |
+// $$ |  $$ |$$ |  $$ | $$$$$$  |/$$$$$$$/ $$ |_/$$/ $$ |  $$ |
+// $$ |_ $$ |$$ |  $$ | /    $$ |$$ |      $$   $$<  $$ |  $$ |
+// $$ / \$$ |$$ \__$$ |/$$$$$$$ |$$ \_____ $$$$$$  \ $$ \__$$ |
+// $$ $$ $$< $$    $$/ $$    $$ |$$       |$$ | $$  |$$    $$ |
+//  $$$$$$  | $$$$$$/   $$$$$$$/  $$$$$$$/ $$/   $$/  $$$$$$$ |
+//      $$$/                                         /  \__$$ |
+//                                                   $$    $$/
+//                                                    $$$$$$/
+//
+// Linus Kang, 2026
+// Work is licensed under the CC BY-NC 4.0 license.
+
+// Libraries
 import { NextRequest } from "next/server";
-import { prisma } from "@/server/prisma"
+
+// Utilities
 import { getSession } from "@/server/auth"
-import { Success, Forbidden, Unauthorized } from "@/lib/responses"
+
+import { Response } from "@/lib/responses"
+
 import { Up } from "@/server/upstream"
 
 export async function POST(req: NextRequest) {
     const sess = await getSession()
     if (!sess) {
-        return Unauthorized()
+        return Response.Unauthorized()
     }
 
     if (sess.user.role !== "admin") {
-        return Forbidden()
+        return Response.Forbidden()
     }
 
     const body = await req.json() as {
@@ -38,7 +58,7 @@ export async function POST(req: NextRequest) {
         }
     })
 
-    return Success({
+    return Response.Success({
         locked: body.locked
     })
 }

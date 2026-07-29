@@ -15,9 +15,9 @@
 // Work is licensed under the CC BY-NC 4.0 license.
 
 // Libraries
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 
-// Server Utilities
+// Utilities
 import { prisma } from "@/server/prisma"
 import { getSession } from "@/server/auth"
 import { removeXP } from "@/server/users"
@@ -31,8 +31,10 @@ import { getPost } from "@/server/posts"
 import { Views } from "@/server/views"
 import { xp } from "@/lib/var"
 
+import { Response } from "@/lib/responses"
+
 export async function GET(
-    _req: NextRequest,
+    req: NextRequest,
     { params }: {
         params: Promise<{ id: string }>
     }
@@ -40,14 +42,7 @@ export async function GET(
     const session = await getSession()
 
     if (!session) {
-        return NextResponse.json(
-            {
-                code: 401,
-                success: false,
-                message: "Unauthorized",
-            },
-            { status: 401 }
-        )
+        return Response.Unauthorized()
     }
 
     const { id } = await params
@@ -55,32 +50,18 @@ export async function GET(
     const comment = await getCommentById(id)
 
     if (!comment) {
-        return NextResponse.json(
-            {
-                code: 404,
-                success: false,
-                message: "404 comment not found"
-            },
-            { status: 404 }
-        )
+        return Response.NotFound("Comment not found")
     }
 
     const post = await getPost(comment.postId, session)
 
     if (!post) {
-        return NextResponse.json(
-            {
-                code: 404,
-                success: false,
-                message: "404 post not found"
-            },
-            { status: 404 }
-        )
+        return Response.NotFound("Post not found")
     }
 
     const comments = await getCommentsByPostId(post.id)
     const remainingComments = comments.filter(
-        (c) => c.id !== comment.id // filter c =/= comment.id
+        (c) => c.id !== comment.id // filter c.id =/= comment.id
     )
 
     const usersById = new Map(
@@ -142,80 +123,77 @@ export async function GET(
         following: followingIds.has(user.id),// adds following: boolean to each user obj
     }))
 
+    // add views
     await Views.add(post.id, session.user.id)
 
-    return NextResponse.json({
-        code: 200,
-        success: true,
-        data: {
-            relevantUsers,
-            comment: {
-                id: comment.id,
-                postId: comment.postId,
-                content: comment.content,
-                flagged: comment.flagged,
-                createdAt: comment.createdAt,
-                updatedAt: comment.updatedAt,
-                post: {
-                    id: post.id,
-                    author: {
-                        id: post.author.id,
-                        name: post.author.name,
-                        username: post.author.username,
-                        image: post.author.image,
-                        verified: post.author.verified,
-                        role: post.author.role,
-                    },
-                    content: post.content,
-                    repostOfId: post.repostOfId,
-                    repostOf: post.repostOf ? {
-                        id: post.repostOf.id,
-                        author: {
-                            id: post.repostOf.author.id,
-                            name: post.repostOf.author.name,
-                            username: post.repostOf.author.username,
-                            image: post.repostOf.author.image,
-                            verified: post.repostOf.author.verified,
-                            role: post.repostOf.author.role,
-                        },
-                        content: post.repostOf.content,
-                        flagged: post.repostOf.flagged,
-                        edited: post.repostOf.edited,
-                        createdAt: post.repostOf.createdAt,
-                        updatedAt: post.repostOf.updatedAt,
-                        views: post.repostOf.views,
-                        attachments: post.repostOf.attachments,
-                    } : null,
-                    flagged: post.flagged,
-                    edited: post.edited,
-                    createdAt: post.createdAt,
-                    updatedAt: post.updatedAt,
-                    views: post.views,
-                    likes: post._count.likes,
-                    reposts: post._count.reposts,
-                    comments: post._count.comments,
-                    liked: Boolean(liked),
-                    reposted: Boolean(reposted),
-                    commented: Boolean(commented),
-                    bookmarked: Boolean(bookmarked),
-                    attachments: post.attachments,
-                },
-                comments: remainingComments,
+    return Response.Success({
+        relevantUsers,
+        comment: {
+            id: comment.id,
+            postId: comment.postId,
+            content: comment.content,
+            flagged: comment.flagged,
+            createdAt: comment.createdAt,
+            updatedAt: comment.updatedAt,
+            post: {
+                id: post.id,
                 author: {
-                    id: comment.author.id,
-                    name: comment.author.name,
-                    username: comment.author.username,
-                    image: comment.author.image,
-                    verified: comment.author.verified,
-                    role: comment.author.role,
+                    id: post.author.id,
+                    name: post.author.name,
+                    username: post.author.username,
+                    image: post.author.image,
+                    verified: post.author.verified,
+                    role: post.author.role,
                 },
+                content: post.content,
+                repostOfId: post.repostOfId,
+                repostOf: post.repostOf ? {
+                    id: post.repostOf.id,
+                    author: {
+                        id: post.repostOf.author.id,
+                        name: post.repostOf.author.name,
+                        username: post.repostOf.author.username,
+                        image: post.repostOf.author.image,
+                        verified: post.repostOf.author.verified,
+                        role: post.repostOf.author.role,
+                    },
+                    content: post.repostOf.content,
+                    flagged: post.repostOf.flagged,
+                    edited: post.repostOf.edited,
+                    createdAt: post.repostOf.createdAt,
+                    updatedAt: post.repostOf.updatedAt,
+                    views: post.repostOf.views,
+                    attachments: post.repostOf.attachments,
+                } : null,
+                flagged: post.flagged,
+                edited: post.edited,
+                createdAt: post.createdAt,
+                updatedAt: post.updatedAt,
+                views: post.views,
+                likes: post._count.likes,
+                reposts: post._count.reposts,
+                comments: post._count.comments,
+                liked: Boolean(liked),
+                reposted: Boolean(reposted),
+                commented: Boolean(commented),
+                bookmarked: Boolean(bookmarked),
+                attachments: post.attachments,
+            },
+            comments: remainingComments,
+            author: {
+                id: comment.author.id,
+                name: comment.author.name,
+                username: comment.author.username,
+                image: comment.author.image,
+                verified: comment.author.verified,
+                role: comment.author.role,
             },
         },
     })
 }
 
 export async function DELETE(
-    _req: NextRequest,
+    req: NextRequest,
     { params }: {
         params: Promise<{ id: string }>
     }
@@ -223,14 +201,7 @@ export async function DELETE(
     const session = await getSession()
 
     if (!session) {
-        return NextResponse.json(
-            {
-                err: "Unauthorized",
-            },
-            {
-                status: 401,
-            }
-        )
+        return Response.Unauthorized()
     }
 
     const { id } = await params
@@ -238,31 +209,31 @@ export async function DELETE(
     const comment = await getCommentById(id)
 
     if (!comment) {
-        return NextResponse.json(
-            {
-                code: 404,
-                success: false,
-                message: "Comment not found",
-            },
-            { status: 404 }
-        )
+        return Response.NotFound("Comment not found")
     }
 
     if (comment.authorId !== session.user.id && session.user.role !== "admin") {
-        return NextResponse.json(
-            {
-                code: 403,
-                success: false,
-                message: "You do not have elevated permissions to perform this action",
-            },
-            { status: 403 }
+        await Up.ingest({
+            title: "unauthorized",
+            icon: "👎",
+            data: {
+                session,
+                comment,
+                req,
+                action: "attempted to delete comment that isnt owned by the user"
+            }
+        })
+
+        return Response.Forbidden(
+            "You do not have permissions to perform this action."
         )
     }
 
+    // perform delete action
     await deleteComment(id)
     await removeXP(session.user.username, xp.comment)
 
-    // log for moderation purposes
+    // log for moderation purposes (integrity)
     await Up.ingest({
         title: "Comment Deleted",
         icon: "🗑️",
@@ -289,14 +260,7 @@ export async function DELETE(
         }
     })
 
-    return NextResponse.json(
-        {
-            code: 200,
-            success: true,
-            message: "Deleted comment"
-        },
-        {
-            status: 200,
-        }
+    return Response.Success(
+        "Comment deleted"
     )
 }

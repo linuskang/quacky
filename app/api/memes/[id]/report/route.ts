@@ -14,11 +14,18 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
+// Libraries
+import { NextRequest } from "next/server"
+
+// Utilities
 import { getSession } from "@/server/auth"
 import { prisma } from "@/server/prisma"
-import { NextRequest, NextResponse } from "next/server"
+
 import { Up } from "@/server/upstream"
+
 import { env } from "@/env"
+
+import { Response } from "@/lib/responses"
 
 export async function POST(
     request: NextRequest,
@@ -27,10 +34,7 @@ export async function POST(
     const session = await getSession()
 
     if (!session) {
-        return NextResponse.json(
-            { error: "Unauthorized" },
-            { status: 401 }
-        )
+        return Response.Unauthorized()
     }
 
     const { id } = await params
@@ -39,10 +43,7 @@ export async function POST(
     }
 
     if (!body.reason || body.reason.trim() === "") {
-        return NextResponse.json(
-            { error: "Reason is required" },
-            { status: 400 }
-        )
+        return Response.BadRequest("reason is required")
     }
 
     const meme = await prisma.memeland.findFirst({
@@ -56,12 +57,10 @@ export async function POST(
     })
 
     if (!meme) {
-        return NextResponse.json(
-            { error: "Meme not found" },
-            { status: 404 }
-        )
+        return Response.NotFound()
     }
 
+    // log report to staff.
     await Up.ingest({
         title: "Meme reported by " + session.user.username,
         icon: "🙆",
@@ -98,5 +97,7 @@ export async function POST(
         ]
     })
 
-    return NextResponse.json({ ok: true })
+    return Response.Success(
+        "reported, thanks!"
+    )
 }

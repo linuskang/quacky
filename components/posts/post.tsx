@@ -18,7 +18,7 @@
 
 // Libraries
 import axios from "axios"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { authClient } from "@/client/auth"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -129,7 +129,10 @@ export function PostCard({
     const [quoteContent, setQuoteContent] = useState("")
     const [quotePending, setQuotePending] = useState(false)
 
-    const shareUrl = `${window.location.origin}/post/${post.id}`
+    const shareUrl = useMemo(() => {
+        if (typeof window === "undefined") return ""
+        return `${window.location.origin}/post/${post.id}`
+    }, [post.id])
 
     const { data: session } = authClient.useSession()
 

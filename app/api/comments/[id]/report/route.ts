@@ -15,19 +15,23 @@
 // Work is licensed under the CC BY-NC 4.0 license.
 
 // Libraries
+import { NextRequest } from "next/server"
+
+// Utilities
 import { getSession } from "@/server/auth"
-import { NextRequest, NextResponse } from "next/server"
-import { getCommentById } from "@/server/comment"
-import { Up } from "@/server/upstream"
-import { Admin } from "@/server/administration"
 
 import { NotificationService } from "@/server/helpers"
+import { getCommentById } from "@/server/comment"
+import { Admin } from "@/server/administration"
+import { addXP } from "@/server/users"
+import { askAi } from "@/server/helpers"
+
+import { Up } from "@/server/upstream"
+
 import { env } from "@/env"
 import { xp } from "@/lib/var"
-import { addXP } from "@/server/users"
 
-// Server Utilities
-import { askAi } from "@/server/helpers"
+import { Response } from "@/lib/responses"
 
 export async function POST(
     req: NextRequest,
@@ -38,28 +42,14 @@ export async function POST(
     const session = await getSession()
 
     if (!session) {
-        return NextResponse.json(
-            {
-                code: 401,
-                success: false,
-                message: "Unauthorized",
-            },
-            { status: 401 }
-        )
+        return Response.Unauthorized()
     }
 
     const { id } = await params
     const comment = await getCommentById(id)
 
     if (!comment) {
-        return NextResponse.json(
-            {
-                code: 404,
-                success: false,
-                message: "Comment not found",
-            },
-            { status: 404 }
-        )
+        return Response.NotFound("Comment not found")
     }
 
     const body = await req.json() as {
@@ -67,14 +57,7 @@ export async function POST(
     }
 
     if (!body.reason) {
-        return NextResponse.json(
-            {
-                code: 400,
-                success: false,
-                message: "Missing required fields",
-            },
-            { status: 400 }
-        )
+        return Response.BadRequest("reason is required")
     }
 
 
@@ -123,6 +106,7 @@ export async function POST(
 
     const determinedResult = JSON.parse(aiResponse)
 
+    // flag
     if (determinedResult.is_inappropriate) {
         await Admin.flagComment(comment.id)
         await NotificationService.send(
@@ -135,6 +119,7 @@ export async function POST(
     // report abuse rewards
     await addXP(session.user.username, xp.report)
 
+    // log for admins.
     await Up.ingest({
         title: "New comment Report - " + comment.id,
         icon: "🚩",
@@ -174,14 +159,7 @@ export async function POST(
         ],
     })
 
-    return NextResponse.json(
-        {
-            code: 201,
-            success: true,
-            message: "report submitted, thanks!",
-        },
-        {
-            status: 200,
-        }
+    return Response.Success(
+        "Report submitted, thanks!"
     )
 }

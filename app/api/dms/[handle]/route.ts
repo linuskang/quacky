@@ -14,20 +14,29 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
+// Libraries
+import { NextRequest } from "next/server"
+
+// Utilities
 import { prisma } from "@/server/prisma"
 import { getSession } from "@/server/auth"
 import { fetchMessages } from "@/server/dms"
-import { NextRequest, NextResponse } from "next/server"
+
+import { Response } from "@/lib/responses"
 
 // GET messages between the current user and the user identified by `handle`.
 export async function GET(
     _req: NextRequest,
-    { params }: { params: Promise<{ handle: string }> }
+    { params }: {
+        params: Promise<{
+            handle: string
+        }>
+    }
 ) {
     const session = await getSession()
 
     if (!session) {
-        return NextResponse.json({ err: "Unauthorized" }, { status: 401 })
+        return Response.Unauthorized()
     }
 
     const { handle } = await params
@@ -38,13 +47,14 @@ export async function GET(
     })
 
     if (!other) {
-        return NextResponse.json({ err: "User not found" }, { status: 404 })
+        return Response.NotFound(
+            "User not found"
+        )
     }
 
     if (other.id === session.user.id) {
-        return NextResponse.json(
-            { err: "You can't message yourself" },
-            { status: 400 }
+        return Response.BadRequest(
+            "You can't message yourself"
         )
     }
 
@@ -53,7 +63,7 @@ export async function GET(
         otherUserId: other.id,
     })
 
-    return NextResponse.json(messages)
+    return Response.Success(messages)
 }
 
 export interface DmBody {
@@ -62,12 +72,16 @@ export interface DmBody {
 
 export async function POST(
     req: NextRequest,
-    { params }: { params: Promise<{ handle: string }> }
+    { params }: {
+        params: Promise<{
+            handle: string
+        }>
+    }
 ) {
     const session = await getSession()
 
     if (!session) {
-        return NextResponse.json({ err: "Unauthorized" }, { status: 401 })
+        return Response.Unauthorized()
     }
 
     const { handle } = await params
@@ -85,34 +99,32 @@ export async function POST(
     })
 
     if (!other) {
-        return NextResponse.json({ err: "User not found" }, { status: 404 })
+        return Response.NotFound("User not found")
     }
 
     if (other.id === session.user.id) {
-        return NextResponse.json(
-            { err: "You can't message yourself" },
-            { status: 400 }
+        return Response.BadRequest(
+            "You can't message yourself"
         )
     }
 
     const body = (await req.json()) as DmBody
 
     if (!body.message) {
-        return NextResponse.json(
-            { err: "Message is required" },
-            { status: 400 }
+        return Response.BadRequest(
+            "message is required."
         )
     }
 
     const message = body.message.trim()
 
     if (message.length === 0 || message.length > 1000) {
-        return NextResponse.json(
-            { err: "Invalid message length" },
-            { status: 400 }
+        return Response.BadRequest(
+            "message must be between 1 and 1000 characters."
         )
     }
 
+    // create dm msg
     const dm = await prisma.dm.create({
         data: {
             senderId: session.user.id,
@@ -143,15 +155,12 @@ export async function POST(
         },
     })
 
-    return NextResponse.json(
-        {
-            id: dm.id,
-            sender: dm.sender,
-            receiver: dm.receiver,
-            message: dm.message,
-            read: dm.read,
-            createdAt: dm.createdAt.toISOString(),
-        },
-        { status: 201 }
-    )
+    return Response.Success({
+        id: dm.id,
+        sender: dm.sender,
+        receiver: dm.receiver,
+        message: dm.message,
+        read: dm.read,
+        createdAt: dm.createdAt.toISOString(),
+    })
 }
