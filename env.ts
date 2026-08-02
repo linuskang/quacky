@@ -42,6 +42,7 @@ export const env = createEnv({
         RUSTFS_PUBLIC_BASE_URL: z.url().default("https://cdn.linus.my/qky"),
         LOGIN_BANNER_MESSAGE: z.string().default(""),
         QOTD: z.string().default(""),
+        TEST_PUSH_USERNAME: z.string().optional(),
     },
 
     experimental__runtimeEnv: {},

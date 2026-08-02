@@ -18,6 +18,7 @@ import { prisma } from "@/server/prisma"
 import { env } from "@/env"
 import OpenAI from "openai"
 import { Resend } from "resend"
+import { sendPushNotification } from "@/server/notification"
 
 let ai: OpenAI | null = null
 
@@ -75,6 +76,10 @@ function followContent() {
     return "started following you"
 }
 
+function pushBody(content: string) {
+    return content.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+}
+
 export class NotificationService {
     static async send(userId: string, actorId: string, content: string) {
         const res = await prisma.notification.create({
@@ -84,6 +89,16 @@ export class NotificationService {
                 content,
             },
         })
+
+        const actor = await prisma.user.findUnique({
+            where: { id: actorId },
+            select: { name: true },
+        })
+        await sendPushNotification(userId, {
+            title: actor?.name ?? "Quacky",
+            body: pushBody(content),
+        })
+
         return res
     }
 

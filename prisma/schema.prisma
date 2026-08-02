@@ -72,6 +72,8 @@ model User {
   shopSuggestionVotes ShopSuggestionVote[]
   ShopWishlists       ShopWishlist[]
   shopPurchases       ShopPurchase[]
+  pushSubscriptions   PushSubscription[]
+  pushNotificationsEnabled Boolean @default(true)
 
   @@map("user")
 }
@@ -178,7 +180,7 @@ model ShopPurchase {
   item      ShopItem       @relation(fields: [itemId], references: [id], onDelete: Cascade)
   status    PurchaseStatus @default(PENDING)
   userId    String
-  quantity Int @default(1)
+  quantity  Int            @default(1)
   user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime       @default(now()) @db.Timestamptz(3)
   updatedAt DateTime       @default(now()) @updatedAt @db.Timestamptz(3)
@@ -482,4 +484,18 @@ model Apikey {
   @@index([referenceId])
   @@index([key])
   @@map("apikey")
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  auth      String
+  p256dh    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("push_subscription")
 }

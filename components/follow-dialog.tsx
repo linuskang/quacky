@@ -32,7 +32,7 @@ import { Admin } from "@/components/icons"
 import { toast } from "sonner"
 import type { User } from "@/types"
 import { Button } from "@/components/ui/button"
-import { playfairDisplay } from "@/app/layout"
+import { playfairDisplay } from "@/lib/fonts"
 
 type DialogType = "following" | "followers" | null
 

@@ -191,6 +191,11 @@ export const auth = betterAuth({
                 required: false,
                 default: false,
             },
+            pushNotificationsEnabled: {
+                type: "boolean",
+                required: false,
+                default: true,
+            },
         },
     },
 

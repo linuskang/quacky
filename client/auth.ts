@@ -81,6 +81,11 @@ export const authClient = createAuthClient({
                     type: "string",
                     required: false,
                 },
+                pushNotificationsEnabled: {
+                    type: "boolean",
+                    required: false,
+                    default: true,
+                },
             },
         }),
         adminClient(),

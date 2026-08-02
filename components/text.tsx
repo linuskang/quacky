@@ -16,7 +16,7 @@
 
 import { ReactNode } from "react"
 import { cn } from "@/lib/utils"
-import { playfairDisplay } from "@/app/layout"
+import { playfairDisplay } from "@/lib/fonts"
 
 type Props = {
     children: ReactNode

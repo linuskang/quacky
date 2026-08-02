@@ -36,7 +36,7 @@ import {
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { playfairDisplay } from "@/app/layout"
+import { playfairDisplay } from "@/lib/fonts"
 
 const patrickHand = Patrick_Hand({
     subsets: ["latin"],

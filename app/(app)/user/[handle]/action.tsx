@@ -24,7 +24,7 @@ import { MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { setFollowing } from "./helpers"
 import { authClient } from "@/client/auth"
-import { playfairDisplay } from "@/app/layout"
+import { playfairDisplay } from "@/lib/fonts"
 import {
     Dialog,
     DialogContent,

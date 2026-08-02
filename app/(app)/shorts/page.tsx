@@ -17,7 +17,7 @@
 "use client"
 
 import { PageLayout, PageCenter } from "@/components/page-layout"
-import { playfairDisplay } from "@/app/layout"
+import { playfairDisplay } from "@/lib/fonts"
 import { Title, Description } from "@/components/text"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"

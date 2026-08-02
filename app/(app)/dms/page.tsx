@@ -27,7 +27,7 @@ import { Title } from "@/components/text"
 import { DmUserSearch } from "@/components/dm-user-search"
 import Image from "next/image"
 import { CurvedLine } from "@/components/line-generator"
-import { patrickHand } from "@/app/layout"
+import { patrickHand } from "@/lib/fonts"
 
 export default async function MessagesPage() {
     const session = await requireSession()
