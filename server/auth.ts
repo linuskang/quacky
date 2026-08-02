@@ -250,11 +250,11 @@ export const auth = betterAuth({
                     )
                     Up.ingest({
                         title: "New user signed up",
-                        content: `User ${user.name} (@${user.username}) has signed up.`,
+                        description: `User ${user.name} (@${user.username}) has signed up.`,
                         category: "user.signup",
                         icon: "🎉",
                         data: user,
-                    })
+                    }).catch(() => {})
                 },
             },
             update: {

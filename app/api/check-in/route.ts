@@ -75,11 +75,11 @@ export async function POST(req: NextRequest) {
             icon: "🛫",
             fields: [
                 {
-                    name: "Name",
+                    title: "Name",
                     value: session.user.name,
                 },
                 {
-                    name: "Email",
+                    title: "Email",
                     value: session.user.email,
                 },
             ],
@@ -87,12 +87,12 @@ export async function POST(req: NextRequest) {
                 {
                     title: "Send Email",
                     url: `mailto:${session.user.email}?subject=Student%20Check-In%20Assistance&body=Hello%20${session.user.name},`,
-                    type: "default",
+                    variant: "primary",
                 },
                 {
                     title: "View in Quacky",
                     url: `${env.BETTER_AUTH_URL}/@${session.user.username}`,
-                    type: "secondary",
+                    variant: "secondary",
                 },
             ],
         })

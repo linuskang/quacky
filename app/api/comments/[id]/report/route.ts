@@ -124,22 +124,22 @@ export async function POST(
     await Up.ingest({
         title: "New comment Report - " + comment.id,
         icon: "🚩",
-        content: `A new report has been submitted for comment ${comment.id}. Reason: ${body.reason}`,
+        description: `A new report has been submitted for comment ${comment.id}. Reason: ${body.reason}`,
         fields: [
             {
-                name: "Author Username",
+                title: "Author Username",
                 value: comment.author.username,
             },
             {
-                name: "Author ID",
+                title: "Author ID",
                 value: comment.authorId,
             },
             {
-                name: "Auto Flagged?",
+                title: "Auto Flagged?",
                 value: determinedResult.is_inappropriate ? "Yes" : "No",
             },
             {
-                name: "AI Reason",
+                title: "AI Reason",
                 value: determinedResult.reason,
             },
         ],
@@ -154,7 +154,7 @@ export async function POST(
         actions: [
             {
                 title: "View Comment",
-                type: "default",
+                variant: "primary",
                 url: `https://quacky.space/comment/${comment.id}`,
             },
         ],

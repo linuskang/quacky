@@ -45,11 +45,11 @@ export async function POST(req: NextRequest) {
         icon: body.locked ? "🔒" : "🔓",
         fields: [
             {
-                name: "Locked",
+                title: "Locked",
                 value: body.locked ? "Yes" : "No",
             },
             {
-                name: "Updated by",
+                title: "Updated by",
                 value: sess.user.email,
             },
         ],

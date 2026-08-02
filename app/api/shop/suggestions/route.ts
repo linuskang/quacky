@@ -114,23 +114,23 @@ export async function POST(req: NextRequest) {
     await Up.ingest({
         title: "New Shop Suggestion",
         icon: "🛍️",
-        content: `A new shop suggestion has been submitted by ${session.user.name}.`,
+        description: `A new shop suggestion has been submitted by ${session.user.name}.`,
         category: "shop-suggestion",
         fields: [
             {
-                name: "Name",
+                title: "Name",
                 value: body.name,
             },
             {
-                name: "Image",
+                title: "Image",
                 value: body.image,
             },
             {
-                name: "Description",
+                title: "Description",
                 value: body.description,
             },
             {
-                name: "Submitted By",
+                title: "Submitted By",
                 value: session.user.email,
             },
         ],

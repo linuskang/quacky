@@ -70,22 +70,22 @@ export async function POST(
     await Up.ingest({
         title: "Shop Purchase",
         icon: "👜",
-        content: `${session.user.name} purchased ${body.quantity}x ${item.name}`,
+        description: `${session.user.name} purchased ${body.quantity}x ${item.name}`,
         fields: [
             {
-                name: "User",
+                title: "User",
                 value: session.user.email,
             },
             {
-                name: "Item",
+                title: "Item",
                 value: item.name,
             },
             {
-                name: "Quantity",
+                title: "Quantity",
                 value: body.quantity.toString(),
             },
             {
-                name: "Item ID",
+                title: "Item ID",
                 value: item.id,
             },
         ],

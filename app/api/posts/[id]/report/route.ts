@@ -120,22 +120,22 @@ ${body.reason}
     await Up.ingest({
         title: "Post Report - " + post.id,
         icon: "🚩",
-        content: `A new report has been submitted for post ${post.id}. Reason: ${body.reason}`,
+        description: `A new report has been submitted for post ${post.id}. Reason: ${body.reason}`,
         fields: [
             {
-                name: "Author Username",
+                title: "Author Username",
                 value: post.author.username,
             },
             {
-                name: "Author ID",
+                title: "Author ID",
                 value: post.authorId,
             },
             {
-                name: "Auto Flagged?",
+                title: "Auto Flagged?",
                 value: result.is_inappropriate ? "Yes" : "No",
             },
             {
-                name: "AI Reason",
+                title: "AI Reason",
                 value: result.reason,
             },
         ],
@@ -150,7 +150,7 @@ ${body.reason}
         actions: [
             {
                 title: "View Post",
-                type: "default",
+                variant: "primary",
                 url: `https://quacky.space/post/${post.id}`,
             },
         ],

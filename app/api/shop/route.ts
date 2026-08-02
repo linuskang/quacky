@@ -116,27 +116,27 @@ export async function POST(req: NextRequest) {
 
     await Up.ingest({
         title: "New shop item added",
-        content: `A new shop item has been added: ${body.name}`,
+        description: `A new shop item has been added: ${body.name}`,
         icon: "🛒",
         fields: [
             {
-                name: "Name",
+                title: "Name",
                 value: body.name,
             },
             {
-                name: "Description",
+                title: "Description",
                 value: body.description,
             },
             {
-                name: "Price",
+                title: "Price",
                 value: body.price.toString(),
             },
             {
-                name: "Stock",
+                title: "Stock",
                 value: body.stock.toString(),
             },
             {
-                name: "Added By",
+                title: "Added By",
                 value: sess.user.email,
             },
         ],

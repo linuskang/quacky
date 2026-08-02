@@ -198,7 +198,7 @@ export async function GET(
 }
 
 export async function DELETE(
-    req: NextRequest,
+    _req: NextRequest,
     {
         params,
     }: {
@@ -226,7 +226,6 @@ export async function DELETE(
             data: {
                 session,
                 comment,
-                req,
                 action: "attempted to delete comment that isnt owned by the user",
             },
         })
@@ -246,19 +245,19 @@ export async function DELETE(
         icon: "🗑️",
         fields: [
             {
-                name: "Post ID",
+                title: "Post ID",
                 value: comment.postId,
             },
             {
-                name: "Deleted by",
+                title: "Deleted by",
                 value: session.user.username,
             },
             {
-                name: "Comment Author",
+                title: "Comment Author",
                 value: comment.author.username,
             },
             {
-                name: "Comment Content",
+                title: "Comment Content",
                 value: comment.content,
             },
         ],

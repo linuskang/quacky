@@ -51,23 +51,23 @@ export async function POST(req: NextRequest) {
         category: "feedback",
         fields: [
             {
-                name: "Usability",
+                title: "Usability",
                 value: String(body.usability),
             },
             {
-                name: "Satisfaction",
+                title: "Satisfaction",
                 value: String(body.satisfaction),
             },
             {
-                name: "Recommend",
+                title: "Recommend",
                 value: String(body.recommend),
             },
             {
-                name: "Visual",
+                title: "Visual",
                 value: String(body.visual),
             },
         ],
-        content: body.comments,
+        description: body.comments,
         data: [
             body,
             {

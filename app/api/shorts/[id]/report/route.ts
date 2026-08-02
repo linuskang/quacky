@@ -134,22 +134,22 @@ ${body.reason}
     await Up.ingest({
         title: "Short Report - " + short.id,
         icon: "🚩",
-        content: `A new report has been submitted for short ${short.id}. Reason: ${body.reason}`,
+        description: `A new report has been submitted for short ${short.id}. Reason: ${body.reason}`,
         fields: [
             {
-                name: "Author Username",
+                title: "Author Username",
                 value: short.user.username,
             },
             {
-                name: "Author ID",
+                title: "Author ID",
                 value: short.user.id,
             },
             {
-                name: "Auto Flagged?",
+                title: "Auto Flagged?",
                 value: res.is_inappropriate.toString(),
             },
             {
-                name: "AI Reason",
+                title: "AI Reason",
                 value: res.reason ?? "",
             },
         ],
@@ -161,12 +161,12 @@ ${body.reason}
         actions: [
             {
                 title: "View short",
-                type: "default",
+                variant: "primary",
                 url: `${env.BETTER_AUTH_URL}/short/${short.id}`,
             },
             {
                 title: "View offender",
-                type: "secondary",
+                variant: "secondary",
                 url: `${env.BETTER_AUTH_URL}/@${short.user.username}`,
             },
         ],

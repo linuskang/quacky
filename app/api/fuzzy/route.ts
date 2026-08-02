@@ -140,29 +140,29 @@ The following was said in the user's warm fuzzy: "${body.message}".
         await Up.ingest({
             title: "AI Flagged an inappropriate warm fuzzy",
             icon: "🚨",
-            content: `${session.user.name} (${session.user.id}) sent a warm fuzzy that was flagged by the AI as inappropriate. It has been hidden from the recipient.`,
+            description: `${session.user.name} (${session.user.id}) sent a warm fuzzy that was flagged by the AI as inappropriate. It has been hidden from the recipient.`,
             fields: [
                 {
-                    name: "Reason",
+                    title: "Reason",
                     value: result.reason,
                 },
                 {
-                    name: "Warm Fuzzy Content",
+                    title: "Warm Fuzzy Content",
                     value: body.message,
                 },
                 {
-                    name: "Offender",
+                    title: "Offender",
                     value: session.user.id,
                 },
                 {
-                    name: "Original recipient",
+                    title: "Original recipient",
                     value: body.receiverId,
                 },
             ],
             actions: [
                 {
                     title: "View Reported Sender",
-                    type: "default",
+                    variant: "primary",
                     url: `${process.env.BETTER_AUTH_URL}/@${session.user.username}`,
                 },
             ],

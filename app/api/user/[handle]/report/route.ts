@@ -104,22 +104,22 @@ ${reason}
     await Up.ingest({
         title: "User Report - " + user.username,
         icon: "🚩",
-        content: `A new report has been submitted for user ${user.username}. Reason: ${reason}`,
+        description: `A new report has been submitted for user ${user.username}. Reason: ${reason}`,
         fields: [
             {
-                name: "User ID",
+                title: "User ID",
                 value: user.id,
             },
             {
-                name: "User Email",
+                title: "User Email",
                 value: user.email,
             },
             {
-                name: "Auto Banned?",
+                title: "Auto Banned?",
                 value: result.is_inappropriate ? "Yes" : "No",
             },
             {
-                name: "AI Reason",
+                title: "AI Reason",
                 value: result.reason,
             },
         ],
@@ -134,7 +134,7 @@ ${reason}
         actions: [
             {
                 title: "View User",
-                type: "default",
+                variant: "primary",
                 url: `https://quacky.space/@${user.username}`,
             },
         ],

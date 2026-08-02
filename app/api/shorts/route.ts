@@ -83,14 +83,14 @@ export async function POST(req: NextRequest) {
 
     await Up.ingest({
         title: "New short posted by " + session.user.username,
-        content: description,
+        description,
         fields: [
             {
-                name: "Posted By",
+                title: "Posted By",
                 value: session.user.username,
             },
             {
-                name: "Poster Email",
+                title: "Poster Email",
                 value: session.user.email,
             },
         ],
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
         actions: [
             {
                 title: "View short",
-                type: "default",
+                variant: "primary",
                 url: `${env.BETTER_AUTH_URL}/shorts/${short.id}`,
             },
         ],

@@ -1,3 +1,6 @@
+
+// (c) 2026 Linus - github/linuskang/up
+
 import webpush, { WebPushError } from 'web-push'
 import { prisma } from '@/server/prisma'
 

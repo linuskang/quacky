@@ -74,22 +74,22 @@ export async function POST(
     await Up.ingest({
         title: `${session.user.email} purchased an item`,
         icon: "💴",
-        content: `User ${session.user.email} purchased an item.`,
+        description: `User ${session.user.email} purchased an item.`,
         fields: [
             {
-                name: "User ID",
+                title: "User ID",
                 value: session.user.id,
             },
             {
-                name: "User Email",
+                title: "User Email",
                 value: session.user.email,
             },
             {
-                name: "Item ID",
+                title: "Item ID",
                 value: item.id,
             },
             {
-                name: "Item Name",
+                title: "Item Name",
                 value: item.name,
             },
         ],
@@ -168,15 +168,15 @@ export async function PATCH(
 
     await Up.ingest({
         title: "Shop item updated",
-        content: `A shop item has been updated: ${item.name}`,
+        description: `A shop item has been updated: ${item.name}`,
         icon: "🛠️",
         fields: [
             {
-                name: "Name",
+                title: "Name",
                 value: item.name,
             },
             {
-                name: "Updated By",
+                title: "Updated By",
                 value: session.user.email,
             },
         ],
@@ -236,15 +236,15 @@ export async function DELETE(
 
     await Up.ingest({
         title: "Shop item deleted",
-        content: `A shop item has been deleted: ${item.name}`,
+        description: `A shop item has been deleted: ${item.name}`,
         icon: "🗑️",
         fields: [
             {
-                name: "Name",
+                title: "Name",
                 value: item.name,
             },
             {
-                name: "Deleted By",
+                title: "Deleted By",
                 value: session.user.email,
             },
         ],

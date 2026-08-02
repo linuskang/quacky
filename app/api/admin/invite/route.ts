@@ -91,32 +91,32 @@ export async function POST(req: NextRequest) {
     await Up.ingest({
         title: `${email} has been invited to join Quacky`,
         icon: "🆕",
-        content: `An invitation has been sent to ${email} with the role of ${role}.`,
+        description: `An invitation has been sent to ${email} with the role of ${role}.`,
         fields: [
             {
-                name: "Email",
+                title: "Email",
                 value: email,
             },
             {
-                name: "Role",
+                title: "Role",
                 value: role,
             },
             {
-                name: "Display Name",
+                title: "Display Name",
                 value: displayName,
             },
             {
-                name: "Username",
+                title: "Username",
                 value: username,
             },
             {
-                name: "Invited by",
+                title: "Invited by",
                 value: session.user.email,
             },
         ],
         actions: [
             {
-                type: "default",
+                variant: "primary",
                 title: "View User",
                 url: `${env.BETTER_AUTH_URL}/@${username}`,
             },

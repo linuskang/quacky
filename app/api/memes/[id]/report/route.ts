@@ -64,34 +64,34 @@ export async function POST(
     await Up.ingest({
         title: "Meme reported by " + session.user.username,
         icon: "🙆",
-        content: "Reported for: " + body.reason,
+        description: "Reported for: " + body.reason,
         fields: [
             {
-                name: "Meme ID",
+                title: "Meme ID",
                 value: id,
             },
             {
-                name: "Meme Img",
+                title: "Meme Img",
                 value: `${env.BETTER_AUTH_URL}/memes/${id}`,
             },
             {
-                name: "Reported by",
+                title: "Reported by",
                 value: session.user.username,
             },
             {
-                name: "Offender ID",
+                title: "Offender ID",
                 value: meme.id,
             },
         ],
         actions: [
             {
                 title: "View Meme",
-                type: "default",
+                variant: "primary",
                 url: `${env.BETTER_AUTH_URL}/memes/${id}`,
             },
             {
                 title: "View Offender",
-                type: "secondary",
+                variant: "secondary",
                 url: `${env.BETTER_AUTH_URL}/@${meme.author.username}`,
             },
         ],

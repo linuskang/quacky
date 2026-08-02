@@ -126,34 +126,34 @@ The user reported the content for the following reason: "${body.reason}".
     await Up.ingest({
         title: `Warm fuzzy reported by ${session.user.email}`,
         icon: "🚨",
-        content: `${session.user.name} (${session.user.id}) reported a warm fuzzy sent by ${fuzzy.author.username} (${fuzzy.author.id}).`,
+        description: `${session.user.name} (${session.user.id}) reported a warm fuzzy sent by ${fuzzy.author.username} (${fuzzy.author.id}).`,
         fields: [
             {
-                name: "User Reason",
+                title: "User Reason",
                 value: body.reason,
             },
             {
-                name: "AI Flagged",
+                title: "AI Flagged",
                 value: aiFlagged.toString(),
             },
             {
-                name: "AI Reason",
+                title: "AI Reason",
                 value: result.reason,
             },
             {
-                name: "Warm Fuzzy Content",
+                title: "Warm Fuzzy Content",
                 value: fuzzy.message,
             },
         ],
         actions: [
             {
                 title: "View Warm Fuzzy",
-                type: "default",
+                variant: "primary",
                 url: `${process.env.BETTER_AUTH_URL}/fuzzy/${fuzzy.id}`,
             },
             {
                 title: "View Reported Sender",
-                type: "secondary",
+                variant: "secondary",
                 url: `${process.env.BETTER_AUTH_URL}/@${fuzzy.author.username}`,
             },
         ],
