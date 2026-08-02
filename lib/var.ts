@@ -14,12 +14,10 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
-
 // Just some notes for whoever is looking here:
 // Yes, config is all hard coded for now, sensitive stuf is in the .env
 // there will be a config table eventually in the db when i decide to do it
 // its currently low prio.
-
 
 export const version = "0.2.0"
 
@@ -69,8 +67,7 @@ export const quizes = [
     {
         id: "post",
         name: "Posting",
-        description:
-            "Complete this quiz to unlock posting!",
+        description: "Complete this quiz to unlock posting!",
         to: "/quiz/post",
         time: "8 min",
         xp: 50,
@@ -106,8 +103,8 @@ export const quizes = [
                     { id: "c", text: "Im correct", correct: true },
                     { id: "d", text: "Im incorrect" },
                 ],
-            }
-        ]
+            },
+        ],
     },
     {
         id: "fuzzies",
@@ -127,8 +124,8 @@ export const quizes = [
                     { id: "c", text: "Im incorrect" },
                     { id: "d", text: "Im incorrect" },
                 ],
-            }
-        ]
+            },
+        ],
     },
     {
         id: "test-ai",
@@ -149,15 +146,19 @@ export const quizes = [
                 question: "What is AI",
                 type: "multiple-choice",
                 options: [
-                    { id: "a", text: "A type of computer program", correct: true },
+                    {
+                        id: "a",
+                        text: "A type of computer program",
+                        correct: true,
+                    },
                     { id: "b", text: "A type of animal" },
                     { id: "c", text: "A type of food" },
                     { id: "d", text: "A type of clothing" },
                 ],
-            }
-        ]
-    }
+            },
+        ],
+    },
 ]
 
-export const canSignup = true;
-export const allowProfileChange = true;
+export const canSignup = true
+export const allowProfileChange = true

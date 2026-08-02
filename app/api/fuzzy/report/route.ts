@@ -54,9 +54,7 @@ export async function POST(req: NextRequest) {
     })
 
     if (!fuzzy) {
-        return Response.NotFound(
-            "Sorry, but we couldnt find that warm fuzzy."
-        )
+        return Response.NotFound("Sorry, but we couldnt find that warm fuzzy.")
     }
 
     // parse
@@ -161,7 +159,5 @@ The user reported the content for the following reason: "${body.reason}".
         ],
     })
 
-    return Response.Success(
-        "Reported, thanks!"
-    )
+    return Response.Success("Reported, thanks!")
 }

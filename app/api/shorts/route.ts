@@ -24,10 +24,7 @@ import { env } from "@/env"
 export async function GET(req: NextRequest) {
     const session = await getSession()
     if (!session) {
-        return new NextResponse(
-            "Unauthorised",
-            { status: 401 }
-        )
+        return new NextResponse("Unauthorised", { status: 401 })
     }
     const shorts = await prisma.short.findMany({
         where: {
@@ -44,9 +41,9 @@ export async function GET(req: NextRequest) {
                 select: {
                     id: true,
                     username: true,
-                }
-            }
-        }
+                },
+            },
+        },
     })
 
     return NextResponse.json(shorts)
@@ -56,10 +53,7 @@ export async function POST(req: NextRequest) {
     const session = await getSession()
 
     if (!session) {
-        return new NextResponse(
-            "Unauthorised",
-            { status: 401 }
-        )
+        return new NextResponse("Unauthorised", { status: 401 })
     }
 
     const data = await req.formData()
@@ -68,10 +62,7 @@ export async function POST(req: NextRequest) {
     const video = data.get("video") as File
 
     if (!video) {
-        return new NextResponse(
-            "Video is required",
-            { status: 400 }
-        )
+        return new NextResponse("Video is required", { status: 400 })
     }
 
     const key = getStorageKey(session.user.id, crypto.randomUUID())
@@ -87,7 +78,7 @@ export async function POST(req: NextRequest) {
             userId: session.user.id,
             description: description,
             url: key,
-        }
+        },
     })
 
     await Up.ingest({
@@ -101,7 +92,7 @@ export async function POST(req: NextRequest) {
             {
                 name: "Poster Email",
                 value: session.user.email,
-            }
+            },
         ],
         icon: "‼️",
         actions: [
@@ -109,8 +100,8 @@ export async function POST(req: NextRequest) {
                 title: "View short",
                 type: "default",
                 url: `${env.BETTER_AUTH_URL}/shorts/${short.id}`,
-            }
-        ]
+            },
+        ],
     })
 
     return NextResponse.json({

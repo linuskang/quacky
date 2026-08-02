@@ -37,7 +37,7 @@ export default function NotFound() {
                 <p className="mt-3 text-sm text-muted-foreground">
                     Quacky looked everywhere, but this page does not exist.
                 </p>
-                <Button size="lg" asChild className="rounded-full mt-6">
+                <Button size="lg" asChild className="mt-6 rounded-full">
                     <Link href="/">Go home</Link>
                 </Button>
             </div>

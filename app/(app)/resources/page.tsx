@@ -18,11 +18,9 @@
 import { PageLayout, PageCenter } from "@/components/page-layout"
 import { Button } from "@/components/ui/button"
 import { Resources } from "@/server/resources"
-import Link from 'next/link'
-
+import Link from "next/link"
 
 export default async function Page() {
-
     const resources = await Resources.getResources()
     return (
         <PageLayout>
@@ -32,8 +30,12 @@ export default async function Page() {
                     {resources.map((resource, index) => (
                         <Button key={index} className="rounded border p-4">
                             <Link href={`/resources/${resource.slug}`}>
-                                <h2 className="text-xl font-semibold">{resource.name}</h2>
-                                <p className="text-gray-600">{resource.description}</p>
+                                <h2 className="text-xl font-semibold">
+                                    {resource.name}
+                                </h2>
+                                <p className="text-gray-600">
+                                    {resource.description}
+                                </p>
                             </Link>
                         </Button>
                     ))}

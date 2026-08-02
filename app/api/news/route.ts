@@ -15,21 +15,24 @@
 // Work is licensed under the CC BY-NC 4.0 license.
 
 import axios from "axios"
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/server/auth";
+import { NextRequest, NextResponse } from "next/server"
+import { getSession } from "@/server/auth"
 import { XMLParser } from "fast-xml-parser"
 
 export async function GET(_req: NextRequest) {
-    const session = await getSession();
+    const session = await getSession()
 
     if (!session) {
-        return NextResponse.json({
-            code: 401,
-            success: false,
-            message: "Unauthorized",
-        }, {
-            status: 401
-        })
+        return NextResponse.json(
+            {
+                code: 401,
+                success: false,
+                message: "Unauthorized",
+            },
+            {
+                status: 401,
+            }
+        )
     }
 
     try {
@@ -46,12 +49,15 @@ export async function GET(_req: NextRequest) {
 
         return NextResponse.json({ parsedData })
     } catch {
-        return NextResponse.json({
-            code: 500,
-            success: false,
-            message: "Internal Server Error"
-        }, {
-            status: 500
-        })
+        return NextResponse.json(
+            {
+                code: 500,
+                success: false,
+                message: "Internal Server Error",
+            },
+            {
+                status: 500,
+            }
+        )
     }
 }

@@ -25,7 +25,7 @@ export async function GET(_req: NextRequest) {
         return NextResponse.json({
             code: 401,
             success: false,
-            message: "Unauthorised"
+            message: "Unauthorised",
         })
     }
 
@@ -33,7 +33,7 @@ export async function GET(_req: NextRequest) {
         prisma.shopItem.findMany({
             where: {
                 available: true,
-            }
+            },
         }),
         prisma.user.findUnique({
             where: {
@@ -41,8 +41,8 @@ export async function GET(_req: NextRequest) {
             },
             select: {
                 points: true,
-            }
-        })
+            },
+        }),
     ])
 
     return NextResponse.json({
@@ -56,26 +56,32 @@ export async function GET(_req: NextRequest) {
 export async function POST(req: NextRequest) {
     const sess = await getSession()
     if (!sess) {
-        return NextResponse.json({
-            code: 401,
-            success: false,
-            message: "Unauthorised"
-        }, {
-            status: 401
-        })
+        return NextResponse.json(
+            {
+                code: 401,
+                success: false,
+                message: "Unauthorised",
+            },
+            {
+                status: 401,
+            }
+        )
     }
 
     if (sess.user.role !== "admin") {
-        return NextResponse.json({
-            code: 403,
-            success: false,
-            message: "Forbidden"
-        }, {
-            status: 403
-        })
+        return NextResponse.json(
+            {
+                code: 403,
+                success: false,
+                message: "Forbidden",
+            },
+            {
+                status: 403,
+            }
+        )
     }
 
-    const body = await req.json() as {
+    const body = (await req.json()) as {
         name: string
         description: string
         price: number
@@ -97,14 +103,14 @@ export async function POST(req: NextRequest) {
             featured: body.featured,
             stock: body.stock,
             imageUrl: body.imageUrl,
-        }
+        },
     })
 
     if (!res) {
         return NextResponse.json({
             code: 500,
             success: false,
-            message: "Internal server error"
+            message: "Internal server error",
         })
     }
 
@@ -131,19 +137,19 @@ export async function POST(req: NextRequest) {
             },
             {
                 name: "Added By",
-                value: sess.user.email
-            }
+                value: sess.user.email,
+            },
         ],
         data: {
             res,
             sess,
-            body
-        }
+            body,
+        },
     })
 
     return NextResponse.json({
         code: 201,
         success: true,
-        result: res
+        result: res,
     })
 }

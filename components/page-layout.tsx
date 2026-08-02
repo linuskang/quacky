@@ -23,9 +23,7 @@ type Props = {
 
 export function PageLayout({ children, className }: Props) {
     return (
-        <main
-            className={cn("relative min-h-dvh w-full", className)}
-        >
+        <main className={cn("relative min-h-dvh w-full", className)}>
             {children}
         </main>
     )

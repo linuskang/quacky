@@ -54,11 +54,13 @@ export function MentionHoverCard({ username }: { username: string }) {
         if (!open || profile) return
 
         async function fetchProfile() {
-            await axios.get(`/api/user/${username}`, {
-                signal: controller.signal,
-            }).then((res) => {
-                setProfile(res.data as MentionProfile)
-            })
+            await axios
+                .get(`/api/user/${username}`, {
+                    signal: controller.signal,
+                })
+                .then((res) => {
+                    setProfile(res.data as MentionProfile)
+                })
         }
 
         fetchProfile().catch((error) => {

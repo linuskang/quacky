@@ -34,10 +34,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-    NativeSelect,
-    NativeSelectOption,
-} from "@/components/ui/native-select"
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { AdminStats } from "@/components/admin-stats"
 
 const subscribe = () => () => {}
@@ -84,9 +81,12 @@ export default function Page() {
                 email: newUserEmail,
                 role: newUserRole,
                 displayName: newUserName,
-                username: newUserUsername
+                username: newUserUsername,
             })
-            toast.success("User created successfully. New password: " + res.data.tempPassword)
+            toast.success(
+                "User created successfully. New password: " +
+                    res.data.tempPassword
+            )
         } catch {
             toast.error("Failed to create user.")
         } finally {
@@ -118,7 +118,9 @@ export default function Page() {
                         >
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="display-name">Display name</Label>
+                                    <Label htmlFor="display-name">
+                                        Display name
+                                    </Label>
                                     <Input
                                         id="display-name"
                                         value={newUserName}
@@ -136,7 +138,9 @@ export default function Page() {
                                         id="username"
                                         value={newUserUsername}
                                         onChange={(event) =>
-                                            setNewUserUsername(event.target.value)
+                                            setNewUserUsername(
+                                                event.target.value
+                                            )
                                         }
                                         placeholder="janedoe"
                                         autoComplete="off"
@@ -168,7 +172,8 @@ export default function Page() {
                                     value={newUserRole}
                                     onChange={(event) =>
                                         setNewUserRole(
-                                            event.target.value as "admin" | "user"
+                                            event.target.value as
+                                                "admin" | "user"
                                         )
                                     }
                                 >
@@ -186,7 +191,9 @@ export default function Page() {
                                 className="w-full"
                                 disabled={creating}
                             >
-                                {creating ? "Sending invitation..." : "Send invitation"}
+                                {creating
+                                    ? "Sending invitation..."
+                                    : "Send invitation"}
                             </Button>
                         </form>
                     </CardContent>

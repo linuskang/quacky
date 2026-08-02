@@ -341,7 +341,6 @@ export function RngCard({ initialEntry, initialLeaderboard }: RngCardProps) {
                             </Card>
                         </div>
 
-
                         <div className="mt-4 flex justify-center gap-4">
                             {leaderboard.entries[1] && (
                                 <Card className="mr-auto flex h-40 w-full max-w-[11rem] flex-col items-center justify-center gap-2 bg-card-primary p-4">
@@ -378,7 +377,6 @@ export function RngCard({ initialEntry, initialLeaderboard }: RngCardProps) {
                                             {leaderboard.entries[1].number.toLocaleString()}
                                         </p>
                                     </>
-
                                 </Card>
                             )}
 
@@ -418,7 +416,6 @@ export function RngCard({ initialEntry, initialLeaderboard }: RngCardProps) {
                                             {leaderboard.entries[2].number.toLocaleString()}
                                         </p>
                                     </>
-
                                 </Card>
                             )}
                         </div>

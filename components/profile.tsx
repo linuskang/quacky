@@ -149,8 +149,7 @@ export function Profile() {
         if (name !== user.name) updates.name = name
         if (nextImage !== user.image) updates.image = nextImage
         if (username !== user.username) updates.username = username
-        if (privateAccount !== user.private)
-            updates.private = privateAccount
+        if (privateAccount !== user.private) updates.private = privateAccount
         if (statsForNerds !== user.statsForNerds)
             updates.statsForNerds = statsForNerds
 
@@ -194,9 +193,7 @@ export function Profile() {
             <div className="flex h-full items-center justify-between px-3">
                 <div className="flex min-w-0 items-center gap-3">
                     <Image
-                        src={
-                            session.user.image!
-                        }
+                        src={session.user.image!}
                         alt={session.user.name}
                         width={36}
                         height={36}
@@ -290,7 +287,9 @@ export function Profile() {
                                                 Stats for Nerds
                                             </Label>
                                             <p className="text-xs text-muted-foreground">
-                                                For all you techy people out there. Adds a debug bar at the bottom of every page.
+                                                For all you techy people out
+                                                there. Adds a debug bar at the
+                                                bottom of every page.
                                             </p>
                                         </div>
                                     </div>
@@ -316,7 +315,9 @@ export function Profile() {
                                             <Image
                                                 src={imagePreview}
                                                 alt={
-                                                    name || session.user.name || "User"
+                                                    name ||
+                                                    session.user.name ||
+                                                    "User"
                                                 }
                                                 width={40}
                                                 height={40}
@@ -363,7 +364,6 @@ export function Profile() {
                                             </div>
                                         </div>
                                     </div>
-
 
                                     <div className="space-y-2">
                                         <Label
@@ -412,7 +412,6 @@ export function Profile() {
                                             placeholder="Email"
                                             disabled
                                         />
-
                                     </div>
 
                                     <div className="space-y-2">
@@ -472,8 +471,10 @@ export function Profile() {
                             <div className="flex justify-end gap-2">
                                 <Button
                                     variant="default"
-                                    className="h-10 mr-auto rounded-full bg-card border-2 border-border px-5 text-base font-semibold text-primary hover:border-primary hover:!bg-card"
-                                    onClick={() => handleCreditsOpenChange(true)}
+                                    className="mr-auto h-10 rounded-full border-2 border-border bg-card px-5 text-base font-semibold text-primary hover:border-primary hover:!bg-card"
+                                    onClick={() =>
+                                        handleCreditsOpenChange(true)
+                                    }
                                 >
                                     view credits
                                 </Button>
@@ -501,11 +502,12 @@ export function Profile() {
                         open={openCredits}
                         onOpenChange={handleCreditsOpenChange}
                     >
-                        <DialogContent className="w-full !max-w-lg border-2 border-border bg-card p-6" showCloseButton={false}>
+                        <DialogContent
+                            className="w-full !max-w-lg border-2 border-border bg-card p-6"
+                            showCloseButton={false}
+                        >
                             <DialogHeader>
-                                <PrimaryTitle>
-                                    Credits
-                                </PrimaryTitle>
+                                <PrimaryTitle>Credits</PrimaryTitle>
                             </DialogHeader>
 
                             <div className="space-y-2">
@@ -513,7 +515,12 @@ export function Profile() {
                                     Creator
                                 </h1>
                                 <p className="text-sm text-muted-foreground">
-                                    Quacky is a project made by <Link href="https://github.com/linuskang" target="_blank" className="font-bold text-primary-2 hover:underline">
+                                    Quacky is a project made by{" "}
+                                    <Link
+                                        href="https://github.com/linuskang"
+                                        target="_blank"
+                                        className="font-bold text-primary-2 hover:underline"
+                                    >
                                         Linus Kang
                                     </Link>
                                 </p>
@@ -540,30 +547,54 @@ export function Profile() {
                                         rel="noopener noreferrer"
                                         className="font-bold text-primary-2 hover:underline"
                                     >
-                                        Queensland Academies for Creative Industries
-                                    </a>
-                                    {" "}(with permission).
+                                        Queensland Academies for Creative
+                                        Industries
+                                    </a>{" "}
+                                    (with permission).
                                 </p>
                                 <h1 className="text-sm font-semibold text-primary">
                                     AI Usage
                                 </h1>
-                                <div className="text-sm mt-2 text-muted-foreground">
-                                    AI was primarily used in debugging, like when I had an error I didn&apos;t know how to fix, or when I needed help positioning UI:
-                                    <ul className="list-disc list-inside ml-5 mt-2">
-                                        <li>Debugging frontend code errors (i.e. Hydration Errors, UI Bugs, Things I didn&apos;t know how to do)</li>
-                                        <li>Generating boilerplate example code for shadcn/ui (mostly React Hook Forms, and UI positioning as frontend is not my strong suite.) during prototyping.</li>
+                                <div className="mt-2 text-sm text-muted-foreground">
+                                    AI was primarily used in debugging, like
+                                    when I had an error I didn&apos;t know how
+                                    to fix, or when I needed help positioning
+                                    UI:
+                                    <ul className="mt-2 ml-5 list-inside list-disc">
+                                        <li>
+                                            Debugging frontend code errors (i.e.
+                                            Hydration Errors, UI Bugs, Things I
+                                            didn&apos;t know how to do)
+                                        </li>
+                                        <li>
+                                            Generating boilerplate example code
+                                            for shadcn/ui (mostly React Hook
+                                            Forms, and UI positioning as
+                                            frontend is not my strong suite.)
+                                            during prototyping.
+                                        </li>
                                     </ul>
                                     <br />
-                                    No AI was used for generating full scripts like component pages, instead, I used AI to assist with only debugging and boilerplate (prototyping, was removed after the testing app). All backend code including APIs was written by me without AI.
+                                    No AI was used for generating full scripts
+                                    like component pages, instead, I used AI to
+                                    assist with only debugging and boilerplate
+                                    (prototyping, was removed after the testing
+                                    app). All backend code including APIs was
+                                    written by me without AI.
                                     <br />
                                     <br />
-                                    Any application code that was made by AI was extensively modified by me for authenticity, if not completely rewritten.
+                                    Any application code that was made by AI was
+                                    extensively modified by me for authenticity,
+                                    if not completely rewritten.
                                     <br />
-                                    <br />
-                                    I also used AI to generate Unit & e2e tests for the backend, which you can find in /e2e and /tests. I did not modify these tests as they aren&apos;t used in the actual application, just helper scripts for me to test endpoints.
+                                    <br />I also used AI to generate Unit & e2e
+                                    tests for the backend, which you can find in
+                                    /e2e and /tests. I did not modify these
+                                    tests as they aren&apos;t used in the actual
+                                    application, just helper scripts for me to
+                                    test endpoints.
                                 </div>
                             </div>
-
 
                             <p className="text-sm">
                                 Quacky is licensed under the{" "}
@@ -578,10 +609,8 @@ export function Profile() {
                                 .
                             </p>
 
-                            <DialogClose asChild >
-                                <Button
-                                    className="mt-8 h-10 bg-card border-2 border-border hover:!bg-card hover:border-primary rounded-full px-5 text-lg text-primary font-semibold"
-                                >
+                            <DialogClose asChild>
+                                <Button className="mt-8 h-10 rounded-full border-2 border-border bg-card px-5 text-lg font-semibold text-primary hover:border-primary hover:!bg-card">
                                     cool!
                                 </Button>
                             </DialogClose>

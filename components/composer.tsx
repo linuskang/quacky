@@ -129,7 +129,6 @@ export function Composer() {
             toast.success("Post created!")
         } catch {
             toast.error("Failed to upload attachments")
-
         } finally {
             setPosting(false)
             setSelectedAttachments([])

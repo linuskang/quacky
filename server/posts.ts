@@ -36,10 +36,10 @@ export async function fetchPosts({
             },
             hashtags: normalisedHashtag
                 ? {
-                    some: {
-                        tag: normalisedHashtag,
-                    },
-                }
+                      some: {
+                          tag: normalisedHashtag,
+                      },
+                  }
                 : undefined,
             OR: [
                 {
@@ -176,16 +176,16 @@ export async function fetchPosts({
         repostOfId: post.repostOfId,
         repostOf: post.repostOf
             ? {
-                id: post.repostOf.id,
-                author: post.repostOf.author,
-                content: post.repostOf.content,
-                flagged: post.repostOf.flagged,
-                edited: post.repostOf.edited,
-                createdAt: post.repostOf.createdAt.toISOString(),
-                updatedAt: post.repostOf.updatedAt.toISOString(),
-                views: post.repostOf.views,
-                attachments: post.repostOf.attachments,
-            }
+                  id: post.repostOf.id,
+                  author: post.repostOf.author,
+                  content: post.repostOf.content,
+                  flagged: post.repostOf.flagged,
+                  edited: post.repostOf.edited,
+                  createdAt: post.repostOf.createdAt.toISOString(),
+                  updatedAt: post.repostOf.updatedAt.toISOString(),
+                  views: post.repostOf.views,
+                  attachments: post.repostOf.attachments,
+              }
             : null,
 
         flagged: post.flagged,
@@ -508,16 +508,16 @@ export async function getPostsByUserId(
         repostOfId: post.repostOfId,
         repostOf: post.repostOf
             ? {
-                id: post.repostOf.id,
-                author: post.repostOf.author,
-                content: post.repostOf.content,
-                flagged: post.repostOf.flagged,
-                edited: post.repostOf.edited,
-                createdAt: post.repostOf.createdAt.toISOString(),
-                updatedAt: post.repostOf.updatedAt.toISOString(),
-                views: post.repostOf.views,
-                attachments: post.repostOf.attachments,
-            }
+                  id: post.repostOf.id,
+                  author: post.repostOf.author,
+                  content: post.repostOf.content,
+                  flagged: post.repostOf.flagged,
+                  edited: post.repostOf.edited,
+                  createdAt: post.repostOf.createdAt.toISOString(),
+                  updatedAt: post.repostOf.updatedAt.toISOString(),
+                  views: post.repostOf.views,
+                  attachments: post.repostOf.attachments,
+              }
             : null,
 
         flagged: post.flagged,

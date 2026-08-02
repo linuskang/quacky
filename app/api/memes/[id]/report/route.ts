@@ -38,7 +38,7 @@ export async function POST(
     }
 
     const { id } = await params
-    const body = await request.json() as {
+    const body = (await request.json()) as {
         reason: string
     }
 
@@ -52,8 +52,8 @@ export async function POST(
             flagged: false,
         },
         include: {
-            author: true
-        }
+            author: true,
+        },
     })
 
     if (!meme) {
@@ -81,7 +81,7 @@ export async function POST(
             {
                 name: "Offender ID",
                 value: meme.id,
-            }
+            },
         ],
         actions: [
             {
@@ -93,11 +93,9 @@ export async function POST(
                 title: "View Offender",
                 type: "secondary",
                 url: `${env.BETTER_AUTH_URL}/@${meme.author.username}`,
-            }
-        ]
+            },
+        ],
     })
 
-    return Response.Success(
-        "reported, thanks!"
-    )
+    return Response.Success("reported, thanks!")
 }

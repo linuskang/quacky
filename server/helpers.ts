@@ -52,7 +52,7 @@ export async function askAi(systemPrompt: string, userPrompt: string) {
         {
             role: "user",
             content: userPrompt,
-        }
+        },
     ])
 
     return res

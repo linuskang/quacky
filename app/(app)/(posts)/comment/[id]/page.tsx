@@ -59,7 +59,6 @@ export default function Page() {
                 await axios.get(`/api/comments/${id}`).then((res) => {
                     setRes(res.data)
                 })
-
             } catch {
                 toast.error("Comment not found")
             } finally {

@@ -97,14 +97,16 @@ export default function Shop() {
                     />
                 </div>
 
-                <div className="flex flex-col w-full max-w-7xl">
+                <div className="flex w-full max-w-7xl flex-col">
                     <Title>Categories</Title>
 
                     <CategoryList categories={categories} />
                 </div>
 
                 {loading ? (
-                    <p className="mt-6 text-sm text-muted-foreground">loading...</p>
+                    <p className="mt-6 text-sm text-muted-foreground">
+                        loading...
+                    </p>
                 ) : (
                     <>
                         <div className="space-y-4">
@@ -143,6 +145,5 @@ export default function Shop() {
                 <WishlistWidget />
             </PageRight>
         </WishlistProvider>
-
     )
 }

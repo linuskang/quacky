@@ -54,7 +54,9 @@ function CategoryCard({ category }: { category: CategoryData }) {
 
 export function CategoryList({ categories, className }: CategoryListProps) {
     return (
-        <div className={cn("grid grid-cols-2 gap-10 sm:grid-cols-5", className)}>
+        <div
+            className={cn("grid grid-cols-2 gap-10 sm:grid-cols-5", className)}
+        >
             {categories.map((category) => (
                 <CategoryCard key={category.id} category={category} />
             ))}

@@ -14,8 +14,8 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
-import { FileMarkdown } from "@/components/file-markdown";
-import { PageLayout, PageCenter } from "@/components/page-layout";
+import { FileMarkdown } from "@/components/file-markdown"
+import { PageLayout, PageCenter } from "@/components/page-layout"
 
 export default function Page() {
     return (

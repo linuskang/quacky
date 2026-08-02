@@ -67,13 +67,15 @@ export function MoreActions({ post }: { post: Post }) {
         const content = editContent.trim()
         setEditPending(true)
         try {
-            await axios.patch(`/api/posts/${post.id}`, {
-                content,
-            }).then(() => {
-                setEditOpen(false)
-                toast.success("Post updated.")
-                window.location.reload()
-            })
+            await axios
+                .patch(`/api/posts/${post.id}`, {
+                    content,
+                })
+                .then(() => {
+                    setEditOpen(false)
+                    toast.success("Post updated.")
+                    window.location.reload()
+                })
         } catch {
             toast.error("Something went wrong.")
         } finally {
@@ -183,7 +185,7 @@ export function MoreActions({ post }: { post: Post }) {
                 </Dialog>
             )}
             <ReportAbuse
-                url={'/api/posts/' + post.id + '/report'}
+                url={"/api/posts/" + post.id + "/report"}
                 open={reportOpen}
                 onOpen={setReportOpen}
             />

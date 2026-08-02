@@ -35,7 +35,9 @@ import { Response } from "@/lib/responses"
 
 export async function POST(
     req: NextRequest,
-    { params }: {
+    {
+        params,
+    }: {
         params: Promise<{ id: string }>
     }
 ) {
@@ -52,14 +54,13 @@ export async function POST(
         return Response.NotFound("Comment not found")
     }
 
-    const body = await req.json() as {
+    const body = (await req.json()) as {
         reason: string
     }
 
     if (!body.reason) {
         return Response.BadRequest("reason is required")
     }
-
 
     // uses ai harness in @/server/helpers
     const aiResponse = await askAi(
@@ -101,7 +102,7 @@ export async function POST(
 
         Reporter's reason:
         ${body.reason}
-    `,
+    `
     )
 
     const determinedResult = JSON.parse(aiResponse)
@@ -159,7 +160,5 @@ export async function POST(
         ],
     })
 
-    return Response.Success(
-        "Report submitted, thanks!"
-    )
+    return Response.Success("Report submitted, thanks!")
 }

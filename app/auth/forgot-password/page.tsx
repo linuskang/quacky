@@ -54,7 +54,7 @@ export default function Page() {
             } | null
             setError(
                 data?.message ??
-                "Could not send a reset link. Please try again."
+                    "Could not send a reset link. Please try again."
             )
             return
         }

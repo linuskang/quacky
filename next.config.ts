@@ -18,6 +18,7 @@ import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
     output: "standalone",
+    transpilePackages: ["@uplabs/sdk"],
     images: {
         dangerouslyAllowLocalIP: true,
         dangerouslyAllowSVG: true,
@@ -44,7 +45,7 @@ const nextConfig: NextConfig = {
                 protocol: "https",
                 hostname: "github.com",
                 pathname: "**",
-            }
+            },
         ],
     },
     async rewrites() {

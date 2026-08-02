@@ -163,7 +163,8 @@ export function Reply({ postId }: { postId: string }) {
                                 className="hover:!bg-transparent"
                                 onClick={comment}
                                 disabled={
-                                    content.trim().length == 0 || content.length > 100
+                                    content.trim().length == 0 ||
+                                    content.length > 100
                                 }
                             >
                                 <SendHorizontal className="!size-5 text-foreground" />
@@ -172,11 +173,18 @@ export function Reply({ postId }: { postId: string }) {
                     </>
                 ) : (
                     <div className="absolute inset-0 z-10 flex items-center justify-center gap-2 rounded-md bg-card-primary/70 px-3 text-center">
-                        <Lock className="h-4 w-4 text-primary" strokeWidth={3} />
+                        <Lock
+                            className="h-4 w-4 text-primary"
+                            strokeWidth={3}
+                        />
                         <p className="text-xs font-bold text-primary">
                             Commenting is Locked!
                         </p>
-                        <Button size="xs" className="h-6 p-2 rounded-full ml-auto" asChild>
+                        <Button
+                            size="xs"
+                            className="ml-auto h-6 rounded-full p-2"
+                            asChild
+                        >
                             <Link href="/quiz/comment">Complete the quiz</Link>
                         </Button>
                     </div>

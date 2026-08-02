@@ -23,49 +23,52 @@ export async function GET(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const session = await getSession();
+    const session = await getSession()
 
     if (!session) {
         return new NextResponse("Unauthorized", {
             status: 401,
-        });
+        })
     }
 
-    const { id } = await params;
+    const { id } = await params
 
     const item = await prisma.shopItem.findUnique({
         where: {
-            id
-        }
+            id,
+        },
     })
 
     if (!item) {
         return new NextResponse("Not Found", {
             status: 404,
-        });
+        })
     }
 
-    return NextResponse.json(item);
+    return NextResponse.json(item)
 }
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-    const session = await getSession();
+export async function POST(
+    req: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    const session = await getSession()
     if (!session) {
         return new NextResponse("Unauthorized", {
             status: 401,
-        });
+        })
     }
 
-    const { id } = await params;
+    const { id } = await params
 
     const item = await prisma.shopItem.findUnique({
-        where: { id }
+        where: { id },
     })
 
     if (!item) {
         return new NextResponse("Not Found", {
             status: 404,
-        });
+        })
     }
 
     await Up.ingest({
@@ -90,19 +93,22 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
                 value: item.name,
             },
         ],
-    });
+    })
 
     // need to implement buy logic,
     // for example:
     // - remove balance, remove stock, etc.
 
     return NextResponse.json({
-        msg: "cool"
+        msg: "cool",
     })
 }
 
-export async function PATCH(_req: NextRequest,
-    { params }: {
+export async function PATCH(
+    _req: NextRequest,
+    {
+        params,
+    }: {
         params: Promise<{ id: string }>
     }
 ) {
@@ -111,7 +117,7 @@ export async function PATCH(_req: NextRequest,
         return NextResponse.json({
             code: 401,
             success: false,
-            message: "Unauthorised"
+            message: "Unauthorised",
         })
     }
 
@@ -119,13 +125,13 @@ export async function PATCH(_req: NextRequest,
         return NextResponse.json({
             code: 403,
             success: false,
-            message: "You do not have permission to access this endpoint"
+            message: "You do not have permission to access this endpoint",
         })
     }
 
     const { id } = await params
 
-    const body = await _req.json() as {
+    const body = (await _req.json()) as {
         name?: string
         description?: string
         price?: number
@@ -138,7 +144,7 @@ export async function PATCH(_req: NextRequest,
 
     const item = await prisma.shopItem.update({
         where: {
-            id
+            id,
         },
         data: {
             name: body.name,
@@ -148,15 +154,15 @@ export async function PATCH(_req: NextRequest,
             category: body.category,
             featured: body.featured,
             stock: body.stock,
-            imageUrl: body.imageUrl
-        }
+            imageUrl: body.imageUrl,
+        },
     })
 
     if (!item) {
         return NextResponse.json({
             code: 404,
             success: false,
-            message: "Item not found"
+            message: "Item not found",
         })
     }
 
@@ -172,23 +178,26 @@ export async function PATCH(_req: NextRequest,
             {
                 name: "Updated By",
                 value: session.user.email,
-            }
+            },
         ],
         data: {
             updatedFields: body,
-            item
-        }
+            item,
+        },
     })
 
     return NextResponse.json({
         code: 200,
         success: true,
-        item
+        item,
     })
 }
 
-export async function DELETE(_req: NextRequest,
-    { params }: {
+export async function DELETE(
+    _req: NextRequest,
+    {
+        params,
+    }: {
         params: Promise<{ id: string }>
     }
 ) {
@@ -197,7 +206,7 @@ export async function DELETE(_req: NextRequest,
         return NextResponse.json({
             code: 401,
             success: false,
-            message: "Unauthorised"
+            message: "Unauthorised",
         })
     }
 
@@ -205,7 +214,7 @@ export async function DELETE(_req: NextRequest,
         return NextResponse.json({
             code: 403,
             success: false,
-            message: "You do not have permission to access this endpoint"
+            message: "You do not have permission to access this endpoint",
         })
     }
 
@@ -213,15 +222,15 @@ export async function DELETE(_req: NextRequest,
 
     const item = await prisma.shopItem.delete({
         where: {
-            id
-        }
+            id,
+        },
     })
 
     if (!item) {
         return NextResponse.json({
             code: 404,
             success: false,
-            message: "Item not found"
+            message: "Item not found",
         })
     }
 
@@ -237,11 +246,11 @@ export async function DELETE(_req: NextRequest,
             {
                 name: "Deleted By",
                 value: session.user.email,
-            }
+            },
         ],
         data: {
-            item
-        }
+            item,
+        },
     })
 
     return NextResponse.json({

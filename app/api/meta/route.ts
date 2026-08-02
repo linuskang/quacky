@@ -37,6 +37,6 @@ export async function GET() {
             users,
         },
         qotd: env.QOTD,
-        canSignup
+        canSignup,
     })
 }

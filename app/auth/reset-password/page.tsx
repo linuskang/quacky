@@ -75,7 +75,7 @@ function ResetPasswordForm() {
             } | null
             setError(
                 data?.message ??
-                "Could not reset your password. Please request a new reset link."
+                    "Could not reset your password. Please request a new reset link."
             )
             return
         }

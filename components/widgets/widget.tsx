@@ -19,10 +19,21 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
-export function Widget({ children, className }: { children: React.ReactNode; className?: string }) {
+export function Widget({
+    children,
+    className,
+}: {
+    children: React.ReactNode
+    className?: string
+}) {
     return (
         <div className="flex w-full items-center">
-            <Card className={cn("w-full rounded-md border-2 border-border bg-card text-card-foreground pt-0 pb-0 shadow-sm", className)}>
+            <Card
+                className={cn(
+                    "w-full rounded-md border-2 border-border bg-card pt-0 pb-0 text-card-foreground shadow-sm",
+                    className
+                )}
+            >
                 {children}
             </Card>
         </div>
@@ -37,7 +48,12 @@ export function WidgetPrimaryHeader({
     className?: string
 }) {
     return (
-        <CardHeader className={cn("rounded-tl-md rounded-tr-md !bg-card-header px-3 py-3", className)}>
+        <CardHeader
+            className={cn(
+                "rounded-tl-md rounded-tr-md !bg-card-header px-3 py-3",
+                className
+            )}
+        >
             {children}
         </CardHeader>
     )
@@ -45,21 +61,34 @@ export function WidgetPrimaryHeader({
 
 export function WidgetSecondaryHeader({
     children,
-    className
+    className,
 }: {
     children: React.ReactNode
     className?: string
 }) {
     return (
-        <CardHeader className={cn("-mb-6 rounded-tl-md rounded-tr-md bg-card px-3 py-3", className)}>
+        <CardHeader
+            className={cn(
+                "-mb-6 rounded-tl-md rounded-tr-md bg-card px-3 py-3",
+                className
+            )}
+        >
             {children}
         </CardHeader>
     )
 }
 
-export function WidgetContent({ children, className }: { children: React.ReactNode; className?: string }) {
+export function WidgetContent({
+    children,
+    className,
+}: {
+    children: React.ReactNode
+    className?: string
+}) {
     return (
-        <CardContent className={cn("-mt-4 flex flex-col gap-3 px-3 py-3", className)}>
+        <CardContent
+            className={cn("-mt-4 flex flex-col gap-3 px-3 py-3", className)}
+        >
             {children}
         </CardContent>
     )

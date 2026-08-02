@@ -32,7 +32,7 @@ export function QOTD() {
     useEffect(() => {
         async function fetchQOTD() {
             try {
-                await axios.get('/api/meta').then((res) => {
+                await axios.get("/api/meta").then((res) => {
                     setQotd(res.data.qotd)
                 })
             } catch {
@@ -46,14 +46,14 @@ export function QOTD() {
             <WidgetSecondaryHeader>
                 <div className="flex items-center gap-3">
                     <div className="flex flex-col justify-center">
-                        <h1 className="text-lg font-bold text-primary">Quote of the Day</h1>
+                        <h1 className="text-lg font-bold text-primary">
+                            Quote of the Day
+                        </h1>
                     </div>
                 </div>
             </WidgetSecondaryHeader>
             <WidgetContent>
-                <p className="text-sm text-muted-foreground italic">
-                    {qotd}
-                </p>
+                <p className="text-sm text-muted-foreground italic">{qotd}</p>
             </WidgetContent>
         </Widget>
     )

@@ -65,7 +65,7 @@ export default async function QuackyLayout({
             <Feedback />
             <BottomBar />
             {session.user.statsForNerds && (
-                <div className="bottom-3 justify-center items-center flex mb-15">
+                <div className="bottom-3 mb-15 flex items-center justify-center">
                     <Debug />
                 </div>
             )}

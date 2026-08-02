@@ -21,11 +21,17 @@ import { playfairDisplay } from "@/app/layout"
 import { Title, Description } from "@/components/text"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogTrigger,
+} from "@/components/ui/dialog"
 
 export default function Page() {
     const [showUpload, setShowUpload] = useState(false)
-
 
     return (
         <PageLayout>
@@ -45,7 +51,8 @@ export default function Page() {
                         <DialogHeader>
                             <DialogTitle>Upload a short</DialogTitle>
                             <DialogDescription>
-                                Upload a short video to share with the community.
+                                Upload a short video to share with the
+                                community.
                             </DialogDescription>
                         </DialogHeader>
                         <form
@@ -64,10 +71,7 @@ export default function Page() {
                                 name="description"
                                 placeholder="Description"
                             />
-                            <Button
-                                type="submit"
-                                className="mt-4 w-full"
-                            >
+                            <Button type="submit" className="mt-4 w-full">
                                 Upload
                             </Button>
                         </form>

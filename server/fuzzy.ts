@@ -21,11 +21,11 @@ export class Fuzzy {
         await prisma.fuzzy.updateMany({
             where: {
                 receiverId: userId,
-                read: false
+                read: false,
             },
             data: {
-                read: true
-            }
+                read: true,
+            },
         })
     }
 
@@ -33,8 +33,8 @@ export class Fuzzy {
         const count = await prisma.fuzzy.count({
             where: {
                 receiverId: userId,
-                read: false
-            }
+                read: false,
+            },
         })
         return count
     }

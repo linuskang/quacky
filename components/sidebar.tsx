@@ -70,7 +70,7 @@ function UnreadBadge({ count }: { count?: number }) {
     if (!count) return null
 
     return (
-        <span className="ml-auto rounded-full bg-primary-2 px-2 py-0.5 text-xs font-bold leading-none text-background">
+        <span className="ml-auto rounded-full bg-primary-2 px-2 py-0.5 text-xs leading-none font-bold text-background">
             {count > 99 ? "99+" : count}
         </span>
     )
@@ -116,7 +116,12 @@ export function Sidebar({ session }: Props) {
     const items = [
         { href: "/", label: "home", icon: Home },
         { href: "/search", label: "search", icon: Search },
-        { href: "/dms", label: "dms", icon: MessagesSquare, unread: unreads.dms },
+        {
+            href: "/dms",
+            label: "dms",
+            icon: MessagesSquare,
+            unread: unreads.dms,
+        },
         {
             href: "/fuzzies",
             label: "warm fuzzies",
@@ -142,7 +147,6 @@ export function Sidebar({ session }: Props) {
             unread: unreads.notifications,
         },
         { href: `/@${session.user.handle}`, label: "profile", icon: User },
-
     ]
 
     if (session.user.role == "admin") {

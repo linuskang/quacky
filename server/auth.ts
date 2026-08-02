@@ -65,7 +65,7 @@ export const auth = betterAuth({
                 "This password has been compromised in a data breach. Please choose a different password.",
         }),
         openAPI(),
-        apiKey()
+        apiKey(),
     ],
 
     emailAndPassword: {
@@ -210,8 +210,7 @@ export const auth = betterAuth({
 
                     if (!username) {
                         username = (user as Record<string, unknown>).email as
-                            | string
-                            | undefined
+                            string | undefined
                         if (username) {
                             username = username.split("@")[0]
                         }

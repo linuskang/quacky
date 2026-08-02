@@ -18,13 +18,7 @@ import { getSession } from "@/server/auth"
 import { NextResponse } from "next/server"
 import { prisma } from "@/server/prisma"
 
-const metrics = [
-    "wellbeing",
-    "happiness",
-    "stress",
-    "sleep",
-    "energy",
-] as const
+const metrics = ["wellbeing", "happiness", "stress", "sleep", "energy"] as const
 
 type Metric = (typeof metrics)[number]
 

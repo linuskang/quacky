@@ -36,22 +36,28 @@ export async function Debug() {
     return (
         <aside className="flex justify-center">
             <p className="text-[11px] text-muted-foreground/20 transition-colors hover:text-muted-foreground">
-                Quacky is v{data.app.version}
-                {" "}build{" "}
-                <span className="font-mono">{build}</span> {" "}
-                (db {" "}
-                <span className="font-mono">{data.server.responseTimeMs} ms</span>) {" "}
-                (Users{" "}
-                <span className="font-mono">{data.database.users.toLocaleString()}</span>) {" "}
-                (Posts{" "}
-                <span className="font-mono">{data.database.posts.toLocaleString()}</span>) {" "}
-                (Sessions{" "}
-                <span className="font-mono">{data.activity.signedInUsers.toLocaleString()}</span>) {" "}
-                (Memory{" "}
+                Quacky is v{data.app.version} build{" "}
+                <span className="font-mono">{build}</span> (db{" "}
+                <span className="font-mono">
+                    {data.server.responseTimeMs} ms
+                </span>
+                ) (Users{" "}
+                <span className="font-mono">
+                    {data.database.users.toLocaleString()}
+                </span>
+                ) (Posts{" "}
+                <span className="font-mono">
+                    {data.database.posts.toLocaleString()}
+                </span>
+                ) (Sessions{" "}
+                <span className="font-mono">
+                    {data.activity.signedInUsers.toLocaleString()}
+                </span>
+                ) (Memory{" "}
                 <span className="font-mono">
                     {data.server.memory.usedMb}/{data.server.memory.totalMb} mb
-                </span>{" "})
-                (uptime <span className="font-mono">{uptime}</span>)
+                </span>{" "}
+                ) (uptime <span className="font-mono">{uptime}</span>)
             </p>
         </aside>
     )

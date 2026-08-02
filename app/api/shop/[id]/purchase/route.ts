@@ -14,52 +14,57 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
-import { NextRequest } from "next/server";
-import { getSession } from "@/server/auth";
-import { prisma } from "@/server/prisma";
-import { Up } from "@/server/upstream";
-import { Response } from "@/lib/responses";
+import { NextRequest } from "next/server"
+import { getSession } from "@/server/auth"
+import { prisma } from "@/server/prisma"
+import { Up } from "@/server/upstream"
+import { Response } from "@/lib/responses"
 
-export async function POST(req: NextRequest, { params }: {
-    params: Promise<{
-        id: string;
-    }>
-}) {
-    const session = await getSession();
+export async function POST(
+    req: NextRequest,
+    {
+        params,
+    }: {
+        params: Promise<{
+            id: string
+        }>
+    }
+) {
+    const session = await getSession()
 
     if (!session) {
         return Response.Unauthorized()
     }
 
-    const { id } = await params;
+    const { id } = await params
 
     const item = await prisma.shopItem.findUnique({
         where: {
-            id
-        }
+            id,
+        },
     })
 
-    if (!item) return Response.NotFound("Item not found");
+    if (!item) return Response.NotFound("Item not found")
 
     // basically this isnt done yet, i need to do the admin side api as well for the
     // status changes for staff. need to wire into the ui. shop ui aint even done yet, so yea.
 
     // im cooked.
 
-    const body = await req.json() as {
-        quantity: number;
+    const body = (await req.json()) as {
+        quantity: number
     }
 
     if (!body.quantity) {
-        return Response.BadRequest();
+        return Response.BadRequest()
     }
 
     const purchase = await prisma.shopPurchase.create({
         data: {
             userId: session.user.id,
             itemId: item.id,
-            quantity: body.quantity
-        }
+            quantity: body.quantity,
+        },
     })
 
     await Up.ingest({
@@ -82,14 +87,14 @@ export async function POST(req: NextRequest, { params }: {
             {
                 name: "Item ID",
                 value: item.id,
-            }
+            },
         ],
         data: {
             purchase,
             item,
-            session
-        }
+            session,
+        },
     })
 
-    return Response.Success(purchase);
+    return Response.Success(purchase)
 }

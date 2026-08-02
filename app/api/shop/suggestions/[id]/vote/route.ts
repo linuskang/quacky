@@ -23,22 +23,24 @@ export async function GET(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
-    const session = await getSession();
+    const session = await getSession()
     if (!session) {
-        return Response.Unauthorized();
+        return Response.Unauthorized()
     }
 
-    const { id } = await params;
+    const { id } = await params
 
-    return Response.Success(await prisma.shopSuggestionVote.findMany({
-        where: {
-            suggestionId: id
-        },
-        select: {
-            id: true,
-            userId: true,
-            createdAt: true,
-            updatedAt: true
-        }
-    }));
+    return Response.Success(
+        await prisma.shopSuggestionVote.findMany({
+            where: {
+                suggestionId: id,
+            },
+            select: {
+                id: true,
+                userId: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+        })
+    )
 }

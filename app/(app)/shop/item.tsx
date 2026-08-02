@@ -102,7 +102,7 @@ export function Item({
                         <Button
                             type="button"
                             variant="primary"
-                            className="flex-1 h-10 rounded-full border-0 text-base font-bold"
+                            className="h-10 flex-1 rounded-full border-0 text-base font-bold"
                             asChild
                         >
                             <Link href={`/shop/item/${id}`}>
@@ -115,7 +115,7 @@ export function Item({
                             type="button"
                             variant="primary"
                             disabled
-                            className="flex-1 h-10 rounded-full border-0 text-base font-bold"
+                            className="h-10 flex-1 rounded-full border-0 text-base font-bold"
                         >
                             ${price}
                             <span className="sr-only">coins</span>

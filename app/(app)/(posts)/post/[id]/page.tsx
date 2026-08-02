@@ -42,15 +42,15 @@ export default function Page() {
 
     const relevantUsers: User[] = post
         ? Array.from(
-            new Map(
-                [
-                    post.author,
-                    ...(post.postComments ?? []).map(
-                        (comment) => comment.author
-                    ),
-                ].map((user) => [user.username, user])
-            ).values()
-        )
+              new Map(
+                  [
+                      post.author,
+                      ...(post.postComments ?? []).map(
+                          (comment) => comment.author
+                      ),
+                  ].map((user) => [user.username, user])
+              ).values()
+          )
         : []
 
     useEffect(() => {

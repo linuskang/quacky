@@ -71,9 +71,12 @@ export function Fuzzies() {
 
         const controller = new AbortController()
 
-        void fetch(`/api/users/mentions?q=${encodeURIComponent(trimmedQuery)}`, {
-            signal: controller.signal,
-        })
+        void fetch(
+            `/api/users/mentions?q=${encodeURIComponent(trimmedQuery)}`,
+            {
+                signal: controller.signal,
+            }
+        )
             .then(async (res) => {
                 if (!res.ok) return []
                 const data = (await res.json()) as { users?: SearchUser[] }
@@ -257,18 +260,20 @@ export function Fuzzies() {
                     </p>
                 ) : (
                     fuzzies.map((fuzzy) => (
-                        <Card key={fuzzy.id} className="space-y-3 !bg-card-primary p-4">
+                        <Card
+                            key={fuzzy.id}
+                            className="space-y-3 !bg-card-primary p-4"
+                        >
                             <p className="text-sm leading-6">{fuzzy.message}</p>
                             <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
                                 <span>
-                                    {new Date(fuzzy.createdAt).toLocaleDateString(
-                                        "en-US",
-                                        {
-                                            month: "short",
-                                            day: "numeric",
-                                            year: "numeric",
-                                        }
-                                    )}
+                                    {new Date(
+                                        fuzzy.createdAt
+                                    ).toLocaleDateString("en-US", {
+                                        month: "short",
+                                        day: "numeric",
+                                        year: "numeric",
+                                    })}
                                 </span>
                                 <Button
                                     variant="ghost"
@@ -304,7 +309,9 @@ export function Fuzzies() {
                                         </Button>
                                         <Button
                                             size="sm"
-                                            onClick={() => void reportFuzzy(fuzzy.id)}
+                                            onClick={() =>
+                                                void reportFuzzy(fuzzy.id)
+                                            }
                                             disabled={!reportReason.trim()}
                                         >
                                             Submit report

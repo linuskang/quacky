@@ -14,25 +14,23 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
-import { notFound } from "next/navigation";
+import { notFound } from "next/navigation"
 
-import { Resources } from "@/server/resources";
-import { Markdown } from "@/components/markdown-renderer";
+import { Resources } from "@/server/resources"
+import { Markdown } from "@/components/markdown-renderer"
 
 export default async function Page({
     params,
 }: {
-    params: Promise<{ slug: string }>;
+    params: Promise<{ slug: string }>
 }) {
-    const { slug } = await params;
+    const { slug } = await params
 
-    const resource = await Resources.getResource(slug);
+    const resource = await Resources.getResource(slug)
 
     if (!resource) {
-        notFound();
+        notFound()
     }
 
-    return (
-        <Markdown>{resource.content}</Markdown>
-    );
+    return <Markdown>{resource.content}</Markdown>
 }

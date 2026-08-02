@@ -26,10 +26,7 @@ export async function GET(
     const session = await getSession()
 
     if (!session) {
-        return NextResponse.json(
-            { err: "Unauthorized" },
-            { status: 401 }
-        )
+        return NextResponse.json({ err: "Unauthorized" }, { status: 401 })
     }
 
     const { id } = await params
@@ -48,16 +45,13 @@ export async function GET(
                     username: true,
                     name: true,
                     image: true,
-                }
-            }
-        }
+                },
+            },
+        },
     })
 
     if (!short) {
-        return NextResponse.json(
-            { err: "Short not found" },
-            { status: 404 }
-        )
+        return NextResponse.json({ err: "Short not found" }, { status: 404 })
     }
 
     return NextResponse.json({

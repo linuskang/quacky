@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
         return Response.Unauthorized()
     }
 
-    const { email, role, displayName, username } = await req.json() as Invite
+    const { email, role, displayName, username } = (await req.json()) as Invite
 
     if (!email || !role || !displayName || !username) {
         return Response.BadRequest()
@@ -52,7 +52,6 @@ export async function POST(req: NextRequest) {
 
     // random password. user needs to change in profile settings.
     const newPassword = uuidv4()
-
 
     const res = await auth.api.createUser({
         body: {
@@ -63,8 +62,8 @@ export async function POST(req: NextRequest) {
             data: {
                 username: username,
                 emailVerified: true,
-            }
-        }
+            },
+        },
     })
 
     const { error } = await Email.emails.send({
@@ -82,13 +81,12 @@ export async function POST(req: NextRequest) {
             </div>
             <p>Click the link below to get started:</p>
             <a href="${env.BETTER_AUTH_URL}/auth/login">Join Quacky</a>
-        `
+        `,
     })
 
     if (error) {
         throw new Error(error.message)
     }
-
 
     await Up.ingest({
         title: `${email} has been invited to join Quacky`,
@@ -114,23 +112,23 @@ export async function POST(req: NextRequest) {
             {
                 name: "Invited by",
                 value: session.user.email,
-            }
+            },
         ],
         actions: [
             {
                 type: "default",
                 title: "View User",
                 url: `${env.BETTER_AUTH_URL}/@${username}`,
-            }
+            },
         ],
         data: {
             res,
             session,
-        }
+        },
     })
 
     return Response.Success({
         message: "User invited",
-        tempPassword: newPassword
+        tempPassword: newPassword,
     })
 }

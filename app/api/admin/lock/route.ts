@@ -15,7 +15,7 @@
 // Work is licensed under the CC BY-NC 4.0 license.
 
 // Libraries
-import { NextRequest } from "next/server";
+import { NextRequest } from "next/server"
 
 // Utilities
 import { getSession } from "@/server/auth"
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
         return Response.Forbidden()
     }
 
-    const body = await req.json() as {
+    const body = (await req.json()) as {
         locked: boolean
     }
 
@@ -46,19 +46,19 @@ export async function POST(req: NextRequest) {
         fields: [
             {
                 name: "Locked",
-                value: body.locked ? "Yes" : "No"
+                value: body.locked ? "Yes" : "No",
             },
             {
                 name: "Updated by",
-                value: sess.user.email
-            }
+                value: sess.user.email,
+            },
         ],
         data: {
-            sess
-        }
+            sess,
+        },
     })
 
     return Response.Success({
-        locked: body.locked
+        locked: body.locked,
     })
 }

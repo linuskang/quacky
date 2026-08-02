@@ -20,10 +20,7 @@ import { NextRequest } from "next/server"
 // Utilities
 import { getSession } from "@/server/auth"
 
-import {
-    hasCheckedIn,
-    checkIn
-} from "@/server/check-in"
+import { hasCheckedIn, checkIn } from "@/server/check-in"
 
 import { addXP } from "@/server/users"
 import { Up } from "@/server/upstream"
@@ -43,13 +40,11 @@ export async function POST(req: NextRequest) {
     const hasCheckedInToday = await hasCheckedIn(session.user.id)
 
     if (hasCheckedInToday) {
-        return Response.BadRequest(
-            "You have already checked in today"
-        )
+        return Response.BadRequest("You have already checked in today")
     }
 
     // gert stuff ig
-    const body = await req.json() as {
+    const body = (await req.json()) as {
         wellbeing: number
         happiness: number
         stress: number
@@ -104,7 +99,5 @@ export async function POST(req: NextRequest) {
     }
 
     // hooray
-    return Response.Success(
-        "Thanks for checking in!"
-    )
+    return Response.Success("Thanks for checking in!")
 }

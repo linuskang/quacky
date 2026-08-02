@@ -14,7 +14,7 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
-import { NextResponse } from "next/server";
+import { NextResponse } from "next/server"
 
 // This is just a simple NextResponse Wrapper for all api requests.
 // For any endpoints you wish to use in a custom implementation,
@@ -28,10 +28,10 @@ export class Response {
             {
                 code: 401,
                 success: false,
-                message: "Unauthorized"
+                message: "Unauthorized",
             },
             {
-                status: 401
+                status: 401,
             }
         )
     }
@@ -41,10 +41,10 @@ export class Response {
             {
                 code: 404,
                 success: false,
-                message: message ? message : "404 Not Found"
+                message: message ? message : "404 Not Found",
             },
             {
-                status: 404
+                status: 404,
             }
         )
     }
@@ -54,10 +54,10 @@ export class Response {
             {
                 code: 500,
                 success: false,
-                message: message ? message : "Internal Server Error"
+                message: message ? message : "Internal Server Error",
             },
             {
-                status: 500
+                status: 500,
             }
         )
     }
@@ -67,10 +67,10 @@ export class Response {
             {
                 code: 400,
                 success: false,
-                message: message ? message : "Missing required fields"
+                message: message ? message : "Missing required fields",
             },
             {
-                status: 400
+                status: 400,
             }
         )
     }
@@ -80,10 +80,10 @@ export class Response {
             {
                 code: 200,
                 success: true,
-                data: data ? data : null
+                data: data ? data : null,
             },
             {
-                status: 200
+                status: 200,
             }
         )
     }
@@ -93,10 +93,12 @@ export class Response {
             {
                 code: 403,
                 success: false,
-                message: message ? message : "You do not have permission to use this resource"
+                message: message
+                    ? message
+                    : "You do not have permission to use this resource",
             },
             {
-                status: 403
+                status: 403,
             }
         )
     }

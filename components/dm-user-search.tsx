@@ -42,9 +42,12 @@ export function DmUserSearch() {
 
         const controller = new AbortController()
 
-        void fetch(`/api/users/mentions?q=${encodeURIComponent(trimmedQuery)}`, {
-            signal: controller.signal,
-        })
+        void fetch(
+            `/api/users/mentions?q=${encodeURIComponent(trimmedQuery)}`,
+            {
+                signal: controller.signal,
+            }
+        )
             .then(async (res) => {
                 if (!res.ok) return []
 
@@ -82,7 +85,9 @@ export function DmUserSearch() {
                         <button
                             key={user.username}
                             type="button"
-                            onMouseDown={() => router.push(`/dms/${user.username}`)}
+                            onMouseDown={() =>
+                                router.push(`/dms/${user.username}`)
+                            }
                             className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-primary/10"
                         >
                             <Image

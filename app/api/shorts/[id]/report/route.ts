@@ -25,25 +25,19 @@ export async function POST(req: NextRequest) {
     const session = await getSession()
 
     if (!session) {
-        return new NextResponse(
-            "Unauthorised",
-            { status: 401 }
-        )
+        return new NextResponse("Unauthorised", { status: 401 })
     }
 
     const shortId = req.nextUrl.pathname.split("/")[3]
 
-    const body = await req.json() as {
+    const body = (await req.json()) as {
         reason: string
     }
 
     const reason = body.reason
 
     if (!reason) {
-        return new NextResponse(
-            "Reason is required",
-            { status: 400 }
-        )
+        return new NextResponse("Reason is required", { status: 400 })
     }
 
     const short = await prisma.short.findUnique({
@@ -58,16 +52,13 @@ export async function POST(req: NextRequest) {
                 select: {
                     id: true,
                     username: true,
-                }
-            }
-        }
+                },
+            },
+        },
     })
 
     if (!short) {
-        return new NextResponse(
-            "Short not found",
-            { status: 404 }
-        )
+        return new NextResponse("Short not found", { status: 404 })
     }
 
     const out = await chat([
@@ -130,7 +121,7 @@ ${body.reason}
             },
             data: {
                 flagged: true,
-            }
+            },
         })
 
         await NotificationService.send(
@@ -165,7 +156,7 @@ ${body.reason}
         data: {
             short,
             session,
-            res
+            res,
         },
         actions: [
             {
@@ -177,7 +168,7 @@ ${body.reason}
                 title: "View offender",
                 type: "secondary",
                 url: `${env.BETTER_AUTH_URL}/@${short.user.username}`,
-            }
-        ]
+            },
+        ],
     })
 }

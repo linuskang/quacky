@@ -25,7 +25,7 @@ import { Up } from "@/server/upstream"
 import {
     deleteComment,
     getCommentById,
-    getCommentsByPostId
+    getCommentsByPostId,
 } from "@/server/comment"
 import { getPost } from "@/server/posts"
 import { Views } from "@/server/views"
@@ -35,7 +35,9 @@ import { Response } from "@/lib/responses"
 
 export async function GET(
     req: NextRequest,
-    { params }: {
+    {
+        params,
+    }: {
         params: Promise<{ id: string }>
     }
 ) {
@@ -83,44 +85,45 @@ export async function GET(
         ])
     )
 
-    const [liked, commented, bookmarked, following, reposted] = await Promise.all([
-        prisma.like.findFirst({
-            where: {
-                userId: session.user.id,
-                postId: post.id,
-            },
-        }),
-        prisma.comment.findFirst({
-            where: {
-                authorId: session.user.id,
-                postId: post.id,
-            },
-        }),
-        prisma.bookmark.findFirst({
-            where: {
-                userId: session.user.id,
-                postId: post.id,
-            },
-        }),
-        prisma.follow.findMany({
-            where: {
-                userId: session.user.id,
-                followId: { in: [...usersById.keys()] },
-            },
-            select: { followId: true },
-        }),
-        await prisma.post.findFirst({
-            where: {
-                authorId: session.user.id,
-                repostOfId: post.id,
-            }
-        })
-    ])
+    const [liked, commented, bookmarked, following, reposted] =
+        await Promise.all([
+            prisma.like.findFirst({
+                where: {
+                    userId: session.user.id,
+                    postId: post.id,
+                },
+            }),
+            prisma.comment.findFirst({
+                where: {
+                    authorId: session.user.id,
+                    postId: post.id,
+                },
+            }),
+            prisma.bookmark.findFirst({
+                where: {
+                    userId: session.user.id,
+                    postId: post.id,
+                },
+            }),
+            prisma.follow.findMany({
+                where: {
+                    userId: session.user.id,
+                    followId: { in: [...usersById.keys()] },
+                },
+                select: { followId: true },
+            }),
+            await prisma.post.findFirst({
+                where: {
+                    authorId: session.user.id,
+                    repostOfId: post.id,
+                },
+            }),
+        ])
 
     const followingIds = new Set(following.map((item) => item.followId)) // converts from { followId: string }[] to Set<string> i.e. {"id1", "id2", "id3"}
     const relevantUsers = [...usersById.values()].map((user) => ({
         ...user,
-        following: followingIds.has(user.id),// adds following: boolean to each user obj
+        following: followingIds.has(user.id), // adds following: boolean to each user obj
     }))
 
     // add views
@@ -147,24 +150,26 @@ export async function GET(
                 },
                 content: post.content,
                 repostOfId: post.repostOfId,
-                repostOf: post.repostOf ? {
-                    id: post.repostOf.id,
-                    author: {
-                        id: post.repostOf.author.id,
-                        name: post.repostOf.author.name,
-                        username: post.repostOf.author.username,
-                        image: post.repostOf.author.image,
-                        verified: post.repostOf.author.verified,
-                        role: post.repostOf.author.role,
-                    },
-                    content: post.repostOf.content,
-                    flagged: post.repostOf.flagged,
-                    edited: post.repostOf.edited,
-                    createdAt: post.repostOf.createdAt,
-                    updatedAt: post.repostOf.updatedAt,
-                    views: post.repostOf.views,
-                    attachments: post.repostOf.attachments,
-                } : null,
+                repostOf: post.repostOf
+                    ? {
+                          id: post.repostOf.id,
+                          author: {
+                              id: post.repostOf.author.id,
+                              name: post.repostOf.author.name,
+                              username: post.repostOf.author.username,
+                              image: post.repostOf.author.image,
+                              verified: post.repostOf.author.verified,
+                              role: post.repostOf.author.role,
+                          },
+                          content: post.repostOf.content,
+                          flagged: post.repostOf.flagged,
+                          edited: post.repostOf.edited,
+                          createdAt: post.repostOf.createdAt,
+                          updatedAt: post.repostOf.updatedAt,
+                          views: post.repostOf.views,
+                          attachments: post.repostOf.attachments,
+                      }
+                    : null,
                 flagged: post.flagged,
                 edited: post.edited,
                 createdAt: post.createdAt,
@@ -194,7 +199,9 @@ export async function GET(
 
 export async function DELETE(
     req: NextRequest,
-    { params }: {
+    {
+        params,
+    }: {
         params: Promise<{ id: string }>
     }
 ) {
@@ -220,8 +227,8 @@ export async function DELETE(
                 session,
                 comment,
                 req,
-                action: "attempted to delete comment that isnt owned by the user"
-            }
+                action: "attempted to delete comment that isnt owned by the user",
+            },
         })
 
         return Response.Forbidden(
@@ -253,14 +260,12 @@ export async function DELETE(
             {
                 name: "Comment Content",
                 value: comment.content,
-            }
+            },
         ],
         data: {
-            comment
-        }
+            comment,
+        },
     })
 
-    return Response.Success(
-        "Comment deleted"
-    )
+    return Response.Success("Comment deleted")
 }

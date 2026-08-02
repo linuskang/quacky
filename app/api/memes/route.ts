@@ -62,27 +62,19 @@ export async function GET() {
     return Response.Success(memes)
 }
 
-export async function POST(
-    request: NextRequest,
-) {
+export async function POST(request: NextRequest) {
     const session = await getSession()
 
     if (!session) {
-        return NextResponse.json(
-            { error: "Unauthorized" },
-            { status: 401 }
-        )
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const res = await request.json() as {
+    const res = (await request.json()) as {
         image: string
     }
 
     if (!res.image) {
-        return new NextResponse(
-            "Image is required",
-            { status: 400 }
-        )
+        return new NextResponse("Image is required", { status: 400 })
     }
 
     const meme = await prisma.memeland.create({

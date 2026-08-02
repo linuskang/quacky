@@ -173,11 +173,15 @@ export function AdminStats() {
     return (
         <section className="space-y-3" aria-labelledby="wellbeing-heading">
             <div>
-                <h2 id="wellbeing-heading" className="font-heading text-lg font-semibold">
+                <h2
+                    id="wellbeing-heading"
+                    className="font-heading text-lg font-semibold"
+                >
                     Student wellbeing
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                    Anonymous, aggregate check-in results. Trends show the most recent 30 active days.
+                    Anonymous, aggregate check-in results. Trends show the most
+                    recent 30 active days.
                 </p>
             </div>
 
@@ -189,8 +193,12 @@ export function AdminStats() {
                             <item.icon className="size-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <p className="font-heading text-2xl font-semibold">{item.value}</p>
-                            <p className="text-xs text-muted-foreground">{item.detail}</p>
+                            <p className="font-heading text-2xl font-semibold">
+                                {item.value}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                {item.detail}
+                            </p>
                         </CardContent>
                     </Card>
                 ))}
@@ -199,7 +207,8 @@ export function AdminStats() {
             {stats.summary.totalCheckIns === 0 ? (
                 <Card>
                     <CardContent className="py-8 text-center text-muted-foreground">
-                        Charts will appear after students complete their first check-in.
+                        Charts will appear after students complete their first
+                        check-in.
                     </CardContent>
                 </Card>
             ) : (
@@ -207,18 +216,58 @@ export function AdminStats() {
                     <Card>
                         <CardHeader>
                             <CardTitle>Wellbeing trends</CardTitle>
-                            <CardDescription>Daily average score out of five</CardDescription>
+                            <CardDescription>
+                                Daily average score out of five
+                            </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <ChartContainer config={metricConfig} className="h-72 w-full aspect-auto">
-                                <AreaChart data={recentDaily} accessibilityLayer>
+                            <ChartContainer
+                                config={metricConfig}
+                                className="aspect-auto h-72 w-full"
+                            >
+                                <AreaChart
+                                    data={recentDaily}
+                                    accessibilityLayer
+                                >
                                     <CartesianGrid vertical={false} />
-                                    <XAxis dataKey="date" tickFormatter={formatDate} tickLine={false} axisLine={false} minTickGap={24} />
-                                    <YAxis domain={[1, 5]} ticks={[1, 2, 3, 4, 5]} tickLine={false} axisLine={false} width={20} />
-                                    <ChartTooltip content={<ChartTooltipContent labelFormatter={(value) => formatDate(String(value))} />} />
-                                    <ChartLegend content={<ChartLegendContent />} />
-                                    {(Object.keys(metricConfig) as Metric[]).map((metric) => (
-                                        <Area key={metric} dataKey={metric} type="monotone" fill={`var(--color-${metric})`} fillOpacity={0.08} stroke={`var(--color-${metric})`} strokeWidth={2} />
+                                    <XAxis
+                                        dataKey="date"
+                                        tickFormatter={formatDate}
+                                        tickLine={false}
+                                        axisLine={false}
+                                        minTickGap={24}
+                                    />
+                                    <YAxis
+                                        domain={[1, 5]}
+                                        ticks={[1, 2, 3, 4, 5]}
+                                        tickLine={false}
+                                        axisLine={false}
+                                        width={20}
+                                    />
+                                    <ChartTooltip
+                                        content={
+                                            <ChartTooltipContent
+                                                labelFormatter={(value) =>
+                                                    formatDate(String(value))
+                                                }
+                                            />
+                                        }
+                                    />
+                                    <ChartLegend
+                                        content={<ChartLegendContent />}
+                                    />
+                                    {(
+                                        Object.keys(metricConfig) as Metric[]
+                                    ).map((metric) => (
+                                        <Area
+                                            key={metric}
+                                            dataKey={metric}
+                                            type="monotone"
+                                            fill={`var(--color-${metric})`}
+                                            fillOpacity={0.08}
+                                            stroke={`var(--color-${metric})`}
+                                            strokeWidth={2}
+                                        />
                                     ))}
                                 </AreaChart>
                             </ChartContainer>
@@ -228,18 +277,50 @@ export function AdminStats() {
                     <Card>
                         <CardHeader>
                             <CardTitle>Average by measure</CardTitle>
-                            <CardDescription>Overall average score out of five</CardDescription>
+                            <CardDescription>
+                                Overall average score out of five
+                            </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <ChartContainer config={metricConfig} className="h-64 w-full aspect-auto">
-                                <BarChart data={averageData} layout="vertical" accessibilityLayer margin={{ left: 8 }}>
+                            <ChartContainer
+                                config={metricConfig}
+                                className="aspect-auto h-64 w-full"
+                            >
+                                <BarChart
+                                    data={averageData}
+                                    layout="vertical"
+                                    accessibilityLayer
+                                    margin={{ left: 8 }}
+                                >
                                     <CartesianGrid horizontal={false} />
-                                    <XAxis type="number" domain={[0, 5.5]} hide />
-                                    <YAxis dataKey="metric" type="category" tickLine={false} axisLine={false} width={72} tickFormatter={(value) => metricConfig[value as Metric].label as string} />
-                                    <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                                    <XAxis
+                                        type="number"
+                                        domain={[0, 5.5]}
+                                        hide
+                                    />
+                                    <YAxis
+                                        dataKey="metric"
+                                        type="category"
+                                        tickLine={false}
+                                        axisLine={false}
+                                        width={72}
+                                        tickFormatter={(value) =>
+                                            metricConfig[value as Metric]
+                                                .label as string
+                                        }
+                                    />
+                                    <ChartTooltip
+                                        cursor={false}
+                                        content={
+                                            <ChartTooltipContent hideLabel />
+                                        }
+                                    />
                                     <Bar dataKey="average" radius={4}>
                                         {averageData.map((item) => (
-                                            <Cell key={item.metric} fill={`var(--color-${item.metric})`} />
+                                            <Cell
+                                                key={item.metric}
+                                                fill={`var(--color-${item.metric})`}
+                                            />
                                         ))}
                                         <LabelList
                                             dataKey="average"
@@ -256,28 +337,86 @@ export function AdminStats() {
                     <Card>
                         <CardHeader>
                             <CardTitle>Overall wellbeing</CardTitle>
-                            <CardDescription>Distribution of wellbeing scores</CardDescription>
+                            <CardDescription>
+                                Distribution of wellbeing scores
+                            </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <ChartContainer config={scoreConfig} className="mx-auto h-64 w-full aspect-auto">
+                            <ChartContainer
+                                config={scoreConfig}
+                                className="mx-auto aspect-auto h-64 w-full"
+                            >
                                 <PieChart accessibilityLayer>
-                                    <ChartTooltip content={<ChartTooltipContent nameKey="name" hideLabel />} />
-                                    <Pie data={wellbeingDistribution} dataKey="count" nameKey="name" innerRadius={58} outerRadius={88} strokeWidth={2}>
-                                        {wellbeingDistribution.map((item, index) => (
-                                            <Cell key={item.score} fill={scoreColors[index]} />
-                                        ))}
-                                        <Label content={({ viewBox }) => {
-                                            if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                                                return (
-                                                    <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
-                                                        <tspan x={viewBox.cx} y={viewBox.cy} className="fill-foreground text-2xl font-semibold">{stats.summary.totalCheckIns}</tspan>
-                                                        <tspan x={viewBox.cx} y={(viewBox.cy ?? 0) + 20} className="fill-muted-foreground text-xs">responses</tspan>
-                                                    </text>
-                                                )
-                                            }
-                                        }} />
+                                    <ChartTooltip
+                                        content={
+                                            <ChartTooltipContent
+                                                nameKey="name"
+                                                hideLabel
+                                            />
+                                        }
+                                    />
+                                    <Pie
+                                        data={wellbeingDistribution}
+                                        dataKey="count"
+                                        nameKey="name"
+                                        innerRadius={58}
+                                        outerRadius={88}
+                                        strokeWidth={2}
+                                    >
+                                        {wellbeingDistribution.map(
+                                            (item, index) => (
+                                                <Cell
+                                                    key={item.score}
+                                                    fill={scoreColors[index]}
+                                                />
+                                            )
+                                        )}
+                                        <Label
+                                            content={({ viewBox }) => {
+                                                if (
+                                                    viewBox &&
+                                                    "cx" in viewBox &&
+                                                    "cy" in viewBox
+                                                ) {
+                                                    return (
+                                                        <text
+                                                            x={viewBox.cx}
+                                                            y={viewBox.cy}
+                                                            textAnchor="middle"
+                                                            dominantBaseline="middle"
+                                                        >
+                                                            <tspan
+                                                                x={viewBox.cx}
+                                                                y={viewBox.cy}
+                                                                className="fill-foreground text-2xl font-semibold"
+                                                            >
+                                                                {
+                                                                    stats
+                                                                        .summary
+                                                                        .totalCheckIns
+                                                                }
+                                                            </tspan>
+                                                            <tspan
+                                                                x={viewBox.cx}
+                                                                y={
+                                                                    (viewBox.cy ??
+                                                                        0) + 20
+                                                                }
+                                                                className="fill-muted-foreground text-xs"
+                                                            >
+                                                                responses
+                                                            </tspan>
+                                                        </text>
+                                                    )
+                                                }
+                                            }}
+                                        />
                                     </Pie>
-                                    <ChartLegend content={<ChartLegendContent nameKey="name" />} />
+                                    <ChartLegend
+                                        content={
+                                            <ChartLegendContent nameKey="name" />
+                                        }
+                                    />
                                 </PieChart>
                             </ChartContainer>
                         </CardContent>

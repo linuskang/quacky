@@ -34,7 +34,13 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
 import {
     BadgeCheck,
     Heart,
@@ -379,8 +385,12 @@ export function PostCard({
                                         <div className="flex flex-col gap-3">
                                             <div className="flex items-start gap-2">
                                                 <Image
-                                                    src={session.user.image || ""}
-                                                    alt={session.user.name || ""}
+                                                    src={
+                                                        session.user.image || ""
+                                                    }
+                                                    alt={
+                                                        session.user.name || ""
+                                                    }
                                                     width={30}
                                                     height={30}
                                                     unoptimized
@@ -416,7 +426,7 @@ export function PostCard({
                                                     disabled={
                                                         !quoteContent.trim() ||
                                                         quoteContent.length >
-                                                        400 ||
+                                                            400 ||
                                                         quotePending
                                                     }
                                                     onClick={quote}
@@ -505,13 +515,17 @@ export function PostCard({
                                             <Input
                                                 value={shareUrl}
                                                 readOnly
-                                                onFocus={(e) => e.target.select()}
+                                                onFocus={(e) =>
+                                                    e.target.select()
+                                                }
                                                 className="h-10 w-full rounded-full border-2 border-border !ring-0"
                                             />
                                             <Button
                                                 type="button"
                                                 onClick={async () => {
-                                                    await navigator.clipboard.writeText(shareUrl)
+                                                    await navigator.clipboard.writeText(
+                                                        shareUrl
+                                                    )
                                                     toast.success("Copied link")
                                                 }}
                                                 className="h-10 rounded-full bg-primary-2 px-4 text-sm font-semibold hover:bg-primary-2/80"

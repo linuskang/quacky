@@ -38,18 +38,18 @@ type Option = {
 
 type Question =
     | {
-        id: number
-        question: string
-        type: "multiple-choice"
-        options: Option[]
-    }
+          id: number
+          question: string
+          type: "multiple-choice"
+          options: Option[]
+      }
     | {
-        id: number
-        question: string
-        type: "text"
-        answer: string
-        options?: Option[]
-    }
+          id: number
+          question: string
+          type: "text"
+          answer: string
+          options?: Option[]
+      }
 
 type Quiz = {
     id: string
@@ -66,12 +66,10 @@ async function evalResponse(
     question: string,
     rubric: string,
     submitted: string
-): Promise<
-    {
-        correct: boolean;
-        feedback: string
-    }
-> {
+): Promise<{
+    correct: boolean
+    feedback: string
+}> {
     if (!submitted) {
         return {
             correct: false,
@@ -82,8 +80,7 @@ async function evalResponse(
     const response = await chat([
         {
             role: "system",
-            content:
-                `
+            content: `
                 You are grading a quiz answer.
                 Respond with only a JSON object with two fields: 'correct' (boolean) and 'feedback' (string).
 
@@ -98,8 +95,7 @@ async function evalResponse(
         },
         {
             role: "user",
-            content:
-                `
+            content: `
                 The question is: ${question}
                 Mark the submitted answer against this rubric: ${rubric}
 
@@ -133,9 +129,7 @@ export async function GET(
     }
 
     // find array by id
-    const quiz = quizes.find(
-        (q) => q.id === id
-    ) as Quiz
+    const quiz = quizes.find((q) => q.id === id) as Quiz
 
     if (!quiz) {
         return new NextResponse("Quiz not found", {
@@ -157,12 +151,10 @@ export async function GET(
 
             return {
                 ...base,
-                options: question.options.map((option) => (
-                    {
-                        id: option.id,
-                        text: option.text,
-                    }
-                )),
+                options: question.options.map((option) => ({
+                    id: option.id,
+                    text: option.text,
+                })),
             }
         }),
         meta: {
@@ -185,11 +177,8 @@ export async function POST(
         })
     }
 
-
     // same as above
-    const quiz = quizes.find(
-        (q) => q.id === id
-    ) as Quiz
+    const quiz = quizes.find((q) => q.id === id) as Quiz
 
     if (!quiz) {
         return new NextResponse("Quiz not found", {
@@ -230,7 +219,9 @@ export async function POST(
             }
         } else {
             // multiple choice: compare submitted option id to the correct option
-            const correctOption = question.options.find((option) => option.correct)
+            const correctOption = question.options.find(
+                (option) => option.correct
+            )
 
             if (!correctOption || submitted !== correctOption.id) {
                 wrong.push(questionNo)

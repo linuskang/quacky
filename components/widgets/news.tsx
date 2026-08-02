@@ -70,8 +70,9 @@ function getImageUrl(group: MediaGroup | undefined): string | undefined {
         group["media:content"] ?? group.content
     ) as MediaContent[]
 
-    const defaultContent =
-        contents.find((c) => c["@_isDefault"] === "true" || c["@_isDefault"] === true)
+    const defaultContent = contents.find(
+        (c) => c["@_isDefault"] === "true" || c["@_isDefault"] === true
+    )
     const firstContent = contents[0]
     const contentUrl = defaultContent?.["@_url"] ?? firstContent?.["@_url"]
     if (contentUrl) return contentUrl
@@ -128,7 +129,9 @@ export function NewsWidget() {
     if (loading) {
         return (
             <div className="rounded-lg border-2 border-border bg-card p-4">
-                <p className="text-sm text-muted-foreground">loading headlines...</p>
+                <p className="text-sm text-muted-foreground">
+                    loading headlines...
+                </p>
             </div>
         )
     }
@@ -136,7 +139,9 @@ export function NewsWidget() {
     if (items.length === 0) {
         return (
             <div className="rounded-lg border-2 border-border bg-card p-4">
-                <p className="text-sm text-muted-foreground">no headlines right now.</p>
+                <p className="text-sm text-muted-foreground">
+                    no headlines right now.
+                </p>
             </div>
         )
     }
@@ -174,7 +179,7 @@ export function NewsWidget() {
                         )}
 
                         <div className="flex min-w-0 flex-col gap-1">
-                            <h2 className="text-sm font-bold text-primary group-hover:underline line-clamp-2">
+                            <h2 className="line-clamp-2 text-sm font-bold text-primary group-hover:underline">
                                 {item.title || "Untitled"}
                             </h2>
 

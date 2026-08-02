@@ -23,7 +23,10 @@ export async function FileMarkdown({ src }: { src: string }) {
     const publicDir = path.resolve(process.cwd(), "public")
     const filePath = path.resolve(publicDir, src.replace(/^\/+/, ""))
 
-    if (filePath !== publicDir && !filePath.startsWith(`${publicDir}${path.sep}`)) {
+    if (
+        filePath !== publicDir &&
+        !filePath.startsWith(`${publicDir}${path.sep}`)
+    ) {
         notFound()
     }
 

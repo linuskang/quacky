@@ -27,7 +27,9 @@ import { Response } from "@/lib/responses"
 // GET messages between the current user and the user identified by `handle`.
 export async function GET(
     _req: NextRequest,
-    { params }: {
+    {
+        params,
+    }: {
         params: Promise<{
             handle: string
         }>
@@ -47,15 +49,11 @@ export async function GET(
     })
 
     if (!other) {
-        return Response.NotFound(
-            "User not found"
-        )
+        return Response.NotFound("User not found")
     }
 
     if (other.id === session.user.id) {
-        return Response.BadRequest(
-            "You can't message yourself"
-        )
+        return Response.BadRequest("You can't message yourself")
     }
 
     const messages = await fetchMessages({
@@ -72,7 +70,9 @@ export interface DmBody {
 
 export async function POST(
     req: NextRequest,
-    { params }: {
+    {
+        params,
+    }: {
         params: Promise<{
             handle: string
         }>
@@ -103,17 +103,13 @@ export async function POST(
     }
 
     if (other.id === session.user.id) {
-        return Response.BadRequest(
-            "You can't message yourself"
-        )
+        return Response.BadRequest("You can't message yourself")
     }
 
     const body = (await req.json()) as DmBody
 
     if (!body.message) {
-        return Response.BadRequest(
-            "message is required."
-        )
+        return Response.BadRequest("message is required.")
     }
 
     const message = body.message.trim()

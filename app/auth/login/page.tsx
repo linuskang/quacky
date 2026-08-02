@@ -68,8 +68,7 @@ export default function Page() {
                     setLoading(false)
                     const msg = ctx.error.message ?? ""
                     const code = (ctx.error as Record<string, unknown>).code as
-                        | string
-                        | undefined
+                        string | undefined
                     if (
                         code === "EMAIL_NOT_VERIFIED" ||
                         msg.toLowerCase().includes("not verified")

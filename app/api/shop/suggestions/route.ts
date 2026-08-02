@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
 
     const suggestions = await prisma.shopSuggestion.findMany({
         where: {
-            pending: true
+            pending: true,
         },
         select: {
             id: true,
@@ -44,12 +44,12 @@ export async function GET(req: NextRequest) {
                     verified: true,
                     role: true,
                     name: true,
-                    image: true
-                }
+                    image: true,
+                },
             },
             pending: true,
             shopSuggestionVotes: true,
-        }
+        },
     })
 
     return Response.Success(suggestions)
@@ -65,8 +65,8 @@ export async function PATCH(req: NextRequest) {
         return Response.Forbidden()
     }
 
-    const body = await req.json() as {
-        id: string,
+    const body = (await req.json()) as {
+        id: string
         pending: boolean
     }
 
@@ -76,11 +76,11 @@ export async function PATCH(req: NextRequest) {
 
     const suggestion = await prisma.shopSuggestion.update({
         where: {
-            id: body.id
+            id: body.id,
         },
         data: {
-            pending: body.pending
-        }
+            pending: body.pending,
+        },
     })
 
     return Response.Success(suggestion)
@@ -92,15 +92,13 @@ export async function POST(req: NextRequest) {
         return Response.Unauthorized()
     }
 
-    const body = await req.json() as {
-        name: string,
-        image: string,
-        description: string,
+    const body = (await req.json()) as {
+        name: string
+        image: string
+        description: string
     }
 
-    if (!body.name
-        || !body.image
-        || !body.description) {
+    if (!body.name || !body.image || !body.description) {
         return Response.BadRequest()
     }
 
@@ -109,8 +107,8 @@ export async function POST(req: NextRequest) {
             name: body.name,
             image: body.image,
             description: body.description,
-            createdByUserId: session.user.id
-        }
+            createdByUserId: session.user.id,
+        },
     })
 
     await Up.ingest({
@@ -121,21 +119,21 @@ export async function POST(req: NextRequest) {
         fields: [
             {
                 name: "Name",
-                value: body.name
+                value: body.name,
             },
             {
                 name: "Image",
-                value: body.image
+                value: body.image,
             },
             {
                 name: "Description",
-                value: body.description
+                value: body.description,
             },
             {
                 name: "Submitted By",
-                value: session.user.email
-            }
-        ]
+                value: session.user.email,
+            },
+        ],
     })
 
     return Response.Success(suggestion)

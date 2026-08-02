@@ -86,8 +86,12 @@ export default function Page() {
     async function reportShort() {
         setReportPending(true)
         try {
-            await axios.post(`/api/shorts/${id}/report`, { reason: reportReason })
-            toast.success("Report submitted. Thank you for helping us keep the community safe.")
+            await axios.post(`/api/shorts/${id}/report`, {
+                reason: reportReason,
+            })
+            toast.success(
+                "Report submitted. Thank you for helping us keep the community safe."
+            )
             setReportOpen(false)
             setReportReason("")
         } catch {
@@ -149,7 +153,10 @@ export default function Page() {
 
                                     <div className="flex items-center gap-2">
                                         {timeAgo && (
-                                            <span className="text-xs text-muted-foreground" title={postedAt ?? undefined}>
+                                            <span
+                                                className="text-xs text-muted-foreground"
+                                                title={postedAt ?? undefined}
+                                            >
                                                 {timeAgo}
                                             </span>
                                         )}
@@ -174,14 +181,17 @@ export default function Page() {
                                         Report short
                                     </DialogTitle>
                                     <DialogDescription>
-                                        Tell us why this short should be reviewed.
+                                        Tell us why this short should be
+                                        reviewed.
                                     </DialogDescription>
                                 </DialogHeader>
                                 <Textarea
                                     placeholder="Reason for reporting this short"
                                     className="w-full border-2 border-border !ring-0"
                                     value={reportReason}
-                                    onChange={(e) => setReportReason(e.target.value)}
+                                    onChange={(e) =>
+                                        setReportReason(e.target.value)
+                                    }
                                 />
                                 <div className="flex items-center justify-end gap-2">
                                     <DialogClose asChild>
@@ -194,11 +204,16 @@ export default function Page() {
                                     </DialogClose>
                                     <Button
                                         size="sm"
-                                        disabled={!reportReason.trim() || reportPending}
+                                        disabled={
+                                            !reportReason.trim() ||
+                                            reportPending
+                                        }
                                         onClick={reportShort}
                                         className="h-8 rounded-full bg-primary-2 px-4 text-sm font-semibold hover:bg-primary-2/80"
                                     >
-                                        {reportPending ? "Reporting..." : "Report"}
+                                        {reportPending
+                                            ? "Reporting..."
+                                            : "Report"}
                                     </Button>
                                 </div>
                             </DialogContent>

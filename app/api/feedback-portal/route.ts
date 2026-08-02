@@ -80,7 +80,5 @@ export async function POST(req: NextRequest) {
         ],
     })
 
-    return Response.Success(
-        "Feedback submitted, thanks!"
-    )
+    return Response.Success("Feedback submitted, thanks!")
 }

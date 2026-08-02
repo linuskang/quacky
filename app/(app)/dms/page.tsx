@@ -44,10 +44,10 @@ export default async function MessagesPage() {
                 <DmUserSearch />
 
                 {conversations.length === 0 ? (
-                    <div className="flex flex-col mt-10 items-center">
+                    <div className="mt-10 flex flex-col items-center">
                         <div className="relative h-30 w-64">
                             <span
-                                className={`${patrickHand.className} absolute top-2 right-0 text-2xl font-bold text-right`}
+                                className={`${patrickHand.className} absolute top-2 right-0 text-right text-2xl font-bold`}
                             >
                                 go dm someone!
                             </span>
@@ -59,7 +59,12 @@ export default async function MessagesPage() {
                                 wobble={-30}
                             />
                         </div>
-                        <Image src="/goose/Aquafest Whale 1.png" alt="No messages" width={200} height={200} />
+                        <Image
+                            src="/goose/Aquafest Whale 1.png"
+                            alt="No messages"
+                            width={200}
+                            height={200}
+                        />
                     </div>
                 ) : (
                     <ul className="flex flex-col gap-1">

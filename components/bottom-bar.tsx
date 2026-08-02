@@ -26,7 +26,7 @@ const pictures = [
     "/goose/Laptop.png",
     "/goose/Music Instrument.png",
     "/goose/Science Lab Coat.png",
-    "/goose/Winner Medal.png"
+    "/goose/Winner Medal.png",
 ]
 
 const repeatedPictures = Array.from({ length: 12 }, () => pictures).flat()

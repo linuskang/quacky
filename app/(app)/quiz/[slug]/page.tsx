@@ -129,7 +129,7 @@ export default function Page() {
                                         placeholder="Type your answer..."
                                         rows={4}
                                         className={cn(
-                                            "w-full resize-none rounded-md border-2 bg-background px-4 py-3 text-sm text-primary outline-none transition",
+                                            "w-full resize-none rounded-md border-2 bg-background px-4 py-3 text-sm text-primary transition outline-none",
                                             isWrong
                                                 ? "border-destructive"
                                                 : "border-border focus:border-primary"
@@ -154,7 +154,7 @@ export default function Page() {
                                                         Quacky
                                                     </span>
 
-                                                    <span className="bg-card font-semibold rounded-full px-2 text-xs text-muted-foreground">
+                                                    <span className="rounded-full bg-card px-2 text-xs font-semibold text-muted-foreground">
                                                         AI
                                                     </span>
                                                 </div>
@@ -182,13 +182,14 @@ export default function Page() {
                                                         ? "border-primary bg-primary text-primary"
                                                         : "border-border",
                                                     selected &&
-                                                    isWrong &&
-                                                    "border-destructive bg-destructive/10"
+                                                        isWrong &&
+                                                        "border-destructive bg-destructive/10"
                                                 )}
                                                 onClick={() => {
                                                     setAnswers((prev) => ({
                                                         ...prev,
-                                                        [question.no]: option.id,
+                                                        [question.no]:
+                                                            option.id,
                                                     }))
                                                     if (isWrong) {
                                                         setWrongQuestions(

@@ -81,7 +81,9 @@ export default function Page() {
                 const res = await axios.get("/api/memes")
                 const memeDetails = await Promise.all(
                     res.data.data.map((meme: Meme) =>
-                        axios.get(`/api/memes/${meme.id}`).then((detail) => detail.data.data)
+                        axios
+                            .get(`/api/memes/${meme.id}`)
+                            .then((detail) => detail.data.data)
                     )
                 )
 
@@ -170,12 +172,12 @@ export default function Page() {
                 current.map((meme) =>
                     meme.id === memeId
                         ? {
-                            ...meme,
-                            upvotes: res.data.data.upvotes,
-                            downvotes: res.data.data.downvotes,
-                            score: res.data.data.score,
-                            me: res.data.data.vote,
-                        }
+                              ...meme,
+                              upvotes: res.data.data.upvotes,
+                              downvotes: res.data.data.downvotes,
+                              score: res.data.data.score,
+                              me: res.data.data.vote,
+                          }
                         : meme
                 )
             )
@@ -294,7 +296,7 @@ export default function Page() {
                                 key={meme.id}
                                 className="group relative overflow-hidden rounded-xl border-2 border-border bg-card"
                             >
-                                <div className="absolute top-2 right-2 z-10 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+                                <div className="absolute top-2 right-2 z-10 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button
@@ -368,7 +370,9 @@ export default function Page() {
                                             size="sm"
                                             className="h-8 gap-1 rounded-full px-3"
                                             disabled={voting === meme.id}
-                                            onClick={() => vote(meme.id, "UPVOTE")}
+                                            onClick={() =>
+                                                vote(meme.id, "UPVOTE")
+                                            }
                                         >
                                             Up {meme.upvotes}
                                         </Button>

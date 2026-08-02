@@ -48,7 +48,7 @@ export async function GET() {
         },
         orderBy: {
             createdAt: "desc",
-        }
+        },
     })
 
     await FuzzyServer.markAllAsRead(session.user.id)
@@ -72,9 +72,7 @@ export async function POST(req: NextRequest) {
     const body = (await req.json()) as Fuzzy
 
     if (!body.message || !body.receiverId) {
-        return Response.BadRequest(
-            "Missing: message, recieverId"
-        )
+        return Response.BadRequest("Missing: message, recieverId")
     }
 
     const receiver = await getUserById(body.receiverId)
@@ -82,7 +80,6 @@ export async function POST(req: NextRequest) {
     if (!receiver) {
         return Response.NotFound()
     }
-
 
     // for warm fuzzies, im currently automatically parsing each fuzzy into ai
     // for inappropriateness.

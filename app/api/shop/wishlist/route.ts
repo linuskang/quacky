@@ -14,15 +14,15 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
-import { NextRequest } from "next/server";
-import { getSession } from "@/server/auth";
-import { prisma } from "@/server/prisma";
-import { Response } from "@/lib/responses";
+import { NextRequest } from "next/server"
+import { getSession } from "@/server/auth"
+import { prisma } from "@/server/prisma"
+import { Response } from "@/lib/responses"
 
 export async function GET(req: NextRequest) {
-    const session = await getSession();
+    const session = await getSession()
     if (!session) {
-        return Response.Unauthorized();
+        return Response.Unauthorized()
     }
 
     const [wishlist, user] = await Promise.all([
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
             },
             include: {
                 item: true,
-            }
+            },
         }),
         prisma.user.findUnique({
             where: {
@@ -40,28 +40,28 @@ export async function GET(req: NextRequest) {
             },
             select: {
                 points: true,
-            }
-        })
+            },
+        }),
     ])
 
     return Response.Success({
         items: wishlist,
         points: user?.points ?? 0,
-    });
+    })
 }
 
 export async function POST(req: NextRequest) {
-    const session = await getSession();
+    const session = await getSession()
     if (!session) {
-        return Response.Unauthorized();
+        return Response.Unauthorized()
     }
 
-    const body = await req.json() as {
-        itemId: string;
+    const body = (await req.json()) as {
+        itemId: string
     }
 
     if (!body.itemId) {
-        return Response.BadRequest();
+        return Response.BadRequest()
     }
 
     const existing = await prisma.shopWishlist.findUnique({
@@ -69,12 +69,12 @@ export async function POST(req: NextRequest) {
             userId_itemId: {
                 userId: session.user.id,
                 itemId: body.itemId,
-            }
-        }
+            },
+        },
     })
 
     if (existing) {
-        return Response.Success(existing);
+        return Response.Success(existing)
     }
 
     const entry = await prisma.shopWishlist.create({
@@ -84,32 +84,32 @@ export async function POST(req: NextRequest) {
         },
         include: {
             item: true,
-        }
+        },
     })
 
-    return Response.Success(entry);
+    return Response.Success(entry)
 }
 
 export async function DELETE(req: NextRequest) {
-    const session = await getSession();
+    const session = await getSession()
     if (!session) {
-        return Response.Unauthorized();
+        return Response.Unauthorized()
     }
 
-    const body = await req.json() as {
-        itemId: string;
+    const body = (await req.json()) as {
+        itemId: string
     }
 
     if (!body.itemId) {
-        return Response.BadRequest();
+        return Response.BadRequest()
     }
 
     await prisma.shopWishlist.deleteMany({
         where: {
             userId: session.user.id,
             itemId: body.itemId,
-        }
+        },
     })
 
-    return Response.Success({ deleted: true });
+    return Response.Success({ deleted: true })
 }
