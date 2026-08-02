@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
         description: "Simple and open social media, for the classroom.",
         start_url: "/",
         display: "standalone",
-        background_color: "#ffffff",
-        theme_color: "#000000",
+        background_color: "#0b0920",
+        theme_color: "#0b0920",
         icons: [
             {
                 src: "/android-chrome-192x192.png",
@@ -23,3 +23,5 @@ export default function manifest(): MetadataRoute.Manifest {
         ],
     }
 }
+
+// nextjs.org/guides/pwas

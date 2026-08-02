@@ -15,6 +15,7 @@
 // Work is licensed under the CC BY-NC 4.0 license.
 
 import "./globals.css"
+import { RegisterServiceWorker } from "@/components/register-sw"
 import { ThemeProvider } from "@/components/theme-provider"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner"
@@ -66,6 +67,7 @@ export default function RootLayout({
                 <TooltipProvider>
                     <ThemeProvider>
                         <Toaster position="top-center" />
+                        <RegisterServiceWorker />
                         {children}
                     </ThemeProvider>
                 </TooltipProvider>

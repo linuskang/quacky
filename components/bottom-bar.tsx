@@ -35,7 +35,7 @@ export function BottomBar() {
     return (
         <div
             aria-hidden="true"
-            className="pointer-events-none fixed right-0 bottom-0 left-0 z-10 flex h-12 overflow-hidden opacity-35 brightness-90 saturate-75"
+            className="pointer-events-none fixed right-0 bottom-0 left-0 z-10 hidden h-12 overflow-hidden opacity-35 brightness-90 saturate-75 lg:flex"
         >
             <div className="flex min-w-max items-end">
                 {repeatedPictures.map((picture, index) => (

@@ -23,6 +23,7 @@ import { Profile } from "@/components/profile"
 import { PageLayout, PageLeft, PageCenter } from "@/components/page-layout"
 import { Feedback } from "@/components/feedback"
 import { BottomBar } from "@/components/bottom-bar"
+import { MobileNav } from "@/components/mobile-nav"
 import { Debug } from "@/components/debug"
 
 export const metadata = {
@@ -60,12 +61,13 @@ export default async function QuackyLayout({
                 </div>
             </PageLeft>
 
-            <PageCenter className="relative z-20 pb-16">{children}</PageCenter>
+            <PageCenter className="relative z-20 pb-24 lg:pb-16">{children}</PageCenter>
 
             <Feedback />
             <BottomBar />
+            <MobileNav handle={session.user.username} />
             {session.user.statsForNerds && (
-                <div className="bottom-3 mb-15 flex items-center justify-center">
+                <div className="bottom-20 mb-15 flex items-center justify-center lg:bottom-3">
                     <Debug />
                 </div>
             )}
