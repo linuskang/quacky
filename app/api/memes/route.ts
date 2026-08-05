@@ -69,12 +69,12 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const res = (await request.json()) as {
+    const res = await request.json() as {
         image: string
     }
 
     if (!res.image) {
-        return new NextResponse("Image is required", { status: 400 })
+        return Response.BadRequest()
     }
 
     const meme = await prisma.memeland.create({
