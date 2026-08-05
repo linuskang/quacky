@@ -36,6 +36,8 @@ model User {
   banReason  String?
   banExpires DateTime?
 
+  parentEmail String?
+
   unlockedPosting    Boolean @default(false)
   unlockedCommenting Boolean @default(false)
   unlockedDms        Boolean @default(false)

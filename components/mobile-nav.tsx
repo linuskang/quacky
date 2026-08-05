@@ -19,7 +19,9 @@
 // Libraries
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Bell, Home, MessagesSquare, PenSquare, Search, User } from "lucide-react"
+import { Bell, Home, MessagesSquare, PenSquare, Search, User, Settings, LogOut } from "lucide-react"
+import { authClient } from "@/client/auth"
+import Image from "next/image"
 
 // Hooks
 import { useUnreads } from "@/hooks/use-unreads"
@@ -30,20 +32,51 @@ import { cn } from "@/lib/utils"
 export function MobileNav({ handle }: { handle: string }) {
     const pathname = usePathname()
     const { notifications, dms } = useUnreads()
+    const { data: session, isPending } = authClient.useSession()
+
+    if (!session || isPending) {
+        return null
+    }
 
     const items = [
-        { href: "/", label: "Home", icon: Home, primary: false },
-        { href: "/search", label: "Search", icon: Search, primary: false },
-        { href: "/post", label: "Post", icon: PenSquare, primary: true },
-        { href: "/dms", label: "DMs", icon: MessagesSquare, primary: false, unread: dms },
-        { href: "/notifications", label: "Alerts", icon: Bell, primary: false, unread: notifications },
-        { href: `/@${handle}`, label: "Me", icon: User, primary: false },
+        {
+            href: "/",
+            img: "/logo2.png"
+        },
+        {
+            href: "/search",
+            img: "/goose/laptop.png"
+        },
+        {
+            href: "/dms",
+            img: "/goose/V Formation 5.png"
+        },
+        {
+            href: "/notifications",
+            img: "/goose/Ping Pong Table Tennis.png"
+        },
+        {
+            href: "/fuzzies",
+            img: "/goose/Hug.png"
+        },
+        {
+            href: "/quiz",
+            img: "/goose/Academic Scroll.png"
+        },
+        {
+            href: "/shop",
+            img: "/goose/Aquafest Whale 2.png"
+        },
+        {
+            href: `/@${handle}`,
+            img: session.user.image
+        }
     ]
 
     return (
-        <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border/60 bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur supports-[backdrop-filter]:bg-background/75 lg:hidden">
-            <div className="mx-auto grid max-w-xl grid-cols-6">
-                {items.map(({ href, label, icon: Icon, primary, unread }) => {
+        <nav className="sticky bottom-0 z-50 bg-background border-t border-border lg:hidden">
+            <div className="mx-auto grid max-w-xl grid-cols-10 items-center">
+                {items.map(({ href, img }) => {
                     const active = pathname === href
 
                     return (
@@ -53,38 +86,43 @@ export function MobileNav({ handle }: { handle: string }) {
                             className="flex flex-col items-center gap-1 py-2.5"
                         >
                             <span className="flex h-8 items-center justify-center">
-                                {primary ? (
-                                    <span className="flex size-8 items-center justify-center rounded-full bg-primary-2 text-background">
-                                        <Icon className="size-4" strokeWidth={2.5} />
-                                    </span>
-                                ) : (
-                                    <span className="relative">
-                                        <Icon
-                                            className={cn(
-                                                "size-6",
-                                                active ? "text-primary" : "text-primary/80"
-                                            )}
-                                            strokeWidth={active ? 2.5 : 2}
-                                        />
-                                        {!!unread && (
-                                            <span className="absolute -top-1 -right-1.5 rounded-full bg-primary-2 px-1 py-0.5 text-[10px] leading-none font-bold text-background">
-                                                {unread > 99 ? "99+" : unread}
-                                            </span>
+
+                                <span className="relative">
+                                    <Image
+                                        src={img!}
+                                        alt="whatever this is"
+                                        width={active ? 40 : 38}
+                                        height={active ? 40 : 36}
+                                        className={cn(
+                                            "rounded-full",
                                         )}
-                                    </span>
-                                )}
-                            </span>
-                            <span
-                                className={cn(
-                                    "text-[10px] leading-none",
-                                    active ? "font-bold text-primary" : "text-primary/80"
-                                )}
-                            >
-                                {label}
+                                    />
+                                </span>
                             </span>
                         </Link>
                     )
                 })}
+
+                <div className="col-span-2 flex items-center justify-center rounded-lg gap-1 bg-card py-1.5">
+                    <Link
+                        href={`/@${handle}`}
+                        aria-label="Settings"
+                        className="flex h-7 w-7 items-center justify-center text-primary"
+                    >
+                        <Settings className="h-4 w-4" strokeWidth={3} />
+                    </Link>
+                    <button
+                        type="button"
+                        aria-label="Log out"
+                        className="flex h-7 w-7 items-center justify-center text-primary"
+                        onClick={async () => {
+                            await authClient.signOut()
+                            window.location.reload()
+                        }}
+                    >
+                        <LogOut className="h-4 w-4" strokeWidth={3} />
+                    </button>
+                </div>
             </div>
         </nav>
     )

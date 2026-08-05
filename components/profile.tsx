@@ -43,7 +43,6 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { PrimaryTitle } from "./text"
-import { User } from "@/types"
 
 function ThemeToggle() {
     const { theme, setTheme } = useTheme()
@@ -83,6 +82,7 @@ export function Profile() {
     const [currentPassword, setCurrentPassword] = useState("")
     const [newPassword, setNewPassword] = useState("")
     const [revokeOtherSessions, setRevokeOtherSessions] = useState(false)
+    const [openPassword, setOpenPassword] = useState(false)
 
     const handleOpenChange = (nextOpen: boolean) => {
         if (creditsOpenRef.current && !nextOpen) return
@@ -106,6 +106,22 @@ export function Profile() {
             setTimeout(() => {
                 creditsOpenRef.current = false
             }, 0)
+        }
+    }
+
+    const handlePasswordOpenChange = (nextOpen: boolean) => {
+        setOpenPassword(nextOpen)
+        if (!nextOpen) {
+            setCurrentPassword("")
+            setNewPassword("")
+            setRevokeOtherSessions(false)
+        }
+    }
+
+    const handleMainOpenChange = (nextOpen: boolean) => {
+        handleOpenChange(nextOpen)
+        if (!nextOpen) {
+            handlePasswordOpenChange(false)
         }
     }
     if (isPending) {
@@ -147,6 +163,7 @@ export function Profile() {
 
         const updates: Record<string, unknown> = {}
         if (name !== user.name) updates.name = name
+        // if (parentEmail !== user.parentEmail) updates.parentEmail = parentEmail
         if (nextImage !== user.image) updates.image = nextImage
         if (username !== user.username) updates.username = username
         if (privateAccount !== user.private) updates.private = privateAccount
@@ -185,6 +202,8 @@ export function Profile() {
             toast.success("Password changed successfully")
             setCurrentPassword("")
             setNewPassword("")
+            setRevokeOtherSessions(false)
+            setOpenPassword(false)
         }
     }
 
@@ -213,7 +232,7 @@ export function Profile() {
                 </div>
 
                 <div className="-mr-1 flex items-center gap-0">
-                    <Dialog open={open} onOpenChange={handleOpenChange}>
+                    <Dialog open={open} onOpenChange={handleMainOpenChange}>
                         <DialogTrigger asChild>
                             <button
                                 aria-label="Settings"
@@ -235,190 +254,23 @@ export function Profile() {
                                     className={`text-4xl font-semibold ${playfairDisplay.className} text-primary`}
                                     style={{ fontStyle: "italic" }}
                                 >
-                                    Account Settings
+                                    {openPassword
+                                        ? "Change Password"
+                                        : "Account Settings"}
                                 </DialogTitle>
                             </DialogHeader>
 
-                            <div className="space-y-2">
-                                <Label className="text-sm font-semibold text-primary">
-                                    General
-                                </Label>
+                            {openPassword ? (
                                 <div className="space-y-4">
-                                    <div className="flex items-start gap-3">
-                                        <Checkbox
-                                            id="private-account"
-                                            className="mt-1 border-2"
-                                            checked={privateAccount}
-                                            onCheckedChange={(checked) =>
-                                                setPrivateAccount(
-                                                    checked === true
-                                                )
-                                            }
-                                        />
-                                        <div className="space-y-0.5">
-                                            <Label
-                                                htmlFor="private-account"
-                                                className="text-sm font-semibold text-primary"
-                                            >
-                                                Private Account
-                                            </Label>
-                                            <p className="text-xs text-muted-foreground">
-                                                Makes your account private
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-start gap-3">
-                                        <Checkbox
-                                            id="stats-nerds"
-                                            className="mt-1 border-2"
-                                            checked={statsForNerds}
-                                            onCheckedChange={(checked) =>
-                                                setStatsForNerds(
-                                                    checked === true
-                                                )
-                                            }
-                                        />
-                                        <div className="space-y-0.5">
-                                            <Label
-                                                htmlFor="stats-nerds"
-                                                className="text-sm font-semibold text-primary"
-                                            >
-                                                Stats for Nerds
-                                            </Label>
-                                            <p className="text-xs text-muted-foreground">
-                                                For all you techy people out
-                                                there. Adds a debug bar at the
-                                                bottom of every page.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-semibold text-primary">
-                                        Theme
-                                    </Label>
-                                    <ThemeToggle />
-                                </div>
-
-                                <div className="grid gap-4">
-                                    <Label className="text-sm font-semibold text-primary">
-                                        Your Account
-                                    </Label>
-
-                                    <div className="space-y-2">
-                                        <Label className="font-semibold text-primary">
-                                            Profile Image
-                                        </Label>
-                                        <div className="flex items-center gap-3">
-                                            <Image
-                                                src={imagePreview}
-                                                alt={
-                                                    name ||
-                                                    session.user.name ||
-                                                    "User"
-                                                }
-                                                width={40}
-                                                height={40}
-                                                unoptimized
-                                                className="h-10 w-10 rounded-full object-cover"
-                                            />
-                                            <div className="space-y-1">
-                                                <input
-                                                    ref={imageInputRef}
-                                                    type="file"
-                                                    accept="image/*"
-                                                    className="hidden"
-                                                    onChange={(e) => {
-                                                        const file =
-                                                            e.target
-                                                                .files?.[0] ??
-                                                            null
-                                                        setImageFile(file)
-
-                                                        if (file) {
-                                                            setImagePreview(
-                                                                URL.createObjectURL(
-                                                                    file
-                                                                )
-                                                            )
-                                                        }
-                                                    }}
-                                                />
-                                                <Button
-                                                    type="button"
-                                                    variant="secondary"
-                                                    className="h-9 rounded-full border-2 border-border bg-card px-4 font-semibold hover:border-primary"
-                                                    onClick={() =>
-                                                        imageInputRef.current?.click()
-                                                    }
-                                                >
-                                                    Upload Image
-                                                </Button>
-                                                {imageFile && (
-                                                    <p className="max-w-64 truncate text-xs text-muted-foreground">
-                                                        {imageFile.name}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-
                                     <div className="space-y-2">
                                         <Label
-                                            htmlFor="name"
+                                            htmlFor="current-password"
                                             className="font-semibold text-primary"
                                         >
-                                            Name
+                                            Current Password
                                         </Label>
                                         <Input
-                                            id="name"
-                                            value={name}
-                                            onChange={(e) =>
-                                                setName(e.target.value)
-                                            }
-                                            className="h-10 border-2 border-border !text-sm !ring-0 hover:border-primary focus:border-primary"
-                                            placeholder="Name"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label
-                                            htmlFor="username"
-                                            className="font-semibold text-primary"
-                                        >
-                                            Username
-                                        </Label>
-                                        <Input
-                                            id="username"
-                                            value={username}
-                                            onChange={(e) =>
-                                                setUsername(e.target.value)
-                                            }
-                                            className="h-10 border-2 border-border !text-sm !ring-0 hover:border-primary focus:border-primary"
-                                            placeholder="Username"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label className="font-semibold text-primary">
-                                            Email
-                                        </Label>
-                                        <Input
-                                            type="email"
-                                            value={session.user.email}
-                                            className="h-10 border-2 border-border !text-sm !ring-0 hover:border-primary focus:border-primary"
-                                            placeholder="Email"
-                                            disabled
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label className="font-semibold text-primary">
-                                            Password
-                                        </Label>
-                                        <Input
+                                            id="current-password"
                                             type="password"
                                             value={currentPassword}
                                             onChange={(e) =>
@@ -429,7 +281,17 @@ export function Profile() {
                                             className="h-10 border-2 border-border !text-sm !ring-0 hover:border-primary focus:border-primary"
                                             placeholder="Current Password"
                                         />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label
+                                            htmlFor="new-password"
+                                            className="font-semibold text-primary"
+                                        >
+                                            New Password
+                                        </Label>
                                         <Input
+                                            id="new-password"
                                             type="password"
                                             value={newPassword}
                                             onChange={(e) =>
@@ -438,63 +300,265 @@ export function Profile() {
                                             className="h-10 border-2 border-border !text-sm !ring-0 hover:border-primary focus:border-primary"
                                             placeholder="New Password"
                                         />
-                                        <div className="flex items-center gap-3">
+                                    </div>
+
+                                    <div className="flex items-center gap-3">
+                                        <Checkbox
+                                            id="revoke-sessions"
+                                            className="mt-1 border-2"
+                                            checked={revokeOtherSessions}
+                                            onCheckedChange={(checked) =>
+                                                setRevokeOtherSessions(
+                                                    checked === true
+                                                )
+                                            }
+                                        />
+                                        <Label
+                                            htmlFor="revoke-sessions"
+                                            className="text-sm font-semibold text-primary"
+                                        >
+                                            Revoke Sessions
+                                        </Label>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold text-primary">
+                                        General
+                                    </Label>
+                                    <div className="space-y-4">
+                                        <div className="flex items-start gap-3">
                                             <Checkbox
-                                                id="revoke-sessions"
+                                                id="private-account"
                                                 className="mt-1 border-2"
-                                                checked={revokeOtherSessions}
+                                                checked={privateAccount}
                                                 onCheckedChange={(checked) =>
-                                                    setRevokeOtherSessions(
+                                                    setPrivateAccount(
                                                         checked === true
                                                     )
                                                 }
                                             />
-                                            <Label
-                                                htmlFor="revoke-sessions"
-                                                className="text-sm font-semibold text-primary"
-                                            >
-                                                Revoke Sessions
-                                            </Label>
+                                            <div className="space-y-0.5">
+                                                <Label
+                                                    htmlFor="private-account"
+                                                    className="text-sm font-semibold text-primary"
+                                                >
+                                                    Private Account
+                                                </Label>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Makes your account private
+                                                </p>
+                                            </div>
                                         </div>
+
+                                        <div className="flex items-start gap-3">
+                                            <Checkbox
+                                                id="stats-nerds"
+                                                className="mt-1 border-2"
+                                                checked={statsForNerds}
+                                                onCheckedChange={(checked) =>
+                                                    setStatsForNerds(
+                                                        checked === true
+                                                    )
+                                                }
+                                            />
+                                            <div className="space-y-0.5">
+                                                <Label
+                                                    htmlFor="stats-nerds"
+                                                    className="text-sm font-semibold text-primary"
+                                                >
+                                                    Stats for Nerds
+                                                </Label>
+                                                <p className="text-xs text-muted-foreground">
+                                                    For all you techy people out
+                                                    there. Adds a debug bar at
+                                                    the bottom of every page.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-semibold text-primary">
+                                            Theme
+                                        </Label>
+                                        <ThemeToggle />
+                                    </div>
+
+                                    <div className="grid gap-4">
+                                        <Label className="text-sm font-semibold text-primary">
+                                            Your Account
+                                        </Label>
+
+                                        <div className="space-y-2">
+                                            <Label className="font-semibold text-primary">
+                                                Profile Image
+                                            </Label>
+                                            <div className="flex items-center gap-3">
+                                                <Image
+                                                    src={imagePreview}
+                                                    alt={
+                                                        name ||
+                                                        session.user.name ||
+                                                        "User"
+                                                    }
+                                                    width={40}
+                                                    height={40}
+                                                    unoptimized
+                                                    className="h-10 w-10 rounded-full object-cover"
+                                                />
+                                                <div className="space-y-1">
+                                                    <input
+                                                        ref={imageInputRef}
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        onChange={(e) => {
+                                                            const file =
+                                                                e.target
+                                                                    .files?.[0] ??
+                                                                null
+                                                            setImageFile(file)
+
+                                                            if (file) {
+                                                                setImagePreview(
+                                                                    URL.createObjectURL(
+                                                                        file
+                                                                    )
+                                                                )
+                                                            }
+                                                        }}
+                                                    />
+                                                    <Button
+                                                        type="button"
+                                                        variant="secondary"
+                                                        className="h-9 rounded-full border-2 border-border bg-card px-4 font-semibold hover:border-primary"
+                                                        onClick={() =>
+                                                            imageInputRef.current?.click()
+                                                        }
+                                                    >
+                                                        Upload Image
+                                                    </Button>
+                                                    {imageFile && (
+                                                        <p className="max-w-64 truncate text-xs text-muted-foreground">
+                                                            {imageFile.name}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label
+                                                htmlFor="name"
+                                                className="font-semibold text-primary"
+                                            >
+                                                Name
+                                            </Label>
+                                            <Input
+                                                id="name"
+                                                value={name}
+                                                onChange={(e) =>
+                                                    setName(e.target.value)
+                                                }
+                                                className="h-10 border-2 border-border !text-sm !ring-0 hover:border-primary focus:border-primary"
+                                                placeholder="Name"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label
+                                                htmlFor="username"
+                                                className="font-semibold text-primary"
+                                            >
+                                                Username
+                                            </Label>
+                                            <Input
+                                                id="username"
+                                                value={username}
+                                                onChange={(e) =>
+                                                    setUsername(e.target.value)
+                                                }
+                                                className="h-10 border-2 border-border !text-sm !ring-0 hover:border-primary focus:border-primary"
+                                                placeholder="Username"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label className="font-semibold text-primary">
+                                                Email (cannot be changed)
+                                            </Label>
+                                            <Input
+                                                type="email"
+                                                value={session.user.email}
+                                                className="h-10 border-2 border-border !text-sm !ring-0 hover:border-primary focus:border-primary"
+                                                placeholder="Email"
+                                                disabled
+                                            />
+                                        </div>
+
                                         <Button
                                             type="button"
                                             variant="secondary"
                                             className="h-7 rounded-full border-2 border-border bg-card text-xs font-semibold hover:border-primary"
-                                            onClick={changePassword}
+                                            onClick={() =>
+                                                setOpenPassword(true)
+                                            }
                                         >
                                             Change Password
                                         </Button>
                                     </div>
                                 </div>
-                            </div>
+                            )}
 
-                            <div className="flex justify-end gap-2">
-                                <Button
-                                    variant="default"
-                                    className="mr-auto h-10 rounded-full border-2 border-border bg-card px-5 text-base font-semibold text-primary hover:border-primary hover:!bg-card"
-                                    onClick={() =>
-                                        handleCreditsOpenChange(true)
-                                    }
-                                >
-                                    view credits
-                                </Button>
-                                <DialogClose asChild>
+                            {openPassword ? (
+                                <div className="flex justify-end gap-2">
                                     <Button
                                         variant="secondary"
                                         className="h-10 rounded-full border-2 border-border bg-card px-5 text-base font-semibold hover:border-primary"
+                                        onClick={() =>
+                                            handlePasswordOpenChange(false)
+                                        }
                                     >
                                         nevermind
                                     </Button>
-                                </DialogClose>
-                                <Button
-                                    variant="default"
-                                    className="h-10 rounded-full bg-primary-2 px-5 text-base font-semibold text-background"
-                                    onClick={handleSave}
-                                    disabled={saving}
-                                >
-                                    {saving ? "waiting..." : "save"}
-                                </Button>
-                            </div>
+                                    <Button
+                                        variant="default"
+                                        className="h-10 rounded-full bg-primary-2 px-5 text-base font-semibold text-background"
+                                        onClick={changePassword}
+                                    >
+                                        Change Password
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div className="flex justify-end gap-2">
+                                    <Button
+                                        variant="default"
+                                        className="mr-auto h-10 rounded-full border-2 border-border bg-card px-5 text-base font-semibold text-primary hover:border-primary hover:!bg-card"
+                                        onClick={() =>
+                                            handleCreditsOpenChange(true)
+                                        }
+                                    >
+                                        view credits
+                                    </Button>
+                                    <DialogClose asChild>
+                                        <Button
+                                            variant="secondary"
+                                            className="h-10 rounded-full border-2 border-border bg-card px-5 text-base font-semibold hover:border-primary"
+                                        >
+                                            nevermind
+                                        </Button>
+                                    </DialogClose>
+                                    <Button
+                                        variant="default"
+                                        className="h-10 rounded-full bg-primary-2 px-5 text-base font-semibold text-background"
+                                        onClick={handleSave}
+                                        disabled={saving}
+                                    >
+                                        {saving ? "waiting..." : "save"}
+                                    </Button>
+                                </div>
+                            )}
                         </DialogContent>
                     </Dialog>
 

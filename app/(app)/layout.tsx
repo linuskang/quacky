@@ -38,7 +38,8 @@ export default async function QuackyLayout({
 }) {
     const session = await requireSession()
     return (
-        <PageLayout className="goose-wallpaper">
+        <div className="flex min-h-dvh flex-col">
+            <PageLayout className="flex-1 goose-wallpaper">
             {/* <div className="fixed top-0 right-0 left-0 z-10 h-6 bg-primary-2">
                 <p className="text-xs text-center leading-6 text-primary-foreground">
                     Quacky is in v0.2 beta. Thanks for trying my app out {":>"}
@@ -65,12 +66,14 @@ export default async function QuackyLayout({
 
             <Feedback />
             <BottomBar />
-            <MobileNav handle={session.user.username} />
             {session.user.statsForNerds && (
                 <div className="bottom-20 mb-15 flex items-center justify-center lg:bottom-3">
                     <Debug />
                 </div>
             )}
         </PageLayout>
+
+            <MobileNav handle={session.user.username} />
+        </div>
     )
 }
