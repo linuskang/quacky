@@ -60,11 +60,11 @@ export const auth = betterAuth({
             bannedUserMessage:
                 "Your account is banned. Please see an administrator for assistance.",
         }),
-        haveIBeenPwned({
-            customPasswordCompromisedMessage:
-                "This password has been compromised in a data breach. Please choose a different password.",
-        }),
-        openAPI(),
+        // haveIBeenPwned({
+        //     customPasswordCompromisedMessage:
+        //         "This password has been compromised in a data breach. Please choose a different password.",
+        // }),
+        // openAPI(),
         apiKey(),
     ],
 
