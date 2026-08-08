@@ -36,7 +36,6 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
     DropdownMenu,
@@ -45,7 +44,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ReportAbuse } from "@/components/report-abuse"
-import { MoreHorizontal, ArrowUp, ArrowDown, ArrowBigUp, ArrowBigDown } from "lucide-react"
+import { MoreHorizontal, ArrowBigUp, ArrowBigDown } from "lucide-react"
 import { Form } from "@/components/ui/form"
 
 // Types
@@ -75,18 +74,22 @@ export default function Page() {
     const [posting, setPosting] = useState(false)
     const [voting, setVoting] = useState<string | null>(null)
     const [reportingMemeId, setReportingMemeId] = useState<string | null>(null)
-    async function get() {
-        try {
-            const res = await axios.get("/api/memes")
-            const memeDetails = await Promise.all(
-                res.data.data.map((meme: Meme) =>
-                    axios
-                        .get(`/api/memes/${meme.id}`)
-                        .then((detail) => detail.data.data)
-                )
+    async function fetchMemes() {
+        const res = await axios.get("/api/memes")
+        const memeDetails = await Promise.all(
+            res.data.data.map((meme: Meme) =>
+                axios
+                    .get(`/api/memes/${meme.id}`)
+                    .then((detail) => detail.data.data)
             )
+        )
 
-            setMemes(memeDetails)
+        return memeDetails
+    }
+
+    async function refresh() {
+        try {
+            setMemes(await fetchMemes())
         } catch {
             toast.error("Failed to fetch memes")
         } finally {
@@ -95,8 +98,10 @@ export default function Page() {
     }
 
     useEffect(() => {
-
-        get()
+        fetchMemes()
+            .then((memeDetails) => setMemes(memeDetails))
+            .catch(() => toast.error("Failed to fetch memes"))
+            .finally(() => setLoading(false))
     }, [])
 
     useEffect(() => {
@@ -202,7 +207,7 @@ export default function Page() {
                                         setPreviewUrl("")
                                         setOpen(false)
 
-                                        get()
+                                        refresh()
                                         toast.success("Meme uploaded successfully")
                                     } catch {
                                         toast.error("Failed to upload meme")
