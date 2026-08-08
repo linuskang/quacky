@@ -28,6 +28,8 @@ i dont really feel like yapping on this readme, but essentially:
 
 so thats the gist of it, if you want to see the entire dev journey, check out the devlogs at https://quacky.space/devlog
 
+### Try quacky at https://quacky.space!
+
 <img width="1411" height="1233" alt="image" src="https://github.com/user-attachments/assets/fa04ca31-bfe0-400d-84c4-0302bbe82b11" />
 
 ## setting up local development environment
@@ -59,6 +61,12 @@ npm run dev
 
 # access at http://0.0.0.0:3000
 ```
+
+### documentation?
+
+I currently don't have any documentation for the site layouts and design philosophy, however, there is a Scalar API references at:
+
+https://quacky.space/docs, which contains documentation for all APIs.
 
 ### contributing?
 
