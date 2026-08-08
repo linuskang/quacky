@@ -28,6 +28,8 @@ i dont really feel like yapping on this readme, but essentially:
 
 so thats the gist of it, if you want to see the entire dev journey, check out the devlogs at https://quacky.space/devlog
 
+<img width="1411" height="1233" alt="image" src="https://github.com/user-attachments/assets/fa04ca31-bfe0-400d-84c4-0302bbe82b11" />
+
 ## setting up local development environment
 
 its extremely simple. you will need:
