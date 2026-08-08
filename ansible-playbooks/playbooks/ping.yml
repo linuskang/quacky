@@ -1,0 +1,8 @@
+---
+- name: ping the cluster
+  hosts: pi_cluster
+  gather_facts: false
+
+  tasks:
+    - name: Ping
+      ansible.builtin.ping:
