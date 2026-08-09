@@ -28,7 +28,15 @@ import { WishlistWidget } from "@/components/widgets/wishlist"
 import { PageLayout, PageRight, PageCenter } from "@/components/page-layout"
 import { WishlistProvider } from "./wishlist-context"
 
-type ShopApiItem = Omit<ItemData, "sufficient">
+type ShopApiItem = Omit<ItemData, "sufficient"> & {
+    createdAt: string
+}
+
+type ItemWithCreatedAt = ItemData & {
+    createdAt: string
+}
+
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000
 
 const categories: CategoryData[] = [
     {
@@ -59,7 +67,7 @@ const categories: CategoryData[] = [
 ]
 
 export default function Shop() {
-    const [items, setItems] = useState<ItemData[]>([])
+    const [items, setItems] = useState<ItemWithCreatedAt[]>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -80,8 +88,18 @@ export default function Shop() {
             .finally(() => setLoading(false))
     }, [])
 
-    const newItems = items.filter((item) => !item.featured)
-    const featuredItems = items.filter((item) => item.featured)
+    const newItems = [
+        ...items.filter(
+            (item) =>
+                !item.featured &&
+                Date.now() - new Date(item.createdAt).getTime() <=
+                    SEVEN_DAYS_MS
+        ),
+    ].reverse()
+    const featuredItems = [...items.filter((item) => item.featured)].reverse()
+    const allItems = [...items].sort((a, b) =>
+        a.name.localeCompare(b.name)
+    )
 
     return (
         <WishlistProvider>
@@ -137,6 +155,14 @@ export default function Shop() {
                             </div>
 
                             <ItemList items={featuredItems} />
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="mt-6 flex items-center justify-start">
+                                <Subtitle>All shop items</Subtitle>
+                            </div>
+
+                            <ItemList variant="grid" items={allItems} />
                         </div>
                     </>
                 )}

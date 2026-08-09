@@ -46,6 +46,10 @@ export async function POST(
 
     if (!item) return Response.NotFound("Item not found")
 
+    if (item.stock <= 0) {
+        return Response.BadRequest("Item is out of stock")
+    }
+
     // basically this isnt done yet, i need to do the admin side api as well for the
     // status changes for staff. need to wire into the ui. shop ui aint even done yet, so yea.
 
@@ -64,6 +68,30 @@ export async function POST(
             userId: session.user.id,
             itemId: item.id,
             quantity: body.quantity,
+        },
+    })
+
+    const total = item.price * body.quantity
+
+    await prisma.user.update({
+        where: {
+            id: session.user.id,
+        },
+        data: {
+            points: {
+                decrement: total,
+            },
+        },
+    })
+
+    await prisma.shopItem.update({
+        where: {
+            id: item.id,
+        },
+        data: {
+            stock: {
+                decrement: body.quantity,
+            },
         },
     })
 

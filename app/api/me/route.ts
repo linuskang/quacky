@@ -37,6 +37,7 @@ export async function GET() {
         unreadNotifications,
         unreadDms,
         unreadFuzzies,
+        balance,
     ] = await Promise.all([
         hasCheckedIn(session.user.id),
         getCheckInSummary(session.user.id),
@@ -58,6 +59,14 @@ export async function GET() {
                 read: false,
             },
         }),
+        prisma.user.findUnique({
+            where: {
+                id: session.user.id,
+            },
+            select: {
+                points: true,
+            }
+        })
     ])
 
     const user = await prisma.user.findUnique({
@@ -91,6 +100,7 @@ export async function GET() {
                 fuzzies: unreadFuzzies,
             },
             streak,
+            balance: balance?.points
         },
         {
             status: 200,
