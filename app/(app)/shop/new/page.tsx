@@ -16,7 +16,9 @@
 
 "use client"
 
-import { useState, type ChangeEvent } from "react"
+import axios from "axios"
+import { useRef, useState, type ChangeEvent } from "react"
+import { useFormContext, useWatch } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Form } from "@/components/ui/form"
@@ -38,6 +40,72 @@ const labelClassName =
     "flex items-center gap-2 text-xs/relaxed leading-none font-medium select-none"
 const errorClassName = "text-xs/relaxed text-destructive"
 
+function ImageUpload() {
+    const { control, setValue } = useFormContext<ShopItemForm>()
+    const imageUrl = useWatch({ control, name: "imageUrl" })
+    const fileInputRef = useRef<HTMLInputElement>(null)
+    const [uploading, setUploading] = useState(false)
+    const [uploadError, setUploadError] = useState("")
+
+    async function handleFile(event: ChangeEvent<HTMLInputElement>) {
+        const file = event.target.files?.[0]
+
+        if (!file) return
+        try {
+            const formData = new FormData()
+            formData.append("file", file)
+
+            await axios.post("/api/upload", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            }).then((r) => {
+                if (r.status !== 200) {
+                    setUploadError("Upload failed")
+                    return
+                }
+
+                setValue("imageUrl", r.data.url, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                })
+            })
+        } catch {
+            setUploadError("Upload failed")
+        } finally {
+            setUploading(false)
+            event.target.value = ""
+        }
+    }
+
+    return (
+        <div className="grid gap-2">
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFile}
+            />
+            <Button
+                type="button"
+                variant="secondary"
+                className="w-fit"
+                disabled={uploading}
+                onClick={() => fileInputRef.current?.click()}
+            >
+                {uploading ? "Uploading..." : "Upload image"}
+            </Button>
+            {uploadError && <p className={errorClassName}>{uploadError}</p>}
+            {imageUrl && (
+                <img
+                    src={imageUrl}
+                    alt="Item image preview"
+                    className="h-24 w-24 rounded-md border border-border object-cover"
+                />
+            )}
+        </div>
+    )
+}
+
 export default function ShopPage() {
     const [result, setResult] = useState("")
 
@@ -45,22 +113,12 @@ export default function ShopPage() {
         setResult("")
 
         try {
-            const response = await fetch("/api/shop", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(values),
-            })
-            const body = await response.text()
+            const response = await axios.post("/api/shop", values)
+            const body = await response.data
 
-            try {
-                setResult(
-                    `${response.status} ${response.statusText}\n${JSON.stringify(JSON.parse(body), null, 2)}`
-                )
-            } catch {
-                setResult(`${response.status} ${response.statusText}\n${body}`)
-            }
-        } catch (error) {
-            setResult(error instanceof Error ? error.message : "Request failed")
+            setResult(JSON.stringify(body, null, 2))
+        } catch (err) {
+            setResult("something blew up. oops. please try agian later or call support.")
         }
     }
 
@@ -144,6 +202,8 @@ export default function ShopPage() {
                 <Input type="url" />
             </Form.Field>
             <Form.Error name="imageUrl" className={errorClassName} />
+
+            <ImageUpload />
 
             <Form.Label name="available" className={labelClassName}>
                 <Form.Field
