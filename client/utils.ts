@@ -15,12 +15,12 @@
 // Work is licensed under the CC BY-NC 4.0 license.
 
 export function formatTimeAgo(time: string) {
-    if (!time) return "0s"
+    if (!time) return ""
 
     const date = new Date(time)
 
     if (isNaN(date.getTime())) {
-        return "0s"
+        return ""
     }
 
     const now = new Date()
@@ -30,7 +30,7 @@ export function formatTimeAgo(time: string) {
     )
 
     if (diffInSeconds < 60) {
-        return `${diffInSeconds}s`
+        return "just now"
     }
 
     const diffInMinutes = Math.floor(diffInSeconds / 60)
@@ -86,8 +86,13 @@ export function useTimeAgo(time: string) {
     const [formatted, setFormatted] = useState<string>("")
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setFormatted(formatTimeAgo(time))
+        function update() {
+            setFormatted(formatTimeAgo(time))
+        }
+
+        update()
+        const interval = setInterval(update, 60_000)
+        return () => clearInterval(interval)
     }, [time])
 
     return formatted

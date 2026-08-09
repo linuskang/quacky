@@ -16,9 +16,11 @@
 
 // Components
 import { PageLayout, PageCenter } from "@/components/page-layout"
+import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Resources } from "@/server/resources"
 import Link from "next/link"
+import Image from "next/image"
 
 export default async function Page() {
     const resources = await Resources.getResources()
@@ -26,19 +28,39 @@ export default async function Page() {
         <PageLayout>
             <PageCenter>
                 <h1 className="text-3xl font-bold">Resources</h1>
-                <ul className="mt-4 space-y-2">
+
+                <p>This is where staff members and teachers can place helpful student resources.</p>
+                <ul className="mt-4 grid grid-cols-2 gap-4">
+
                     {resources.map((resource, index) => (
-                        <Button key={index} className="rounded border p-4">
-                            <Link href={`/resources/${resource.slug}`}>
-                                <h2 className="text-xl font-semibold">
-                                    {resource.name}
-                                </h2>
-                                <p className="text-gray-600">
-                                    {resource.description}
-                                </p>
+                        <Card key={index} className="p-4 hover:cursor-pointer">
+                            <h2 className="text-xl font-semibold">{resource.name}</h2>
+                            <p className="text-muted-foreground">
+                                {resource.description},
+                                {resource.readTime} min read,
+                                {resource.author && (
+                                    <>
+                                        by{" "}
+                                        <Image
+                                            src={resource.author.image}
+                                            alt={resource.author.name}
+                                            width={20}
+                                            height={20}
+                                            className="inline-block rounded-full ml-1 mr-1"
+                                        />{" "}
+                                        {resource.author.name}
+                                    </>
+                                )}
+
+
+
+                            </p>
+                            <Link href={`/resources/${resource.slug}`} target="_blank">
+                                <Button className="mt-2">View Resource</Button>
                             </Link>
-                        </Button>
+                        </Card>
                     ))}
+
                 </ul>
             </PageCenter>
         </PageLayout>
