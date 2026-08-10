@@ -102,6 +102,9 @@ export default function Page() {
                 <Link href="/admin/orders" className="text-sm font-bold underline">
                     Pending Shop Orders
                 </Link>
+                <Link href="/admin/shop-items" className="text-sm font-bold underline">
+                    Manage Shop Items
+                </Link>
 
                 <AdminStats />
 
