@@ -21,6 +21,8 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
+import { PageLayout } from "@/components/page-layout"
+
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -45,12 +47,6 @@ type Order = {
     }
 }
 
-const statusStyles: Record<PurchaseStatus, string> = {
-    PENDING: "bg-yellow-500 text-black",
-    FULFILLED: "bg-green-600 text-white",
-    REJECTED: "bg-red-500 text-white",
-}
-
 export default function MyOrders() {
     const [orders, setOrders] = useState<Order[]>([])
     const [loading, setLoading] = useState(true)
@@ -64,7 +60,7 @@ export default function MyOrders() {
     }, [])
 
     return (
-        <div className="flex w-[calc(100vw-2rem)] max-w-6xl flex-col self-center px-4 py-4">
+        <PageLayout>
             <h1 className="text-2xl font-extrabold">My Orders</h1>
 
             {loading ? (
@@ -102,11 +98,21 @@ export default function MyOrders() {
                                 <p className="truncate text-xs text-muted-foreground">
                                     ${order.item.price} × {order.quantity}
                                 </p>
-                                <p className="text-xs text-muted-foreground">
-                                    {new Date(
-                                        order.createdAt
-                                    ).toLocaleDateString()}
-                                </p>
+                                {order.status === "REJECTED" && (
+                                    <p className="text-xs text-muted-foreground">
+                                        Your order was rejected, you have been refunded ${order.item.price * order.quantity}.
+                                    </p>
+                                )}
+                                {order.status === "FULFILLED" && (
+                                    <p className="text-xs text-muted-foreground">
+                                        Your order has been accepted! please ask a teacher or Staffing Member for your item.
+                                    </p>
+                                )}
+                                {order.status === "PENDING" && (
+                                    <p className="text-xs text-muted-foreground">
+                                        Your order is in the queue. Please hold! a staffing member will review your order shortly.
+                                    </p>
+                                )}
                             </div>
 
                             <div className="flex flex-col items-end gap-1">
@@ -117,16 +123,27 @@ export default function MyOrders() {
                                     variant="secondary"
                                     className={cn(
                                         "rounded-full px-3 py-1 text-xs font-semibold",
-                                        statusStyles[order.status]
+                                        order.status === "PENDING" &&
+                                        "bg-primary-2 text-yellow-800",
+                                        order.status === "FULFILLED" &&
+                                        "bg-chart-1 text-green-800",
+                                        order.status === "REJECTED" &&
+                                        "bg-destructive text-red-800"
                                     )}
                                 >
                                     {order.status}
                                 </Badge>
+
+
+                            </div>
+
+                            <div>
+
                             </div>
                         </Card>
                     ))}
                 </div>
             )}
-        </div>
+        </PageLayout>
     )
 }

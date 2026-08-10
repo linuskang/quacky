@@ -22,7 +22,7 @@ import { useParams } from "next/navigation"
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Flag, BadgeCheck, ArrowLeft } from "lucide-react"
+import { Flag, ArrowLeft } from "lucide-react"
 
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout"
 import { SearchBar } from "@/components/search-bar"

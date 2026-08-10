@@ -25,7 +25,7 @@ import Link from "next/link"
 import { CategoryList, type CategoryData } from "./category-list"
 import { ItemList, type ItemData } from "./item-list"
 import { WishlistWidget } from "@/components/widgets/wishlist"
-import { PageLayout, PageRight, PageCenter } from "@/components/page-layout"
+import { PageRight } from "@/components/page-layout"
 import { WishlistProvider } from "./wishlist-context"
 
 type ShopApiItem = Omit<ItemData, "sufficient"> & {
@@ -69,6 +69,7 @@ const categories: CategoryData[] = [
 export default function Shop() {
     const [items, setItems] = useState<ItemWithCreatedAt[]>([])
     const [loading, setLoading] = useState(true)
+    const [now] = useState(() => Date.now())
 
     useEffect(() => {
         axios
@@ -92,8 +93,8 @@ export default function Shop() {
         ...items.filter(
             (item) =>
                 !item.featured &&
-                Date.now() - new Date(item.createdAt).getTime() <=
-                    SEVEN_DAYS_MS
+                now - new Date(item.createdAt).getTime() <=
+                SEVEN_DAYS_MS
         ),
     ].reverse()
     const featuredItems = [...items.filter((item) => item.featured)].reverse()
@@ -113,6 +114,13 @@ export default function Shop() {
                             console.log(e.currentTarget.value)
                         }}
                     />
+
+                    <Link
+                        href="/shop/my-orders"
+                        className="ml-4 shrink-0 whitespace-nowrap text-primary/80 underline hover:text-primary"
+                    >
+                        My Orders
+                    </Link>
                 </div>
 
                 <div className="flex w-full max-w-7xl flex-col">

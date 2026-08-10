@@ -26,7 +26,6 @@ import { useParams } from "next/navigation"
 
 // Components
 import { PageLayout, PageCenter } from "@/components/page-layout"
-import { Description, Title } from "@/components/text"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowBigUp, ArrowBigDown } from "lucide-react"

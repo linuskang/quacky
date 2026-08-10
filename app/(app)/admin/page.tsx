@@ -36,8 +36,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { AdminStats } from "@/components/admin-stats"
+import Link from "next/link"
 
-const subscribe = () => () => {}
+const subscribe = () => () => { }
 
 export default function Page() {
     const { data: session, isPending } = authClient.useSession()
@@ -85,7 +86,7 @@ export default function Page() {
             })
             toast.success(
                 "User created successfully. New password: " +
-                    res.data.tempPassword
+                res.data.tempPassword
             )
         } catch {
             toast.error("Failed to create user.")
@@ -97,6 +98,10 @@ export default function Page() {
         <PageLayout>
             <PageCenter className="max-w-6xl gap-6">
                 <Title>Admin Panel</Title>
+
+                <Link href="/admin/orders" className="text-sm font-bold underline">
+                    Pending Shop Orders
+                </Link>
 
                 <AdminStats />
 
@@ -173,7 +178,7 @@ export default function Page() {
                                     onChange={(event) =>
                                         setNewUserRole(
                                             event.target.value as
-                                                "admin" | "user"
+                                            "admin" | "user"
                                         )
                                     }
                                 >

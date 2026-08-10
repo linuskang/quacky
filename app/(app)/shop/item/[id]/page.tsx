@@ -54,33 +54,43 @@ export default function Shop() {
     const params = useParams()
     const router = useRouter()
 
-    async function getitem() {
-        try {
-            const res = await axios.get(`/api/shop/${params.id}`)
-            if (res.status === 200) {
-                setShopItem(res.data)
-            }
-        } catch {
-            setShopItem(null)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    async function getBalance() {
-        try {
-            const res = await axios.get("/api/me")
-            if (res.status === 200) {
-                setBalance(res.data.balance)
-            }
-        } catch {
-            setBalance(null)
-        }
-    }
-
     useEffect(() => {
-        getitem()
-        getBalance()
+        let cancelled = false
+
+        async function load() {
+            try {
+                const [itemResponse, balanceResponse] = await Promise.all([
+                    axios.get(`/api/shop/${params.id}`),
+                    axios.get("/api/me"),
+                ])
+
+                if (!cancelled) {
+                    setShopItem(
+                        itemResponse.status === 200
+                            ? itemResponse.data
+                            : null
+                    )
+                    setBalance(
+                        balanceResponse.status === 200
+                            ? balanceResponse.data.balance
+                            : null
+                    )
+                }
+            } catch {
+                if (!cancelled) {
+                    setShopItem(null)
+                    setBalance(null)
+                }
+            } finally {
+                if (!cancelled) setLoading(false)
+            }
+        }
+
+        void load()
+
+        return () => {
+            cancelled = true
+        }
     }, [params.id])
 
     async function buy() {
@@ -92,7 +102,7 @@ export default function Shop() {
                 quantity,
             })
             toast.success("Purchase complete!")
-            await getBalance()
+            window.location.href = `/shop/my-orders`
         } catch {
             toast.error("Something went wrong. Please try again.")
         } finally {

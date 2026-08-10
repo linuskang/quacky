@@ -18,6 +18,7 @@
 
 import axios from "axios"
 import { useRef, useState, type ChangeEvent } from "react"
+import Image from "next/image"
 import { useFormContext, useWatch } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -96,9 +97,11 @@ function ImageUpload() {
             </Button>
             {uploadError && <p className={errorClassName}>{uploadError}</p>}
             {imageUrl && (
-                <img
+                <Image
                     src={imageUrl}
                     alt="Item image preview"
+                    width={96}
+                    height={96}
                     className="h-24 w-24 rounded-md border border-border object-cover"
                 />
             )}
@@ -117,7 +120,7 @@ export default function ShopPage() {
             const body = await response.data
 
             setResult(JSON.stringify(body, null, 2))
-        } catch (err) {
+        } catch {
             setResult("something blew up. oops. please try agian later or call support.")
         }
     }

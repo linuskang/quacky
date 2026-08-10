@@ -19,6 +19,7 @@ import { getSession } from "@/server/auth"
 import { prisma } from "@/server/prisma"
 import { Up } from "@/server/upstream"
 import { Response } from "@/lib/responses"
+import { NotificationService } from "@/server/helpers"
 
 export async function POST(
     req: NextRequest,
@@ -94,6 +95,12 @@ export async function POST(
             },
         },
     })
+
+    await NotificationService.send(
+        session.user.id,
+        'quacky',
+        `Hey!\n\nThanks for purchasing ${item.name} in the shop (${body.quantity}x ${item.name} for $${total})!\n\nYour order is now in the queue for review. This may take some time, so sit tight.\n\nYou will be notified here once your order status is updated.\n\n*This is an automated message from Quacky, please do not reply to this message.*`
+    )
 
     await Up.ingest({
         title: "Shop Purchase",
