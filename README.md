@@ -106,6 +106,20 @@ docker compose up -d
 
 Access the app at http://0.0.0.0:3000
 
+### optionals:
+
+If you want users to be able to recieve in-app notifications from the system, like moderation alerts, shop updates, etc.. you will need to create a system account. By default, all system notifications use the ``quacky`` userId, so you will need to create an user account with the following information:
+
+```
+userid: quacky
+name: Quacky
+username: quacky
+verified: true
+email: quacky@localhost
+```
+
+Once your done, notifications will automatically start sending to your users.
+
 ### hate docker?
 
 weirdo... but ok. you'll need to figure out how to get postgres and rustfs running yourself 😭
