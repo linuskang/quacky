@@ -79,6 +79,17 @@ export async function POST(req: NextRequest) {
                 },
             },
         })
+
+        await prisma.shopItem.update({
+            where: {
+                id: order.itemId,
+            },
+            data: {
+                stock: {
+                    increment: order.quantity,
+                },
+            },
+        })
     }
 
     if (actionOrderStatus === "FULFILLED") {
