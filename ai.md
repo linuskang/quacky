@@ -9,4 +9,6 @@ No AI was used for generating full scripts like component pages, instead, I used
 
 I also used AI to generate Unit & e2e tests for the backend, which you can find in /e2e and /tests. I did not modify these tests as they aren't used in the actual application, just helper scripts for me to test endpoints.
 
+And lastly, I used AI to pentest my application for any vulnerabilities (actually found a couple woah).
+
 That basically sums it up!
