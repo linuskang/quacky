@@ -19,6 +19,8 @@
     --color-sidebar-foreground: var(--sidebar-foreground);
     --color-sidebar: var(--sidebar);
     --color-chart-5: var(--chart-5);
+    --color-homepage-primary: var(--homepage-primary);
+    --color-homepage-input: var(--homepage-input);
     --color-chart-4: var(--chart-4);
     --color-chart-3: var(--chart-3);
     --color-chart-2: var(--chart-2);
@@ -101,6 +103,9 @@
     --foreground: hsl(0, 0%, 100%);
 
     --profile-card: hsl(230, 16%, 45%);
+
+    --homepage-primary: hsl(285, 33, 5);
+    --homepage-input: hsl(290, 4, 30);
 
     --card-header: hsl(231, 16%, 45%);
     --card: hsl(231, 21%, 26%);

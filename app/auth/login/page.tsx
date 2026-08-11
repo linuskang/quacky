@@ -33,13 +33,24 @@ export default function Page() {
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
+    const [orgName, setOrgName] = useState("")
     const [bannermsg, setBannerMsg] = useState("")
+
+    useEffect(() => {
+        const emailFromHome = new URLSearchParams(window.location.search).get(
+            "email"
+        )
+        if (emailFromHome) {
+            setEmail(emailFromHome)
+        }
+    }, [])
 
     useEffect(() => {
         const fetchMsg = async () => {
             try {
                 await axios.get("/api/meta").then((res) => {
                     setBannerMsg(res.data.org.loginBannerMsg)
+                    setOrgName(res.data.org.name)
                 })
             } catch {
                 toast.error("somethign blew up. please try again later.")
@@ -122,8 +133,8 @@ export default function Page() {
                         priority
                         className="mx-auto mb-4 h-auto w-auto"
                     />
-                    <h1 className="text-center text-3xl font-extrabold text-primary">
-                        Sign in to Quacky
+                    <h1 className="text-center text-2xl font-extrabold text-primary">
+                        Sign in to {orgName ? orgName : "Quacky"}
                     </h1>
                     <p className="mt-2 text-sm text-muted-foreground">
                         Don&apos;t have an account?{" "}

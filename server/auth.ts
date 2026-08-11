@@ -237,7 +237,7 @@ export const auth = betterAuth({
                         return {
                             data: {
                                 ...user,
-                                image: `https://avatars.hel1.lkang.au/10.x/micah/svg?seed=${encodeURIComponent(user.name)}`,
+                                image: `https://avatars.lkang.au/10.x/micah/svg?seed=${encodeURIComponent(user.name)}`,
                             },
                         }
                     }
@@ -254,7 +254,7 @@ export const auth = betterAuth({
                         category: "user.signup",
                         icon: "🎉",
                         data: user,
-                    }).catch(() => {})
+                    }).catch(() => { })
                 },
             },
             update: {
