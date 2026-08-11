@@ -18,7 +18,7 @@
 
 // Libraries
 import axios from "axios"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import { toast } from "sonner"
 
@@ -102,7 +102,7 @@ export function Feedback() {
     }
 
     return (
-        <>
+        <div className="hidden md:block">
             <div className="pointer-events-none fixed right-24 bottom-44 z-10">
                 <div className="relative h-30 w-64">
                     <span
@@ -238,6 +238,6 @@ export function Feedback() {
                     </div>
                 </DialogContent>
             </Dialog>
-        </>
+        </div>
     )
 }

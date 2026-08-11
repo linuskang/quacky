@@ -40,7 +40,6 @@ import type { Post } from "@/types"
 
 const tabs = [
     { name: "Recent", id: "recent" },
-    { name: "For you", id: "foryou" },
     { name: "Following", id: "following" },
     { name: "Popular", id: "popular" },
 ]
@@ -56,7 +55,6 @@ export default function Page() {
             try {
                 const endpoints: Record<string, string> = {
                     recent: "/api/posts",
-                    foryou: "/api/posts/foryou",
                     following: "/api/posts/following",
                     popular: "/api/posts/popular",
                 }
