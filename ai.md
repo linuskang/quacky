@@ -11,4 +11,6 @@ I also used AI to generate Unit & e2e tests for the backend, which you can find 
 
 And lastly, I used AI to pentest my application for any vulnerabilities (actually found a couple woah).
 
+For more detailed information, please check the AI usage notes in the project details!
+
 That basically sums it up!

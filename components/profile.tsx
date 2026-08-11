@@ -620,22 +620,12 @@ export function Profile() {
                                     AI Usage
                                 </h1>
                                 <div className="mt-2 text-sm text-muted-foreground">
-                                    AI was primarily used in debugging, like
-                                    when I had an error I didn&apos;t know how
-                                    to fix, or when I needed help positioning
-                                    UI:
+                                    AI was primarily used in debugging:
                                     <ul className="mt-2 ml-5 list-inside list-disc">
                                         <li>
                                             Debugging frontend code errors (i.e.
-                                            Hydration Errors, UI Bugs, Things I
-                                            didn&apos;t know how to do)
-                                        </li>
-                                        <li>
-                                            Generating boilerplate example code
-                                            for shadcn/ui (mostly React Hook
-                                            Forms, and UI positioning as
-                                            frontend is not my strong suite.)
-                                            during prototyping.
+                                            Hydration Errors which was 40% of it, UI Bugs, Things I
+                                            didn&apos;t know how to do with nextjs.)
                                         </li>
                                     </ul>
                                     <br />
@@ -657,6 +647,9 @@ export function Profile() {
                                     tests as they aren&apos;t used in the actual
                                     application, just helper scripts for me to
                                     test endpoints.
+                                    <br />
+                                    <br />
+                                    And lastly, AI was used to pentest the application for vulnerabilities, which I then fixed with what it told me.
                                 </div>
                             </div>
 
