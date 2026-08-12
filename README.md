@@ -144,6 +144,13 @@ this project, including all code, and assets, are governed under the CC BY-NC 4.
 ### good reads
 - Edelson, L., Haugen, F., & McCoy, D. (2025). A Comparative Survey Of Algorithmic Feed Recommendation System Designs. ACM Transactions on Recommender Systems. https://doi.org/10.1145/3757327
 
-### AI declarations
 
-See [ai.md](ai.md)
+### AI Declarations
+
+<a href="https://oscdr.linuskang.au/ratings/fgc.png">
+  <img src="https://oscdr.linuskang.au/ratings/oac.png" width="100" alt="FGC rating">
+</a>
+
+*This project was created with occasional use of AI for code assistance*. Learn more about the OSCDR rating system [here](https://github.com/linuskang/open-synthetic-content-disclosure-rating)
+
+For full details, see [ai.md](ai.md)
