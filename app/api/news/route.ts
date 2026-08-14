@@ -36,7 +36,7 @@ export async function GET(_req: NextRequest) {
     }
 
     try {
-        const res = axios.get("https://www.abc.net.au/news/feed/51120/rss.xml") // national rss feed.
+        const res = axios.get("https://www.abc.net.au/news/feed/51120/rss.xml") // national category rss.
 
         // parse
         const p = new XMLParser({
