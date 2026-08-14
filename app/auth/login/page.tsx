@@ -16,10 +16,11 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { authClient } from "@/client/auth"
 import Link from "next/link"
 import Image from "next/image"
+import { useSearchParams } from "next/navigation"
 import axios from "axios"
 import { toast } from "sonner"
 
@@ -28,22 +29,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Github } from "@/components/icons"
 
-export default function Page() {
-    const [email, setEmail] = useState("")
+function LoginForm() {
+    const searchParams = useSearchParams()
+    const [email, setEmail] = useState(searchParams.get("email") ?? "")
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
     const [orgName, setOrgName] = useState("")
     const [bannermsg, setBannerMsg] = useState("")
-
-    useEffect(() => {
-        const emailFromHome = new URLSearchParams(window.location.search).get(
-            "email"
-        )
-        if (emailFromHome) {
-            setEmail(emailFromHome)
-        }
-    }, [])
 
     useEffect(() => {
         const fetchMsg = async () => {
@@ -265,5 +258,13 @@ export default function Page() {
                 </form>
             </div>
         </div>
+    )
+}
+
+export default function Page() {
+    return (
+        <Suspense>
+            <LoginForm />
+        </Suspense>
     )
 }

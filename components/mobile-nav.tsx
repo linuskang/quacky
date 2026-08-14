@@ -26,9 +26,6 @@ import Image from "next/image"
 // Hooks
 import { useUnreads } from "@/hooks/use-unreads"
 
-// Utilities
-import { cn } from "@/lib/utils"
-
 export function MobileNav({ handle }: { handle: string }) {
     const pathname = usePathname()
     const { notifications, dms } = useUnreads()
@@ -93,9 +90,8 @@ export function MobileNav({ handle }: { handle: string }) {
                                         alt="whatever this is"
                                         width={active ? 40 : 38}
                                         height={active ? 40 : 36}
-                                        className={cn(
-                                            "rounded-full",
-                                        )}
+                                        className="rounded-full"
+                                        style={{ width: "auto" }}
                                     />
                                 </span>
                             </span>
