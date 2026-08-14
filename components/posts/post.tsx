@@ -289,7 +289,7 @@ export function PostCard({
                     </div>
 
                     {post.flagged && (
-                        <PurpleEyeWarning text="This post has been unlisted due to a violation of our community guidelines." />
+                        <PurpleEyeWarning text="This post has been unlisted due to a violation of our community guidelines. If you are the author of this post, you will not be able to edit or delete contents until the post is unlocked." />
                     )}
 
                     <div

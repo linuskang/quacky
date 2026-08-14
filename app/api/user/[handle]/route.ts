@@ -67,12 +67,10 @@ export async function GET(
 
     if (user.banned) {
         return NextResponse.json({
-            id: user.id,
-            name: user.name,
-            username: user.username,
+            id: "Deleted User",
+            name: "Deleted User",
+            username: "Deleted User",
             banned: user.banned,
-            following,
-            followers,
         })
     }
 

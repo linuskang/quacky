@@ -94,18 +94,20 @@ export default async function Page({
                     <CardContent>
                         <div className="flex">
                             <div className="flex items-start gap-4">
-                                <Image
-                                    src={user.image}
-                                    alt={user.name}
-                                    width={50}
-                                    height={50}
-                                    unoptimized
-                                    className="h-15 w-15 rounded-full object-cover"
-                                />
+                                {!user.banned && (
+                                    <Image
+                                        src={user.image}
+                                        alt={user.name}
+                                        width={50}
+                                        height={50}
+                                        unoptimized
+                                        className="h-15 w-15 rounded-full object-cover"
+                                    />
+                                )}
 
                                 <div className="flex flex-col">
                                     <h1 className="flex items-center gap-1 text-2xl font-bold">
-                                        {user.name}
+                                        {!user.banned ? user.name : "Deleted User"}
                                         {!user.banned && (
                                             <>
                                                 {user.verified && (
@@ -126,9 +128,9 @@ export default async function Page({
                                         )}
                                     </h1>
                                     <p className="text-base text-muted-foreground">
-                                        @{user.username}
+                                        {!user.banned ? `@${user.username}` : "@Deleted User"}
                                     </p>
-                                    {!user.private && (
+                                    {!user.private && !user.banned && (
                                         <FollowCounts
                                             handle={user.username}
                                             followingCount={

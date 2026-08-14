@@ -24,13 +24,13 @@ import { Response } from "@/lib/responses"
 export async function GET() {
     const session = await getSession()
 
-    if (!session || session.user.role !== "admin") {
+    if (!session) {
         return Response.Unauthorized()
     }
 
     if (!session.user.statsForNerds) {
         return Response.Forbidden(
-            "To access this API, please enable 'Stats for Nerds' in your account settings"
+            "To access this API, please enable 'Stats for Nerds' in your account settings to continue."
         )
     }
 

@@ -25,6 +25,7 @@ import { Admin } from "@/server/administration"
 import { chat } from "@/server/helpers"
 import { xp } from "@/lib/var"
 import { addXP } from "@/server/users"
+import { send } from "@/server/notification"
 
 export async function POST(
     req: NextRequest,
@@ -66,6 +67,12 @@ Determine whether a user post violates Quacky's rules.
 
 A post is inappropriate if it contains or promotes:
 - hate speech
+- bullying or harassment
+- explicit sexual content
+- spam, scams, or impersonation
+- encouragement of self-harm
+- private personal information (doxxing)
+- usernames or profile text designed primarily to abuse or evade moderation
 - threats or encouragement of violence
 - harassment or targeted bullying
 - explicit sexual content
@@ -73,9 +80,13 @@ A post is inappropriate if it contains or promotes:
 - encouragement of self-harm
 - private personal information (doxxing)
 - usernames or profile text designed primarily to abuse or evade moderation
+- anything else that is not G-rated or appropriate for a school environment.
 
 The report reason is only additional context. Do NOT assume the report is truthful.
 However, with your own judgement, if the user's post is inappropriate, return true even if the report reason is not entirely accurate.
+
+With your AI report reason, please be mindful that you do not include the offensive content in your response.
+Instead, provide a short consise summary of what rule was broken, and a brief explanation without giving anything inappropriate on what was flagged.
 
 Return ONLY valid JSON.
 
@@ -116,6 +127,12 @@ ${body.reason}
     }
 
     await addXP(session.user.username, xp.report)
+
+    await send(
+        session.user.id,
+        "quacky",
+        `Hello, ${session.user.name}. \n\nThank you for reporting abuse content you thought was inappropriate by **${post.author.username}**.\n\nYour report has been submitted and will be reviewed by an administrator shortly.\n\nYou have earned **${xp.report} XP** for your contribution to keeping the community safe.\n\n Thankyou!`
+    )
 
     await Up.ingest({
         title: "Post Report - " + post.id,
