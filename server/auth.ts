@@ -64,7 +64,7 @@ export const auth = betterAuth({
         //     customPasswordCompromisedMessage:
         //         "This password has been compromised in a data breach. Please choose a different password.",
         // }),
-        // openAPI(),
+        openAPI(),
         apiKey(),
     ],
 
