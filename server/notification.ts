@@ -32,6 +32,37 @@ function setup() {
     )
 }
 
+// v2
+export async function send(userId: string, actorId: string, content: string) {
+
+
+    const actor = await prisma.user.findUnique({
+        where: {
+            id: actorId,
+        }
+    })
+
+    if (!actor) {
+        return "Actor not found"
+    }
+
+    const res = await prisma.notification.create({
+        data: {
+            userId,
+            actorId,
+            content,
+        }
+    })
+
+    sendPushNotification(userId, {
+        title: actor.name + " from Quacky",
+        body: content,
+        url: `/notifications`,
+    })
+
+    return res
+}
+
 export async function sendPushNotification(
     userId: string,
     payload: {

@@ -17,8 +17,9 @@
 import { auth } from "@/server/auth"
 import { NotificationService } from "@/server/helpers"
 import { prisma } from "@/server/prisma"
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { follow, unfollow } from "@/server/follow"
+import { Response } from "@/lib/responses"
 
 export async function POST(
     req: NextRequest,
@@ -29,7 +30,7 @@ export async function POST(
     })
 
     if (!session) {
-        return NextResponse.json({ err: "Unauthorized" }, { status: 401 })
+        return Response.Unauthorized()
     }
 
     const { handle } = await params
@@ -39,26 +40,16 @@ export async function POST(
     })
 
     if (!user) {
-        return NextResponse.json({ err: "User not found" }, { status: 404 })
+        return Response.NotFound()
     }
 
     if (user.id === session.user.id) {
-        return NextResponse.json(
-            { err: "You cannot follow yourself" },
-            { status: 400 }
-        )
+        return Response.BadRequest("Cannot follwo self")
     }
 
     await follow(session.user.id, user.id)
 
-    return NextResponse.json(
-        {
-            success: true,
-        },
-        {
-            status: 201,
-        }
-    )
+    return Response.Success()
 }
 
 export async function DELETE(
@@ -70,7 +61,7 @@ export async function DELETE(
     })
 
     if (!session) {
-        return NextResponse.json({ err: "Unauthorized" }, { status: 401 })
+        return Response.Unauthorized()
     }
 
     const { handle } = await params
@@ -80,17 +71,10 @@ export async function DELETE(
     })
 
     if (!user) {
-        return NextResponse.json({ err: "User not found" }, { status: 404 })
+        return Response.NotFound()
     }
 
     await unfollow(session.user.id, user.id)
 
-    return NextResponse.json(
-        {
-            success: true,
-        },
-        {
-            status: 200,
-        }
-    )
+    return Response.Success()
 }

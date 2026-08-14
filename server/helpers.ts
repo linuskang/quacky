@@ -80,6 +80,9 @@ function pushBody(content: string) {
     return content.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
 }
 
+
+// NotificationService is deprecated after 0.0.2
+// Now using v2 functions in notification.ts, which also accounts for Push notifications after PWA release.
 export class NotificationService {
     static async send(userId: string, actorId: string, content: string) {
         const res = await prisma.notification.create({
@@ -147,19 +150,5 @@ export class NotificationService {
         })
     }
 
-    static async sendFollow(userId: string, actorId: string) {
-        if (userId === actorId) return null
 
-        return NotificationService.send(userId, actorId, followContent())
-    }
-
-    static async removeFollow(userId: string, actorId: string) {
-        await prisma.notification.deleteMany({
-            where: {
-                userId,
-                actorId,
-                content: followContent(),
-            },
-        })
-    }
 }
