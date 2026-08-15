@@ -105,6 +105,9 @@ export default function Page() {
                 <Link href="/admin/shop-items" className="text-sm font-bold underline">
                     Manage Shop Items
                 </Link>
+                <Link href="/admin/users" className="text-sm font-bold underline">
+                    Quacky Users
+                </Link>
 
                 <AdminStats />
 

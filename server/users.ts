@@ -100,6 +100,12 @@ export async function getUserById(id: string) {
     }
 }
 
+export async function getUsers() {
+    const users = await prisma.user.findMany()
+
+    return users;
+}
+
 export async function addXP(handle: string, increase: number) {
     const user = await getUser(handle)
 
