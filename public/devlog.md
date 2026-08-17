@@ -395,9 +395,6 @@ oh, and forgot to attach a screenshot of light mode. its a w.i.p:
 
 thats all i did for today! had some stuff i needed to cleanup in the house.
 
-
-# FOR LATER - ARCHIVE
-
 15/07/2026
 
 Hey! today i focused on making QoL improvemnets on UI, and introduced a new question type: Text!
@@ -406,3 +403,102 @@ You can write guiding rubric prompts as the answer, and the ai will be able to a
 
 which allows you to do cool stuff like this:
 ![](https://cdn.linus.my/qky/Q2LxhdxwHu6JlYSnTMyyfIptOthI2SAu/85fb5304-62c0-4ab4-a5a7-5916beff0bda)
+
+# Completely forgot to document the rest of the stuff so here it is
+
+hello! after a couple of weeks, Ive finally finished basically all of the site features. theres still small stuff like tutorials and some gamification features, but school is starting to get a bit much, so I'm shipping!
+
+## All of the new features,
+
+### PWA App
+
+This is the main improvement. You can now download the Quacky app on mobile and desktop devices! Eligible devices can now also enable push notifications on their account
+
+### Parent digest
+
+Students can now set a parent email on their account so parents can get a weekly digest of what their child has been learning on Quacky, including any recent contributions to the community, badges unlocked, modules unlocked, and overall progress.
+
+### Video Shorts
+
+Users can now post video shorts like yt shorts on the platform! moderated by ai.
+
+### Revamped DMs
+
+Not much changed on the user side, but DMs are now 1:1 with no group chats allowed due to privacy reasons. Backend API changes are breaking.
+
+![](https://cdn.linus.my/qky/Q2LxhdxwHu6JlYSnTMyyfIptOthI2SAu/a8e86e99-7418-4667-9d6f-5fa00882d964)
+![](https://cdn.linus.my/qky/Q2LxhdxwHu6JlYSnTMyyfIptOthI2SAu/5a513a74-c40a-441a-a0b0-6635802ad60f)
+
+### Memeland
+
+Users can post memes with reddit style karma. Report abuse is also baked in.
+
+![](https://cdn.linus.my/qky/Q2LxhdxwHu6JlYSnTMyyfIptOthI2SAu/85063734-21e7-4480-8604-d00d4a86ab95)
+
+### Shop
+
+With a virtual Q$ currency, users can redeem their coins for goods decided by the school. I.e. blue goose tuckshop voucher.
+
+![](https://cdn.linus.my/qky/Q2LxhdxwHu6JlYSnTMyyfIptOthI2SAu/51633bf4-8bd4-4c71-89ab-c597ab8f4258)
+![](https://cdn.linus.my/qky/Q2LxhdxwHu6JlYSnTMyyfIptOthI2SAu/b6f22a6a-ef1e-4174-bef1-a225ea01384e)
+![](https://cdn.linus.my/qky/Q2LxhdxwHu6JlYSnTMyyfIptOthI2SAu/30e342ce-7ae9-4ea0-b96a-effff79fe3de)
+![](https://cdn.linus.my/qky/Q2LxhdxwHu6JlYSnTMyyfIptOthI2SAu/b816d5b7-c9c4-4e37-8a97-83affb88b1ec)
+
+### Resources
+
+Well-being resources.
+
+![](https://cdn.linus.my/qky/Q2LxhdxwHu6JlYSnTMyyfIptOthI2SAu/25fcd328-db15-4813-b11e-aebc37791a04)
+![](https://cdn.linus.my/qky/Q2LxhdxwHu6JlYSnTMyyfIptOthI2SAu/36abc6b0-f0d4-423c-b713-f8f6896cf68b)
+
+### Rng
+
+A cool game thats completely chance based. Each user gets 1 spin per day to roll a random number. Highest number each day wins 10xp and Q$5.
+
+![](https://cdn.linus.my/qky/Q2LxhdxwHu6JlYSnTMyyfIptOthI2SAu/4efce906-6dda-412f-90dd-02aed0680ee2)
+
+### Tutorial
+
+There are now interactive tutorials with theory and quizes built into quacky. User responses are given feedback by AI so they meet the teacher rubrics.
+
+### Quizes (w/ ai)
+
+Quizes by default are used for unlocking site features like posting, commenting, dms, warm fuzzies, etc.
+
+Teachers can also assign custom lessons with custom content and theory for users.
+
+![](https://cdn.linus.my/qky/Q2LxhdxwHu6JlYSnTMyyfIptOthI2SAu/a36a7586-c646-4e64-81b6-e5392c3903c2)
+
+### Social media bots (for quests)
+
+There are now bots that post randomly on the home feed.
+
+If a user spots a inappropriate account, they can report the account and if its inappropriate, they get rewards.
+
+# Conclusion
+
+this new update (``v0.0.3``) includes major **BREAKING** changes. API schemas, server functions, and typed contracts have all been revamped for this new update. Please review your integrations for any required changes.
+
+The new API documentation is at https://quacky.space/docs, powered by SCALAR.
+
+![](https://cdn.linus.my/qky/Q2LxhdxwHu6JlYSnTMyyfIptOthI2SAu/c3c3fcc7-2741-4812-b9e1-806713628772)
+
+# Deploying V3 to production
+
+Currently deploying to production, so I can gather my 2nd round of feedback!
+
+To be enterprise ready (*and so i have an excuse to set up a homelab, lol...*), I decided to deploy quacky to production by using the following servers:
+
+- 1 Beelink minipc: Running Proxmox VE with a container for Portainer for managing the Kubenetes instance
+- 4 Raspberry Pi 5s (3x 8gb ram, 1x 4gb ram): 3 of the pis are running in **High Availability** so the cluster can have 1 server go down without taking down the Quacky services. The nextjs app is bundled with docker and distributed to all 3 HA pis, and the 4th Pi is acting as a metrics server. All networked together using Tailscale
+- 1 VPS: I bought a vps so I can host Cloudflare Tunnels, and NGINX proxy manager for the entrypoint into the cluster. Load balancing happens here. Also connected via. tailscale.
+
+This is the homelab setup that I'm using to run Quacky and a few other services:
+
+![](https://cdn.linus.my/qky/Q2LxhdxwHu6JlYSnTMyyfIptOthI2SAu/1fd4f317-1f2d-4d57-8048-214a518c42d7)
+
+Everything is hooked up via. UPS, however the one bottleneck right now is networking (i dont have 2 internet connections at home). In the future, if I actually were to deploy my app for schools, I would probably put a starlink up on the roof for redundant internet :)
+
+[excalidraw here]
+
+# Feedback round 2
