@@ -151,6 +151,6 @@ this project, including all code, and assets, are governed under the CC BY-NC 4.
   <img src="https://oscdr.linuskang.au/ratings/oac.png" width="50" alt="FGC rating">
 </a>
 
-*This project was created with occasional use of AI for code assistance, with no full code generations*. Learn more about the OSCDR rating system [here](https://github.com/linuskang/open-synthetic-content-disclosure-rating)
+*This project was created with occasional use of AI for code assistance, with no full code generations*.
 
 For full details, see [ai.md](ai.md).

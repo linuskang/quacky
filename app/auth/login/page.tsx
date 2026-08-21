@@ -23,6 +23,7 @@ import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 import axios from "axios"
 import { toast } from "sonner"
+import Loading from "@/components/loading"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -37,6 +38,7 @@ function LoginForm() {
     const [error, setError] = useState("")
     const [orgName, setOrgName] = useState("")
     const [bannermsg, setBannerMsg] = useState("")
+    const [loadingMsg, setLoadingMsg] = useState(true)
 
     useEffect(() => {
         const fetchMsg = async () => {
@@ -47,12 +49,14 @@ function LoginForm() {
                 })
             } catch {
                 toast.error("somethign blew up. please try again later.")
+            } finally {
+                setLoadingMsg(false)
             }
         }
         fetchMsg()
     }, [])
 
-    const login = async (e: React.FormEvent) => {
+    async function login(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
         await authClient.signIn.email(
             {
@@ -86,7 +90,7 @@ function LoginForm() {
         )
     }
 
-    const loginGithub = async () => {
+    async function loginGithub() {
         await authClient.signIn.social(
             {
                 provider: "github",
@@ -100,10 +104,24 @@ function LoginForm() {
         )
     }
 
-    const loginGoogle = async () => {
+    async function loginGoogle() {
         await authClient.signIn.social(
             {
                 provider: "google",
+            },
+            {
+                onRequest: () => {
+                    setLoading(true)
+                    setError("")
+                },
+            }
+        )
+    }
+
+    async function loginMicrosoft() {
+        await authClient.signIn.social(
+            {
+                provider: "microsoft",
             },
             {
                 onRequest: () => {
@@ -140,6 +158,12 @@ function LoginForm() {
                     </p>
                 </div>
 
+                {loadingMsg && (
+                    <div className="mb-4">
+                        <Loading />
+                    </div>
+                )}
+
                 {bannermsg && (
                     <div className="mb-4 space-y-2 rounded-md border-2 border-primary-2 bg-primary-2/10 px-3 py-2.5 text-sm text-primary-2">
                         <p className="whitespace-pre-line">{bannermsg}</p>
@@ -167,6 +191,20 @@ function LoginForm() {
                             <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" />
                         </svg>
                         Continue with Google
+                    </Button>
+                    <Button
+                        onClick={loginMicrosoft}
+                        className="flex h-11 w-full cursor-pointer items-center justify-center gap-2 text-sm"
+                    >
+                        <svg
+                            role="img"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <title>Microsoft</title>
+                            <path d="M0 0h10v10H0V0zm12 0h10v10H12V0zm-2 12H0v10h10V12zm2 0h10v10H12V12z" />
+                        </svg>
+                        Continue with Microsoft
                     </Button>
                 </div>
 

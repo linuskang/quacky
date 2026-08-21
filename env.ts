@@ -26,6 +26,8 @@ export const env = createEnv({
         GITHUB_CLIENT_SECRET: z.string(),
         GOOGLE_CLIENT_ID: z.string(),
         GOOGLE_CLIENT_SECRET: z.string(),
+        MICROSOFT_CLIENT_ID: z.string(),
+        MICROSOFT_CLIENT_SECRET: z.string(),
         UPSTREAM_API_KEY: z.string(),
         RESEND_API_KEY: z.string(),
         EMAIL_FROM: z.string(),
