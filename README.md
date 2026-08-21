@@ -43,7 +43,7 @@ get started by:
 
 ```bash
 # cloning the repo
-https://github.com/linuskang/quacky
+git clone https://github.com/linuskang/quacky
 
 # install dependencies
 cd quacky
