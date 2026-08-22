@@ -78,11 +78,13 @@ For my production deployment at https://quacky.space, i'm using 6 Raspberry Pi 5
 - 8gb ram
 - 128gb storage
 - Running kubernetes in High Availability.
-- each node runs the Quacky app.
+- each node runs the Quacky app using portainer with GitOps enabled for this repository.
 
-For the database, I'm using [managed prisma postgres](https://www.prisma.io/postgres). I'm self-hosting the qky cdn on a VPS.
+For the database, I'm using Supabase free tier, as its more then enough for my current app load. I'm self-hosting the qky cdn on a VPS.
 
 The app is distributed to users using Cloudflare tunnels with Nginx Proxy Manager on my VPS as well, which forwards traffic to the pi cluster where it is load balanced.
+
+View my production [compose file](production.docker-compose.yml)
 
 Lucky for you, all you need to do is copy paste this compose file into your server!
 

@@ -18,6 +18,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  deployment-config:
+    name: Deployment Config
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[ci skip]')) ||
+      (github.event_name == 'pull_request' && !contains(github.event.pull_request.title, '[skip ci]') && !contains(github.event.pull_request.title, '[ci skip]'))
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Check environment synchronization
+        run: npm run check:deployment
+
+      - name: Check Compose files
+        run: |
+          docker compose -f docker-compose.yml config --quiet
+          docker compose -f production.docker-compose.yml config --quiet
+
   lint:
     name: Lint
     if: |
