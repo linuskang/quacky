@@ -28,7 +28,10 @@ jobs:
         run: npm run check:deployment
 
       - name: Check production Compose file
-        run: docker compose -f production.docker-compose.yml config --quiet
+        run: |
+          trap 'rm -f .env' EXIT
+          touch .env
+          docker compose -f production.docker-compose.yml config --quiet
 
       - name: Check deployment VAPID key
         env:

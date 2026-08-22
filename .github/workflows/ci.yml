@@ -39,6 +39,8 @@ jobs:
 
       - name: Check Compose files
         run: |
+          trap 'rm -f .env' EXIT
+          touch .env
           docker compose -f docker-compose.yml config --quiet
           docker compose -f production.docker-compose.yml config --quiet
 
