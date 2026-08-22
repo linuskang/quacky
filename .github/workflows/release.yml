@@ -59,7 +59,7 @@ jobs:
       - name: Generate changelog
         id: changelog
         if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.generate_changelog == 'true' }}
-        uses: mikepenz/release-changelog-builder-action@v4
+        uses: mikepenz/release-changelog-builder-action@v6
         with:
           configuration: '.github/release-changelog-config.json'
           toTag: ${{ steps.tag.outputs.tag }}
