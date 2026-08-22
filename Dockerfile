@@ -34,6 +34,8 @@ ENV AI_KEY="dummy-ai-key"
 ENV AI_MODEL="dummy-ai-model"
 ENV NEXT_PUBLIC_VAPID_PUBLIC_KEY="BIRRU82KLF39-B304f0oNE7DQ8DQCOBvGzOEdCJC2nHPlifhkR0Vi7cOJZOJ1mW4Jg3tnKLCNBU-9W3RlMgfaCw"
 ENV VAPID_PRIVATE_KEY="dummy-vapid-private-key"
+ENV MICROSOFT_CLIENT_ID="dummy-microsoft-client-id"
+ENV MICROSOFT_CLIENT_SECRET="dummy-microsoft-client-secret"
 ENV VAPID_EMAIL="dummy-vapid-email@lkang.au"
 
 RUN npx prisma generate
