@@ -19,6 +19,7 @@ import { withBotId } from 'botid/next/config'
 
 const nextConfig: NextConfig = {
     output: "standalone",
+    serverExternalPackages: ["pino"],
     transpilePackages: ["@uplabs/sdk"],
     images: {
         dangerouslyAllowLocalIP: true,

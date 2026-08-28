@@ -46,6 +46,8 @@ export const env = createEnv({
         QOTD: z.string().default(""),
         VAPID_EMAIL: z.string(),
         VAPID_PRIVATE_KEY: z.string(),
+        SEQ_INGEST_URL: z.string(),
+        SEQ_API_KEY: z.string(),
     },
 
     client: {
