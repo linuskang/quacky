@@ -52,8 +52,21 @@ services:
       - "5432:5432"
     networks:
       - quacky_net
+  seq:
+    image: datalust/seq:latest
+    container_name: seq
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+      - "5341:5341"
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_ADMINPASSWORD=${SEQ_FIRSTRUN_ADMINPASSWORD}
+    volumes:
+      - seq:/data
 networks:
   quacky_net:
     driver: bridge
 volumes:
   quacky_db:
+  seq:
