@@ -78,9 +78,6 @@ export default async function Page() {
         <PageLayout>
             <PageCenter>
                 <Title>roll history</Title>
-                <Description>
-                    look back at your biggest (and smallest) moments
-                </Description>
 
                 {ranked.length === 0 ? (
                     <Card className="bg-card-primary p-4 text-center">
@@ -101,7 +98,7 @@ export default async function Page() {
                                             {format(entry.date, "MMM d, yyyy")}
                                         </p>
                                         <p className="text-xs font-semibold text-primary-2">
-                                            {rankEmoji(entry.rank)} that day
+                                            #{entry.rank} that day
                                         </p>
                                     </div>
                                     <p className="text-2xl font-bold text-primary tabular-nums">
