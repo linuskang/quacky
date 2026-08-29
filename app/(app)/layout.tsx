@@ -25,6 +25,7 @@ import { Feedback } from "@/components/feedback"
 import { BottomBar } from "@/components/bottom-bar"
 import { MobileNav } from "@/components/mobile-nav"
 import { Debug } from "@/components/debug"
+import { VerificationBanner } from "@/components/verification-email-banner"
 
 export const metadata = {
     title: "Quacky",
@@ -39,41 +40,38 @@ export default async function QuackyLayout({
     const session = await requireSession()
     return (
         <div className="flex min-h-dvh flex-col">
-            <PageLayout className="flex-1 goose-wallpaper">
-                {/* <div className="fixed top-0 right-0 left-0 z-10 h-6 bg-primary-2">
-                <p className="text-xs text-center leading-6 text-primary-foreground">
-                    Quacky is in v0.2 beta. Thanks for trying my app out {":>"}
-                </p>
-            </div> */}
+            <div>
+                <VerificationBanner />
+                <PageLayout className="flex-1 goose-wallpaper">
+                    <PageLeft className="z-20">
+                        <Sidebar
+                            session={{
+                                user: {
+                                    handle: session.user.username,
+                                    image: session.user.image!,
+                                    role: session.user.role!,
+                                },
+                            }}
+                        />
 
-                <PageLeft className="z-20">
-                    <Sidebar
-                        session={{
-                            user: {
-                                handle: session.user.username,
-                                image: session.user.image!,
-                                role: session.user.role!,
-                            },
-                        }}
-                    />
+                        <div className="mt-auto">
+                            <Profile />
+                        </div>
+                    </PageLeft>
 
-                    <div className="mt-auto">
-                        <Profile />
-                    </div>
-                </PageLeft>
+                    <PageCenter className="relative z-20 pb-24 lg:pb-16">{children}</PageCenter>
 
-                <PageCenter className="relative z-20 pb-24 lg:pb-16">{children}</PageCenter>
+                    <Feedback />
+                    <BottomBar />
+                    {session.user.statsForNerds && (
+                        <div className="bottom-20 mb-15 flex items-center justify-center lg:bottom-3">
+                            <Debug />
+                        </div>
+                    )}
+                </PageLayout>
 
-                <Feedback />
-                <BottomBar />
-                {session.user.statsForNerds && (
-                    <div className="bottom-20 mb-15 flex items-center justify-center lg:bottom-3">
-                        <Debug />
-                    </div>
-                )}
-            </PageLayout>
-
-            <MobileNav handle={session.user.username} />
+                <MobileNav handle={session.user.username} />
+            </div>
         </div>
     )
 }

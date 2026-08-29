@@ -25,7 +25,7 @@ import { admin } from "better-auth/plugins"
 import { NotificationService } from "@/server/helpers"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
-import { haveIBeenPwned } from "better-auth/plugins"
+// import { haveIBeenPwned } from "better-auth/plugins"
 import { openAPI } from "better-auth/plugins"
 import { Up } from "@/server/upstream"
 import { canSignup, allowProfileChange } from "@/lib/var"
@@ -70,7 +70,7 @@ export const auth = betterAuth({
 
     emailAndPassword: {
         enabled: true,
-        requireEmailVerification: true,
+        requireEmailVerification: false,
         sendResetPassword: async (data) => {
             await resend.emails.send({
                 from: env.EMAIL_FROM,
