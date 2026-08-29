@@ -56,7 +56,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .env.example production.docker-compose.yml
-          git commit -m "fix: auto-resolve deployment config drift [skip ci]"
+          git commit -m "fix: auto-resolve deployment config drift"
           git push
 
       - name: Check Compose files
