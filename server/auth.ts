@@ -132,22 +132,22 @@ export const auth = betterAuth({
             statsForNerds: {
                 type: "boolean",
                 required: false,
-                default: false,
+                defaultValue: false,
             },
             private: {
                 type: "boolean",
                 required: false,
-                default: false,
+                defaultValue: false,
             },
             streamerMode: {
                 type: "boolean",
                 required: false,
-                default: false,
+                defaultValue: false,
             },
             hideTips: {
                 type: "boolean",
                 required: false,
-                default: false,
+                defaultValue: false,
             },
             bio: {
                 type: "string",
@@ -172,32 +172,32 @@ export const auth = betterAuth({
             unlockedPosting: {
                 type: "boolean",
                 required: false,
-                default: false,
+                defaultValue: false,
             },
             unlockedCommenting: {
                 type: "boolean",
                 required: false,
-                default: false,
+                defaultValue: false,
             },
             unlockedDms: {
                 type: "boolean",
                 required: false,
-                default: false,
+                defaultValue: false,
             },
             unlockedFuzzies: {
                 type: "boolean",
                 required: false,
-                default: false,
+                defaultValue: false,
             },
             unlockedProfiles: {
                 type: "boolean",
                 required: false,
-                default: false,
+                defaultValue: false,
             },
             pushNotificationsEnabled: {
                 type: "boolean",
                 required: false,
-                default: true,
+                defaultValue: true,
             },
         },
     },
@@ -310,17 +310,17 @@ export const auth = betterAuth({
         github: {
             clientId: env.GITHUB_CLIENT_ID,
             clientSecret: env.GITHUB_CLIENT_SECRET,
-            disableSignup: false,
+            disableSignUp: false,
         },
         google: {
             clientId: env.GOOGLE_CLIENT_ID,
             clientSecret: env.GOOGLE_CLIENT_SECRET,
-            disableSignup: false,
+            disableSignUp: false,
         },
         microsoft: {
             clientId: env.MICROSOFT_CLIENT_ID,
             clientSecret: env.MICROSOFT_CLIENT_SECRET,
-            disableSignup: false,
+            disableSignUp: false,
         }
     },
 })
