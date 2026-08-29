@@ -149,10 +149,8 @@ this project, including all code, and assets, are governed under the CC BY-NC 4.
 
 ### AI Declarations
 
-<a href="https://oscdr.linuskang.au/ratings/fgc.png">
+<a href="https://oscdr.linuskang.au">
   <img src="https://oscdr.linuskang.au/ratings/oac.png" width="50" alt="FGC rating">
 </a>
 
-*This project was created with occasional use of AI for code assistance, with no full code generations*.
-
-For full details, see [ai.md](ai.md).
+See [ai.md](ai.md).
