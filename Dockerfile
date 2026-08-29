@@ -38,6 +38,8 @@ ENV VAPID_PRIVATE_KEY="dummy-vapid-private-key"
 ENV MICROSOFT_CLIENT_ID="dummy-microsoft-client-id"
 ENV MICROSOFT_CLIENT_SECRET="dummy-microsoft-client-secret"
 ENV VAPID_EMAIL="dummy-vapid-email@lkang.au"
+ENV SEQ_INGEST_URL="https://dummy-seq-ingest-url"
+ENV SEQ_API_KEY="dummy-seq-api-key"
 
 RUN npx prisma generate
 RUN npm run build
