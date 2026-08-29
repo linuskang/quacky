@@ -11,6 +11,7 @@
         "start": "next start",
         "lint": "eslint",
         "check:deployment": "node scripts/check-deployment-config.js",
+        "fix:deployment": "node scripts/check-deployment-config.js --fix",
         "format": "prettier --write \"**/*.{ts,tsx}\"",
         "typecheck": "tsc --noEmit",
         "generate-env": "node scripts/generate-env-template.js",

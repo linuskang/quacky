@@ -25,6 +25,7 @@ jobs:
       (github.event_name == 'push' && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[ci skip]')) ||
       (github.event_name == 'pull_request' && !contains(github.event.pull_request.title, '[skip ci]') && !contains(github.event.pull_request.title, '[ci skip]'))
     runs-on: ubuntu-latest
+    permissions: contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -35,7 +36,27 @@ jobs:
           node-version: 22
 
       - name: Check environment synchronization
-        run: npm run check:deployment
+        id: env-check
+        run: |
+          if npm run check:deployment; then
+            echo "drift=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "drift=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fail on drift
+        if: steps.env-check.outputs.drift == 'true' && github.event_name == 'pull_request'
+        run: exit 1
+
+      - name: Auto-fix drift and commit
+        if: steps.env-check.outputs.drift == 'true' && github.event_name != 'pull_request'
+        run: |
+          npm run fix:deployment
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .env.example production.docker-compose.yml
+          git commit -m "fix: auto-resolve deployment config drift [skip ci]"
+          git push
 
       - name: Check Compose files
         run: |
