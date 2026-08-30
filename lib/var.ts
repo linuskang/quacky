@@ -208,3 +208,14 @@ export const quizes = [
 
 export const canSignup = true
 export const allowProfileChange = true
+export const downtime = {
+    schedule: {
+        monday: { enforce: false, start: "23:00", end: "06:00" },
+        tuesday: { enforce: false, start: "23:00", end: "06:00" },
+        wednesday: { enforce: false, start: "23:00", end: "06:00" },
+        thursday: { enforce: false, start: "23:00", end: "06:00" },
+        friday: { enforce: false, start: "23:00", end: "06:00" },
+        saturday: { enforce: false, start: "12:00", end: "06:00" },
+        sunday: { enforce: false, start: "12:00", end: "06:00" },
+    },
+};
