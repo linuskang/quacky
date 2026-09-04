@@ -47,11 +47,16 @@ type MentionProfile = {
 export function MentionHoverCard({ username }: { username: string }) {
     const [open, setOpen] = useState(false)
     const [profile, setProfile] = useState<MentionProfile | null>(null)
+    const [loadedUsername, setLoadedUsername] = useState<string | null>(null)
+    const [error, setError] = useState<{
+        username: string
+        message: string
+    } | null>(null)
 
     useEffect(() => {
-        const controller = new AbortController()
+        if (!open || loadedUsername === username) return
 
-        if (!open || profile) return
+        const controller = new AbortController()
 
         async function fetchProfile() {
             await axios
@@ -60,16 +65,25 @@ export function MentionHoverCard({ username }: { username: string }) {
                 })
                 .then((res) => {
                     setProfile(res.data as MentionProfile)
+                    setLoadedUsername(username)
                 })
         }
 
         fetchProfile().catch((error) => {
-            if (error instanceof DOMException && error.name === "AbortError")
+            if (
+                controller.signal.aborted ||
+                (axios.isCancel(error) && error?.code === "ERR_CANCELED")
+            )
                 return
+
+            setError({ username, message: "User not found" })
         })
 
         return () => controller.abort()
-    }, [open, profile, username])
+    }, [loadedUsername, open, username])
+
+    const currentProfile = loadedUsername === username ? profile : null
+    const currentError = error?.username === username ? error.message : null
 
     return (
         <HoverCard
@@ -88,12 +102,15 @@ export function MentionHoverCard({ username }: { username: string }) {
                 className="w-72 border-2 border-border bg-background p-3"
                 onClick={(event) => event.stopPropagation()}
             >
-                {profile ? (
+                {currentProfile ? (
                     <div className="flex flex-col gap-3">
                         <div className="flex items-start gap-3">
                             <Image
-                                src={profile.image ?? "/default-avatar.png"}
-                                alt={profile.name}
+                                src={
+                                    currentProfile.image ??
+                                    "/default-avatar.png"
+                                }
+                                alt={currentProfile.name}
                                 width={44}
                                 height={44}
                                 unoptimized
@@ -102,21 +119,21 @@ export function MentionHoverCard({ username }: { username: string }) {
                             <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-1">
                                     <span className="truncate text-sm font-semibold text-primary">
-                                        {profile.name}
+                                        {currentProfile.name}
                                     </span>
-                                    {profile.verified && (
+                                    {currentProfile.verified && (
                                         <BadgeCheck className="h-4 w-4 shrink-0 fill-primary text-background" />
                                     )}
-                                    {profile.role === "admin" && <Admin />}
+                                    {currentProfile.role === "admin" && <Admin />}
                                 </div>
                                 <div className="truncate text-sm font-medium text-muted-foreground">
-                                    @{profile.username}
+                                    @{currentProfile.username}
                                 </div>
                             </div>
                         </div>
-                        {profile.bio && (
+                        {currentProfile.bio && (
                             <p className="line-clamp-3 text-sm text-muted-foreground">
-                                {profile.bio}
+                                {currentProfile.bio}
                             </p>
                         )}
                         <Button
@@ -124,11 +141,13 @@ export function MentionHoverCard({ username }: { username: string }) {
                             size="sm"
                             className="h-8 rounded-full bg-primary-2 text-sm font-semibold hover:bg-primary-2/80"
                         >
-                            <Link href={`/@${profile.username}`}>
+                            <Link href={`/@${currentProfile.username}`}>
                                 View profile
                             </Link>
                         </Button>
                     </div>
+                ) : currentError ? (
+                    <p className="text-sm text-muted-foreground">{currentError}</p>
                 ) : (
                     <Loading />
                 )}

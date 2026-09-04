@@ -31,6 +31,7 @@ import { Eye } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import Image from "next/image"
 import { downtime } from "@/lib/var"
+import { GooseBg } from "@/components/goose-wallpaper"
 
 export const metadata = {
     title: "Quacky",
@@ -43,6 +44,7 @@ export default async function QuackyLayout({
     children: React.ReactNode
 }) {
     const session = await requireSession()
+
     if (isDowntime() && session.user.role !== "admin") {
         return (
             <div className="flex min-h-dvh flex-col">
@@ -106,7 +108,8 @@ export default async function QuackyLayout({
                         <span>Downtime is currently enforced. Only admins can access the site.</span>
                     </div>
                 )}
-                <PageLayout className="flex-1 goose-wallpaper">
+                <GooseBg />
+                <PageLayout className="flex-1">
                     <PageLeft className="z-20">
                         <Sidebar
                             session={{
