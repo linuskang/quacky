@@ -32,7 +32,7 @@
         "@trpc/next": "^11.18.0",
         "@trpc/react-query": "^11.18.0",
         "@trpc/server": "^11.18.0",
-        "@uplabs/sdk": "^0.3.1",
+        "@uplabs/sdk": "^0.3.2",
         "axios": "^1.18.1",
         "better-auth": "^1.7.2",
         "botid": "^1.5.11",
