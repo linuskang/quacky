@@ -134,6 +134,7 @@ export function PostCard({
     const [quoteRepostOpen, setQuoteRepostOpen] = useState(false)
     const [quoteContent, setQuoteContent] = useState("")
     const [quotePending, setQuotePending] = useState(false)
+    const [showFlaggedContent, setShowFlaggedContent] = useState(false)
 
     const shareUrl = useMemo(() => {
         if (typeof window === "undefined") return ""
@@ -288,29 +289,39 @@ export function PostCard({
                     </div>
 
                     {post.flagged && (
-                        <PurpleEyeWarning text="This post has been unlisted by a moderator due to a violation of our community guidelines." />
-                    )}
-                    <Markdown>{post.content}</Markdown>
-                    {repostOf && (
-                        <PostCard showActions={false} post={repostOf} />
+                        <PurpleEyeWarning text="This post has been unlisted due to a violation of our community guidelines. If you are the author of this post, you will not be able to edit or delete contents until the post is unlocked." />
                     )}
 
-                    {post.attachments?.length ? (
-                        <div className="grid grid-cols-2 gap-2">
-                            {post.attachments.map((attachment, index) => (
-                                <Image
-                                    key={index}
-                                    src={attachment.url}
-                                    alt={attachment.name}
-                                    width={500}
-                                    height={300}
-                                    unoptimized
-                                    className="h-full max-h-[300px] w-full rounded-md object-cover"
-                                    loading="lazy"
-                                />
-                            ))}
-                        </div>
-                    ) : null}
+                    <div
+                        className={cn(
+                            "transition-[filter] duration-300 ease-in-out",
+                            post.flagged && !showFlaggedContent && "blur-sm"
+                        )}
+                        onMouseEnter={() => setShowFlaggedContent(true)}
+                        onMouseLeave={() => setShowFlaggedContent(false)}
+                    >
+                        <Markdown>{post.content}</Markdown>
+                        {repostOf && (
+                            <PostCard showActions={false} post={repostOf} />
+                        )}
+
+                        {post.attachments?.length ? (
+                            <div className="grid grid-cols-2 gap-2">
+                                {post.attachments.map((attachment, index) => (
+                                    <Image
+                                        key={index}
+                                        src={attachment.url}
+                                        alt={attachment.name}
+                                        width={500}
+                                        height={300}
+                                        unoptimized
+                                        className="h-full max-h-[300px] w-full rounded-md object-cover"
+                                        loading="lazy"
+                                    />
+                                ))}
+                            </div>
+                        ) : null}
+                    </div>
 
                     <div className="text-xs text-muted-foreground">
                         {postedAt}
@@ -426,7 +437,7 @@ export function PostCard({
                                                     disabled={
                                                         !quoteContent.trim() ||
                                                         quoteContent.length >
-                                                            400 ||
+                                                        400 ||
                                                         quotePending
                                                     }
                                                     onClick={quote}

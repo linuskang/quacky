@@ -33,15 +33,15 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json()
 
+    const scales = [body?.usability, body?.satisfaction, body?.recommend, body?.visual]
+
     if (
         !body ||
-        !body.usability ||
-        !body.satisfaction ||
-        !body.recommend ||
-        !body.visual ||
-        !body.comments
+        scales.some((s) => !Number.isInteger(s) || s < 1 || s > 5) ||
+        typeof body.comments !== "string" ||
+        !body.comments.trim()
     ) {
-        return Response.BadRequest("Missing required fields.")
+        return Response.BadRequest("Missing or invalid required fields.")
     }
 
     // log feedback

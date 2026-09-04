@@ -1,0 +1,10 @@
+---
+- name: Shutdown Raspberry Pis
+  hosts: pi_cluster
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Shut down Raspberry Pi
+      ansible.builtin.command:
+        cmd: shutdown -h now

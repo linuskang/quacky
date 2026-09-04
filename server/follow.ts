@@ -16,6 +16,7 @@
 
 import { prisma } from "@/server/prisma"
 import { NotificationService } from "./helpers"
+import { send } from "@/server/notification"
 
 export async function follow(followerId: string, followeeId: string) {
     if (followerId === followeeId) {
@@ -36,7 +37,8 @@ export async function follow(followerId: string, followeeId: string) {
 
     // check if the user already follows the user, if not, send a notification
     if (follow.count === 1) {
-        await NotificationService.sendFollow(followeeId, followerId)
+        //await NotificationService.sendFollow(followeeId, followerId)
+        await send(followeeId, followerId, "Started following you!")
     }
 
     // success
@@ -59,7 +61,15 @@ export async function unfollow(followerId: string, followeeId: string) {
 
     // check if user was following the user, if so remove that notification sent to the receiving usr.
     if (res.count === 1) {
-        await NotificationService.removeFollow(followeeId, followerId)
+        //await NotificationService.removeFollow(followeeId, followerId)
+
+        await prisma.notification.deleteMany({
+            where: {
+                userId: followeeId,
+                actorId: followerId,
+                content: "Started following you!",
+            },
+        })
     }
 
     return true

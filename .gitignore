@@ -8,6 +8,8 @@
 !.yarn/releases
 !.yarn/versions
 
+venv
+
 # testing
 /coverage
 
@@ -33,6 +35,7 @@ pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
 .env
+.env.production
 
 # typescript
 *.tsbuildinfo

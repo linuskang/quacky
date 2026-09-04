@@ -26,6 +26,8 @@ export const env = createEnv({
         GITHUB_CLIENT_SECRET: z.string(),
         GOOGLE_CLIENT_ID: z.string(),
         GOOGLE_CLIENT_SECRET: z.string(),
+        MICROSOFT_CLIENT_ID: z.string(),
+        MICROSOFT_CLIENT_SECRET: z.string(),
         UPSTREAM_API_KEY: z.string(),
         RESEND_API_KEY: z.string(),
         EMAIL_FROM: z.string(),
@@ -42,10 +44,20 @@ export const env = createEnv({
         RUSTFS_PUBLIC_BASE_URL: z.url().default("https://cdn.linus.my/qky"),
         LOGIN_BANNER_MESSAGE: z.string().default(""),
         QOTD: z.string().default(""),
-        TEST_PUSH_USERNAME: z.string().optional(),
+        VAPID_EMAIL: z.string(),
+        VAPID_PRIVATE_KEY: z.string(),
+        SEQ_INGEST_URL: z.string(),
+        SEQ_API_KEY: z.string(),
     },
 
-    experimental__runtimeEnv: {},
+    client: {
+        NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string(),
+    },
+
+    // next >16
+    experimental__runtimeEnv: {
+        NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+    },
     emptyStringAsUndefined: true,
     skipValidation:
         !!process.env.CI || process.env.SKIP_ENV_VALIDATION === "true",

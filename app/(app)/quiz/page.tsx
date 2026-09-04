@@ -44,27 +44,16 @@ interface Quiz {
     time: string
     xp: number
 }
-;[]
 
 export default function Page() {
     const [quiz, setQuiz] = useState<Quiz[]>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        async function fetchQuizzes() {
-            try {
-                setLoading(true)
-                await axios.get("/api/quizes").then((res) => {
-                    setQuiz(res.data.quizes)
-                })
-            } catch {
-                toast.error("something exploded. sorry please try again later")
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        fetchQuizzes()
+        axios.get("/api/quizes")
+            .then((res) => setQuiz(res.data.quizes))
+            .catch(() => toast.error("something exploded. sorry please try again later"))
+            .finally(() => setLoading(false))
     }, [])
 
     return (

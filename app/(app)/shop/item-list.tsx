@@ -25,9 +25,31 @@ type ItemData = ItemProps & {
 
 type ItemListProps = Omit<ComponentProps<"div">, "children"> & {
     items: ItemData[]
+    variant?: "horizontal" | "grid"
 }
 
-export function ItemList({ className, items, ...props }: ItemListProps) {
+export function ItemList({
+    className,
+    items,
+    variant = "horizontal",
+    ...props
+}: ItemListProps) {
+    if (variant === "grid") {
+        return (
+            <div
+                className={cn(
+                    "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 [&>[data-slot=card]]:w-full [&>[data-slot=card]]:max-w-none",
+                    className
+                )}
+                {...props}
+            >
+                {items.map((item) => (
+                    <Item key={item.id} {...item} />
+                ))}
+            </div>
+        )
+    }
+
     return (
         <div
             className={cn(

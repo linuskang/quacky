@@ -50,6 +50,7 @@ import {
     useMentionSuggestions,
 } from "@/components/mention-suggestions"
 import { Markdown } from "@/components/markdown-renderer"
+import { cn } from "@/lib/utils"
 
 // Types
 import { Comment } from "@/types"
@@ -203,6 +204,7 @@ export function CommentCard({ comment }: { comment: Comment }) {
     const router = useRouter()
     const [reportOpen, setReportOpen] = useState(false)
     const [delPending, setDelPending] = useState(false)
+    const [showFlaggedContent, setShowFlaggedContent] = useState(false)
     const { data: session } = authClient.useSession()
     const timeAgo = useTimeAgo(comment.createdAt)
     const canDelete =
@@ -316,9 +318,18 @@ export function CommentCard({ comment }: { comment: Comment }) {
                         />
                     </div>
                     {comment.flagged && (
-                        <PurpleEyeWarning text="This comment has been unlisted by a moderator due to a violation of our community guidelines." />
+                        <PurpleEyeWarning text="This comment has been unlisted by a moderator due to a violation of our community guidelines. If you are the author of this post, you will not be able to edit or delete contents until the post is unlocked." />
                     )}
-                    <div className="mb-1 text-sm break-words text-muted-foreground">
+                    <div
+                        className={cn(
+                            "mb-1 text-sm break-words text-muted-foreground transition-[filter] duration-300 ease-in-out",
+                            comment.flagged &&
+                            !showFlaggedContent &&
+                            "blur-sm"
+                        )}
+                        onMouseEnter={() => setShowFlaggedContent(true)}
+                        onMouseLeave={() => setShowFlaggedContent(false)}
+                    >
                         <Markdown>{comment.content}</Markdown>
                     </div>
                 </div>

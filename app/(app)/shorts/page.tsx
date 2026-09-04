@@ -18,16 +18,15 @@
 
 import { PageLayout, PageCenter } from "@/components/page-layout"
 import { playfairDisplay } from "@/lib/fonts"
-import { Title, Description } from "@/components/text"
+import { Title } from "@/components/text"
 import { Button } from "@/components/ui/button"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
     DialogDescription,
-    DialogTrigger,
 } from "@/components/ui/dialog"
 
 export default function Page() {

@@ -152,23 +152,23 @@ export async function GET(
                 repostOfId: post.repostOfId,
                 repostOf: post.repostOf
                     ? {
-                          id: post.repostOf.id,
-                          author: {
-                              id: post.repostOf.author.id,
-                              name: post.repostOf.author.name,
-                              username: post.repostOf.author.username,
-                              image: post.repostOf.author.image,
-                              verified: post.repostOf.author.verified,
-                              role: post.repostOf.author.role,
-                          },
-                          content: post.repostOf.content,
-                          flagged: post.repostOf.flagged,
-                          edited: post.repostOf.edited,
-                          createdAt: post.repostOf.createdAt,
-                          updatedAt: post.repostOf.updatedAt,
-                          views: post.repostOf.views,
-                          attachments: post.repostOf.attachments,
-                      }
+                        id: post.repostOf.id,
+                        author: {
+                            id: post.repostOf.author.id,
+                            name: post.repostOf.author.name,
+                            username: post.repostOf.author.username,
+                            image: post.repostOf.author.image,
+                            verified: post.repostOf.author.verified,
+                            role: post.repostOf.author.role,
+                        },
+                        content: post.repostOf.content,
+                        flagged: post.repostOf.flagged,
+                        edited: post.repostOf.edited,
+                        createdAt: post.repostOf.createdAt,
+                        updatedAt: post.repostOf.updatedAt,
+                        views: post.repostOf.views,
+                        attachments: post.repostOf.attachments,
+                    }
                     : null,
                 flagged: post.flagged,
                 edited: post.edited,
@@ -232,6 +232,23 @@ export async function DELETE(
 
         return Response.Forbidden(
             "You do not have permissions to perform this action."
+        )
+    }
+
+
+    if (comment.flagged && session.user.role !== "admin") {
+        await Up.ingest({
+            title: "unauthorized",
+            icon: "🙈",
+            data: {
+                session,
+                comment,
+                action: "attempted to delete flagged comment",
+            },
+        })
+
+        return Response.Forbidden(
+            "Content is flagged"
         )
     }
 

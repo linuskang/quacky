@@ -25,7 +25,7 @@ import { admin } from "better-auth/plugins"
 import { NotificationService } from "@/server/helpers"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
-import { haveIBeenPwned } from "better-auth/plugins"
+// import { haveIBeenPwned } from "better-auth/plugins"
 import { openAPI } from "better-auth/plugins"
 import { Up } from "@/server/upstream"
 import { canSignup, allowProfileChange } from "@/lib/var"
@@ -64,13 +64,13 @@ export const auth = betterAuth({
         //     customPasswordCompromisedMessage:
         //         "This password has been compromised in a data breach. Please choose a different password.",
         // }),
-        // openAPI(),
+        openAPI(),
         apiKey(),
     ],
 
     emailAndPassword: {
         enabled: true,
-        requireEmailVerification: true,
+        requireEmailVerification: false,
         sendResetPassword: async (data) => {
             await resend.emails.send({
                 from: env.EMAIL_FROM,
@@ -110,7 +110,10 @@ export const auth = betterAuth({
         additionalFields: {
             username: {
                 type: "string",
+                // OAuth providers do not submit this application-specific field;
+                // the create hook replaces this sentinel with a generated username.
                 required: true,
+                defaultValue: "",
                 unique: true,
                 validator: {
                     input: z
@@ -129,22 +132,22 @@ export const auth = betterAuth({
             statsForNerds: {
                 type: "boolean",
                 required: false,
-                default: false,
+                defaultValue: false,
             },
             private: {
                 type: "boolean",
                 required: false,
-                default: false,
+                defaultValue: false,
             },
             streamerMode: {
                 type: "boolean",
                 required: false,
-                default: false,
+                defaultValue: false,
             },
             hideTips: {
                 type: "boolean",
                 required: false,
-                default: false,
+                defaultValue: false,
             },
             bio: {
                 type: "string",
@@ -169,32 +172,32 @@ export const auth = betterAuth({
             unlockedPosting: {
                 type: "boolean",
                 required: false,
-                default: false,
+                defaultValue: false,
             },
             unlockedCommenting: {
                 type: "boolean",
                 required: false,
-                default: false,
+                defaultValue: false,
             },
             unlockedDms: {
                 type: "boolean",
                 required: false,
-                default: false,
+                defaultValue: false,
             },
             unlockedFuzzies: {
                 type: "boolean",
                 required: false,
-                default: false,
+                defaultValue: false,
             },
             unlockedProfiles: {
                 type: "boolean",
                 required: false,
-                default: false,
+                defaultValue: false,
             },
             pushNotificationsEnabled: {
                 type: "boolean",
                 required: false,
-                default: true,
+                defaultValue: true,
             },
         },
     },
@@ -210,14 +213,21 @@ export const auth = betterAuth({
                                 "Signups are currently disabled. Contact an admin.",
                         })
                     }
-                    let username = (user as Record<string, unknown>)
-                        .username as string | undefined
+                    let username = (user as Record<string, unknown>).username as string | undefined
 
                     if (!username) {
-                        username = (user as Record<string, unknown>).email as
-                            string | undefined
+                        username = (user as Record<string, unknown>).email as string | undefined
+
                         if (username) {
-                            username = username.split("@")[0]
+                            username = username
+                                .split("@")[0]
+                                .toLowerCase()
+                                .replace(/[^a-z0-9_]/g, "")
+                                .slice(0, 20)
+
+                            if (username.length < 5) {
+                                username = `${username}user`.slice(0, 20)
+                            }
                         }
                     }
 
@@ -225,11 +235,22 @@ export const auth = betterAuth({
                         const existing = await prisma.user.findUnique({
                             where: { username },
                         })
+
                         if (existing) {
                             throw APIError.from("UNPROCESSABLE_ENTITY", {
                                 code: "USERNAME_ALREADY_EXISTS",
                                 message: "Username is already taken",
                             })
+                        }
+
+                        return {
+                            data: {
+                                ...user,
+                                username,
+                                ...(!user.image && {
+                                    image: `https://avatars.lkang.au/10.x/micah/svg?seed=${encodeURIComponent(user.name)}`,
+                                }),
+                            },
                         }
                     }
 
@@ -237,7 +258,7 @@ export const auth = betterAuth({
                         return {
                             data: {
                                 ...user,
-                                image: `https://avatars.hel1.lkang.au/10.x/micah/svg?seed=${encodeURIComponent(user.name)}`,
+                                image: `https://avatars.lkang.au/10.x/micah/svg?seed=${encodeURIComponent(user.name)}`,
                             },
                         }
                     }
@@ -254,7 +275,7 @@ export const auth = betterAuth({
                         category: "user.signup",
                         icon: "🎉",
                         data: user,
-                    }).catch(() => {})
+                    }).catch(() => { })
                 },
             },
             update: {
@@ -289,12 +310,17 @@ export const auth = betterAuth({
         github: {
             clientId: env.GITHUB_CLIENT_ID,
             clientSecret: env.GITHUB_CLIENT_SECRET,
-            disableSignup: false,
+            disableSignUp: false,
         },
         google: {
             clientId: env.GOOGLE_CLIENT_ID,
             clientSecret: env.GOOGLE_CLIENT_SECRET,
-            disableSignup: false,
+            disableSignUp: false,
         },
+        microsoft: {
+            clientId: env.MICROSOFT_CLIENT_ID,
+            clientSecret: env.MICROSOFT_CLIENT_SECRET,
+            disableSignUp: false,
+        }
     },
 })

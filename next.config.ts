@@ -15,9 +15,11 @@
 // Work is licensed under the CC BY-NC 4.0 license.
 
 import type { NextConfig } from "next"
+import { withBotId } from 'botid/next/config'
 
 const nextConfig: NextConfig = {
     output: "standalone",
+    serverExternalPackages: ["pino"],
     transpilePackages: ["@uplabs/sdk"],
     images: {
         dangerouslyAllowLocalIP: true,
@@ -59,4 +61,4 @@ const nextConfig: NextConfig = {
     allowedDevOrigins: ["qky.linus.my"],
 }
 
-export default nextConfig
+export default withBotId(nextConfig)

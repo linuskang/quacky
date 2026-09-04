@@ -21,6 +21,7 @@ import {
 } from "@/server/storage"
 import { NextRequest, NextResponse } from "next/server"
 import { getSession } from "@/server/auth"
+import path from "node:path"
 
 export async function POST(req: NextRequest) {
     const session = await getSession()
@@ -50,7 +51,9 @@ export async function POST(req: NextRequest) {
         )
     }
 
-    const key = getStorageKey(session.user.id, crypto.randomUUID())
+    const extension = path.extname(file.name).toLowerCase()
+
+    const key = getStorageKey(session.user.id, 'v2', `${crypto.randomUUID()}${extension}`)
 
     await uploadObject({
         key,

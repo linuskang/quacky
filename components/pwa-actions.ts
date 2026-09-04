@@ -1,3 +1,19 @@
+//   ______                                 __
+//  /      \                               /  |
+// /$$$$$$  | __    __   ______    _______ $$ |   __  __    __
+// $$ |  $$ |/  |  /  | /      \  /       |$$ |  /  |/  |  /  |
+// $$ |  $$ |$$ |  $$ | $$$$$$  |/$$$$$$$/ $$ |_/$$/ $$ |  $$ |
+// $$ |_ $$ |$$ |  $$ | /    $$ |$$ |      $$   $$<  $$ |  $$ |
+// $$ / \$$ |$$ \__$$ |/$$$$$$$ |$$ \_____ $$$$$$  \ $$ \__$$ |
+// $$ $$ $$< $$    $$/ $$    $$ |$$       |$$ | $$  |$$    $$ |
+//  $$$$$$  | $$$$$$/   $$$$$$$/  $$$$$$$/ $$/   $$/  $$$$$$$ |
+//      $$$/                                         /  \__$$ |
+//                                                   $$    $$/
+//                                                    $$$$$$/
+//
+// Linus Kang, 2026
+// Work is licensed under the CC BY-NC 4.0 license.
+
 'use server'
 
 import { PushSubscription } from 'web-push'
@@ -47,5 +63,8 @@ export async function sendNotificationToMe(message: string) {
         throw new Error('Not authenticated')
     }
 
-    return sendPushNotification(session.user.id, { body: message })
+    return sendPushNotification(session.user.id, {
+        title: 'Quacky',
+        body: message,
+    })
 }

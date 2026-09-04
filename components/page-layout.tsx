@@ -59,7 +59,7 @@ export function PageRight({ children, className }: Props) {
     return (
         <aside
             className={cn(
-                "fixed top-0 right-0 hidden h-screen w-80 flex-col gap-4 overflow-y-auto px-4 py-8 xl:flex",
+                "fixed top-0 right-0 hidden h-screen w-90 flex-col gap-4 overflow-y-auto px-4 py-8 xl:flex",
                 className
             )}
         >

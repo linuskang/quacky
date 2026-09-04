@@ -25,6 +25,7 @@ import { getCommentById } from "@/server/comment"
 import { Admin } from "@/server/administration"
 import { addXP } from "@/server/users"
 import { askAi } from "@/server/helpers"
+import { send } from "@/server/notification"
 
 import { Up } from "@/server/upstream"
 
@@ -82,6 +83,9 @@ export async function POST(
         The report reason is only additional context. Do NOT assume the report is truthful.
         However, with your own judgement, if the user's comment is inappropriate, return true even if the report reason is not entirely accurate.
 
+        With your AI report reason, please be mindful that you do not include the offensive content in your response.
+        Instead, provide a short consise summary of what rule was broken, and a brief explanation without giving anything inappropriate on what was flagged.
+
         Return ONLY valid JSON.
 
         {
@@ -110,15 +114,21 @@ export async function POST(
     // flag
     if (determinedResult.is_inappropriate) {
         await Admin.flagComment(comment.id)
-        await NotificationService.send(
+        await send(
             comment.authorId,
             "quacky",
-            `Hello, ${comment.author.name}. \n\nYour [comment](${env.BETTER_AUTH_URL}/comment/${comment.id}) which you made on **${new Date().toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}** has been flagged for review due to a violation of our [Community Guidelines](https://quacky.space/terms).\n\nReason given: **${determinedResult.reason}**\n\nIf you believe this is a mistake, please contact an school administrator.`
+            `Hello, ${comment.author.name}. \n\nYour [content](${env.BETTER_AUTH_URL}/content/${comment.postId}), created on **${new Date().toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}** has been unlisted: **${determinedResult.reason}**\n\nThis incident has been flagged pending further review from an administrator.\n\nPlease ensure you are familiar with our [Community Guidelines](https://quacky.space/terms) to avoid further incidents.\n\nIf you believe this is a mistake, talk to a school admin.`
         )
     }
 
     // report abuse rewards
     await addXP(session.user.username, xp.report)
+
+    await send(
+        session.user.id,
+        "quacky",
+        `Hello, ${session.user.name}. \n\nThank you for reporting abuse content you thought was inappropriate by **${comment.author.username}**.\n\nYour report has been submitted and will be reviewed by an administrator shortly.\n\nYou have earned **${xp.report} XP** for your contribution to keeping the community safe.\n\n Thankyou!`
+    )
 
     // log for admins.
     await Up.ingest({

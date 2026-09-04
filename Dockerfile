@@ -32,6 +32,14 @@ ENV GOOGLE_CLIENT_ID="dummy-google-client-id"
 ENV GOOGLE_CLIENT_SECRET="dummy-google-client-secret"
 ENV AI_KEY="dummy-ai-key"
 ENV AI_MODEL="dummy-ai-model"
+ARG NEXT_PUBLIC_VAPID_PUBLIC_KEY="dummy-vapid-public-key"
+ENV NEXT_PUBLIC_VAPID_PUBLIC_KEY=${NEXT_PUBLIC_VAPID_PUBLIC_KEY}
+ENV VAPID_PRIVATE_KEY="dummy-vapid-private-key"
+ENV MICROSOFT_CLIENT_ID="dummy-microsoft-client-id"
+ENV MICROSOFT_CLIENT_SECRET="dummy-microsoft-client-secret"
+ENV VAPID_EMAIL="dummy-vapid-email@lkang.au"
+ENV SEQ_INGEST_URL="https://dummy-seq-ingest-url"
+ENV SEQ_API_KEY="dummy-seq-api-key"
 
 RUN npx prisma generate
 RUN npm run build
@@ -54,7 +62,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/generated ./generated
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/entrypoint.sh ./entrypoint.sh
-RUN chmod +x ./entrypoint.sh
+RUN sed -i 's/\r$//' ./entrypoint.sh && chmod +x ./entrypoint.sh
 
 USER nextjs
 

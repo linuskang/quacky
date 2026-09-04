@@ -1,67 +1,9 @@
 services:
   app:
-    image: ghcr.io/linusdotmy/quacky:latest
+    image: ghcr.io/linuskang/quacky:latest
     restart: unless-stopped
+    env_file: .env
     environment:
-      DATABASE_URL: ${DATABASE_URL}
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
-      BETTER_AUTH_URL: ${BETTER_AUTH_URL}
-      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
-      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      ORG_NAME: ${ORG_NAME}
-      DESCRIPTION: ${DESCRIPTION}
-      UPSTREAM_API_KEY: ${UPSTREAM_API_KEY}
-      RESEND_API_KEY: ${RESEND_API_KEY}
-      EMAIL_FROM: ${EMAIL_FROM}
-      AI_URL: ${AI_URL}
-      AI_KEY: ${AI_KEY}
-      AI_MODEL: ${AI_MODEL}
-      QOTD: ${QOTD:-}
-      LOGIN_BANNER_MESSAGE: ${LOGIN_BANNER_MESSAGE:-}
-      RUSTFS_ENDPOINT: ${RUSTFS_ENDPOINT}
-      RUSTFS_REGION: ${RUSTFS_REGION:-auto}
-      RUSTFS_ACCESS_KEY_ID: ${RUSTFS_ACCESS_KEY_ID}
-      RUSTFS_SECRET_ACCESS_KEY: ${RUSTFS_SECRET_ACCESS_KEY}
-      RUSTFS_BUCKET: ${RUSTFS_BUCKET:-qky}
-      RUSTFS_PUBLIC_BASE_URL: ${RUSTFS_PUBLIC_BASE_URL:-https://cdn.linus.my/qky}
+      PORT: ${PORT:-5431}
     ports:
-      - "5374:3000"
-    depends_on:
-      - db
-      - cdn
-    networks:
-      - quacky_network
-  db:
-    image: postgres:16
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    volumes:
-      - quacky_db_data:/var/lib/postgresql/data
-    ports:
-      - "5731:5432"
-    networks:
-      - quacky_network
-  cdn:
-    image: rustfs/rustfs:latest
-    restart: unless-stopped
-    environment:
-      - RUSTFS_ACCESS_KEY=${RUSTFS_USER}
-      - RUSTFS_SECRET_KEY=${RUSTFS_PASSWORD}
-    volumes:
-      - quacky_s3_data:/data
-    command: /data
-    networks:
-      - quacky_network
-    ports:
-      - "5372:9001"
-volumes:
-  quacky_db_data:
-  quacky_s3_data:
-networks:
-  quacky_network:
-    driver: bridge
+      - "5431:5431"

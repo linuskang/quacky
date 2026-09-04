@@ -36,6 +36,8 @@ model User {
   banReason  String?
   banExpires DateTime?
 
+  parentEmail String?
+
   unlockedPosting    Boolean @default(false)
   unlockedCommenting Boolean @default(false)
   unlockedDms        Boolean @default(false)
@@ -428,6 +430,7 @@ model Account {
   id                    String    @id
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId                String
+  issuer                String
   accountId             String
   providerId            String
   accessToken           String?
@@ -441,6 +444,7 @@ model Account {
   updatedAt             DateTime  @db.Timestamptz(3)
 
   @@index([userId])
+  @@unique([issuer, accountId], map: "account_issuer_accountId_uidx")
   @@map("account")
 }
 

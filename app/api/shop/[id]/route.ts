@@ -48,62 +48,6 @@ export async function GET(
     return NextResponse.json(item)
 }
 
-export async function POST(
-    req: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
-) {
-    const session = await getSession()
-    if (!session) {
-        return new NextResponse("Unauthorized", {
-            status: 401,
-        })
-    }
-
-    const { id } = await params
-
-    const item = await prisma.shopItem.findUnique({
-        where: { id },
-    })
-
-    if (!item) {
-        return new NextResponse("Not Found", {
-            status: 404,
-        })
-    }
-
-    await Up.ingest({
-        title: `${session.user.email} purchased an item`,
-        icon: "💴",
-        description: `User ${session.user.email} purchased an item.`,
-        fields: [
-            {
-                title: "User ID",
-                value: session.user.id,
-            },
-            {
-                title: "User Email",
-                value: session.user.email,
-            },
-            {
-                title: "Item ID",
-                value: item.id,
-            },
-            {
-                title: "Item Name",
-                value: item.name,
-            },
-        ],
-    })
-
-    // need to implement buy logic,
-    // for example:
-    // - remove balance, remove stock, etc.
-
-    return NextResponse.json({
-        msg: "cool",
-    })
-}
-
 export async function PATCH(
     _req: NextRequest,
     {

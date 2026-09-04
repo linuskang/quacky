@@ -18,13 +18,19 @@ import fs from "fs/promises"
 import path from "path"
 import matter from "gray-matter"
 
+import { prisma } from "@/server/prisma"
+
 export type Resource = {
     slug: string
     name: string
     description: string
     readTime: number
     date: string
-    author: string
+    author: {
+        name: string
+        username: string
+        image: string
+    } | null
 }
 
 export type ResourcePage = Resource & {
@@ -53,6 +59,17 @@ export class Resources {
                     const file = await fs.readFile(fullPath, "utf8")
                     const { data } = matter(file)
 
+                    const author = await prisma.user.findUnique({
+                        where: {
+                            username: data.author,
+                        },
+                        select: {
+                            name: true,
+                            username: true,
+                            image: true,
+                        },
+                    })
+
                     return [
                         {
                             slug: path
@@ -63,7 +80,7 @@ export class Resources {
                             description: data.description,
                             readTime: Number(data.readTime),
                             date: data.date,
-                            author: data.author,
+                            author,
                         },
                     ]
                 })
@@ -82,13 +99,24 @@ export class Resources {
             const file = await fs.readFile(filePath, "utf8")
             const { data, content } = matter(file)
 
+            const author = await prisma.user.findUnique({
+                where: {
+                    username: data.author,
+                },
+                select: {
+                    name: true,
+                    username: true,
+                    image: true,
+                },
+            })
+
             return {
                 slug,
                 name: data.name,
                 description: data.description,
                 readTime: Number(data.readTime),
                 date: data.date,
-                author: data.author,
+                author,
                 content,
             }
         } catch {

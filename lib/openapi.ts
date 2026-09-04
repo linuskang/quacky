@@ -70,8 +70,88 @@ const boolean = (description?: string): Schema => ({
     type: "boolean",
     description,
 })
+const nullableString = (description?: string): Schema => ({
+    type: ["string", "null"],
+    description,
+})
+const nullableBoolean = (description?: string): Schema => ({
+    type: ["boolean", "null"],
+    description,
+})
+
+const adminUserUpdateProperties: Record<string, Schema> = {
+    name: string("User display name."),
+    username: string("Unique username."),
+    email: { type: "string", format: "email" },
+    emailVerified: boolean(),
+    image: string("Profile image URL."),
+    verified: boolean(),
+    statsForNerds: boolean(),
+    private: boolean(),
+    streamerMode: boolean(),
+    hideTips: boolean(),
+    bio: nullableString(),
+    bannerImage: nullableString(),
+    pronoun: nullableString(),
+    location: nullableString(),
+    website: nullableString(),
+    role: nullableString(),
+    banned: nullableBoolean(),
+    banReason: nullableString(),
+    banExpires: {
+        type: ["string", "null"],
+        format: "date-time",
+    },
+    parentEmail: nullableString(),
+    unlockedPosting: boolean(),
+    unlockedCommenting: boolean(),
+    unlockedDms: boolean(),
+    unlockedFuzzies: boolean(),
+    unlockedProfiles: boolean(),
+    xp: { type: "integer", minimum: 0 },
+    points: { type: "integer", minimum: 0 },
+    pushNotificationsEnabled: boolean(),
+}
+
+const adminUserUpdateRequired = Object.keys(adminUserUpdateProperties)
 
 const routes: Route[] = [
+    {
+        path: "/api/admin/users",
+        tag: "Administration",
+        operations: {
+            get: {
+                summary: "List users",
+                description: "Lists all users. Admin only.",
+                responses: [200, 401, 403],
+            },
+        },
+    },
+    {
+        path: "/api/admin/users/{handle}",
+        tag: "Administration",
+        operations: {
+            get: {
+                summary: "Get a user for administration",
+                description: "Returns a user and relationship data. Admin only.",
+                responses: [200, 401, 403, 404],
+            },
+            patch: {
+                summary: "Update a user",
+                description:
+                    "Updates a user's scalar fields. Every changed field is recorded in the upstream audit log. Admin only.",
+                body: {
+                    schema: {
+                        type: "object",
+                        properties: adminUserUpdateProperties,
+                        required: adminUserUpdateRequired,
+                        additionalProperties: false,
+                    },
+                },
+                responses: [200, 400, 401, 403, 404],
+            },
+        },
+    },
     {
         path: "/api/admin/invite",
         tag: "Administration",

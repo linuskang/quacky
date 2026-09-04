@@ -238,7 +238,7 @@ export function RngCard({ initialEntry, initialLeaderboard }: RngCardProps) {
                         <h1
                             className={cn(
                                 "text-5xl font-bold text-primary tabular-nums",
-                                spinning && "animate-pulse"
+                                spinning
                             )}
                         >
                             {displayNumber !== null

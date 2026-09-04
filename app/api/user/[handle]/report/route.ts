@@ -20,6 +20,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { getUser } from "@/server/users"
 import { Admin } from "@/server/administration"
 import { Up } from "@/server/upstream"
+import { send } from "@/server/notification"
+import { xp } from "@/lib/var"
 
 export async function POST(
     req: NextRequest,
@@ -60,6 +62,7 @@ A profile is inappropriate if it contains or promotes:
 - encouragement of self-harm
 - private personal information (doxxing)
 - usernames or profile text designed primarily to abuse or evade moderation
+- anything else that is not G-rated or appropriate for a school environment.
 
 The report reason is only additional context. Do NOT assume the report is truthful.
 However, with your own judgement, if the user's details are inappropriate, return true even if the report reason is not entirely accurate.
@@ -100,6 +103,12 @@ ${reason}
     if (result.is_inappropriate) {
         await Admin.banUser(user.id, result.reason)
     }
+
+    await send(
+        session.user.id,
+        "quacky",
+        `Hello, ${session.user.name}. \n\nThank you for reporting abuse content you thought was inappropriate by **${user.username}**.\n\nYour report has been submitted and will be reviewed by an administrator shortly.\n\nYou have earned **${xp.report} XP** for your contribution to keeping the community safe.\n\n Thankyou!`
+    )
 
     await Up.ingest({
         title: "User Report - " + user.username,

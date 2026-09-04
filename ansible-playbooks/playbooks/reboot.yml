@@ -1,0 +1,11 @@
+---
+- name: reboot pis
+  hosts: pi_cluster
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Reboot pis
+      ansible.builtin.reboot:
+        reboot_timeout: 300
+        msg: "bye"
