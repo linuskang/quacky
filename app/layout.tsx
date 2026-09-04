@@ -17,6 +17,7 @@
 import "./globals.css"
 import { RegisterServiceWorker } from "@/components/register-sw"
 import { ThemeProvider } from "@/components/theme-provider"
+import { TRPCProvider } from "@/components/trpc-provider"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner"
 import { Metadata } from "next"
@@ -66,9 +67,11 @@ export default function RootLayout({
                 />
                 <TooltipProvider>
                     <ThemeProvider>
-                        <Toaster position="top-center" />
-                        <RegisterServiceWorker />
-                        {children}
+                        <TRPCProvider>
+                            <Toaster position="top-center" />
+                            <RegisterServiceWorker />
+                            {children}
+                        </TRPCProvider>
                     </ThemeProvider>
                 </TooltipProvider>
             </body>

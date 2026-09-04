@@ -28,6 +28,8 @@ import { SearchResults } from "./search-results"
 import Link from "next/link"
 import { fetchTrending } from "@/server/posts"
 import { SuggestedPeopleFeedCard } from "@/components/suggested-people"
+import { RngWidget } from "@/components/widgets/rng"
+import { QOTD } from "@/components/widgets/qotd"
 
 export default async function Page() {
     const session = await requireSession()
@@ -93,6 +95,8 @@ export default async function Page() {
             </PageCenter>
             <PageRight>
                 <TrendingWidget />
+                {/* <RngWidget />
+                <QOTD /> */}
             </PageRight>
         </PageLayout>
     )
