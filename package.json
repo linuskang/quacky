@@ -33,7 +33,7 @@
         "@trpc/react-query": "^11.18.0",
         "@trpc/server": "^11.18.0",
         "@uplabs/sdk": "^0.3.1",
-        "axios": "^1.18.1",
+        "axios": "^1.20.0",
         "better-auth": "^1.7.2",
         "botid": "^1.5.11",
         "class-variance-authority": "^0.7.1",
