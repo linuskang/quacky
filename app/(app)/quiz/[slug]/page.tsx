@@ -30,6 +30,7 @@ import { Card } from "@/components/ui/card"
 import { PageLayout, PageCenter } from "@/components/page-layout"
 import { Title, Description } from "@/components/text"
 import Loading from "@/components/loading"
+import { QuizLayout } from "@/components/quiz-layout"
 
 // Types
 interface Question {
@@ -52,7 +53,11 @@ export default function Page() {
     const [feedback, setFeedback] = useState<Record<number, string>>({})
     const [loading, setLoading] = useState(true)
     const [submitting, setSubmitting] = useState(false)
-    const [meta, setMeta] = useState<{ name: string; description: string }>({
+    const [meta, setMeta] = useState<{
+        name: string
+        description: string
+        theory?: string
+    }>({
         name: "",
         description: "",
     })
@@ -108,21 +113,23 @@ export default function Page() {
 
     return (
         <PageLayout>
-            <PageCenter>
+            <PageCenter className="max-w-none">
                 <Title>{meta.name}</Title>
                 <Description>{meta.description}</Description>
-                {submitting && (
-                    <div className="flex flex-col items-center gap-3 py-8 text-center">
-                        <Loading />
-                        <p className="max-w-sm text-sm font-semibold text-muted-foreground">
-                            This will take a second. Please do not close this
-                            page while our automated grading system checks your
-                            answers.
-                        </p>
-                    </div>
-                )}
                 {loading && <Loading />}
-                {!submitting && questions.map((question) => {
+                {!loading && (
+                    <QuizLayout theory={meta.theory}>
+                            {submitting && (
+                                <div className="flex flex-col items-center gap-3 py-8 text-center">
+                                    <Loading />
+                                    <p className="max-w-sm text-sm font-semibold text-muted-foreground">
+                                        This will take a second. Please do not
+                                        close this page while our automated
+                                        grading system checks your answers.
+                                    </p>
+                                </div>
+                            )}
+                            {!submitting && questions.map((question) => {
                     const isWrong = wrongQuestions.includes(question.no)
                     const questionFeedback = feedback[question.no]
                     return (
@@ -226,18 +233,21 @@ export default function Page() {
                             )}
                         </div>
                     )
-                })}
+                            })}
 
-                {!loading && !submitting && (
-                    <Button
-                        className="h-10 w-full border-2 border-border bg-card text-sm !text-primary hover:!border-primary hover:!bg-card"
-                        disabled={
-                            Object.keys(answers).length !== questions.length
-                        }
-                        onClick={submitQuiz}
-                    >
-                        Submit
-                    </Button>
+                            {!submitting && (
+                                <Button
+                                    className="h-10 w-full border-2 border-border bg-card text-sm !text-primary hover:!border-primary hover:!bg-card"
+                                    disabled={
+                                        Object.keys(answers).length !==
+                                        questions.length
+                                    }
+                                    onClick={submitQuiz}
+                                >
+                                    Submit
+                                </Button>
+                            )}
+                    </QuizLayout>
                 )}
             </PageCenter>
         </PageLayout>

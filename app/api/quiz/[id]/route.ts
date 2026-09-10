@@ -55,6 +55,7 @@ type Quiz = {
     id: string
     name: string
     description: string
+    theory?: string
     to: string
     time: string
     xp: number
@@ -182,6 +183,7 @@ export async function GET(
         meta: {
             name: quiz.name,
             description: quiz.description,
+            theory: quiz.theory,
         },
     })
 }

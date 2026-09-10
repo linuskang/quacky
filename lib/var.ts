@@ -68,6 +68,21 @@ export const quizes = [
         id: "post",
         name: "Posting",
         description: "Complete this quiz to unlock posting!",
+        theory: `
+## Posting safely on social media
+
+Social media is a public or semi-public space, so posts should be respectful, honest, and safe for other people to read. Different platforms have different rules, but the same basic safety habits apply everywhere.
+
+### Before you post
+
+- Follow the platform's community guidelines.
+- Avoid sharing private information such as your address, phone number, or passwords.
+- Remember that posts can be saved, shared, or seen by people outside your intended audience.
+- Only post things you are comfortable having associated with you.
+- Check that photos and information about other people are okay to share before posting them.
+
+If a post breaks the rules, report it through the platform's reporting tools instead of engaging with or harassing the person who made it. If someone pressures you to post something uncomfortable, set a boundary and talk to a trusted adult if you need help.
+`,
         to: "/quiz/post",
         time: "8 min",
         xp: 50,
@@ -75,7 +90,7 @@ export const quizes = [
             {
                 id: 1,
                 type: "multiple-choice",
-                question: "How should you be posting on Quacky?",
+                question: "How should you be posting on social media?",
                 options: [
                     { id: "a", text: "Be respectful and follow the community guidelines", correct: true },
                     { id: "b", text: "Post AI spam and misinformation on the platform" },
@@ -112,6 +127,23 @@ export const quizes = [
                 ],
             },
             {
+                id: 5,
+                type: "multiple-choice",
+                question: "What is a good first step if someone pressures you to post something uncomfortable?",
+                options: [
+                    { id: "a", text: "Set a boundary and say that you do not want to post it", correct: true },
+                    { id: "b", text: "Post it immediately so nobody gets upset" },
+                    { id: "c", text: "Share the person's private information" },
+                    { id: "d", text: "Pretend it never happened and keep engaging" },
+                ],
+            },
+            {
+                id: 6,
+                type: "text",
+                question: "What makes a post respectful and safe for other people?",
+                answer: "The answer should explain that a respectful and safe post follows the community guidelines, avoids harassment or hateful content, and does not share private information.",
+            },
+            {
                 id: 7,
                 type: "text",
                 question: "A friend asks you to post something you're uncomfortable with. What should you do?",
@@ -125,9 +157,20 @@ export const quizes = [
             },
             {
                 id: 9,
+                type: "multiple-choice",
+                question: "What should you consider before sharing a photo of someone else?",
+                options: [
+                    { id: "a", text: "Whether you have their permission and the photo is appropriate", correct: true },
+                    { id: "b", text: "Whether the photo will make them embarrassed" },
+                    { id: "c", text: "Nothing, because photos are always safe to share" },
+                    { id: "d", text: "Whether you can hide the post from everyone" },
+                ],
+            },
+            {
+                id: 10,
                 type: "text",
-                question: "A friend asks you to post something for them because they say their account might get in trouble if they post it themselves. They promise that it is harmless. What would you do?",
-                answer: "The answer should mention not posting content on someone else's behalf simply to bypass rules or accountability, and considering whether the content actually follows the community guidelines.",
+                question: "How could you respond to someone you disagree with without starting a fight?",
+                answer: "The answer should describe staying respectful, discussing the idea instead of attacking the person, and stepping away or reporting the conversation if it becomes harmful.",
             },
         ],
     },
@@ -135,6 +178,13 @@ export const quizes = [
         id: "comment",
         name: "Commenting",
         description: "Complete this quiz to unlock commenting!",
+        theory: `
+## Commenting responsibly
+
+Comments should add to the conversation without attacking or harassing other people.
+
+Before commenting, consider whether your words are respectful and relevant. Disagreement is okay, but personal attacks, hate speech, spam, and misinformation are not.
+`,
         to: "/quiz/comment",
         time: "5 min",
         xp: 30,
@@ -156,6 +206,13 @@ export const quizes = [
         id: "fuzzies",
         name: "Warm Fuzzies",
         description: "Complete this quiz to unlock sending warm fuzzies!",
+        theory: `
+## Sending warm fuzzies
+
+Warm fuzzies are a way to make someone feel appreciated. Send them when you have something kind or encouraging to say.
+
+Keep your message respectful and appropriate for the person receiving it. Do not use warm fuzzies to pressure, embarrass, or bother someone.
+`,
         to: "/quiz/fuzzies",
         time: "5 min",
         xp: 30,
@@ -177,6 +234,13 @@ export const quizes = [
         id: "test-ai",
         name: "Test AI",
         description: "ai test quiz",
+        theory: `
+## Using AI responsibly
+
+AI is a tool. It can be useful for learning, brainstorming, and creating, but it can also make mistakes or produce harmful content.
+
+Use your judgment, check important information, and take responsibility for anything you submit or share. Do not treat an AI response as automatically correct.
+`,
         to: "/quiz/test-ai",
         time: "5 min",
         xp: 30,

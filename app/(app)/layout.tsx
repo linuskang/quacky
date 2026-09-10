@@ -21,6 +21,7 @@ import { requireSession } from "@/server/auth"
 import { Sidebar } from "@/components/sidebar"
 import { Profile } from "@/components/profile"
 import { PageLayout, PageLeft, PageCenter, PageRight } from "@/components/page-layout"
+import { AppPageCenter } from "@/components/app-page-center"
 import { Feedback } from "@/components/feedback"
 import { BottomBar } from "@/components/bottom-bar"
 import { MobileNav } from "@/components/mobile-nav"
@@ -126,7 +127,7 @@ export default async function QuackyLayout({
                         </div>
                     </PageLeft>
 
-                    <PageCenter className="relative z-20 pb-24 lg:pb-16">{children}</PageCenter>
+                     <AppPageCenter className="relative z-20 pb-24 lg:pb-16">{children}</AppPageCenter>
 
                     <Feedback />
                     <BottomBar />
