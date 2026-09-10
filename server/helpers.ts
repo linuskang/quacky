@@ -26,7 +26,7 @@ function getAI() {
     if (!ai) {
         ai = new OpenAI({
             apiKey: env.AI_KEY,
-            baseURL: env.AI_URL,
+            // baseURL: env.AI_URL,
         })
     }
     return ai
