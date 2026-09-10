@@ -22,6 +22,8 @@ import { useState, useRef, useEffect } from "react"
 
 // Components
 import { ArrowUp } from "lucide-react"
+import { Lock } from "lucide-react"
+import Link from "next/link"
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { Bubble, BubbleContent } from "@/components/ui/bubble"
 import { Message, MessageContent } from "@/components/ui/message"
@@ -47,6 +49,7 @@ interface Props {
     other: User
     currentUserId: string
     initialMessages: Dm[]
+    locked: boolean
 }
 
 // Utils
@@ -70,7 +73,12 @@ function formatDay(iso: string) {
     })
 }
 
-export function Dm({ other, currentUserId, initialMessages }: Props) {
+export function Dm({
+    other,
+    currentUserId,
+    initialMessages,
+    locked,
+}: Props) {
     const [messages, setMessages] = useState<Dm[]>(initialMessages)
     const [draft, setDraft] = useState("")
     const bottomRef = useRef<HTMLDivElement>(null)
@@ -92,7 +100,9 @@ export function Dm({ other, currentUserId, initialMessages }: Props) {
 
     return (
         <section className="flex min-h-0 flex-col">
-            <header className="fixed top-0 z-10 flex w-full max-w-xl items-center justify-between bg-background px-4 py-3">
+            <header
+                className={`${locked ? "pointer-events-none select-none blur-sm" : ""} fixed top-0 z-10 flex w-full max-w-xl items-center justify-between bg-background px-4 py-3`}
+            >
                 <div className="flex gap-3">
                     <Button
                         variant="ghost"
@@ -116,7 +126,9 @@ export function Dm({ other, currentUserId, initialMessages }: Props) {
                 </div>
             </header>
 
-            <div className="fixed top-[68px] bottom-[88px] w-full max-w-xl scrollbar-none overflow-y-auto px-4">
+            <div
+                className={`${locked ? "pointer-events-none select-none blur-sm" : ""} fixed top-[68px] bottom-[88px] w-full max-w-xl scrollbar-none overflow-y-auto px-4`}
+            >
                 <div className="flex min-h-full flex-col justify-end space-y-4">
                     {messages.length === 0 ? (
                         <Card className="mx-auto w-full max-w-xs">
@@ -178,7 +190,9 @@ export function Dm({ other, currentUserId, initialMessages }: Props) {
                 </div>
             </div>
 
-            <div className="fixed bottom-4 w-full max-w-xl bg-background px-4 pt-2">
+            <div
+                className={`${locked ? "pointer-events-none select-none blur-sm" : ""} fixed bottom-4 w-full max-w-xl bg-background px-4 pt-2`}
+            >
                 <InputGroup className="h-auto items-end !rounded-full p-2">
                     <InputGroupInput
                         ref={inputRef}
@@ -197,13 +211,30 @@ export function Dm({ other, currentUserId, initialMessages }: Props) {
                             size="icon-sm"
                             className="mr-1 rounded-full bg-primary-2 text-primary-foreground hover:!bg-primary-2/80"
                             onClick={() => send()}
-                            disabled={!draft.trim()}
+                            disabled={locked || !draft.trim()}
                         >
                             <ArrowUp strokeWidth={3} />
                         </InputGroupButton>
                     </InputGroupAddon>
                 </InputGroup>
             </div>
+
+            {locked && (
+                <div className="fixed inset-0 z-40 flex items-center justify-center bg-background/60 p-4 text-center backdrop-blur-[1px]">
+                    <div className="flex max-w-sm flex-col items-center gap-2 rounded-lg border-2 border-border bg-card p-5 shadow-lg">
+                        <Lock className="h-6 w-6 text-primary" strokeWidth={3} />
+                        <p className="text-sm font-bold text-primary">
+                            Direct messages are locked.
+                        </p>
+                        <Link
+                            href="/quiz/dms"
+                            className="text-sm font-semibold text-primary-2 underline hover:text-primary"
+                        >
+                            Complete the DMs Quiz to unlock them
+                        </Link>
+                    </div>
+                </div>
+            )}
         </section>
     )
 }

@@ -28,6 +28,7 @@ import { SearchBar } from "@/components/search-bar"
 import { Textarea } from "@/components/ui/textarea"
 import { CharCounter } from "@/components/character-counter"
 import type { User } from "@/types"
+import { authClient } from "@/client/auth"
 
 type Fuzzy = {
     id: string
@@ -52,6 +53,9 @@ export function Fuzzies() {
     const [locked, setLocked] = useState(false)
     const [reportingId, setReportingId] = useState<string | null>(null)
     const [reportReason, setReportReason] = useState("")
+    const { data: session } = authClient.useSession()
+    const fuzziesLocked =
+        locked || session?.user.unlockedFuzzies === false
 
     useEffect(() => {
         void fetch("/api/fuzzy")
@@ -151,7 +155,7 @@ export function Fuzzies() {
 
     return (
         <div className="space-y-5">
-            <Card className="space-y-3 !bg-card-primary p-4">
+            <Card className="relative space-y-3 !bg-card-primary p-4">
                 <div>
                     <h2 className="text-base font-bold text-primary">
                         Send a warm fuzzy
@@ -161,7 +165,7 @@ export function Fuzzies() {
                     </p>
                 </div>
 
-                {locked && (
+                {fuzziesLocked && (
                     <p className="rounded-md bg-primary/10 p-3 text-sm font-medium text-primary">
                         Warm fuzzies are locked.{" "}
                         <Link href="/quiz/fuzzies" className="underline">
@@ -171,7 +175,14 @@ export function Fuzzies() {
                     </p>
                 )}
 
-                <div className="relative">
+                <div
+                    className={
+                        fuzziesLocked
+                            ? "pointer-events-none select-none blur-sm"
+                            : undefined
+                    }
+                >
+                    <div className="relative">
                     <SearchBar
                         value={query}
                         onChange={(event) => {
@@ -179,6 +190,7 @@ export function Fuzzies() {
                             setRecipient(null)
                         }}
                         placeholder="Search for someone..."
+                        disabled={fuzziesLocked}
                     />
 
                     {visibleUsers.length > 0 && (
@@ -220,31 +232,46 @@ export function Fuzzies() {
                             ))}
                         </div>
                     )}
+                    </div>
+
+                    <Textarea
+                        value={message}
+                        onChange={(event) => setMessage(event.target.value)}
+                        placeholder="Write something kind..."
+                        className="min-h-24 resize-none border-2 border-border !bg-card"
+                        disabled={fuzziesLocked}
+                    />
+
+                    <div className="flex items-center justify-end gap-2">
+                        <CharCounter length={message.length} maxLength={400} />
+                        <Button
+                            onClick={sendFuzzy}
+                            disabled={
+                                fuzziesLocked ||
+                                !recipient ||
+                                !message.trim() ||
+                                message.length > 400 ||
+                                sending
+                            }
+                            className="rounded-full bg-primary-2 hover:bg-primary-2/80"
+                        >
+                            <SendHorizontal className="h-4 w-4" />
+                            {sending ? "Sending..." : "Send"}
+                        </Button>
+                    </div>
                 </div>
 
-                <Textarea
-                    value={message}
-                    onChange={(event) => setMessage(event.target.value)}
-                    placeholder="Write something kind..."
-                    className="min-h-24 resize-none border-2 border-border !bg-card"
-                />
-
-                <div className="flex items-center justify-end gap-2">
-                    <CharCounter length={message.length} maxLength={400} />
-                    <Button
-                        onClick={sendFuzzy}
-                        disabled={
-                            !recipient ||
-                            !message.trim() ||
-                            message.length > 400 ||
-                            sending
-                        }
-                        className="rounded-full bg-primary-2 hover:bg-primary-2/80"
-                    >
-                        <SendHorizontal className="h-4 w-4" />
-                        {sending ? "Sending..." : "Send"}
-                    </Button>
-                </div>
+                {fuzziesLocked && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-card-primary/60 p-4 text-center backdrop-blur-[1px]">
+                        <p className="text-sm font-semibold text-primary">
+                            Warm fuzzies are locked.{" "}
+                            <Link href="/quiz/fuzzies" className="underline">
+                                Complete the Warm Fuzzies Quiz
+                            </Link>{" "}
+                            to unlock them.
+                        </p>
+                    </div>
+                )}
             </Card>
 
             <div className="space-y-3">

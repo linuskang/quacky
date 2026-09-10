@@ -292,6 +292,26 @@ export const auth = betterAuth({
                                 "Profile changes are currently disabled. Contact an admin.",
                         })
                     } else {
+                        const existingUser = await prisma.user.findUnique({
+                            where: { id: user.id },
+                            select: {
+                                unlockedProfiles: true,
+                                role: true,
+                            },
+                        })
+
+                        if (
+                            existingUser &&
+                            !existingUser.unlockedProfiles &&
+                            existingUser.role !== "admin"
+                        ) {
+                            throw APIError.from("FORBIDDEN", {
+                                code: "PROFILE_QUIZ_REQUIRED",
+                                message:
+                                    "Complete the profile quiz before editing your profile.",
+                            })
+                        }
+
                         const username = (user as Record<string, unknown>)
                             .username as string | undefined
                         if (username) {

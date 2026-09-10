@@ -67,6 +67,7 @@ export default async function Page({
                     other={other}
                     currentUserId={session.user.id}
                     initialMessages={messages}
+                    locked={!session.user.unlockedDms}
                 />
             </PageCenter>
         </PageLayout>

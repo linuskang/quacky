@@ -183,6 +183,9 @@ export default async function Page({
                                         initialName={user.name}
                                         initialPronoun={user.pronoun}
                                         initialWebsite={user.website}
+                                        profileUnlocked={Boolean(
+                                            session.user.unlockedProfiles
+                                        )}
                                         userId={user.id}
                                         username={user.username}
                                     />

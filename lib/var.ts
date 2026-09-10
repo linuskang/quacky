@@ -203,6 +203,76 @@ Before commenting, consider whether your words are respectful and relevant. Disa
         ],
     },
     {
+        id: "profiles",
+        name: "Profile Basics",
+        description: "Complete this quiz to unlock profile editing!",
+        theory: `
+## Building a safe profile
+
+Your profile helps people know who they are interacting with, but you should still protect your privacy.
+
+### Good profile habits
+
+- Use a name, image, and bio that you are comfortable sharing.
+- Do not include private information such as your home address, phone number, passwords, or exact daily routine.
+- Only add links and details that are safe for other people to see.
+- Be respectful and do not impersonate another person.
+- If you change your mind, you can update or remove profile information later.
+
+Think about who could see a profile before adding something to it. A profile should express who you are without revealing information that could put you or someone else at risk.
+`,
+        to: "/quiz/profiles",
+        time: "6 min",
+        xp: 40,
+        questions: [
+            {
+                id: 1,
+                type: "multiple-choice",
+                question: "What is a good thing to include in a public profile?",
+                options: [
+                    { id: "a", text: "A hobby or interest you are comfortable sharing", correct: true },
+                    { id: "b", text: "Your home address" },
+                    { id: "c", text: "Your password" },
+                    { id: "d", text: "Your exact daily schedule" },
+                ],
+            },
+            {
+                id: 2,
+                type: "text",
+                question: "What kinds of information should you avoid putting in a public profile, and why?",
+                answer: "The answer should mention private or sensitive information such as an address, phone number, password, exact routine, or other details that could put someone at risk, and explain that public profiles can be seen by other people.",
+            },
+            {
+                id: 3,
+                type: "multiple-choice",
+                question: "What should you do if you are no longer comfortable with something on your profile?",
+                options: [
+                    { id: "a", text: "Update or remove it", correct: true },
+                    { id: "b", text: "Share even more private information" },
+                    { id: "c", text: "Give your password to a friend" },
+                    { id: "d", text: "Pretend you cannot change it" },
+                ],
+            },
+            {
+                id: 4,
+                type: "text",
+                question: "How can a profile express who you are while still protecting your privacy?",
+                answer: "The answer should explain that users can share safe interests, hobbies, or general information while leaving out sensitive details such as their address, password, or exact routine.",
+            },
+            {
+                id: 5,
+                type: "multiple-choice",
+                question: "Which profile behavior is respectful?",
+                options: [
+                    { id: "a", text: "Representing yourself honestly without impersonating someone else", correct: true },
+                    { id: "b", text: "Using someone else's identity without permission" },
+                    { id: "c", text: "Posting another person's private details" },
+                    { id: "d", text: "Making a profile to harass someone" },
+                ],
+            },
+        ],
+    },
+    {
         id: "fuzzies",
         name: "Warm Fuzzies",
         description: "Complete this quiz to unlock sending warm fuzzies!",
@@ -226,6 +296,56 @@ Keep your message respectful and appropriate for the person receiving it. Do not
                     { id: "b", text: "Im incorrect" },
                     { id: "c", text: "Im incorrect" },
                     { id: "d", text: "Im incorrect" },
+                ],
+            },
+        ],
+    },
+    {
+        id: "dms",
+        name: "Direct Messages",
+        description: "Complete this quiz to unlock direct messages!",
+        theory: `
+## Using direct messages safely
+
+Direct messages are private conversations, but they still require care and respect.
+
+- Do not share passwords, private addresses, or other sensitive information.
+- Keep messages respectful and do not pressure people to reply or share things.
+- If someone sends unwanted or upsetting messages, stop responding, block them, and report the conversation.
+- Talk to a trusted person if a conversation makes you feel unsafe.
+
+Remember that private does not always mean permanent or completely risk-free. Only send messages you are comfortable sharing with the recipient.
+`,
+        to: "/quiz/dms",
+        time: "5 min",
+        xp: 30,
+        questions: [
+            {
+                id: 1,
+                type: "multiple-choice",
+                question: "What should you avoid sharing in a direct message?",
+                options: [
+                    { id: "a", text: "Your password or home address", correct: true },
+                    { id: "b", text: "A friendly greeting" },
+                    { id: "c", text: "A hobby you enjoy" },
+                    { id: "d", text: "A message saying thank you" },
+                ],
+            },
+            {
+                id: 2,
+                type: "text",
+                question: "What could you do if someone repeatedly sends unwanted or upsetting direct messages?",
+                answer: "The answer should mention stopping the conversation, blocking or restricting the person, reporting the messages, and talking to a trusted person if needed.",
+            },
+            {
+                id: 3,
+                type: "multiple-choice",
+                question: "What is respectful behavior in a direct message conversation?",
+                options: [
+                    { id: "a", text: "Respecting boundaries and not pressuring someone to reply", correct: true },
+                    { id: "b", text: "Sending messages repeatedly until they respond" },
+                    { id: "c", text: "Sharing their private messages publicly" },
+                    { id: "d", text: "Threatening someone who disagrees with you" },
                 ],
             },
         ],

@@ -37,6 +37,21 @@ export const authClient = createAuthClient({
                     required: false,
                     default: false,
                 },
+                unlockedProfiles: {
+                    type: "boolean",
+                    required: false,
+                    default: false,
+                },
+                unlockedFuzzies: {
+                    type: "boolean",
+                    required: false,
+                    default: false,
+                },
+                unlockedDms: {
+                    type: "boolean",
+                    required: false,
+                    default: false,
+                },
                 private: {
                     type: "boolean",
                     required: false,

@@ -47,6 +47,7 @@ type FollowProps = {
     initialName: string
     initialPronoun?: string | null
     initialWebsite?: string | null
+    profileUnlocked: boolean
     userId: string
     username: string
 }
@@ -59,6 +60,7 @@ export function ProfileAction({
     initialLocation,
     initialPronoun,
     initialWebsite,
+    profileUnlocked,
     userId,
     username,
 }: FollowProps) {
@@ -139,6 +141,27 @@ export function ProfileAction({
     }
 
     if (currentUserId === userId) {
+        if (!profileUnlocked) {
+            return (
+                <div className="flex flex-col items-end gap-1">
+                    <Button
+                        disabled
+                        variant="secondary"
+                        title="Complete the profile quiz before editing your profile"
+                        className="h-8 rounded-full bg-primary-2 px-4 text-sm font-semibold text-background opacity-60"
+                    >
+                        Edit Profile
+                    </Button>
+                    <Link
+                        href="/quiz/profiles"
+                        className="text-xs font-semibold text-primary-2 underline hover:text-primary"
+                    >
+                        Complete Profile Quiz First
+                    </Link>
+                </div>
+            )
+        }
+
         return (
             <Dialog open={editOpen} onOpenChange={setEditOpen}>
                 <DialogTrigger asChild>

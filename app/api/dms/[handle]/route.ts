@@ -41,6 +41,12 @@ export async function GET(
         return Response.Unauthorized()
     }
 
+    if (!session.user.unlockedDms) {
+        return Response.Forbidden(
+            "Direct messages are locked, please complete the DMs Quiz to unlock them."
+        )
+    }
+
     const { handle } = await params
 
     const other = await prisma.user.findUnique({
@@ -82,6 +88,12 @@ export async function POST(
 
     if (!session) {
         return Response.Unauthorized()
+    }
+
+    if (!session.user.unlockedDms) {
+        return Response.Forbidden(
+            "Direct messages are locked, please complete the DMs Quiz to unlock them."
+        )
     }
 
     const { handle } = await params
