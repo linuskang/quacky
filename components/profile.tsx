@@ -35,6 +35,17 @@ import { Button } from "@/components/ui/button"
 import { playfairDisplay } from "@/lib/fonts"
 import { Card } from "@/components/ui/card"
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import {
     Dialog,
     DialogClose,
     DialogContent,
@@ -674,16 +685,45 @@ export function Profile() {
                         </DialogContent>
                     </Dialog>
 
-                    <button
-                        aria-label="Log out"
-                        className="flex h-8 w-8 items-center justify-center text-primary"
-                        onClick={async () => {
-                            await authClient.signOut()
-                            window.location.reload()
-                        }}
-                    >
-                        <LogOut className="h-5 w-5" strokeWidth={3} />
-                    </button>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <button
+                                aria-label="Log out"
+                                className="flex h-8 w-8 items-center justify-center text-primary"
+                            >
+                                <LogOut className="h-5 w-5" strokeWidth={3} />
+                            </button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="w-full border-2 border-border bg-card p-6">
+                            <AlertDialogHeader>
+                                <AlertDialogTitle className="text-4xl font-semibold text-primary">
+                                    Sign out?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription className="text-sm">
+                                    You will need to sign in again to access your
+                                    account.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel
+                                    variant="secondary"
+                                    className="h-10 rounded-full border-2 border-border bg-card px-5 !text-lg text-primary hover:border-primary"
+                                >
+                                    Cancel
+                                </AlertDialogCancel>
+                                <AlertDialogAction
+                                    variant="default"
+                                    className="h-10 rounded-full bg-primary-2 px-5 !text-lg text-background hover:!bg-primary-2/80"
+                                    onClick={async () => {
+                                        await authClient.signOut()
+                                        window.location.reload()
+                                    }}
+                                >
+                                    Sign out
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                 </div>
             </div>
         </Card>

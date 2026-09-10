@@ -18,10 +18,10 @@ import "./globals.css"
 import { RegisterServiceWorker } from "@/components/register-sw"
 import { ThemeProvider } from "@/components/theme-provider"
 import { TRPCProvider } from "@/components/trpc-provider"
+import { BeforeInstallPromptListener } from "@/components/before-install-prompt"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner"
 import { Metadata } from "next"
-import Script from "next/script"
 import { lexend, exo2, playfairDisplay } from "@/lib/fonts"
 
 export const metadata: Metadata = {
@@ -53,22 +53,11 @@ export default function RootLayout({
             className={`${playfairDisplay.variable} ${exo2.variable}`}
         >
             <body className={`${lexend.className} bg-background antialiased`}>
-                <Script
-                    id="beforeinstallprompt"
-                    strategy="beforeInteractive"
-                    dangerouslySetInnerHTML={{
-                        __html: `
-                            window.addEventListener('beforeinstallprompt', (e) => {
-                                e.preventDefault();
-                                window.deferredInstallPrompt = e;
-                            });
-                        `,
-                    }}
-                />
                 <TooltipProvider>
                     <ThemeProvider>
                         <TRPCProvider>
                             <Toaster position="top-center" />
+                            <BeforeInstallPromptListener />
                             <RegisterServiceWorker />
                             {children}
                         </TRPCProvider>

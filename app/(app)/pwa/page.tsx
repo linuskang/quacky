@@ -39,16 +39,7 @@ import { Switch } from "@/components/ui/switch"
 import { Title, Description } from "@/components/text"
 import { PageLayout, PageCenter } from "@/components/page-layout"
 
-interface BeforeInstallPromptEvent extends Event {
-    prompt: () => void
-    userChoice: Promise<{ outcome: "accepted" | "dismissed" }>
-}
-
-declare global {
-    interface Window {
-        deferredInstallPrompt?: BeforeInstallPromptEvent
-    }
-}
+import type { BeforeInstallPromptEvent } from "@/lib/pwa"
 
 function urlBase64ToUint8Array(base64String: string) {
     const padding = "=".repeat((4 - (base64String.length % 4)) % 4)
