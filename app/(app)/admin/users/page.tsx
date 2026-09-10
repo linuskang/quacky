@@ -24,7 +24,7 @@ type User = {
 }
 
 export default function Page() {
-    const { data: session, isPending } = authClient.useSession()
+    const { data: session } = authClient.useSession()
     const [loading, setLoading] = React.useState(true)
     const [users, setUsers] = React.useState<User[]>([])
     const [query, setQuery] = React.useState("")

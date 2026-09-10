@@ -18,7 +18,7 @@
 
 // Libraries
 import axios from "axios"
-import { useEffect, useState } from "react"
+import { startTransition, useEffect, useState } from "react"
 import { toast } from "sonner"
 
 // Components
@@ -32,7 +32,6 @@ import { SearchBar } from "@/components/search-bar"
 import { StreakWidget } from "@/components/widgets/streak"
 import { AboutWidget } from "@/components/widgets/about"
 import { ParentEmailWidget } from "@/components/widgets/parent-email"
-import { LeaderboardWidget } from "@/components/widgets/leaderboard"
 import { authClient } from "@/client/auth"
 
 import Link from "next/link"
@@ -51,7 +50,18 @@ export default function Page() {
     const [activeTab, setActiveTab] = useState("recent")
     const [posts, setPosts] = useState<Post[]>([])
     const [loading, setLoading] = useState(true)
-    const { data: session, isPending } = authClient.useSession()
+    const [isNewUser, setIsNewUser] = useState(false)
+    const { data: session } = authClient.useSession()
+    const createdAt = session?.user.createdAt
+
+    useEffect(() => {
+        const nextIsNewUser = createdAt
+            ? new Date(createdAt).getTime() >
+              Date.now() - 14 * 24 * 60 * 60 * 1000
+            : false
+
+        startTransition(() => setIsNewUser(nextIsNewUser))
+    }, [createdAt])
 
     useEffect(() => {
         async function loadPosts() {
@@ -86,7 +96,7 @@ export default function Page() {
                         <span className="text-sm block sm:inline"> Please verify your email to access all features. </span>
                     </div>
                 )}
-                {session?.user.createdAt && new Date(session.user.createdAt).getTime() > Date.now() - 14 * 24 * 60 * 60 * 1000 && (
+                {isNewUser && (
                     <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-1 rounded relative" role="alert">
                         <span className="text-sm block sm:inline">Welcome to Quacky! Learn more about Quacky and how to play <Link href="/resources/about" className="underline">here</Link>.</span>
                     </div>
