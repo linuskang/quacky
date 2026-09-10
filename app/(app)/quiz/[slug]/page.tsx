@@ -51,6 +51,7 @@ export default function Page() {
     const [wrongQuestions, setWrongQuestions] = useState<number[]>([])
     const [feedback, setFeedback] = useState<Record<number, string>>({})
     const [loading, setLoading] = useState(true)
+    const [submitting, setSubmitting] = useState(false)
     const [meta, setMeta] = useState<{ name: string; description: string }>({
         name: "",
         description: "",
@@ -74,6 +75,8 @@ export default function Page() {
     }, [params.slug])
 
     async function submitQuiz() {
+        setSubmitting(true)
+
         try {
             await axios.post(`/api/quiz/${params.slug}`, answers)
             toast.success(
@@ -98,6 +101,8 @@ export default function Page() {
                 }
             }
             toast.error("something blew up. please try later.")
+        } finally {
+            setSubmitting(false)
         }
     }
 
@@ -106,8 +111,18 @@ export default function Page() {
             <PageCenter>
                 <Title>{meta.name}</Title>
                 <Description>{meta.description}</Description>
+                {submitting && (
+                    <div className="flex flex-col items-center gap-3 py-8 text-center">
+                        <Loading />
+                        <p className="max-w-sm text-sm font-semibold text-muted-foreground">
+                            This will take a second. Please do not close this
+                            page while our automated grading system checks your
+                            answers.
+                        </p>
+                    </div>
+                )}
                 {loading && <Loading />}
-                {questions.map((question) => {
+                {!submitting && questions.map((question) => {
                     const isWrong = wrongQuestions.includes(question.no)
                     const questionFeedback = feedback[question.no]
                     return (
@@ -135,7 +150,7 @@ export default function Page() {
                                                 : "border-border focus:border-primary"
                                         )}
                                     />
-                                    {questionFeedback && (
+                                    {isWrong && questionFeedback && (
                                         <Card className="flex flex-row items-start gap-3 !border-0 !bg-background p-3">
                                             <div className="shrink-0">
                                                 <Image
@@ -213,7 +228,7 @@ export default function Page() {
                     )
                 })}
 
-                {!loading && (
+                {!loading && !submitting && (
                     <Button
                         className="h-10 w-full border-2 border-border bg-card text-sm !text-primary hover:!border-primary hover:!bg-card"
                         disabled={

@@ -26,6 +26,9 @@ function getAI() {
     if (!ai) {
         ai = new OpenAI({
             apiKey: env.AI_KEY,
+            // For the official quacky deployment for https://quacky.space, I've switched to using the OpenAI API directly
+            // Opencode removed the ability for users to use the API directly without a session.
+
             // baseURL: env.AI_URL,
         })
     }

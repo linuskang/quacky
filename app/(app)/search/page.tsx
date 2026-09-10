@@ -30,6 +30,7 @@ import { fetchTrending } from "@/server/posts"
 import { SuggestedPeopleFeedCard } from "@/components/suggested-people"
 import { RngWidget } from "@/components/widgets/rng"
 import { QOTD } from "@/components/widgets/qotd"
+import { LeaderboardWidget } from "@/components/widgets/leaderboard"
 
 export default async function Page() {
     const session = await requireSession()
@@ -95,6 +96,7 @@ export default async function Page() {
             </PageCenter>
             <PageRight>
                 <TrendingWidget />
+                <LeaderboardWidget />
                 {/* <RngWidget />
                 <QOTD /> */}
             </PageRight>

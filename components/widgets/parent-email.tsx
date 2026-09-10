@@ -72,7 +72,7 @@ export function ParentEmailWidget() {
                 ) : (
                     <>
                         <p className="text-sm text-muted-foreground">
-                            Automatically send regular email updates home to let your parents and caregivers know what you&apos;re learning about in Quacky!
+                            Send  email updates home to let your parents know what you&apos;re learning in Qky!
                         </p>
                         <Input
                             type="email"

@@ -33,9 +33,11 @@ import { StreakWidget } from "@/components/widgets/streak"
 import { AboutWidget } from "@/components/widgets/about"
 import { ParentEmailWidget } from "@/components/widgets/parent-email"
 import { LeaderboardWidget } from "@/components/widgets/leaderboard"
+import { authClient } from "@/client/auth"
 
 // Types
 import type { Post } from "@/types"
+import { RngWidget } from "@/components/widgets/rng"
 
 const tabs = [
     { name: "Recent", id: "recent" },
@@ -47,6 +49,7 @@ export default function Page() {
     const [activeTab, setActiveTab] = useState("recent")
     const [posts, setPosts] = useState<Post[]>([])
     const [loading, setLoading] = useState(true)
+    const { data: session, isPending } = authClient.useSession()
 
     useEffect(() => {
         async function loadPosts() {
@@ -76,6 +79,16 @@ export default function Page() {
     return (
         <PageLayout>
             <PageCenter>
+                {session?.user.emailVerified === false && (
+                    <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-1 rounded relative" role="alert">
+                        <span className="text-sm block sm:inline"> Please verify your email to access all features. </span>
+                    </div>
+                )}
+                {session?.user.createdAt && new Date(session.user.createdAt).getTime() > Date.now() - 14 * 24 * 60 * 60 * 1000 && (
+                    <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-1 rounded relative" role="alert">
+                        <span className="text-sm block sm:inline">Welcome to Quacky! Learn more about Quacky and how to play <a href="/resources/about" className="underline">here</a>.</span>
+                    </div>
+                )}
                 <Composer />
                 <Tabs
                     tabs={tabs}
@@ -97,9 +110,8 @@ export default function Page() {
                 <SearchBar />
                 <StreakWidget />
                 <ParentEmailWidget />
-                <LeaderboardWidget />
                 <AboutWidget />
-
+                <RngWidget />
             </PageRight>
         </PageLayout>
     )
