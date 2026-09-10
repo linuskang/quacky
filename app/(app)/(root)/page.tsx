@@ -31,6 +31,8 @@ import { SuggestedPeopleFeedCard } from "@/components/suggested-people"
 import { SearchBar } from "@/components/search-bar"
 import { StreakWidget } from "@/components/widgets/streak"
 import { AboutWidget } from "@/components/widgets/about"
+import { ParentEmailWidget } from "@/components/widgets/parent-email"
+import { LeaderboardWidget } from "@/components/widgets/leaderboard"
 
 // Types
 import type { Post } from "@/types"
@@ -94,6 +96,8 @@ export default function Page() {
             <PageRight>
                 <SearchBar />
                 <StreakWidget />
+                <ParentEmailWidget />
+                <LeaderboardWidget />
                 <AboutWidget />
 
             </PageRight>

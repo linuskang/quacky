@@ -40,7 +40,9 @@ import {
     Store,
     BadgeQuestionMark,
     ChessQueen,
+    Heart,
     Tv,
+    Landmark,
 } from "lucide-react"
 import Image from "next/image"
 
@@ -134,6 +136,7 @@ export function Sidebar({ session }: Props) {
             icon: MessageCircleCheck,
         },
         { href: "/memes", label: "memeland", icon: RollerCoaster },
+        { href: "/my-pod", label: "my pod", icon: Heart },
         { href: "/quiz", label: "quizzes", icon: BookCheck },
         { href: "/bookmarks", label: "bookmarks", icon: Bookmark },
         { href: "/shop", label: "shop", icon: Store },

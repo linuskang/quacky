@@ -19,7 +19,15 @@ import "server-only"
 import { prisma } from "@/server/prisma"
 import type { Notification } from "@/types"
 
-export async function fetchNotifications({ userId }: { userId: string }) {
+export async function fetchNotifications({
+    userId,
+    page,
+    pageSize,
+}: {
+    userId: string
+    page?: number
+    pageSize?: number
+}) {
     const notifications = await prisma.notification.findMany({
         where: {
             userId,
@@ -49,6 +57,12 @@ export async function fetchNotifications({ userId }: { userId: string }) {
         orderBy: {
             createdAt: "desc",
         },
+        ...(page && pageSize
+            ? {
+                  skip: (page - 1) * pageSize,
+                  take: pageSize,
+              }
+            : {}),
     })
 
     return notifications.map((notification) => ({
