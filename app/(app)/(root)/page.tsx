@@ -35,6 +35,8 @@ import { ParentEmailWidget } from "@/components/widgets/parent-email"
 import { LeaderboardWidget } from "@/components/widgets/leaderboard"
 import { authClient } from "@/client/auth"
 
+import Link from "next/link"
+
 // Types
 import type { Post } from "@/types"
 import { RngWidget } from "@/components/widgets/rng"
@@ -86,7 +88,7 @@ export default function Page() {
                 )}
                 {session?.user.createdAt && new Date(session.user.createdAt).getTime() > Date.now() - 14 * 24 * 60 * 60 * 1000 && (
                     <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-1 rounded relative" role="alert">
-                        <span className="text-sm block sm:inline">Welcome to Quacky! Learn more about Quacky and how to play <a href="/resources/about" className="underline">here</a>.</span>
+                        <span className="text-sm block sm:inline">Welcome to Quacky! Learn more about Quacky and how to play <Link href="/resources/about" className="underline">here</Link>.</span>
                     </div>
                 )}
                 <Composer />
