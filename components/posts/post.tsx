@@ -18,7 +18,7 @@
 
 // Libraries
 import axios from "axios"
-import { useMemo, useState } from "react"
+import { useMemo, useState, useSyncExternalStore } from "react"
 import { authClient } from "@/client/auth"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -135,6 +135,11 @@ export function PostCard({
     const [quoteContent, setQuoteContent] = useState("")
     const [quotePending, setQuotePending] = useState(false)
     const [showFlaggedContent, setShowFlaggedContent] = useState(false)
+    const mounted = useSyncExternalStore(
+        () => () => {},
+        () => true,
+        () => false
+    )
 
     const shareUrl = useMemo(() => {
         if (typeof window === "undefined") return ""
@@ -142,8 +147,6 @@ export function PostCard({
     }, [post.id])
 
     const { data: session } = authClient.useSession()
-
-    if (!session) return null
 
     async function like() {
         const nextLiked = !liked
@@ -219,7 +222,7 @@ export function PostCard({
                 event.stopPropagation()
                 router.push(`/post/${post.id}`)
             }}
-            className="flex cursor-pointer flex-col gap-2 !bg-card-primary p-3 transition hover:border-primary/80"
+            className="flex cursor-pointer flex-col gap-2 !bg-card-primary p-2 sm:p-3 transition hover:border-primary/80"
         >
             {repostOf && !post.content && (
                 <div className="mb-2 flex items-center gap-1 text-sm">
@@ -285,7 +288,7 @@ export function PostCard({
                                 </span>
                             )}
                         </div>
-                        {fullPost && <MoreActions post={fullPost} />}
+                        {fullPost && mounted && <MoreActions post={fullPost} />}
                     </div>
 
                     {post.flagged && (
@@ -397,10 +400,13 @@ export function PostCard({
                                             <div className="flex items-start gap-2">
                                                 <Image
                                                     src={
-                                                        session.user.image || ""
+                                                        session?.user.image ||
+                                                        post.author.image ||
+                                                        ""
                                                     }
                                                     alt={
-                                                        session.user.name || ""
+                                                        session?.user.name ||
+                                                        post.author.name
                                                     }
                                                     width={30}
                                                     height={30}

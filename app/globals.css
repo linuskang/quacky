@@ -4,6 +4,67 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@media (min-width: 1024px) and (max-height: 720px) {
+    .short-screen-sidebar {
+        display: none !important;
+    }
+
+    .short-screen-mobile-nav {
+        display: flex !important;
+    }
+
+    .short-screen-feedback {
+        display: none !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .sidebar-logo {
+        width: clamp(8rem, calc(40vh - 10rem), 12.5rem);
+        margin-top: clamp(0.5rem, calc(4.44vh - 1.5rem), 1rem);
+    }
+
+    .sidebar-nav {
+        gap: clamp(0rem, calc(2.22vh - 1rem), 0.25rem);
+        padding-inline: clamp(0.25rem, calc(2.22vh - 1rem), 0.5rem);
+    }
+
+    .sidebar-link {
+        gap: clamp(0.5rem, calc(2.22vh - 1rem), 0.75rem);
+        padding-block: clamp(0.25rem, calc(2.22vh - 1rem), 0.5rem);
+    }
+
+    .sidebar-link-active {
+        font-size: clamp(1.25rem, calc(2.22vh + 0.25rem), 1.5rem);
+    }
+
+    .sidebar-link:not(.sidebar-link-active) {
+        font-size: clamp(1rem, calc(2.22vh + 0rem), 1.25rem);
+    }
+
+    .sidebar-icon {
+        width: clamp(1.5rem, calc(2.22vh + 0rem), 1.75rem);
+        height: clamp(1.5rem, calc(2.22vh + 0rem), 1.75rem);
+    }
+
+    .sidebar-icon-active {
+        width: clamp(1.75rem, calc(2.22vh + 0.25rem), 2.25rem);
+        height: clamp(1.75rem, calc(2.22vh + 0.25rem), 2.25rem);
+    }
+
+    .sidebar-post-button {
+        height: clamp(2.25rem, calc(2.22vh + 1.25rem), 2.75rem);
+        margin-top: clamp(0.5rem, calc(2.22vh - 1rem), 1rem);
+    }
+}
+
+@media (min-width: 1024px) and (max-height: 900px) {
+    .sidebar-logo {
+        margin-left: 0;
+        margin-right: auto;
+    }
+}
+
 @theme inline {
     --font-heading: var(--font-sans);
     --font-sans: var(--font-sans);

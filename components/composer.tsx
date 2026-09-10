@@ -144,7 +144,7 @@ export function Composer() {
     return (
         <div
             className={cn(
-                "group relative flex max-w-lg flex-col gap-2 overflow-visible rounded-md border-2 border-border bg-card-primary p-4",
+                "group relative flex max-w-lg flex-col gap-2 overflow-visible rounded-md border-2 border-border bg-card-primary p-3 sm:p-4",
                 "transition-[min-height,border-color] duration-300 ease-out hover:border-primary/80",
                 hasContent
                     ? "min-h-[180px]"

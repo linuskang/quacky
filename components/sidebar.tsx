@@ -154,10 +154,10 @@ export function Sidebar({ session }: Props) {
     }
 
     return (
-        <div className={`flex h-full flex-col ${exo2.className}`}>
+        <div className={`flex min-h-0 flex-1 flex-col ${exo2.className}`}>
             <Link href="/">
                 <Image
-                    className="mx-auto mt-4 h-auto"
+                    className="sidebar-logo mx-auto h-auto"
                     src="/quacky.png"
                     alt="Quacky logo"
                     width={200}
@@ -165,7 +165,7 @@ export function Sidebar({ session }: Props) {
                 />
             </Link>
 
-            <nav className="flex flex-1 flex-col justify-center gap-1 px-2">
+            <nav className="sidebar-nav scrollbar-none flex min-h-0 flex-1 flex-col justify-center overflow-y-auto">
                 {items.map(({ href, label, icon: Icon, unread }) => {
                     const active = pathname === href
 
@@ -174,16 +174,16 @@ export function Sidebar({ session }: Props) {
                             key={href}
                             href={href}
                             className={cn(
-                                "flex items-center gap-3 rounded-full py-2 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]",
+                                "sidebar-link flex items-center rounded-full transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]",
                                 active
-                                    ? `translate-x-2 text-2xl font-bold ${playfairDisplay.className} text-primary`
+                                    ? `sidebar-link-active translate-x-2 text-2xl font-bold ${playfairDisplay.className} text-primary`
                                     : "translate-x-0 text-xl font-semibold text-primary/80 hover:translate-x-1 hover:text-primary"
                             )}
                         >
                             <Icon
                                 className={cn(
                                     "shrink-0 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]",
-                                    active ? "size-9" : "size-7"
+                                    `sidebar-icon ${active ? "sidebar-icon-active size-9" : "size-7"}`
                                 )}
                                 strokeWidth={active ? 2.5 : 2}
                             />
@@ -195,7 +195,7 @@ export function Sidebar({ session }: Props) {
 
                 <Button
                     asChild
-                    className="mt-4 h-11 w-full rounded-full bg-primary-2 text-base font-semibold text-background hover:bg-primary-2/80"
+                    className="sidebar-post-button mt-4 w-full rounded-full bg-primary-2 text-base font-semibold text-background hover:bg-primary-2/80"
                 >
                     <Link href="/post">Post</Link>
                 </Button>

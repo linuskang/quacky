@@ -102,7 +102,7 @@ export function Feedback() {
     }
 
     return (
-        <div className="hidden md:block">
+        <div className="short-screen-feedback hidden md:block">
             <div className="pointer-events-none fixed right-24 bottom-44 z-10">
                 <div className="relative h-30 w-64">
                     <span

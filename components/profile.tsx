@@ -75,7 +75,7 @@ function ThemeToggle() {
     )
 }
 
-export function Profile() {
+export function Profile({ mobile = false }: { mobile?: boolean }) {
     const { data: session, isPending } = authClient.useSession()
     const [open, setOpen] = useState(false)
     const [openCredits, setOpenCredits] = useState(false)
@@ -219,9 +219,25 @@ export function Profile() {
     }
 
     return (
-        <Card className="h-15 w-full border-2 border-border">
-            <div className="flex h-full items-center justify-between px-3">
-                <div className="flex min-w-0 items-center gap-3">
+        <Card
+            className={
+                mobile ? "contents" : "h-15 w-full border-2 border-border"
+            }
+        >
+            <div
+                className={
+                    mobile
+                        ? "contents"
+                        : "flex h-full items-center justify-between px-3"
+                }
+            >
+                <div
+                    className={
+                        mobile
+                            ? "hidden"
+                            : "flex min-w-0 items-center gap-3"
+                    }
+                >
                     <Image
                         src={session.user.image!}
                         alt={session.user.name}
@@ -257,12 +273,12 @@ export function Profile() {
                         </DialogTrigger>
 
                         <DialogContent
-                            className="w-full !max-w-lg border-2 border-border bg-card p-6"
+                            className="max-h-[calc(100dvh-1rem)] w-full !max-w-lg overflow-y-auto border-2 border-border bg-card p-4 sm:p-6"
                             showCloseButton={false}
                         >
                             <DialogHeader>
                                 <DialogTitle
-                                    className={`text-4xl font-semibold ${playfairDisplay.className} text-primary`}
+                                    className={`text-3xl font-semibold sm:text-4xl ${playfairDisplay.className} text-primary`}
                                     style={{ fontStyle: "italic" }}
                                 >
                                     {openPassword
@@ -578,7 +594,7 @@ export function Profile() {
                         onOpenChange={handleCreditsOpenChange}
                     >
                         <DialogContent
-                            className="w-full !max-w-lg border-2 border-border bg-card p-6"
+                            className="max-h-[calc(100dvh-1rem)] w-full !max-w-lg overflow-y-auto border-2 border-border bg-card p-4 sm:p-6"
                             showCloseButton={false}
                         >
                             <DialogHeader>
@@ -687,9 +703,13 @@ export function Profile() {
 
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
-                            <button
-                                aria-label="Log out"
-                                className="flex h-8 w-8 items-center justify-center text-primary"
+                        <button
+                            aria-label="Log out"
+                            className={
+                                mobile
+                                    ? "hidden"
+                                    : "flex h-8 w-8 items-center justify-center text-primary"
+                            }
                             >
                                 <LogOut className="h-5 w-5" strokeWidth={3} />
                             </button>

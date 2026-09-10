@@ -19,19 +19,26 @@
 // Libraries
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Bell, Home, MessagesSquare, PenSquare, Search, User, Settings, LogOut } from "lucide-react"
+import { Bell, Home, MessagesSquare, PenSquare, Search, User, LogOut } from "lucide-react"
 import { authClient } from "@/client/auth"
 import Image from "next/image"
+import { useSyncExternalStore } from "react"
 
 // Hooks
 import { useUnreads } from "@/hooks/use-unreads"
+import { Profile } from "@/components/profile"
 
 export function MobileNav({ handle }: { handle: string }) {
     const pathname = usePathname()
     const { notifications, dms } = useUnreads()
     const { data: session, isPending } = authClient.useSession()
+    const mounted = useSyncExternalStore(
+        () => () => {},
+        () => true,
+        () => false
+    )
 
-    if (!session || isPending) {
+    if (!mounted || !session || isPending) {
         return null
     }
 
@@ -71,7 +78,7 @@ export function MobileNav({ handle }: { handle: string }) {
     ]
 
     return (
-        <nav className="sticky bottom-0 z-50 bg-background border-t border-border lg:hidden">
+        <nav className="short-screen-mobile-nav sticky bottom-0 z-50 bg-background border-t border-border lg:hidden">
             <div className="mx-auto grid max-w-xl grid-cols-10 items-center">
                 {items.map(({ href, img }) => {
                     const active = pathname === href
@@ -100,13 +107,7 @@ export function MobileNav({ handle }: { handle: string }) {
                 })}
 
                 <div className="col-span-2 flex items-center justify-center rounded-lg gap-1 bg-card py-1.5">
-                    <Link
-                        href={`/@${handle}`}
-                        aria-label="Settings"
-                        className="flex h-7 w-7 items-center justify-center text-primary"
-                    >
-                        <Settings className="h-4 w-4" strokeWidth={3} />
-                    </Link>
+                    <Profile mobile />
                     <button
                         type="button"
                         aria-label="Log out"
