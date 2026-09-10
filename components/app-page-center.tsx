@@ -17,7 +17,10 @@ export function AppPageCenter({
 
     return (
         <PageCenter
-            className={cn(isQuiz && "max-w-7xl", className)}
+            className={cn(
+                isQuiz && "max-w-7xl quiz-page-center",
+                className
+            )}
         >
             {children}
         </PageCenter>

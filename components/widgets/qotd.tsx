@@ -14,6 +14,8 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
+"use client"
+
 // Libraries
 import axios from "axios"
 import { useState, useEffect } from "react"

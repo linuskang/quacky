@@ -46,6 +46,20 @@ export async function chat(messages: OpenAI.Chat.ChatCompletionMessageParam[]) {
     return response.choices[0].message.content ?? ""
 }
 
+export async function chatWithModel(
+    messages: OpenAI.Chat.ChatCompletionMessageParam[],
+    model: string,
+    maxTokens = 160
+) {
+    const response = await getAI().chat.completions.create({
+        model,
+        messages,
+        max_tokens: maxTokens,
+    })
+
+    return response.choices[0].message.content ?? ""
+}
+
 // i like to modularise everthing in my codebase that i need to constantly repeat, so here is a simple harness for ai chatting.
 export async function askAi(systemPrompt: string, userPrompt: string) {
     const res = await chat([

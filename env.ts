@@ -18,6 +18,15 @@ import { createEnv } from "@t3-oss/env-nextjs"
 import * as z from "zod"
 import "dotenv/config"
 
+const envBoolean = z.preprocess(
+    (value) => {
+        if (value === "true") return true
+        if (value === "false") return false
+        return value
+    },
+    z.boolean().default(false)
+)
+
 export const env = createEnv({
     server: {
         DATABASE_URL: z.string(),
@@ -36,6 +45,10 @@ export const env = createEnv({
         AI_URL: z.string(),
         AI_KEY: z.string(),
         AI_MODEL: z.string(),
+        BOT_AI_MODEL: z.string().default("gpt-4o-mini"),
+        SIMULATION_POSTING_ENABLED: envBoolean,
+        SIMULATION_SCHEDULER_SECRET: z.string().default(""),
+        SIMULATION_REWARD_POINTS: z.coerce.number().int().min(0).default(10),
         RUSTFS_ENDPOINT: z.url(),
         RUSTFS_REGION: z.string().default("auto"),
         RUSTFS_ACCESS_KEY_ID: z.string(),

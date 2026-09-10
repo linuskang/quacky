@@ -148,25 +148,21 @@ export function AdminStats() {
             label: "Check-ins",
             value: stats.summary.totalCheckIns.toLocaleString(),
             detail: "All anonymous responses",
-            icon: ClipboardCheck,
         },
         {
             label: "Participation",
             value: stats.summary.participatingStudents.toLocaleString(),
             detail: "Unique students",
-            icon: Users,
         },
         {
             label: "Avg. wellbeing",
             value: `${stats.summary.averages.wellbeing.toFixed(1)} / 5`,
             detail: "Across all check-ins",
-            icon: HeartPulse,
         },
         {
             label: "Asked for support",
             value: stats.summary.assistanceRequests.toLocaleString(),
             detail: `${stats.summary.assistanceRate.toFixed(1)}% of check-ins`,
-            icon: AlertTriangle,
         },
     ]
 
@@ -190,14 +186,10 @@ export function AdminStats() {
                     <Card key={item.label}>
                         <CardHeader className="flex-row items-center justify-between">
                             <CardDescription>{item.label}</CardDescription>
-                            <item.icon className="size-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
                             <p className="font-heading text-2xl font-semibold">
                                 {item.value}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                                {item.detail}
                             </p>
                         </CardContent>
                     </Card>

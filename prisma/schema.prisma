@@ -29,6 +29,9 @@ model User {
   website     String?
 
   accessibilityModeEnabled Boolean @default(false)
+  isSimulationAccount     Boolean @default(false)
+  simulationActive        Boolean @default(false)
+  simulationPersona       Json?
 
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(3)
@@ -56,6 +59,7 @@ model User {
   points Int @default(0)
 
   posts               Post[]
+  simulationRewards   SimulationReportReward[] @relation("SimulationRewardReporter")
   following           Follow[]             @relation("UserFollowing")
   followers           Follow[]             @relation("UserFollowers")
   likes               Like[]
@@ -244,10 +248,52 @@ model Post {
   bookmarks   Bookmark[]
   postViews   PostView[]
   hashtags    PostHashtag[]
+  simulationPost SimulationPost?
+  simulationReportRewards SimulationReportReward[] @relation("SimulationRewardPost")
 
   @@index([authorId])
   @@index([repostOfId])
   @@map("post")
+}
+
+model SimulationPost {
+  id              String   @id @default(cuid())
+  postId          String   @unique
+  scenario        String
+  groundTruth     String
+  category        String?
+  generationModel String
+  promptVersion   String
+  createdAt       DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@map("simulation_post")
+}
+
+model SimulationRun {
+  id          String    @id @default(cuid())
+  slotKey     String    @unique
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  @@map("simulation_run")
+}
+
+model SimulationReportReward {
+  id         String   @id @default(cuid())
+  postId     String
+  reporterId String
+  amount     Int
+  createdAt  DateTime @default(now())
+
+  post     Post @relation("SimulationRewardPost", fields: [postId], references: [id], onDelete: Cascade)
+  reporter User @relation("SimulationRewardReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, reporterId])
+  @@index([reporterId, createdAt])
+  @@map("simulation_report_reward")
 }
 
 model RngEntry {

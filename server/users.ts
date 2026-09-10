@@ -18,6 +18,27 @@ import "server-only"
 
 import { prisma } from "@/server/prisma"
 
+function withoutSimulationMetadata<
+    T extends {
+        isSimulationAccount: boolean
+        simulationActive: boolean
+        simulationPersona: unknown
+    },
+>(user: T) {
+    const {
+        isSimulationAccount,
+        simulationActive,
+        simulationPersona,
+        ...safeUser
+    } = user
+
+    void isSimulationAccount
+    void simulationActive
+    void simulationPersona
+
+    return safeUser
+}
+
 export async function getUser(handle: string) {
     const user = await prisma.user.findUnique({
         where: {
@@ -53,7 +74,7 @@ export async function getUser(handle: string) {
     const followers = user.followers.map(({ user }) => user.username)
 
     return {
-        ...user,
+        ...withoutSimulationMetadata(user),
         following,
         followers,
     }
@@ -94,7 +115,7 @@ export async function getUserById(id: string) {
     const followers = user.followers.map(({ user }) => user.username)
 
     return {
-        ...user,
+        ...withoutSimulationMetadata(user),
         following,
         followers,
     }

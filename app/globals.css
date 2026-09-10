@@ -19,6 +19,18 @@
 }
 
 @media (min-width: 1024px) {
+    .quiz-page-center {
+        margin-left: 16rem;
+    }
+}
+
+@media (min-width: 1024px) and (max-height: 720px) {
+    .quiz-page-center {
+        margin-left: 0;
+    }
+}
+
+@media (min-width: 1024px) {
     .sidebar-logo {
         width: clamp(8rem, calc(40vh - 10rem), 12.5rem);
         margin-top: clamp(0.5rem, calc(4.44vh - 1.5rem), 1rem);

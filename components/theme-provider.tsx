@@ -17,23 +17,75 @@
 "use client"
 
 import * as React from "react"
-import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes"
 
-function ThemeProvider({
-    children,
-    ...props
-}: React.ComponentProps<typeof NextThemesProvider>) {
+type Theme = "light" | "dark" | "system"
+
+type ThemeContextValue = {
+    theme: Theme
+    resolvedTheme: "light" | "dark"
+    setTheme: (theme: Theme) => void
+}
+
+const ThemeContext = React.createContext<ThemeContextValue | null>(null)
+
+function useTheme() {
+    const context = React.useContext(ThemeContext)
+
+    if (!context) {
+        throw new Error("useTheme must be used within a ThemeProvider")
+    }
+
+    return context
+}
+
+function ThemeProvider({ children }: { children: React.ReactNode }) {
+    const [theme, setThemeState] = React.useState<Theme>("system")
+    const [resolvedTheme, setResolvedTheme] = React.useState<
+        "light" | "dark"
+    >("light")
+
+    React.useEffect(() => {
+        const stored = window.localStorage.getItem("theme")
+        if (stored === "light" || stored === "dark" || stored === "system") {
+            React.startTransition(() => setThemeState(stored))
+        }
+    }, [])
+
+    React.useEffect(() => {
+        const media = window.matchMedia("(prefers-color-scheme: dark)")
+        const updateTheme = () => {
+            const nextTheme =
+                theme === "system"
+                    ? media.matches
+                        ? "dark"
+                        : "light"
+                    : theme
+
+            setResolvedTheme(nextTheme)
+            document.documentElement.classList.toggle(
+                "dark",
+                nextTheme === "dark"
+            )
+        }
+
+        updateTheme()
+        if (theme === "system") {
+            media.addEventListener("change", updateTheme)
+        }
+
+        return () => media.removeEventListener("change", updateTheme)
+    }, [theme])
+
+    const setTheme = (nextTheme: Theme) => {
+        setThemeState(nextTheme)
+        window.localStorage.setItem("theme", nextTheme)
+    }
+
     return (
-        <NextThemesProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-            {...props}
-        >
+        <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme }}>
             <ThemeHotkey />
             {children}
-        </NextThemesProvider>
+        </ThemeContext.Provider>
     )
 }
 
@@ -84,4 +136,4 @@ function ThemeHotkey() {
     return null
 }
 
-export { ThemeProvider }
+export { ThemeProvider, useTheme }

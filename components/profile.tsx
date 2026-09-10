@@ -19,7 +19,7 @@
 // Libraries
 import Image from "next/image"
 import { authClient } from "@/client/auth"
-import { useTheme } from "next-themes"
+import { useTheme } from "@/components/theme-provider"
 import { toast } from "sonner"
 import { redirect } from "next/navigation"
 import { useRef, useState } from "react"

@@ -97,8 +97,8 @@ export default async function Page() {
             <PageRight>
                 <TrendingWidget />
                 <LeaderboardWidget />
-                {/* <RngWidget />
-                <QOTD /> */}
+                <RngWidget />
+                <QOTD />
             </PageRight>
         </PageLayout>
     )

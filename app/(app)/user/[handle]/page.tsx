@@ -396,6 +396,14 @@ export default async function Page({
                                             </span>
                                         </div>
                                     )}
+                                    {user.unlockedDms && (
+                                        <div className="mb-2 flex items-center gap-2">
+                                            <Star className="h-5 w-5 text-primary" />
+                                            <span className="font-bold">
+                                                DMS Unlocked
+                                            </span>
+                                        </div>
+                                    )}
                                 </Card>
                             </TabsContent>
                         </Tabs>

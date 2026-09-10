@@ -116,6 +116,10 @@ ${body.reason}
     ])
 
     const result = JSON.parse(output)
+    const simulationPost = await prisma.simulationPost.findUnique({
+        where: { postId: post.id },
+        select: { groundTruth: true },
+    })
 
     if (result.is_inappropriate) {
         await Admin.flagPost(post.id)
@@ -124,6 +128,42 @@ ${body.reason}
             "quacky",
             `Hello, ${post.author.name}. \n\nYour [post](${env.BETTER_AUTH_URL}/post/${post.id}) which you made on **${new Date().toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}** has been taken down due to a violation of our [Community Guidelines](https://quacky.space/terms).\n\nReason given: **${result.reason}**\n\nIf you believe this is a mistake, please contact an school administrator.`
         )
+    }
+
+    if (
+        simulationPost?.groundTruth === "unsafe" &&
+        result.is_inappropriate === true
+    ) {
+        try {
+            await prisma.$transaction(async (transaction) => {
+                await transaction.simulationReportReward.create({
+                    data: {
+                        postId: post.id,
+                        reporterId: session.user.id,
+                        amount: env.SIMULATION_REWARD_POINTS,
+                    },
+                })
+
+                await transaction.user.update({
+                    where: { id: session.user.id },
+                    data: {
+                        points: {
+                            increment: env.SIMULATION_REWARD_POINTS,
+                        },
+                    },
+                })
+            })
+
+            await NotificationService.send(
+                session.user.id,
+                "quacky",
+                `You correctly identified unsafe content and earned **${env.SIMULATION_REWARD_POINTS} points** for helping keep the community safe.`
+            )
+        } catch (error) {
+            if ((error as { code?: string }).code !== "P2002") {
+                throw error
+            }
+        }
     }
 
     await addXP(session.user.username, xp.report)
