@@ -134,6 +134,11 @@ export const auth = betterAuth({
                 required: false,
                 defaultValue: false,
             },
+            accessibilityModeEnabled: {
+                type: "boolean",
+                required: false,
+                defaultValue: false,
+            },
             private: {
                 type: "boolean",
                 required: false,

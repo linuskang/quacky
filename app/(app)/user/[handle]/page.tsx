@@ -48,8 +48,10 @@ import { FollowCounts } from "@/components/follow-dialog"
 
 export default async function Page({
     params,
+    searchParams,
 }: {
     params: Promise<{ handle: string }>
+    searchParams?: Promise<{ publicview?: string | string[] }>
 }) {
     // Basics: Fetch session, and user from param.
     const session = await requireSession()
@@ -61,13 +63,23 @@ export default async function Page({
         notFound()
     }
 
+    const query = (await searchParams) ?? {}
+    const publicView = query.publicview === "true"
+    const isOwner = session.user.id === user.id
+    const canViewPrivateProfile =
+        !user.private || (isOwner && !publicView)
+
     // same as below
     const followsYou = user.following.includes(session.user.username)
     const following = user.followers.includes(session.user.username)
 
     // for dropdowns. pre fetch on load.
-    const posts = await getPostsByUserId(user.id, session)
-    const replies = await getCommentsByUserId(user.id)
+    const posts = canViewPrivateProfile
+        ? await getPostsByUserId(user.id, session)
+        : []
+    const replies = canViewPrivateProfile
+        ? await getCommentsByUserId(user.id)
+        : []
 
     return (
         <PageLayout>
@@ -78,6 +90,21 @@ export default async function Page({
                 >
                     Go back
                 </Link>
+                {user.private && isOwner && !publicView && (
+
+                    <Card className="border-none bg-destructive p-4">
+                        <p className="text-sm font-semibold text-primary">
+                            Your profile is private. Only you can see your profile.
+                        </p>
+                        <Link
+                            href={`/@${user.username}?publicview=true`}
+                            className="text-sm font-semibold text-primary-2 underline hover:text-primary"
+                        >
+                            View your profile as the public would see it
+                        </Link>
+                    </Card>
+
+                )}
                 <Card className="mx-auto w-full max-w-lg overflow-hidden !bg-profile-card">
                     <CardHeader className="-mt-4 p-0">
                         {!user.banned && user.bannerImage && (
@@ -113,7 +140,7 @@ export default async function Page({
                                                 {user.verified && (
                                                     <BadgeCheck className="h-[20px] w-[20px] fill-primary text-profile-card" />
                                                 )}
-                                                {!user.private &&
+                                                {canViewPrivateProfile &&
                                                     user.pronoun && (
                                                         <span className="text-sm text-muted-foreground">
                                                             {user.pronoun}
@@ -130,7 +157,7 @@ export default async function Page({
                                     <p className="text-base text-muted-foreground">
                                         {!user.banned ? `@${user.username}` : "@Deleted User"}
                                     </p>
-                                    {!user.private && !user.banned && (
+                                    {canViewPrivateProfile && !user.banned && (
                                         <FollowCounts
                                             handle={user.username}
                                             followingCount={
@@ -144,7 +171,7 @@ export default async function Page({
                                 </div>
                             </div>
 
-                            {!user.banned && (
+                            {!user.banned && (!isOwner || !publicView) && (
                                 <div className="mb-auto ml-auto">
                                     <ProfileAction
                                         currentUserId={session.user.id}
@@ -170,14 +197,12 @@ export default async function Page({
                         )}
 
                         {!user.banned &&
-                            (!user.private ? (
+                            (canViewPrivateProfile ? (
                                 user.bio ? (
                                     <Markdown>{user.bio}</Markdown>
                                 ) : (
                                     <p className="mt-3 text-base whitespace-pre-wrap text-muted-foreground italic">
-                                        {user.private
-                                            ? "This profile is private."
-                                            : "No bio yet."}
+                                        No bio yet.
                                     </p>
                                 )
                             ) : (
@@ -201,7 +226,7 @@ export default async function Page({
                                     })}
                                 </span>
 
-                                {!user.private && (
+                                {canViewPrivateProfile && (
                                     <>
                                         <span className="flex items-center gap-1 font-semibold">
                                             <Star
@@ -258,7 +283,7 @@ export default async function Page({
                 </Card>
 
                 {!user.banned &&
-                    (!user.private ? (
+                    (canViewPrivateProfile ? (
                         <Tabs
                             defaultValue="posts"
                             className="mx-auto -mt-2 w-full max-w-lg gap-0"

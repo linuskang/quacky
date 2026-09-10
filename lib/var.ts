@@ -19,7 +19,7 @@
 // there will be a config table eventually in the db when i decide to do it
 // its currently low prio.
 
-export const version = "0.2.0"
+export const version = "0.0.6"
 
 export const rules = [
     {

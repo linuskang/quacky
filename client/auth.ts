@@ -32,6 +32,11 @@ export const authClient = createAuthClient({
                     required: false,
                     default: false,
                 },
+                accessibilityModeEnabled: {
+                    type: "boolean",
+                    required: false,
+                    default: false,
+                },
                 private: {
                     type: "boolean",
                     required: false,

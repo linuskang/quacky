@@ -89,6 +89,8 @@ export function Profile({ mobile = false }: { mobile?: boolean }) {
     const [username, setUsername] = useState("")
     const [privateAccount, setPrivateAccount] = useState(false)
     const [statsForNerds, setStatsForNerds] = useState(false)
+    const [accessibilityModeEnabled, setAccessibilityModeEnabled] =
+        useState(false)
     const imageInputRef = useRef<HTMLInputElement>(null)
     const [currentPassword, setCurrentPassword] = useState("")
     const [newPassword, setNewPassword] = useState("")
@@ -103,6 +105,9 @@ export function Profile({ mobile = false }: { mobile?: boolean }) {
             setUsername(session.user.username)
             setPrivateAccount(session.user.private!)
             setStatsForNerds(session.user.statsForNerds!)
+            setAccessibilityModeEnabled(
+                session.user.accessibilityModeEnabled!
+            )
             setImage(session.user.image!)
             setImagePreview(session.user.image!)
             setImageFile(null)
@@ -180,6 +185,11 @@ export function Profile({ mobile = false }: { mobile?: boolean }) {
         if (privateAccount !== user.private) updates.private = privateAccount
         if (statsForNerds !== user.statsForNerds)
             updates.statsForNerds = statsForNerds
+        if (
+            accessibilityModeEnabled !== user.accessibilityModeEnabled
+        ) {
+            updates.accessibilityModeEnabled = accessibilityModeEnabled
+        }
 
         if (Object.keys(updates).length === 0) {
             setSaving(false)
@@ -400,6 +410,32 @@ export function Profile({ mobile = false }: { mobile?: boolean }) {
                                                     For all you techy people out
                                                     there. Adds a debug bar at
                                                     the bottom of every page.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-start gap-3">
+                                            <Checkbox
+                                                id="accessibility-mode"
+                                                className="mt-1 border-2"
+                                                checked={
+                                                    accessibilityModeEnabled
+                                                }
+                                                onCheckedChange={(checked) =>
+                                                    setAccessibilityModeEnabled(
+                                                        checked === true
+                                                    )
+                                                }
+                                            />
+                                            <div className="space-y-0.5">
+                                                <Label
+                                                    htmlFor="accessibility-mode"
+                                                    className="text-sm font-semibold text-primary"
+                                                >
+                                                    Accessibility Mode
+                                                </Label>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Adds extra contrast and larger text
                                                 </p>
                                             </div>
                                         </div>
@@ -703,13 +739,13 @@ export function Profile({ mobile = false }: { mobile?: boolean }) {
 
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
-                        <button
-                            aria-label="Log out"
-                            className={
-                                mobile
-                                    ? "hidden"
-                                    : "flex h-8 w-8 items-center justify-center text-primary"
-                            }
+                            <button
+                                aria-label="Log out"
+                                className={
+                                    mobile
+                                        ? "hidden"
+                                        : "flex h-8 w-8 items-center justify-center text-primary"
+                                }
                             >
                                 <LogOut className="h-5 w-5" strokeWidth={3} />
                             </button>
