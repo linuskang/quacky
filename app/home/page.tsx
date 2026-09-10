@@ -8,21 +8,6 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 
-const heroGeese = [
-    ["Science%20Microscope.png", "top-[10%] right-[32%] w-40 rotate-[-8deg]"],
-    ["Music%20Dancing%201.png", "top-[2%] right-[-2%] w-36 rotate-6"],
-    ["Academic%20Scroll.png", "top-[23%] right-[4%] w-32 rotate-12"],
-    ["Book.png", "top-[30%] right-[39%] w-32 rotate-[-12deg]"],
-    ["Camera.png", "top-[42%] right-[18%] w-36 rotate-[-5deg]"],
-    ["Laptop.png", "top-[47%] right-[-3%] w-40 rotate-6"],
-    ["Basketball.png", "top-[59%] right-[42%] w-32 rotate-[-7deg]"],
-    ["Flowers.png", "top-[65%] right-[18%] w-32 rotate-6"],
-    ["Celebration.png", "right-[-4%] bottom-[-2%] w-44 rotate-3"],
-    ["Backpack.png", "right-[36%] bottom-[4%] w-32 rotate-[-8deg]"],
-    ["Hearts.png", "top-[14%] right-[56%] w-24 rotate-[-15deg]"],
-    ["Volleyball%201.png", "right-[56%] bottom-[18%] w-28 rotate-12"],
-] as const
-
 export default function Page() {
     const [orgName, setOrgName] = useState("")
     const [members, setMembers] = useState(0)
@@ -45,7 +30,7 @@ export default function Page() {
                     Hey, what is Quacky?
                 </Link>
             </div>
-            <div className="relative min-h-[65vh] overflow-hidden border-b-2 border-border bg-gradient-to-b from-homepage-primary from-0% via-homepage-primary via-85% to-background to-100% pb-8">
+            <div className="relative min-h-[65vh] overflow-hidden border-b-2 border-border bg-[linear-gradient(to_bottom,var(--homepage-primary)_0%,var(--homepage-primary)_35%,color-mix(in_oklch,var(--homepage-primary),var(--background)_60%)_75%,var(--background)_100%)] pb-8">
                 <Image
                     src="/quacky.png"
                     alt="Logo"
@@ -62,31 +47,6 @@ export default function Page() {
                     aria-hidden="true"
                     className="pointer-events-none absolute top-1/2 left-[54%] z-0 w-[38rem] -translate-x-1/2 -translate-y-1/2 rotate-[-8deg] object-contain opacity-90"
                 />
-
-                <Image
-                    src="/balloon.png"
-                    alt=""
-                    width={360}
-                    height={360}
-                    aria-hidden="true"
-                    className="pointer-events-none absolute top-1/2 left-1/2 z-0 w-64 -translate-x-1/2 -translate-y-1/2 object-contain"
-                />
-
-                <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-y-0 right-0 hidden w-[42%] lg:block"
-                >
-                    {heroGeese.map(([asset, position]) => (
-                        <Image
-                            key={asset}
-                            src={`/goose/${asset}`}
-                            alt=""
-                            width={200}
-                            height={200}
-                            className={`absolute object-contain ${position}`}
-                        />
-                    ))}
-                </div>
 
                 <div className="relative z-10 mt-20 max-w-[560px] lg:ml-40">
                     <p className="text-lg font-medium text-muted-foreground">
