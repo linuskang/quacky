@@ -28,6 +28,26 @@ i dont really feel like yapping on this readme, but essentially:
 
 so thats the gist of it, if you want to see the entire dev journey, check out the devlogs at https://quacky.space/devlog
 
+#### tech stack
+
+- Next.js 16
+- Prisma
+- ``shadcn/ui``
+- Better Auth
+- Resend
+- tRPC
+- ``t3-env``
+- Seq (logging platform)
+- Postgresql (db)
+- OpenAI adapter (cloud model access)
+- Flagsmith (Fast flag features for Quacky)
+
+Infrastructure wise, I'm hosting Quacky on 3 raspberry pi 5's, each with:
+- 4gb ram
+- 128gb sd card
+
+They are clustered together using Kubenetes via. a portainer instance, served using Cloudflare Tunnels out of my network.
+
 ### Try quacky at https://quacky.space!
 
 <img width="1411" height="1233" alt="image" src="https://github.com/user-attachments/assets/fa04ca31-bfe0-400d-84c4-0302bbe82b11" />
@@ -73,20 +93,6 @@ https://quacky.space/docs, which contains documentation for all APIs.
 please see the [contribution guide](CONTRIBUTING.md) for more information.
 
 ## Self-hosting for production?
-
-For my production deployment at https://quacky.space, i'm using 6 Raspberry Pi 5 nodes, each with:
-- 8gb ram
-- 128gb storage
-- Running kubernetes in High Availability.
-- each node runs the Quacky app using portainer with GitOps enabled for this repository.
-
-For the database, I'm using Supabase free tier, as its more then enough for my current app load. I'm self-hosting the qky cdn on a VPS.
-
-The app is distributed to users using Cloudflare tunnels with Nginx Proxy Manager on my VPS as well, which forwards traffic to the pi cluster where it is load balanced.
-
-View my production [compose file](production.docker-compose.yml)
-
-Lucky for you, all you need to do is copy paste this compose file into your server!
 
 ```yml
 services:
