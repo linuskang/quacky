@@ -284,7 +284,7 @@ export const auth = betterAuth({
                 },
             },
             update: {
-                before: async (user) => {
+                before: async (user, context) => {
                     if (!allowProfileChange) {
                         throw APIError.from("FORBIDDEN", {
                             code: "PROFILE_CHANGE_DISABLED",
@@ -292,24 +292,34 @@ export const auth = betterAuth({
                                 "Profile changes are currently disabled. Contact an admin.",
                         })
                     } else {
-                        const existingUser = await prisma.user.findUnique({
-                            where: { id: user.id },
-                            select: {
-                                unlockedProfiles: true,
-                                role: true,
-                            },
-                        })
+                        // The hook receives only the update payload, not the
+                        // full user record, so resolve the id from the session.
+                        const userId =
+                            context?.context?.session?.user?.id ??
+                            ("id" in user
+                                ? (user.id as string | undefined)
+                                : undefined)
 
-                        if (
-                            existingUser &&
-                            !existingUser.unlockedProfiles &&
-                            existingUser.role !== "admin"
-                        ) {
-                            throw APIError.from("FORBIDDEN", {
-                                code: "PROFILE_QUIZ_REQUIRED",
-                                message:
-                                    "Complete the profile quiz before editing your profile.",
+                        if (userId) {
+                            const existingUser = await prisma.user.findUnique({
+                                where: { id: userId },
+                                select: {
+                                    unlockedProfiles: true,
+                                    role: true,
+                                },
                             })
+
+                            if (
+                                existingUser &&
+                                !existingUser.unlockedProfiles &&
+                                existingUser.role !== "admin"
+                            ) {
+                                throw APIError.from("FORBIDDEN", {
+                                    code: "PROFILE_QUIZ_REQUIRED",
+                                    message:
+                                        "Complete the profile quiz before editing your profile.",
+                                })
+                            }
                         }
 
                         const username = (user as Record<string, unknown>)

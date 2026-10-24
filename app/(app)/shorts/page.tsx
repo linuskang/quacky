@@ -76,6 +76,8 @@ export default function Page() {
                         </form>
                     </DialogContent>
                 </Dialog>
+
+                <p>Shorts are currently disabled by admin. please come back later</p>
             </PageCenter>
         </PageLayout>
     )
