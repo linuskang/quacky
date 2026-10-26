@@ -86,7 +86,7 @@
         "@types/react-dom": "^19",
         "@types/web-push": "^3.6.4",
         "eslint": "^10",
-        "eslint-config-next": "^16.4.2",
+        "eslint-config-next": "^16.4.3",
         "prettier": "^3.9.6",
         "prettier-plugin-tailwindcss": "^0.8.1",
         "prisma": "^7.10.1",
