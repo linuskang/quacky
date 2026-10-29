@@ -4,7 +4,7 @@
 // $$ |  $$ |/  |  /  | /      \  /       |$$ |  /  |/  |  /  |
 // $$ |  $$ |$$ |  $$ | $$$$$$  |/$$$$$$$/ $$ |_/$$/ $$ |  $$ |
 // $$ |_ $$ |$$ |  $$ | /    $$ |$$ |      $$   $$<  $$ |  $$ |
-// $$ / \$$ |$$ \__$$ |/$$$$$$$ |$$ \_____ $$$$$$  \ $$ \__$$ |
+// $$ / \$$ |$$ \\__$$ |/$$$$$$$ |$$ \\_____ $$$$$$  \ $$ \\__$$ |
 // $$ $$ $$< $$    $$/ $$    $$ |$$       |$$ | $$  |$$    $$ |
 //  $$$$$$  | $$$$$$/   $$$$$$$/  $$$$$$$/ $$/   $$/  $$$$$$$ |
 //      $$$/                                         /  \__$$ |
@@ -36,6 +36,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { AdminStats } from "@/components/admin-stats"
+import { BroadcastNotificationCard } from "@/components/broadcast-notification-card"
 import Link from "next/link"
 
 const subscribe = () => () => { }
@@ -99,17 +100,24 @@ export default function Page() {
             <PageCenter className="max-w-6xl gap-6">
                 <Title>Admin Panel</Title>
 
-                <Link href="/admin/orders" className="text-sm font-bold underline">
-                    Pending Shop Orders
-                </Link>
-                <Link href="/admin/shop-items" className="text-sm font-bold underline">
-                    Manage Shop Items
-                </Link>
-                <Link href="/admin/users" className="text-sm font-bold underline">
-                    Quacky Users
-                </Link>
+                <div className="flex flex-wrap items-center gap-4">
+                    <Link href="/admin/orders" className="text-sm font-bold underline">
+                        Pending Shop Orders
+                    </Link>
+                    <Link href="/admin/shop-items" className="text-sm font-bold underline">
+                        Manage Shop Items
+                    </Link>
+                    <Link href="/admin/users" className="text-sm font-bold underline">
+                        Quacky Users
+                    </Link>
+                    <Link href="/admin/notifications" className="text-sm font-bold underline">
+                        Broadcast Notifications
+                    </Link>
+                </div>
 
                 <AdminStats />
+
+                <BroadcastNotificationCard />
 
                 <Card>
                     <CardHeader>

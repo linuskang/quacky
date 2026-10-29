@@ -4,7 +4,7 @@
 // $$ |  $$ |/  |  /  | /      \  /       |$$ |  /  |/  |  /  |
 // $$ |  $$ |$$ |  $$ | $$$$$$  |/$$$$$$$/ $$ |_/$$/ $$ |  $$ |
 // $$ |_ $$ |$$ |  $$ | /    $$ |$$ |      $$   $$<  $$ |  $$ |
-// $$ / \$$ |$$ \__$$ |/$$$$$$$ |$$ \_____ $$$$$$  \ $$ \__$$ |
+// $$ / \$$ |$$ \\__$$ |/$$$$$$$ |$$ \\_____ $$$$$$  \ $$ \\__$$ |
 // $$ $$ $$< $$    $$/ $$    $$ |$$       |$$ | $$  |$$    $$ |
 //  $$$$$$  | $$$$$$/   $$$$$$$/  $$$$$$$/ $$/   $$/  $$$$$$$ |
 //      $$$/                                         /  \__$$ |
@@ -15,6 +15,7 @@
 // Work is licensed under the CC BY-NC 4.0 license.
 
 import { prisma } from "@/server/prisma"
+import { broadcastPushNotification } from "@/server/notification"
 
 export class Admin {
     static async banUser(userId: string, banReason: string) {
@@ -100,5 +101,54 @@ export class Admin {
             },
         })
         return true
+    }
+
+    static async broadcastNotification({
+        userId = "quacky",
+        content,
+    }: {
+        userId?: string
+        content: string
+    }) {
+        const actor = await prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+            select: {
+                id: true,
+                name: true,
+            },
+        })
+
+        if (!actor) {
+            throw new Error(`User with ID "${userId}" not found`)
+        }
+
+        const users = await prisma.user.findMany({
+            select: {
+                id: true,
+            },
+        })
+
+        if (users.length === 0) {
+            return { count: 0 }
+        }
+
+        await prisma.notification.createMany({
+            data: users.map((user) => ({
+                userId: user.id,
+                actorId: actor.id,
+                content,
+            })),
+        })
+
+        const plainContent = content.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+        void broadcastPushNotification({
+            title: `${actor.name} from Quacky`,
+            body: plainContent,
+            url: "/notifications",
+        })
+
+        return { count: users.length }
     }
 }

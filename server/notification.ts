@@ -4,7 +4,7 @@
 // $$ |  $$ |/  |  /  | /      \  /       |$$ |  /  |/  |  /  |
 // $$ |  $$ |$$ |  $$ | $$$$$$  |/$$$$$$$/ $$ |_/$$/ $$ |  $$ |
 // $$ |_ $$ |$$ |  $$ | /    $$ |$$ |      $$   $$<  $$ |  $$ |
-// $$ / \$$ |$$ \__$$ |/$$$$$$$ |$$ \_____ $$$$$$  \ $$ \__$$ |
+// $$ / \$$ |$$ \\__$$ |/$$$$$$$ |$$ \\_____ $$$$$$  \ $$ \\__$$ |
 // $$ $$ $$< $$    $$/ $$    $$ |$$       |$$ | $$  |$$    $$ |
 //  $$$$$$  | $$$$$$/   $$$$$$$/  $$$$$$$/ $$/   $$/  $$$$$$$ |
 //      $$$/                                         /  \__$$ |
@@ -129,6 +129,68 @@ export async function sendPushNotification(
             removed++
         }
     }
+    void removed
 
     return true
+}
+
+export async function broadcastPushNotification(payload: {
+    title: string
+    body: string
+    url?: string
+}) {
+    try {
+        setup()
+
+        const subscriptions = await prisma.pushSubscription.findMany({
+            where: {
+                user: {
+                    pushNotificationsEnabled: true,
+                },
+            },
+        })
+
+        if (subscriptions.length === 0) {
+            return true
+        }
+
+        const body = JSON.stringify({
+            title: payload.title,
+            body: payload.body,
+            icon: '/android-chrome-192x192.png',
+            badge: '/android-chrome-192x192.png',
+            url: payload.url ?? '/notifications',
+        })
+
+        const res = await Promise.allSettled(
+            subscriptions.map((sub) =>
+                webpush.sendNotification(
+                    {
+                        endpoint: sub.endpoint,
+                        keys: {
+                            auth: sub.auth,
+                            p256dh: sub.p256dh,
+                        },
+                    },
+                    body
+                )
+            )
+        )
+
+        for (let i = 0; i < res.length; i++) {
+            const result = res[i]
+            if (result && result.status === 'rejected') {
+                await prisma.pushSubscription
+                    .delete({
+                        where: { id: subscriptions[i].id },
+                    })
+                    .catch(() => {})
+            }
+        }
+
+        return true
+    } catch (error) {
+        console.error("Failed to broadcast push notifications:", error)
+        return false
+    }
 }
