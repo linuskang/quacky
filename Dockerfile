@@ -5,7 +5,7 @@ WORKDIR /app
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable && corepack prepare pnpm@12.14.0 --activate
+RUN npm install -g pnpm@12.14.0
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml* .npmrc* ./
 RUN pnpm install --frozen-lockfile
@@ -15,12 +15,12 @@ WORKDIR /app
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable && corepack prepare pnpm@12.14.0 --activate
+RUN npm install -g pnpm@12.14.0
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 ENV DATABASE_URL="postgresql://localhost:5432/db"
 ENV ORG_NAME="dummy-org"
@@ -55,8 +55,8 @@ RUN pnpm run build
 FROM node:26-alpine AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_OPTIONS="--network-family-autoselection-attempt-timeout=500"
 
 RUN addgroup --system --gid 1001 nodejs
@@ -76,6 +76,6 @@ USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
+ENV PORT=3000
 
 ENTRYPOINT ["./entrypoint.sh"]
