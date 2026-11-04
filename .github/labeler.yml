@@ -61,7 +61,8 @@ area:config:
           - "*.config.*"
           - tsconfig.json
           - package.json
-          - package-lock.json
+          - pnpm-lock.yaml
+          - pnpm-workspace.yaml
           - .env*
           - .prettier*
           - .eslint*
@@ -100,5 +101,6 @@ type:dependencies:
   - changed-files:
       - any-glob-to-any-file:
           - package.json
-          - package-lock.json
+          - pnpm-lock.yaml
+          - pnpm-workspace.yaml
           - prisma/schema.prisma

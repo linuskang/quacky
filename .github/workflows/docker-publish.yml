@@ -25,7 +25,7 @@ jobs:
           node-version: 22
 
       - name: Check deployment configuration
-        run: npm run check:deployment
+        run: node scripts/check-deployment-config.js
 
       - name: Check production Compose file
         run: |

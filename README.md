@@ -58,6 +58,7 @@ its extremely simple. you will need:
 
 - a linux server with Docker running Postgresql
 - node.js
+- pnpm
 
 get started by:
 
@@ -67,17 +68,17 @@ git clone https://github.com/linuskang/quacky
 
 # install dependencies
 cd quacky
-npm install
+pnpm install
 
 # env
 cp .env.example .env
 
 # apply migrations
-npx prisma generate
-npx prisma migrate dev
+pnpm prisma generate
+pnpm prisma migrate dev
 
 # start development server
-npm run dev
+pnpm run dev
 
 # access at http://0.0.0.0:3000
 ```
@@ -104,7 +105,7 @@ services:
       - "3000:3000"
 ```
 
-ensure that you've configured your ``.env`` file, and run the migrations using ``npx prisma migrate deploy``.
+ensure that you've configured your ``.env`` file, and run the migrations using ``pnpm prisma migrate deploy``.
 
 after, just run compose up when your finished:
 
@@ -134,7 +135,7 @@ weirdo... but ok. you'll need to figure out how to get postgres and rustfs runni
 
 1. clone the repo and double check your env is all set.
 
-2. deploy the app using ``npm run start``
+2. deploy the app using ``pnpm run start``
 
 3. grab a fire extinguisher
 

@@ -15,7 +15,7 @@ Enter and install dependencies:
 
 ```bash
 cd quacky
-npm i
+pnpm i
 ```
 
 Declare ``.env`:
@@ -27,14 +27,14 @@ cp .env.example .env # edit the values to be yours
 Run prisma migrations:
 
 ```bash
-npx prisma generate
-npx prisma migrate dev
+pnpm prisma generate
+pnpm prisma migrate dev
 ```
 
 And lastly, start the server:
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Upstream will be available at http://localhost:3000
@@ -42,9 +42,9 @@ Upstream will be available at http://localhost:3000
 ## Packages
 
 1. Clone the repo
-2. ``npm install``
+2. ``pnpm install``
 3. Start tinkering
-4. When your done, run ``npm run build`` and ``npm run lint`` to check for errors.
+4. When your done, run ``pnpm run build`` and ``pnpm run lint`` to check for errors.
 5. Your done! create a pr if you wish.
 
 ## Contribution notes

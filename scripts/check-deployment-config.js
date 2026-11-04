@@ -102,7 +102,7 @@ if (!fix) {
         );
     }
 
-    console.error("Run `npm run fix:deployment` to auto-fix this drift.");
+    console.error("Run `pnpm run fix:deployment` to auto-fix this drift.");
     process.exit(1);
 }
 

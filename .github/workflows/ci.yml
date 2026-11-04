@@ -39,7 +39,7 @@ jobs:
       - name: Check environment synchronization
         id: env-check
         run: |
-          if npm run check:deployment; then
+          if node scripts/check-deployment-config.js; then
             echo "drift=false" >> "$GITHUB_OUTPUT"
           else
             echo "drift=true" >> "$GITHUB_OUTPUT"
@@ -52,7 +52,7 @@ jobs:
       - name: Auto-fix drift and commit
         if: steps.env-check.outputs.drift == 'true' && github.event_name != 'pull_request'
         run: |
-          npm run fix:deployment
+          node scripts/check-deployment-config.js --fix
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .env.example production.docker-compose.yml
@@ -77,17 +77,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
           node-version: 22
-          cache: "npm"
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Run lint
-        run: npm run lint
+        run: pnpm run lint
 
   typecheck:
     name: Type Check
@@ -108,20 +111,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
           node-version: 22
-          cache: "npm"
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma client
-        run: npx prisma generate
+        run: pnpm run generate
 
       - name: Run type check
-        run: npm run typecheck
+        run: pnpm run typecheck
 
   build:
     name: Build
@@ -142,17 +148,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
           node-version: 22
-          cache: "npm"
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma client
-        run: npx prisma generate
+        run: pnpm run generate
 
       - name: Run build
-        run: npm run build
+        run: pnpm run build
