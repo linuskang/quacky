@@ -63,6 +63,7 @@ area:config:
           - package.json
           - pnpm-lock.yaml
           - pnpm-workspace.yaml
+          - .npmrc
           - .env*
           - .prettier*
           - .eslint*

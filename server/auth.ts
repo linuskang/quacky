@@ -14,12 +14,11 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
-import { betterAuth } from "better-auth"
+import { betterAuth, APIError } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
 import { prisma } from "@/server/prisma"
 import { env } from "@/env"
 import { z } from "zod"
-import { APIError } from "@better-auth/core/error"
 import { Resend } from "resend"
 import { admin } from "better-auth/plugins"
 import { NotificationService } from "@/server/helpers"
