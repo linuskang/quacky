@@ -41,7 +41,7 @@ export function useUnreads() {
                 res.ok ? ((await res.json()) as { unreads?: Partial<Unreads> }) : null
             )
             .then((data) => {
-                if (!data?.unreads) return
+                if (!data?.unreads) return //tigger was here
                 setUnreads({
                     notifications: data.unreads.notifications ?? 0,
                     dms: data.unreads.dms ?? 0,
