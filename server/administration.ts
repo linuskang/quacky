@@ -110,9 +110,12 @@ export class Admin {
         userId?: string
         postContent: string
     }) {
-        const actor = await prisma.user.findUnique({
+        const actor = await prisma.user.findFirst({
             where: {
-                id: userId,
+                OR: [
+                    { id: userId },
+                    { username: userId },
+                ],
             },
             select: {
                 id: true,
@@ -121,7 +124,7 @@ export class Admin {
         })
 
         if (!actor) {
-            throw new Error(`User with ID "${userId}" not found`)
+            throw new Error(`User with ID or username "${userId}" not found`)
         }
 
         const newPost = await prisma.post.create({

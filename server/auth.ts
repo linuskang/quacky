@@ -283,7 +283,9 @@ export const auth = betterAuth({
                     }).catch(() => { })
                     Admin.postAsUser({
                         userId: "welcomer",
-                        postContent: `Everyone, welcome @${user.username}.\n\nThey have just joined Quacky!`
+                        postContent: `Everyone, welcome @${user.username}!\n\nThey have just joined Quacky!`
+                    }).catch((err) => {
+                        console.error("Failed to post welcome message:", err)
                     })
                 },
             },
