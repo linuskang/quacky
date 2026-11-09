@@ -40,6 +40,11 @@ const nextConfig: NextConfig = {
             },
             {
                 protocol: "https",
+                hostname: "quacky.space",
+                pathname: "/**",
+            },
+            {
+                protocol: "https",
                 hostname: "avatars.githubusercontent.com",
                 pathname: "/u/**",
             },
