@@ -35,12 +35,17 @@ const nextConfig: NextConfig = {
             },
             {
                 protocol: "https",
+                hostname: "lh3.googleusercontent.com",
+                pathname: "/**",
+            },
+            {
+                protocol: "https",
                 hostname: "avatars.githubusercontent.com",
                 pathname: "/u/**",
             },
             {
                 protocol: "https",
-                hostname: "avatars.lkang.au",
+                hostname: "avatar.linus.my",
                 pathname: "/10.x/**",
             },
             {
