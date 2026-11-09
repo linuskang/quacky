@@ -79,7 +79,8 @@ export default function Page() {
                             <h2 className="text-lg font-bold">
                                 {user.name}{" "}
                                 {user.verified ? "(Verified)" : ""}
-                                {user.role === "admin" ? " (Admin)" : ""}
+                                {user.role?.toLowerCase() === "admin" ? " (Admin)" : ""}
+                                {user.role?.toLowerCase() === "bot" ? " (Bot)" : ""}
                             </h2>
 
                             <p className="text-sm text-muted-foreground">

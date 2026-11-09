@@ -27,7 +27,7 @@ import axios from "axios"
 
 // Components
 import { BadgeCheck, SendHorizontal, MoreHorizontal, Lock } from "lucide-react"
-import { Admin } from "./icons"
+import { Admin, BotBadge, VerifiedBadge } from "./icons"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -253,10 +253,15 @@ export function CommentCard({ comment }: { comment: Comment }) {
                         </Link>
 
                         {comment.author.verified && (
-                            <BadgeCheck className="h-[20px] w-[20px] fill-primary text-background" />
+                            <VerifiedBadge className="h-5 w-5" />
                         )}
 
-                        {comment.author.role == "admin" && <Admin />}
+                        {comment.author.role?.toLowerCase() == "admin" && (
+                            <Admin className="h-5 w-5" />
+                        )}
+                        {comment.author.role?.toLowerCase() == "bot" && (
+                            <BotBadge className="h-5 w-5" />
+                        )}
 
                         <Link
                             href={`/@${comment.author.username}`}

@@ -24,7 +24,7 @@ import Link from "next/link"
 
 // Components
 import { BadgeCheck } from "lucide-react"
-import { Admin } from "@/components/icons"
+import { Admin, BotBadge, VerifiedBadge } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import {
     HoverCard,
@@ -122,9 +122,10 @@ export function MentionHoverCard({ username }: { username: string }) {
                                         {currentProfile.name}
                                     </span>
                                     {currentProfile.verified && (
-                                        <BadgeCheck className="h-4 w-4 shrink-0 fill-primary text-background" />
+                                        <VerifiedBadge />
                                     )}
-                                    {currentProfile.role === "admin" && <Admin />}
+                                    {currentProfile.role?.toLowerCase() === "admin" && <Admin />}
+                                    {currentProfile.role?.toLowerCase() === "bot" && <BotBadge />}
                                 </div>
                                 <div className="truncate text-sm font-medium text-muted-foreground">
                                     @{currentProfile.username}

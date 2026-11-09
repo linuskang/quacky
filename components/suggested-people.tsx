@@ -20,6 +20,7 @@ import { useEffect, useState, useTransition } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { BadgeCheck } from "lucide-react"
+import { Admin, BotBadge, VerifiedBadge } from "@/components/icons"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -76,6 +77,11 @@ function SuggestedPerson({ user }: { user: SuggestedUser }) {
                         <p className="truncate text-sm leading-tight font-bold">
                             {user.name}
                         </p>
+                        {user.verified && (
+                            <VerifiedBadge />
+                        )}
+                        {user.role?.toLowerCase() === "admin" && <Admin />}
+                        {user.role?.toLowerCase() === "bot" && <BotBadge />}
                     </div>
                     <p className="truncate text-xs text-muted-foreground">
                         @{user.username}

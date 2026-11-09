@@ -20,7 +20,7 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { BadgeCheck } from "lucide-react"
-import { Admin } from "@/components/icons"
+import { Admin, BotBadge, VerifiedBadge } from "@/components/icons"
 import { SearchBar } from "@/components/search-bar"
 import type { User } from "@/types"
 
@@ -105,9 +105,10 @@ export function DmUserSearch() {
                                         {user.name}
                                     </span>
                                     {user.verified && (
-                                        <BadgeCheck className="h-4 w-4 shrink-0 fill-primary text-background" />
+                                        <VerifiedBadge />
                                     )}
-                                    {user.role === "admin" && <Admin />}
+                                    {user.role?.toLowerCase() === "admin" && <Admin />}
+                                    {user.role?.toLowerCase() === "bot" && <BotBadge />}
                                 </div>
                                 <p className="truncate text-xs font-medium text-muted-foreground">
                                     @{user.username}

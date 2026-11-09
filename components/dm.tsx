@@ -22,6 +22,7 @@ import { useState, useRef, useEffect } from "react"
 
 // Components
 import { ArrowUp } from "lucide-react"
+import { Admin, BotBadge, VerifiedBadge } from "@/components/icons"
 import { Lock } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
@@ -116,9 +117,16 @@ export function Dm({
                     </Avatar>
 
                     <div>
-                        <h2 className="truncate text-base font-bold">
-                            {other.name}
-                        </h2>
+                        <div className="flex items-center gap-1">
+                            <h2 className="truncate text-base font-bold">
+                                {other.name}
+                            </h2>
+                            {other.verified && (
+                                <VerifiedBadge />
+                            )}
+                            {other.role?.toLowerCase() === "admin" && <Admin />}
+                            {other.role?.toLowerCase() === "bot" && <BotBadge />}
+                        </div>
                         <p className="truncate text-sm text-muted-foreground">
                             @{other.username}
                         </p>
@@ -137,7 +145,14 @@ export function Dm({
                                     <AvatarImage src={other.image} />
                                 </Avatar>
 
-                                <CardTitle>{other.name}</CardTitle>
+                                <div className="flex items-center justify-center gap-1">
+                                    <CardTitle>{other.name}</CardTitle>
+                                    {other.verified && (
+                                        <VerifiedBadge />
+                                    )}
+                                    {other.role?.toLowerCase() === "admin" && <Admin />}
+                                    {other.role?.toLowerCase() === "bot" && <BotBadge />}
+                                </div>
                                 <CardDescription className="-mt-1">
                                     @{other.username}
                                 </CardDescription>

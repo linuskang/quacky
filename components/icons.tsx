@@ -16,7 +16,15 @@
 
 "use client"
 
-import { Badge } from "@/components/ui/badge"
+import * as React from "react"
+import { BadgeCheck, ShieldCheck } from "lucide-react"
+import { cn } from "@/lib/utils"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 export function Github() {
     return (
@@ -32,10 +40,98 @@ export function Github() {
     )
 }
 
-export function Admin() {
+function BadgeTooltipWrapper({
+    label,
+    children,
+}: {
+    label: string
+    children: React.ReactNode
+}) {
     return (
-        <Badge variant="secondary" className="text-xs">
-            Admin
-        </Badge>
+        <TooltipProvider delayDuration={100}>
+            <Tooltip delayDuration={100}>
+                <TooltipTrigger asChild>
+                    <span
+                        className="inline-flex shrink-0 cursor-default items-center outline-none select-none"
+                        tabIndex={0}
+                        title={label}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {children}
+                    </span>
+                </TooltipTrigger>
+                <TooltipContent sideOffset={4} className="text-xs font-semibold">
+                    {label}
+                </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
+    )
+}
+
+export function AdminBadge({ className }: { className?: string } = {}) {
+    return (
+        <BadgeTooltipWrapper label="Admin">
+            <ShieldCheck
+                className={cn(
+                    "h-4 w-4 shrink-0 fill-primary text-background",
+                    className
+                )}
+                aria-label="Admin"
+            />
+        </BadgeTooltipWrapper>
+    )
+}
+
+export { AdminBadge as Admin }
+
+export function BotBadge({ className }: { className?: string } = {}) {
+    return (
+        <BadgeTooltipWrapper label="Bot">
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                className={cn("h-4 w-4 shrink-0 text-primary", className)}
+                aria-label="Bot"
+            >
+                <path
+                    d="M12 8V4H8"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+                <path
+                    d="M2 14h2M20 14h2"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                />
+                <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M6 8h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2zM9 12a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1zM15 12a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1z"
+                    fill="currentColor"
+                    stroke="none"
+                />
+            </svg>
+        </BadgeTooltipWrapper>
+    )
+}
+
+export { BotBadge as Bot }
+
+export function VerifiedBadge({ className }: { className?: string } = {}) {
+    return (
+        <BadgeTooltipWrapper label="Verified">
+            <BadgeCheck
+                className={cn(
+                    "h-4 w-4 shrink-0 fill-primary text-background",
+                    className
+                )}
+                aria-label="Verified"
+            />
+        </BadgeTooltipWrapper>
     )
 }

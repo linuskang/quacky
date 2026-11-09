@@ -22,11 +22,14 @@ import Image from "next/image"
 import {
     AtSign,
     BadgeCheck,
+    Bot,
     ExternalLink,
     Landmark,
     MapPin,
+    Shield,
     Star,
 } from "lucide-react"
+import { Admin, BotBadge, VerifiedBadge } from "@/components/icons"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { requireSession } from "@/server/auth"
 import { getUser } from "@/server/users"
@@ -66,8 +69,7 @@ export default async function Page({
     const query = (await searchParams) ?? {}
     const publicView = query.publicview === "true"
     const isOwner = session.user.id === user.id
-    const canViewPrivateProfile =
-        !user.private || (isOwner && !publicView)
+    const canViewPrivateProfile = !user.private || (isOwner && !publicView)
 
     // same as below
     const followsYou = user.following.includes(session.user.username)
@@ -90,328 +92,398 @@ export default async function Page({
                 >
                     Go back
                 </Link>
-                {user.private && isOwner && !publicView && (
-
-                    <Card className="border-none bg-destructive p-4">
-                        <p className="text-sm font-semibold text-primary">
-                            Your profile is private. Only you can see your profile.
-                        </p>
-                        <Link
-                            href={`/@${user.username}?publicview=true`}
-                            className="text-sm font-semibold text-primary-2 underline hover:text-primary"
-                        >
-                            View your profile as the public would see it
-                        </Link>
-                    </Card>
-
-                )}
-                <Card className="mx-auto w-full max-w-lg overflow-hidden !bg-profile-card">
-                    <CardHeader className="-mt-4 p-0">
-                        {!user.banned && user.bannerImage && (
-                            <Image
-                                src={user.bannerImage}
-                                alt={user.name!}
-                                width={1200}
-                                height={320}
-                                unoptimized
-                                className="h-40 w-full rounded-t-lg object-cover"
-                            />
+                {user.emailVerified ? (
+                    <>
+                        {user.private && isOwner && !publicView && (
+                            <Card className="border-none bg-destructive p-4">
+                                <p className="text-sm font-semibold text-primary">
+                                    Your profile is private. Only you can see
+                                    your profile.
+                                </p>
+                                <Link
+                                    href={`/@${user.username}?publicview=true`}
+                                    className="text-sm font-semibold text-primary-2 underline hover:text-primary"
+                                >
+                                    View your profile as the public would see it
+                                </Link>
+                            </Card>
                         )}
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex">
-                            <div className="flex items-start gap-4">
-                                {!user.banned && (
+                        <Card className="mx-auto w-full max-w-lg overflow-hidden !bg-profile-card">
+                            <CardHeader className="-mt-4 p-0">
+                                {!user.banned && user.bannerImage && (
                                     <Image
-                                        src={user.image}
-                                        alt={user.name}
-                                        width={50}
-                                        height={50}
+                                        src={user.bannerImage}
+                                        alt={user.name!}
+                                        width={1200}
+                                        height={320}
                                         unoptimized
-                                        className="h-15 w-15 rounded-full object-cover"
+                                        className="h-40 w-full rounded-t-lg object-cover"
                                     />
                                 )}
-
-                                <div className="flex flex-col">
-                                    <h1 className="flex items-center gap-1 text-2xl font-bold">
-                                        {!user.banned ? user.name : "Deleted User"}
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex">
+                                    <div className="flex items-start gap-4">
                                         {!user.banned && (
-                                            <>
-                                                {user.verified && (
-                                                    <BadgeCheck className="h-[20px] w-[20px] fill-primary text-profile-card" />
+                                            <Image
+                                                src={user.image}
+                                                alt={user.name}
+                                                width={50}
+                                                height={50}
+                                                unoptimized
+                                                className="h-15 w-15 rounded-full object-cover"
+                                            />
+                                        )}
+
+                                        <div className="flex flex-col">
+                                            <h1 className="flex items-center gap-1 text-2xl font-bold">
+                                                {!user.banned
+                                                    ? user.name
+                                                    : "Deleted User"}
+                                                {!user.banned && (
+                                                    <>
+                                                        {user.verified && (
+                                                            <VerifiedBadge className="h-[20px] w-[20px] fill-primary text-profile-card" />
+                                                        )}
+                                                        {user.role?.toLowerCase() ===
+                                                            "admin" && (
+                                                            <Admin className="h-[20px] w-[20px]" />
+                                                        )}
+                                                        {user.role?.toLowerCase() ===
+                                                            "bot" && (
+                                                            <BotBadge className="h-[20px] w-[20px]" />
+                                                        )}
+                                                        {canViewPrivateProfile &&
+                                                            user.pronoun && (
+                                                                <span className="text-sm text-muted-foreground">
+                                                                    {
+                                                                        user.pronoun
+                                                                    }
+                                                                </span>
+                                                            )}
+                                                        {followsYou && (
+                                                            <span className="ml-1 rounded-full bg-card px-2 py-0.5 text-xs font-semibold text-primary">
+                                                                Follows you
+                                                            </span>
+                                                        )}
+                                                    </>
                                                 )}
-                                                {canViewPrivateProfile &&
-                                                    user.pronoun && (
-                                                        <span className="text-sm text-muted-foreground">
-                                                            {user.pronoun}
-                                                        </span>
+                                            </h1>
+                                            <p className="text-base text-muted-foreground">
+                                                {!user.banned
+                                                    ? `@${user.username}`
+                                                    : "@Deleted User"}
+                                            </p>
+                                            {canViewPrivateProfile &&
+                                                !user.banned && (
+                                                    <FollowCounts
+                                                        handle={user.username}
+                                                        followingCount={
+                                                            user.following
+                                                                .length
+                                                        }
+                                                        followersCount={
+                                                            user.followers
+                                                                .length
+                                                        }
+                                                    />
+                                                )}
+                                        </div>
+                                    </div>
+
+                                    {!user.banned &&
+                                        (!isOwner || !publicView) && (
+                                            <div className="mb-auto ml-auto">
+                                                <ProfileAction
+                                                    currentUserId={
+                                                        session.user.id
+                                                    }
+                                                    initialBio={user.bio}
+                                                    initialBannerImage={
+                                                        user.bannerImage
+                                                    }
+                                                    initialFollowing={following}
+                                                    initialImage={user.image}
+                                                    initialLocation={
+                                                        user.location
+                                                    }
+                                                    initialName={user.name}
+                                                    initialPronoun={
+                                                        user.pronoun
+                                                    }
+                                                    initialWebsite={
+                                                        user.website
+                                                    }
+                                                    profileUnlocked={Boolean(
+                                                        session.user
+                                                            .unlockedProfiles
                                                     )}
-                                                {followsYou && (
-                                                    <span className="ml-1 rounded-full bg-card px-2 py-0.5 text-xs font-semibold text-primary">
-                                                        Follows you
+                                                    userId={user.id}
+                                                    username={user.username}
+                                                />
+                                            </div>
+                                        )}
+                                </div>
+
+                                {user.banned && (
+                                    <div className="mt-3">
+                                        <PurpleWarning text="This user is banned." />
+                                    </div>
+                                )}
+
+                                {!user.banned &&
+                                    (canViewPrivateProfile ? (
+                                        user.bio ? (
+                                            <Markdown>{user.bio}</Markdown>
+                                        ) : (
+                                            <p className="mt-3 text-base whitespace-pre-wrap text-muted-foreground italic">
+                                                No bio yet.
+                                            </p>
+                                        )
+                                    ) : (
+                                        <p className="mt-3 text-base whitespace-pre-wrap text-muted-foreground italic">
+                                            This account is private
+                                        </p>
+                                    ))}
+
+                                {!user.banned && (
+                                    <div className="mt-3 flex flex-wrap gap-x-2 gap-y-2 text-sm text-muted-foreground">
+                                        <span className="flex items-center gap-1 font-semibold">
+                                            <AtSign
+                                                className="h-4 w-4"
+                                                strokeWidth={3}
+                                            />
+                                            {new Date(
+                                                user.createdAt
+                                            ).toLocaleDateString("en-US", {
+                                                year: "numeric",
+                                                month: "long",
+                                            })}
+                                        </span>
+
+                                        {canViewPrivateProfile && (
+                                            <>
+                                                <span className="flex items-center gap-1 font-semibold">
+                                                    <Star
+                                                        className="h-4 w-4"
+                                                        strokeWidth={3}
+                                                    />
+                                                    {user.xp} xp
+                                                </span>
+                                                <span className="flex items-center gap-1 font-semibold">
+                                                    <Landmark
+                                                        className="h-4 w-4"
+                                                        strokeWidth={3}
+                                                    />
+                                                    {user.points}$
+                                                </span>
+                                                {user.location && (
+                                                    <span className="flex items-center gap-1 font-semibold">
+                                                        <MapPin
+                                                            className="h-4 w-4"
+                                                            strokeWidth={3}
+                                                        />
+                                                        {user.location}
                                                     </span>
+                                                )}
+
+                                                {user.website && (
+                                                    <a
+                                                        href={user.website}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="flex items-center gap-1 font-semibold hover:underline"
+                                                    >
+                                                        <ExternalLink
+                                                            className="h-4 w-4"
+                                                            strokeWidth={3}
+                                                        />
+                                                        {user.website.replace(
+                                                            /^https?:\/\//,
+                                                            ""
+                                                        )}
+                                                    </a>
                                                 )}
                                             </>
                                         )}
-                                    </h1>
-                                    <p className="text-base text-muted-foreground">
-                                        {!user.banned ? `@${user.username}` : "@Deleted User"}
-                                    </p>
-                                    {canViewPrivateProfile && !user.banned && (
-                                        <FollowCounts
-                                            handle={user.username}
-                                            followingCount={
-                                                user.following.length
-                                            }
-                                            followersCount={
-                                                user.followers.length
-                                            }
-                                        />
-                                    )}
-                                </div>
-                            </div>
 
-                            {!user.banned && (!isOwner || !publicView) && (
-                                <div className="mb-auto ml-auto">
-                                    <ProfileAction
-                                        currentUserId={session.user.id}
-                                        initialBio={user.bio}
-                                        initialBannerImage={user.bannerImage}
-                                        initialFollowing={following}
-                                        initialImage={user.image}
-                                        initialLocation={user.location}
-                                        initialName={user.name}
-                                        initialPronoun={user.pronoun}
-                                        initialWebsite={user.website}
-                                        profileUnlocked={Boolean(
-                                            session.user.unlockedProfiles
+                                        {session.user.id !== user.id && (
+                                            <ReportUser
+                                                offenderHandle={user.username}
+                                            />
                                         )}
-                                        userId={user.id}
-                                        username={user.username}
-                                    />
-                                </div>
-                            )}
-                        </div>
-
-                        {user.banned && (
-                            <div className="mt-3">
-                                <PurpleWarning text="This user is banned." />
-                            </div>
-                        )}
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
 
                         {!user.banned &&
                             (canViewPrivateProfile ? (
-                                user.bio ? (
-                                    <Markdown>{user.bio}</Markdown>
-                                ) : (
-                                    <p className="mt-3 text-base whitespace-pre-wrap text-muted-foreground italic">
-                                        No bio yet.
-                                    </p>
-                                )
+                                <Tabs
+                                    defaultValue="posts"
+                                    className="mx-auto -mt-2 w-full max-w-lg gap-0"
+                                >
+                                    <TabsList className="mt-3 grid h-auto w-full grid-cols-3 gap-3 rounded-none bg-transparent p-0">
+                                        <TabsTrigger
+                                            value="posts"
+                                            className="h-10 rounded-full border-2 border-border bg-background/80 px-5 text-base font-extrabold text-foreground hover:border-primary data-active:!border-primary data-active:!bg-background"
+                                        >
+                                            Recent Posts
+                                        </TabsTrigger>
+                                        <TabsTrigger
+                                            value="replies"
+                                            className="h-10 rounded-full border-2 border-border bg-background/80 px-5 text-base font-extrabold text-foreground hover:border-primary data-active:!border-primary data-active:!bg-background"
+                                        >
+                                            Comments
+                                        </TabsTrigger>
+                                        <TabsTrigger
+                                            value="badges"
+                                            className="h-10 rounded-full border-2 border-border bg-background/80 px-5 text-base font-extrabold text-foreground hover:border-primary data-active:!border-primary data-active:!bg-background"
+                                        >
+                                            Badges
+                                        </TabsTrigger>
+                                    </TabsList>
+
+                                    <TabsContent
+                                        value="posts"
+                                        className="w-full p-0 pt-6 text-sm text-muted-foreground"
+                                    >
+                                        <PostList posts={posts} />
+                                    </TabsContent>
+                                    <TabsContent
+                                        value="replies"
+                                        className="w-full p-0 pt-6 text-sm text-muted-foreground"
+                                    >
+                                        {replies.length === 0 ? (
+                                            <p className="text-sm text-muted-foreground">
+                                                User has not commented on any
+                                                posts yet. Sad face {":("}
+                                            </p>
+                                        ) : (
+                                            <div className="flex w-full flex-col gap-4">
+                                                {replies.map((reply) => (
+                                                    <div key={reply.id}>
+                                                        <Link
+                                                            href={`/comment/${reply.id}`}
+                                                            className="mb-1 inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:underline"
+                                                        >
+                                                            Replying to
+                                                            <Image
+                                                                src={
+                                                                    reply.post
+                                                                        .author
+                                                                        .image
+                                                                }
+                                                                alt={
+                                                                    reply.post
+                                                                        .author
+                                                                        .name
+                                                                }
+                                                                width={20}
+                                                                height={20}
+                                                                unoptimized
+                                                                className="inline-block rounded-full"
+                                                            />
+                                                            @
+                                                            {
+                                                                reply.post
+                                                                    .author
+                                                                    .username
+                                                            }
+                                                        </Link>
+                                                        <CommentCard
+                                                            comment={reply}
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </TabsContent>
+                                    <TabsContent
+                                        value="badges"
+                                        className="p-0 pt-6 text-sm text-muted-foreground"
+                                    >
+                                        <Card className="p-4">
+                                            {user.role?.toLowerCase() ===
+                                                "bot" && (
+                                                <div className="mb-2 flex items-center gap-2">
+                                                    <BotBadge className="h-5 w-5" />
+                                                    <span className="font-bold">
+                                                        Official Bot
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {user.role?.toLowerCase() ===
+                                                "admin" && (
+                                                <div className="mb-2 flex items-center gap-2">
+                                                    <Admin className="h-5 w-5" />
+                                                    <span className="font-bold">
+                                                        Administrator
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {user.unlockedCommenting && (
+                                                <div className="mb-2 flex items-center gap-2">
+                                                    <Star className="h-5 w-5 text-primary" />
+                                                    <span className="font-bold">
+                                                        Commenting Unlocked
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {user.unlockedPosting && (
+                                                <div className="mb-2 flex items-center gap-2">
+                                                    <Star className="h-5 w-5 text-primary" />
+                                                    <span className="font-bold">
+                                                        Posting Unlocked
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {user.unlockedFuzzies && (
+                                                <div className="mb-2 flex items-center gap-2">
+                                                    <Star className="h-5 w-5 text-primary" />
+                                                    <span className="font-bold">
+                                                        Fuzzies Unlocked
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {user.unlockedProfiles && (
+                                                <div className="mb-2 flex items-center gap-2">
+                                                    <Star className="h-5 w-5 text-primary" />
+                                                    <span className="font-bold">
+                                                        Profiles Unlocked
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {user.unlockedDms && (
+                                                <div className="mb-2 flex items-center gap-2">
+                                                    <Star className="h-5 w-5 text-primary" />
+                                                    <span className="font-bold">
+                                                        DMS Unlocked
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </Card>
+                                    </TabsContent>
+                                </Tabs>
                             ) : (
-                                <p className="mt-3 text-base whitespace-pre-wrap text-muted-foreground italic">
+                                <p className="mt-3 text-center text-base whitespace-pre-wrap text-muted-foreground italic">
                                     This account is private
                                 </p>
                             ))}
+                    </>
+                ) : (
+                    <div className="flex flex-col gap-5">
+                        <div className="mb-5 flex items-center justify-center">
+                            <h1 className="text-5xl font-bold">:(</h1>
+                        </div>
 
-                        {!user.banned && (
-                            <div className="mt-3 flex flex-wrap gap-x-2 gap-y-2 text-sm text-muted-foreground">
-                                <span className="flex items-center gap-1 font-semibold">
-                                    <AtSign
-                                        className="h-4 w-4"
-                                        strokeWidth={3}
-                                    />
-                                    {new Date(
-                                        user.createdAt
-                                    ).toLocaleDateString("en-US", {
-                                        year: "numeric",
-                                        month: "long",
-                                    })}
-                                </span>
+                        <PurpleWarning
+                            text={`For safety reasons, you won't be able to view @${user.username}'s full profile until they verify their email. Go tell them to verify!`}
+                        />
 
-                                {canViewPrivateProfile && (
-                                    <>
-                                        <span className="flex items-center gap-1 font-semibold">
-                                            <Star
-                                                className="h-4 w-4"
-                                                strokeWidth={3}
-                                            />
-                                            {user.xp} xp
-                                        </span>
-                                        <span className="flex items-center gap-1 font-semibold">
-                                            <Landmark
-                                                className="h-4 w-4"
-                                                strokeWidth={3}
-                                            />
-                                            {user.points}$
-                                        </span>
-                                        {user.location && (
-                                            <span className="flex items-center gap-1 font-semibold">
-                                                <MapPin
-                                                    className="h-4 w-4"
-                                                    strokeWidth={3}
-                                                />
-                                                {user.location}
-                                            </span>
-                                        )}
-
-                                        {user.website && (
-                                            <a
-                                                href={user.website}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="flex items-center gap-1 font-semibold hover:underline"
-                                            >
-                                                <ExternalLink
-                                                    className="h-4 w-4"
-                                                    strokeWidth={3}
-                                                />
-                                                {user.website.replace(
-                                                    /^https?:\/\//,
-                                                    ""
-                                                )}
-                                            </a>
-                                        )}
-                                    </>
-                                )}
-
-                                {session.user.id !== user.id && (
-                                    <ReportUser
-                                        offenderHandle={user.username}
-                                    />
-                                )}
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-
-                {!user.banned &&
-                    (canViewPrivateProfile ? (
-                        <Tabs
-                            defaultValue="posts"
-                            className="mx-auto -mt-2 w-full max-w-lg gap-0"
-                        >
-                            <TabsList className="mt-3 grid h-auto w-full grid-cols-3 gap-3 rounded-none bg-transparent p-0">
-                                <TabsTrigger
-                                    value="posts"
-                                    className="h-10 rounded-full border-2 border-border bg-background/80 px-5 text-base font-extrabold text-foreground hover:border-primary data-active:!border-primary data-active:!bg-background"
-                                >
-                                    Recent Posts
-                                </TabsTrigger>
-                                <TabsTrigger
-                                    value="replies"
-                                    className="h-10 rounded-full border-2 border-border bg-background/80 px-5 text-base font-extrabold text-foreground hover:border-primary data-active:!border-primary data-active:!bg-background"
-                                >
-                                    Comments
-                                </TabsTrigger>
-                                <TabsTrigger
-                                    value="badges"
-                                    className="h-10 rounded-full border-2 border-border bg-background/80 px-5 text-base font-extrabold text-foreground hover:border-primary data-active:!border-primary data-active:!bg-background"
-                                >
-                                    Badges
-                                </TabsTrigger>
-                            </TabsList>
-
-                            <TabsContent
-                                value="posts"
-                                className="w-full p-0 pt-6 text-sm text-muted-foreground"
-                            >
-                                <PostList posts={posts} />
-                            </TabsContent>
-                            <TabsContent
-                                value="replies"
-                                className="w-full p-0 pt-6 text-sm text-muted-foreground"
-                            >
-                                {replies.length === 0 ? (
-                                    <p className="text-sm text-muted-foreground">
-                                        User has not commented on any posts yet.
-                                        Sad face {":("}
-                                    </p>
-                                ) : (
-                                    <div className="flex w-full flex-col gap-4">
-                                        {replies.map((reply) => (
-                                            <div key={reply.id}>
-                                                <Link
-                                                    href={`/comment/${reply.id}`}
-                                                    className="mb-1 inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:underline"
-                                                >
-                                                    Replying to
-                                                    <Image
-                                                        src={
-                                                            reply.post.author
-                                                                .image
-                                                        }
-                                                        alt={
-                                                            reply.post.author
-                                                                .name
-                                                        }
-                                                        width={20}
-                                                        height={20}
-                                                        unoptimized
-                                                        className="inline-block rounded-full"
-                                                    />
-                                                    @
-                                                    {reply.post.author.username}
-                                                </Link>
-                                                <CommentCard comment={reply} />
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </TabsContent>
-                            <TabsContent
-                                value="badges"
-                                className="p-0 pt-6 text-sm text-muted-foreground"
-                            >
-                                <Card className="p-4">
-                                    {user.unlockedCommenting && (
-                                        <div className="mb-2 flex items-center gap-2">
-                                            <Star className="h-5 w-5 text-primary" />
-                                            <span className="font-bold">
-                                                Commenting Unlocked
-                                            </span>
-                                        </div>
-                                    )}
-                                    {user.unlockedPosting && (
-                                        <div className="mb-2 flex items-center gap-2">
-                                            <Star className="h-5 w-5 text-primary" />
-                                            <span className="font-bold">
-                                                Posting Unlocked
-                                            </span>
-                                        </div>
-                                    )}
-                                    {user.unlockedFuzzies && (
-                                        <div className="mb-2 flex items-center gap-2">
-                                            <Star className="h-5 w-5 text-primary" />
-                                            <span className="font-bold">
-                                                Fuzzies Unlocked
-                                            </span>
-                                        </div>
-                                    )}
-                                    {user.unlockedProfiles && (
-                                        <div className="mb-2 flex items-center gap-2">
-                                            <Star className="h-5 w-5 text-primary" />
-                                            <span className="font-bold">
-                                                Profiles Unlocked
-                                            </span>
-                                        </div>
-                                    )}
-                                    {user.unlockedDms && (
-                                        <div className="mb-2 flex items-center gap-2">
-                                            <Star className="h-5 w-5 text-primary" />
-                                            <span className="font-bold">
-                                                DMS Unlocked
-                                            </span>
-                                        </div>
-                                    )}
-                                </Card>
-                            </TabsContent>
-                        </Tabs>
-                    ) : (
-                        <p className="mt-3 text-center text-base whitespace-pre-wrap text-muted-foreground italic">
-                            This account is private
-                        </p>
-                    ))}
+                        <PurpleWarning text="If you are the owner if this account, click the verify button at the top of the page. You will be sent a verification email." />
+                    </div>
+                )}
             </PageCenter>
             <PageRight>
                 <SearchBar />

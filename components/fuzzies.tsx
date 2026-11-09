@@ -21,7 +21,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { BadgeCheck, Flag, SendHorizontal } from "lucide-react"
 import { toast } from "sonner"
-import { Admin } from "@/components/icons"
+import { Admin, BotBadge, VerifiedBadge } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { SearchBar } from "@/components/search-bar"
@@ -220,9 +220,10 @@ export function Fuzzies() {
                                                 {user.name}
                                             </span>
                                             {user.verified && (
-                                                <BadgeCheck className="h-4 w-4 fill-primary text-background" />
+                                                <VerifiedBadge />
                                             )}
-                                            {user.role === "admin" && <Admin />}
+                                            {user.role?.toLowerCase() === "admin" && <Admin />}
+                                            {user.role?.toLowerCase() === "bot" && <BotBadge />}
                                         </div>
                                         <p className="truncate text-xs text-muted-foreground">
                                             @{user.username}

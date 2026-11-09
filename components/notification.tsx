@@ -23,7 +23,7 @@ import { useTimeAgo } from "@/client/utils"
 import { Notification } from "@/types"
 import Link from "next/link"
 import { BadgeCheck } from "lucide-react"
-import { Admin } from "./icons"
+import { Admin, BotBadge, VerifiedBadge } from "./icons"
 import { Markdown } from "./markdown-renderer"
 
 export function Notifications({
@@ -82,10 +82,13 @@ export function NotificationCard({
                             )}
 
                             {actor?.verified && (
-                                <BadgeCheck className="h-5 w-5 shrink-0 fill-primary text-background" />
+                                <VerifiedBadge className="h-5 w-5" />
                             )}
 
-                            {actor?.role === "admin" && <Admin />}
+                            {actor?.role?.toLowerCase() === "admin" && (
+                                <Admin className="h-5 w-5" />
+                            )}
+                            {actor?.role?.toLowerCase() === "bot" && <BotBadge className="h-5 w-5" />}
 
                             {actor && (
                                 <Link

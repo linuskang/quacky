@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { BadgeCheck } from "lucide-react"
-import { Admin } from "@/components/icons"
+import { Admin, BotBadge, VerifiedBadge } from "@/components/icons"
 import { toast } from "sonner"
 import type { User } from "@/types"
 import { Button } from "@/components/ui/button"
@@ -214,9 +214,10 @@ function FollowDialog({
                                                 {user.name}
                                             </span>
                                             {user.verified && (
-                                                <BadgeCheck className="h-4 w-4 shrink-0 fill-primary text-background" />
+                                                <VerifiedBadge />
                                             )}
-                                            {user.role === "admin" && <Admin />}
+                                            {user.role?.toLowerCase() === "admin" && <Admin />}
+                                            {user.role?.toLowerCase() === "bot" && <BotBadge />}
                                         </div>
                                         <p className="text-sm font-medium text-muted-foreground">
                                             @{user.username}

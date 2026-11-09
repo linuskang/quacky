@@ -52,7 +52,7 @@ import {
 } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { Markdown } from "@/components/markdown-renderer"
-import { Admin } from "@/components/icons"
+import { Admin, BotBadge, VerifiedBadge } from "@/components/icons"
 import { CharCounter } from "@/components/character-counter"
 import { MoreActions } from "@/components/posts/more-actions"
 import { PurpleEyeWarning } from "@/components/warning-cards"
@@ -263,10 +263,13 @@ export function PostCard({
                             </Link>
 
                             {post.author.verified && (
-                                <BadgeCheck className="h-5 w-5 shrink-0 fill-primary text-background" />
+                                <VerifiedBadge className="h-5 w-5" />
                             )}
 
-                            {post.author.role === "admin" && <Admin />}
+                            {post.author.role?.toLowerCase() === "admin" && (
+                                <Admin className="h-5 w-5" />
+                            )}
+                            {post.author.role?.toLowerCase() === "bot" && <BotBadge className="h-5 w-5" />}
 
                             <Link
                                 href={`/@${post.author.username}`}

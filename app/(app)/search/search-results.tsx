@@ -25,7 +25,7 @@ import Link from "next/link"
 import { BadgeCheck, Hash } from "lucide-react"
 import { PostList } from "@/components/posts/post"
 import { SearchBar } from "@/components/search-bar"
-import { Admin } from "@/components/icons"
+import { Admin, BotBadge, VerifiedBadge } from "@/components/icons"
 
 // Types
 import type { Post } from "@/types"
@@ -140,10 +140,13 @@ export function SearchResults({
                                                     {user.name}
                                                 </span>
                                                 {user.verified && (
-                                                    <BadgeCheck className="h-4 w-4 shrink-0 fill-primary text-background" />
+                                                    <VerifiedBadge />
                                                 )}
-                                                {user.role === "admin" && (
+                                                {user.role?.toLowerCase() === "admin" && (
                                                     <Admin />
+                                                )}
+                                                {user.role?.toLowerCase() === "bot" && (
+                                                    <BotBadge />
                                                 )}
                                             </div>
                                             <p className="text-sm font-medium text-muted-foreground">
