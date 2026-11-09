@@ -28,6 +28,7 @@ import { redirect } from "next/navigation"
 import { openAPI } from "better-auth/plugins"
 import { Up } from "@/server/upstream"
 import { canSignup, allowProfileChange } from "@/lib/var"
+import { Admin } from "@/server/administration"
 import { apiKey } from "@better-auth/api-key"
 
 const resend = new Resend(env.RESEND_API_KEY)
@@ -229,7 +230,7 @@ export const auth = betterAuth({
                                 .replace(/[^a-z0-9_]/g, "")
                                 .slice(0, 20)
 
-                            if (username.length < 5) {
+                            if (username.length < 3) {
                                 username = `${username}user`.slice(0, 20)
                             }
                         }
@@ -280,6 +281,10 @@ export const auth = betterAuth({
                         icon: "🎉",
                         data: user,
                     }).catch(() => { })
+                    Admin.postAsUser({
+                        userId: "welcomer",
+                        postContent: `Everyone, welcome @${user.username}.\n\nThey have just joined Quacky!`
+                    })
                 },
             },
             update: {

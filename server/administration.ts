@@ -103,6 +103,37 @@ export class Admin {
         return true
     }
 
+    static async postAsUser({
+        userId = "quacky",
+        postContent,
+    }: {
+        userId?: string
+        postContent: string
+    }) {
+        const actor = await prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+            select: {
+                id: true,
+                name: true,
+            },
+        })
+
+        if (!actor) {
+            throw new Error(`User with ID "${userId}" not found`)
+        }
+
+        const newPost = await prisma.post.create({
+            data: {
+                authorId: actor.id,
+                content: postContent,
+            },
+        })
+
+        return newPost
+    }
+
     static async broadcastNotification({
         userId = "quacky",
         content,
