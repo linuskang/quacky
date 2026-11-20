@@ -23,6 +23,7 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner"
 import { Metadata } from "next"
 import { lexend, exo2, playfairDisplay } from "@/lib/fonts"
+import Script from "next/script"
 
 export const metadata: Metadata = {
     title: "Quacky",
@@ -31,8 +32,8 @@ export const metadata: Metadata = {
     appleWebApp: {
         capable: true,
         statusBarStyle: "default",
-        title: "Quacky"
-    }
+        title: "Quacky",
+    },
 }
 
 export const viewport = {
@@ -64,6 +65,11 @@ export default function RootLayout({
                     </ThemeProvider>
                 </TooltipProvider>
             </body>
+            <Script
+                defer
+                src="https://analytics.linus.my/script.js"
+                data-website-id="0d33ff81-2b26-4863-8ab2-91a62ef510fc"
+            />
         </html>
     )
 }
