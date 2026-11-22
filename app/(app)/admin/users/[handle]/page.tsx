@@ -1,6 +1,5 @@
 "use client"
 
-import axios from "axios"
 import * as React from "react"
 import { type ChangeEvent } from "react"
 import { type FieldPath } from "react-hook-form"
@@ -8,6 +7,7 @@ import { useParams } from "next/navigation"
 import { toast } from "sonner"
 
 import { authClient } from "@/client/auth"
+import { trpc } from "@/lib/trpc"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -149,11 +149,21 @@ function BooleanField({ name, label }: { name: FieldPath<UserFormValues>; label:
     )
 }
 
-function UserForm({ user, onSaved }: { user: User; onSaved: (user: User) => void }) {
+function UserForm({ user }: { user: User }) {
+    const utils = trpc.useUtils()
+    const updateUserMutation = trpc.admin.userUpdate.useMutation()
+
     async function submit(values: UserFormValues) {
         try {
-            const response = await axios.patch(`/api/admin/users/${encodeURIComponent(user.username)}`, values)
-            onSaved(response.data.data)
+            await updateUserMutation.mutateAsync({
+                handle: user.username,
+                ...values,
+            })
+            await Promise.all([
+                utils.admin.userByHandle.invalidate({ handle: user.username }),
+                utils.admin.usersList.invalidate(),
+                utils.users.byHandle.invalidate({ handle: user.username }),
+            ])
             toast.success("User updated")
         } catch {
             toast.error("Unable to update user")
@@ -237,17 +247,22 @@ function UserForm({ user, onSaved }: { user: User; onSaved: (user: User) => void
 export default function Page() {
     const params = useParams<{ handle: string }>()
     const { data: session } = authClient.useSession()
-    const [user, setUser] = React.useState<User | null>(null)
-    const [loading, setLoading] = React.useState(true)
+    const handle = params.handle ?? ""
+
+    const {
+        data: user,
+        isLoading: loading,
+        isError,
+    } = trpc.admin.userByHandle.useQuery(
+        { handle },
+        { enabled: Boolean(session && handle) }
+    )
 
     React.useEffect(() => {
-        if (!session || !params.handle) return
-
-        axios.get(`/api/admin/users/${encodeURIComponent(params.handle)}`)
-            .then((response) => setUser(response.data.data))
-            .catch(() => toast.error("Unable to load user"))
-            .finally(() => setLoading(false))
-    }, [params.handle, session])
+        if (isError) {
+            toast.error("Unable to load user")
+        }
+    }, [isError])
 
     if (!session) return null
     if (loading) return <p>Loading user...</p>
@@ -256,7 +271,7 @@ export default function Page() {
     return (
         <Card className="p-5">
             <h1 className="mb-6 text-2xl font-extrabold">Edit @{user.username}</h1>
-            <UserForm key={user.updatedAt} user={user} onSaved={setUser} />
+            <UserForm key={user.updatedAt} user={user} />
         </Card>
     )
 }

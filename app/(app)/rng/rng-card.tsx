@@ -20,8 +20,8 @@ import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import axios from "axios"
 import { toast } from "sonner"
+import { trpc } from "@/lib/trpc"
 
 import { PageLayout, PageCenter } from "@/components/page-layout"
 import { Title, Description } from "@/components/text"
@@ -39,18 +39,6 @@ interface User {
 interface LeaderboardEntry {
     number: number
     user: User
-}
-
-interface RngResponse {
-    success: boolean
-    number: number
-    rank: number
-}
-
-interface LeaderboardResponse {
-    success: boolean
-    total: number
-    entries: LeaderboardEntry[]
 }
 
 interface RngCardProps {
@@ -83,6 +71,8 @@ function formatTimeLeft(ms: number) {
 
 export function RngCard({ initialEntry, initialLeaderboard }: RngCardProps) {
     const router = useRouter()
+    const utils = trpc.useUtils()
+    const rollMutation = trpc.rng.roll.useMutation()
 
     const [spinning, setSpinning] = useState(false)
     const [displayNumber, setDisplayNumber] = useState<number | null>(
@@ -113,26 +103,26 @@ export function RngCard({ initialEntry, initialLeaderboard }: RngCardProps) {
 
     const fetchData = async () => {
         const [rngResult, leaderboardResult] = await Promise.allSettled([
-            axios.get<RngResponse>("/api/rng"),
-            axios.get<LeaderboardResponse>("/api/rng/today"),
+            utils.rng.mine.fetch(),
+            utils.rng.today.fetch(),
         ])
 
         if (rngResult.status === "fulfilled") {
-            const data = rngResult.value.data
-            setEntry({
-                number: data.number,
-                rank: data.rank,
-                hasRolled: true,
-            })
-            setDisplayNumber(data.number)
-        } else if (axios.isAxiosError(rngResult.reason)) {
-            if (rngResult.reason.response?.status !== 404) {
-                toast.error("Failed to refresh your roll.")
+            const data = rngResult.value
+            if (data) {
+                setEntry({
+                    number: data.number,
+                    rank: data.rank,
+                    hasRolled: true,
+                })
+                setDisplayNumber(data.number)
             }
+        } else {
+            toast.error("Failed to refresh your roll.")
         }
 
         if (leaderboardResult.status === "fulfilled") {
-            const data = leaderboardResult.value.data
+            const data = leaderboardResult.value
             setLeaderboard({
                 total: data.total,
                 entries: data.entries,
@@ -155,8 +145,7 @@ export function RngCard({ initialEntry, initialLeaderboard }: RngCardProps) {
         }, 50)
 
         try {
-            const res = await axios.post<RngResponse>("/api/rng")
-            const data = res.data
+            const data = await rollMutation.mutateAsync()
 
             const elapsed = Date.now() - startedAt
             if (elapsed < MIN_SPIN_MS) {
@@ -178,18 +167,20 @@ export function RngCard({ initialEntry, initialLeaderboard }: RngCardProps) {
             setDisplayNumber(data.number)
             toast.success(`You rolled ${data.number.toLocaleString()}!`)
 
-            fetchData()
+            await Promise.all([
+                utils.rng.mine.invalidate(),
+                utils.rng.today.invalidate(),
+            ])
+            await fetchData()
         } catch (error) {
             if (intervalRef.current) {
                 clearInterval(intervalRef.current)
                 intervalRef.current = null
             }
 
-            if (axios.isAxiosError(error)) {
-                toast.error(error.response?.data?.error || "Failed to roll.")
-            } else {
-                toast.error("Failed to roll.")
-            }
+            toast.error(
+                error instanceof Error ? error.message : "Failed to roll."
+            )
         } finally {
             setSpinning(false)
         }

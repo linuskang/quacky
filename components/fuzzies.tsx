@@ -19,7 +19,7 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { BadgeCheck, Flag, SendHorizontal } from "lucide-react"
+import { Flag, SendHorizontal } from "lucide-react"
 import { toast } from "sonner"
 import { Admin, BotBadge, VerifiedBadge } from "@/components/icons"
 import { Button } from "@/components/ui/button"
@@ -29,13 +29,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { CharCounter } from "@/components/character-counter"
 import type { User } from "@/types"
 import { authClient } from "@/client/auth"
-
-type Fuzzy = {
-    id: string
-    message: string
-    flagged: boolean
-    createdAt: string
-}
+import { trpc } from "@/lib/trpc"
+import { TRPCClientError } from "@trpc/client"
 
 type SearchUser = Required<Pick<User, "id">> &
     Omit<User, "id" | "role"> & {
@@ -43,91 +38,75 @@ type SearchUser = Required<Pick<User, "id">> &
     }
 
 export function Fuzzies() {
-    const [fuzzies, setFuzzies] = useState<Fuzzy[]>([])
-    const [loading, setLoading] = useState(true)
     const [query, setQuery] = useState("")
-    const [users, setUsers] = useState<SearchUser[]>([])
     const [recipient, setRecipient] = useState<SearchUser | null>(null)
     const [message, setMessage] = useState("")
-    const [sending, setSending] = useState(false)
     const [locked, setLocked] = useState(false)
     const [reportingId, setReportingId] = useState<string | null>(null)
     const [reportReason, setReportReason] = useState("")
     const { data: session } = authClient.useSession()
+    const utils = trpc.useUtils()
+
+    const {
+        data: fuzzies = [],
+        isLoading: loading,
+        isError: fuzziesError,
+    } = trpc.fuzzies.list.useQuery()
+
+    const trimmedQuery = query.trim()
+    const { data: mentionsData } = trpc.users.mentions.useQuery(
+        { query: trimmedQuery },
+        { enabled: Boolean(trimmedQuery) && !recipient }
+    )
+
+    const sendFuzzyMutation = trpc.fuzzies.send.useMutation()
+    const reportFuzzyMutation = trpc.fuzzies.report.useMutation()
+
+    const sending = sendFuzzyMutation.isPending
     const fuzziesLocked =
         locked || session?.user.unlockedFuzzies === false
 
     useEffect(() => {
-        void fetch("/api/fuzzy")
-            .then(async (res) => {
-                if (!res.ok) throw new Error(res.statusText)
-                return (await res.json()) as Fuzzy[]
-            })
-            .then(setFuzzies)
-            .catch(() => toast.error("Could not load warm fuzzies."))
-            .finally(() => setLoading(false))
-    }, [])
+        if (fuzziesError) {
+            toast.error("Could not load warm fuzzies.")
+        }
+    }, [fuzziesError])
 
     useEffect(() => {
-        const trimmedQuery = query.trim()
-
-        if (!trimmedQuery || recipient) return
-
-        const controller = new AbortController()
-
-        void fetch(
-            `/api/users/mentions?q=${encodeURIComponent(trimmedQuery)}`,
-            {
-                signal: controller.signal,
-            }
-        )
-            .then(async (res) => {
-                if (!res.ok) return []
-                const data = (await res.json()) as { users?: SearchUser[] }
-                return data.users ?? []
-            })
-            .then(setUsers)
-            .catch((error) => {
-                if (
-                    error instanceof DOMException &&
-                    error.name === "AbortError"
-                ) {
-                    return
-                }
-
-                setUsers([])
-            })
-
-        return () => controller.abort()
-    }, [query, recipient])
+        if (!loading && !fuzziesError) {
+            void utils.me.get.invalidate()
+        }
+    }, [loading, fuzziesError, utils])
 
     async function sendFuzzy() {
         if (!recipient || !message.trim() || sending) return
 
-        setSending(true)
-
-        const res = await fetch("/api/fuzzy", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
+        try {
+            await sendFuzzyMutation.mutateAsync({
                 receiverId: recipient.id,
                 message: message.trim(),
-            }),
-        })
-
-        setSending(false)
-
-        if (!res.ok) {
-            if (res.status === 403) setLocked(true)
-            toast.error(await res.text())
-            return
+            })
+            setRecipient(null)
+            setQuery("")
+            setMessage("")
+            toast.success("Warm fuzzy sent!")
+            await Promise.all([
+                utils.fuzzies.list.invalidate(),
+                utils.me.get.invalidate(),
+            ])
+        } catch (error) {
+            if (
+                error instanceof TRPCClientError &&
+                error.data?.code === "FORBIDDEN"
+            ) {
+                setLocked(true)
+            }
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Could not send warm fuzzy."
+            )
         }
-
-        setRecipient(null)
-        setQuery("")
-        setUsers([])
-        setMessage("")
-        toast.success("Warm fuzzy sent!")
     }
 
     async function reportFuzzy(id: string) {
@@ -135,23 +114,23 @@ export function Fuzzies() {
 
         if (!reason) return
 
-        const res = await fetch("/api/fuzzy/report", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id, reason }),
-        })
-
-        if (!res.ok) {
-            toast.error(await res.text())
-            return
+        try {
+            await reportFuzzyMutation.mutateAsync({ id, reason })
+            setReportingId(null)
+            setReportReason("")
+            toast.success("Warm fuzzy reported.")
+            await utils.fuzzies.list.invalidate()
+        } catch (error) {
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : "Could not report warm fuzzy."
+            )
         }
-
-        setReportingId(null)
-        setReportReason("")
-        toast.success("Warm fuzzy reported.")
     }
 
-    const visibleUsers = query.trim() && !recipient ? users : []
+    const visibleUsers: SearchUser[] =
+        trimmedQuery && !recipient ? (mentionsData?.users ?? []) : []
 
     return (
         <div className="space-y-5">
@@ -202,7 +181,6 @@ export function Fuzzies() {
                                     onMouseDown={() => {
                                         setRecipient(user)
                                         setQuery(`@${user.username}`)
-                                        setUsers([])
                                     }}
                                     className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-primary/10"
                                 >

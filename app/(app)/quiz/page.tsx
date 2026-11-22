@@ -17,10 +17,10 @@
 "use client"
 
 // Libraries
-import axios from "axios"
 import Link from "next/link"
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { toast } from "sonner"
+import { trpc } from "@/lib/trpc"
 
 // Components
 import { Title, Description } from "@/components/text"
@@ -36,25 +36,15 @@ import {
 import { Star, Clock } from "lucide-react"
 import Loading from "@/components/loading"
 
-// Types
-interface Quiz {
-    name: string
-    description: string
-    to: string
-    time: string
-    xp: number
-}
-
 export default function Page() {
-    const [quiz, setQuiz] = useState<Quiz[]>([])
-    const [loading, setLoading] = useState(true)
+    const { data, isLoading: loading, isError } = trpc.quiz.list.useQuery()
+    const quiz = data?.quizes ?? []
 
     useEffect(() => {
-        axios.get("/api/quizes")
-            .then((res) => setQuiz(res.data.quizes))
-            .catch(() => toast.error("something exploded. sorry please try again later"))
-            .finally(() => setLoading(false))
-    }, [])
+        if (isError) {
+            toast.error("something exploded. sorry please try again later")
+        }
+    }, [isError])
 
     return (
         <PageLayout>

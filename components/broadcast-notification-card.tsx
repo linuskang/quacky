@@ -17,8 +17,8 @@
 "use client"
 
 import * as React from "react"
-import axios from "axios"
 import { toast } from "sonner"
+import { trpc } from "@/lib/trpc"
 
 import {
     Card,
@@ -35,35 +35,37 @@ import { Textarea } from "@/components/ui/textarea"
 export function BroadcastNotificationCard() {
     const [userId, setUserId] = React.useState("quacky")
     const [content, setContent] = React.useState("")
-    const [sending, setSending] = React.useState(false)
+    const utils = trpc.useUtils()
 
-    async function sendNotification(event: React.FormEvent) {
-        event.preventDefault()
-        if (!content.trim()) return
-
-        setSending(true)
-        try {
-            const res = await axios.post("/api/admin/notifications", {
-                userId: userId.trim() || "quacky",
-                content: content.trim(),
-            })
-
-            const count = res.data?.data?.count
+    const broadcastMutation = trpc.admin.broadcastNotification.useMutation({
+        onSuccess: async (res) => {
+            const count = res.count
             toast.success(
                 count !== undefined
                     ? `Notification sent to ${count} account${count === 1 ? "" : "s"}.`
                     : "Notification sent successfully."
             )
             setContent("")
-        } catch (err: unknown) {
-            let message = "Failed to send notification."
-            if (axios.isAxiosError(err) && err.response?.data?.message) {
-                message = err.response.data.message
-            }
-            toast.error(message)
-        } finally {
-            setSending(false)
-        }
+            await Promise.all([
+                utils.me.get.invalidate(),
+                utils.me.notifications.invalidate(),
+            ])
+        },
+        onError: (err) => {
+            toast.error(err.message || "Failed to send notification.")
+        },
+    })
+
+    const sending = broadcastMutation.isPending
+
+    function sendNotification(event: React.FormEvent) {
+        event.preventDefault()
+        if (!content.trim()) return
+
+        broadcastMutation.mutate({
+            userId: userId.trim() || "quacky",
+            content: content.trim(),
+        })
     }
 
     return (

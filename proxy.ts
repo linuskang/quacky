@@ -14,6 +14,13 @@ function formatBody(raw: string, contentType: string): unknown {
 async function readBody(req: NextRequest): Promise<unknown> {
     const contentType = req.headers.get("content-type") ?? ""
 
+    if (
+        contentType.includes("multipart/form-data") ||
+        contentType.includes("application/octet-stream")
+    ) {
+        return `[omitted ${contentType}]`
+    }
+
     const raw = await req.clone().text()
     return formatBody(raw, contentType)
 }

@@ -16,8 +16,7 @@
 
 "use client"
 
-import axios from "axios"
-import { useEffect, useState } from "react"
+import { trpc } from "@/lib/trpc"
 import {
     Area,
     AreaChart,
@@ -51,18 +50,6 @@ import {
 
 type Metric = "wellbeing" | "happiness" | "stress" | "sleep" | "energy"
 
-interface Stats {
-    summary: {
-        totalCheckIns: number
-        participatingStudents: number
-        assistanceRequests: number
-        assistanceRate: number
-        averages: Record<Metric, number>
-    }
-    daily: Array<Record<Metric, number> & { date: string; checkIns: number }>
-    distributions: Record<Metric, { score: number; count: number }[]>
-}
-
 const metricConfig = {
     wellbeing: { label: "Wellbeing", color: "var(--chart-1)" },
     happiness: { label: "Happiness", color: "var(--chart-2)" },
@@ -95,25 +82,7 @@ function formatDate(value: string) {
 }
 
 export function AdminStats() {
-    const [stats, setStats] = useState<Stats | null>(null)
-    const [failed, setFailed] = useState(false)
-
-    useEffect(() => {
-        let active = true
-
-        axios
-            .get<Stats>("/api/stats")
-            .then(({ data }) => {
-                if (active) setStats(data)
-            })
-            .catch(() => {
-                if (active) setFailed(true)
-            })
-
-        return () => {
-            active = false
-        }
-    }, [])
+    const { data: stats, isError: failed } = trpc.admin.stats.useQuery()
 
     if (failed) {
         return (

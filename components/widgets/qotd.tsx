@@ -17,9 +17,7 @@
 "use client"
 
 // Libraries
-import axios from "axios"
-import { useState, useEffect } from "react"
-import { toast } from "sonner"
+import { trpc } from "@/lib/trpc"
 
 // Components
 import {
@@ -29,20 +27,8 @@ import {
 } from "@/components/widgets/widget"
 
 export function QOTD() {
-    const [qotd, setQotd] = useState<string | null>("")
-
-    useEffect(() => {
-        async function fetchQOTD() {
-            try {
-                await axios.get("/api/meta").then((res) => {
-                    setQotd(res.data.qotd)
-                })
-            } catch {
-                toast.error("Something went wrong")
-            }
-        }
-        fetchQOTD()
-    }, [])
+    const { data } = trpc.meta.get.useQuery()
+    const qotd = data?.qotd ?? ""
     return (
         <Widget>
             <WidgetSecondaryHeader>

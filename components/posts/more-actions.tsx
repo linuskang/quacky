@@ -17,11 +17,11 @@
 "use client"
 
 // Libraries
-import axios from "axios"
 import { useState } from "react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { authClient } from "@/client/auth"
+import { trpc } from "@/lib/trpc"
 
 // Components
 import { Button } from "@/components/ui/button"
@@ -51,49 +51,65 @@ export function MoreActions({ post }: { post: Post }) {
     const [reportOpen, setReportOpen] = useState(false)
     const [editOpen, setEditOpen] = useState(false)
     const [editContent, setEditContent] = useState(post.content)
-    const [editPending, setEditPending] = useState(false)
-    const [deletePending, setDeletePending] = useState(false)
     const { data: session } = authClient.useSession()
     const router = useRouter()
+    const utils = trpc.useUtils()
+
+    const editMutation = trpc.posts.update.useMutation({
+        onSuccess: async () => {
+            setEditOpen(false)
+            toast.success("Post updated.")
+            await Promise.all([
+                utils.posts.feed.invalidate(),
+                utils.posts.byUser.invalidate(),
+                utils.posts.byId.invalidate({ id: post.id }),
+                utils.comments.byId.invalidate(),
+                utils.me.bookmarks.invalidate(),
+            ])
+            router.refresh()
+        },
+        onError: () => {
+            toast.error("Something went wrong.")
+        },
+    })
+
+    const deleteMutation = trpc.posts.delete.useMutation({
+        onSuccess: async () => {
+            toast.success("Post deleted.")
+            await Promise.all([
+                utils.posts.feed.invalidate(),
+                utils.posts.byUser.invalidate(),
+                utils.posts.byId.invalidate({ id: post.id }),
+                utils.comments.byId.invalidate(),
+                utils.me.bookmarks.invalidate(),
+                utils.meta.get.invalidate(),
+            ])
+            router.refresh()
+        },
+        onError: () => {
+            toast.error("Something went wrong.")
+        },
+    })
 
     if (!session) return null
+
+    const editPending = editMutation.isPending
+    const deletePending = deleteMutation.isPending
 
     // states
     const isOwner = session.user.username == post.author.username
     const canDelete = isOwner || session.user.role == "admin"
 
     // utils functions
-    async function editPost() {
-        const content = editContent.trim()
-        setEditPending(true)
-        try {
-            await axios
-                .patch(`/api/posts/${post.id}`, {
-                    content,
-                })
-                .then(() => {
-                    setEditOpen(false)
-                    toast.success("Post updated.")
-                    window.location.reload()
-                })
-        } catch {
-            toast.error("Something went wrong.")
-        } finally {
-            setEditPending(false)
-        }
+    function editPost() {
+        editMutation.mutate({
+            id: post.id,
+            content: editContent.trim(),
+        })
     }
 
-    async function deletePost() {
-        setDeletePending(true)
-        try {
-            await axios.delete(`/api/posts/${post.id}`)
-            toast.success("Post deleted.")
-            router.refresh()
-        } catch {
-            toast.error("Something went wrong.")
-        } finally {
-            setDeletePending(false)
-        }
+    function deletePost() {
+        deleteMutation.mutate({ id: post.id })
     }
 
     return (
@@ -185,7 +201,7 @@ export function MoreActions({ post }: { post: Post }) {
                 </Dialog>
             )}
             <ReportAbuse
-                url={"/api/posts/" + post.id + "/report"}
+                target={{ type: "post", id: post.id }}
                 open={reportOpen}
                 onOpen={setReportOpen}
             />

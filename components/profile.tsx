@@ -24,6 +24,7 @@ import { toast } from "sonner"
 import { redirect } from "next/navigation"
 import { useRef, useState } from "react"
 import Link from "next/link"
+import { trpc } from "@/lib/trpc"
 
 // Components
 import { Settings, LogOut } from "lucide-react"
@@ -77,6 +78,7 @@ function ThemeToggle() {
 
 export function Profile({ mobile = false }: { mobile?: boolean }) {
     const { data: session, isPending } = authClient.useSession()
+    const uploadMutation = trpc.upload.file.useMutation()
     const [open, setOpen] = useState(false)
     const [openCredits, setOpenCredits] = useState(false)
     const creditsOpenRef = useRef(false)
@@ -158,12 +160,7 @@ export function Profile({ mobile = false }: { mobile?: boolean }) {
                 const formData = new FormData()
                 formData.append("file", imageFile)
 
-                const uploadRes = await fetch("/api/upload", {
-                    method: "POST",
-                    body: formData,
-                })
-
-                const upload = await uploadRes.json()
+                const upload = await uploadMutation.mutateAsync(formData)
 
                 nextImage = upload.url
                 setImage(nextImage)

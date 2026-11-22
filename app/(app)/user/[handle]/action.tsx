@@ -18,12 +18,13 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useRef, useState, useTransition } from "react"
+import { useRef, useState } from "react"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { setFollowing } from "./helpers"
 import { authClient } from "@/client/auth"
+import { trpc } from "@/lib/trpc"
 import { playfairDisplay } from "@/lib/fonts"
 import {
     Dialog,
@@ -65,7 +66,12 @@ export function ProfileAction({
     username,
 }: FollowProps) {
     const [following, setLocalFollowing] = useState(initialFollowing)
-    const [pending, startTransition] = useTransition()
+    const router = useRouter()
+    const utils = trpc.useUtils()
+    const uploadMutation = trpc.upload.file.useMutation()
+    const followMutation = trpc.users.follow.useMutation()
+    const unfollowMutation = trpc.users.unfollow.useMutation()
+    const pending = followMutation.isPending || unfollowMutation.isPending
     const [editOpen, setEditOpen] = useState(false)
     const [saving, setSaving] = useState(false)
 
@@ -84,29 +90,25 @@ export function ProfileAction({
         let nextBannerImage = bannerImage
 
         if (bannerFile) {
-            const formData = new FormData()
-            formData.append("file", bannerFile)
+            try {
+                const formData = new FormData()
+                formData.append("file", bannerFile)
 
-            const uploadRes = await fetch("/api/upload", {
-                method: "POST",
-                body: formData,
-            })
+                const upload = await uploadMutation.mutateAsync(formData)
 
-            const upload = (await uploadRes.json()) as {
-                url?: string
-                err?: string
-            }
-
-            if (!uploadRes.ok || !upload.url) {
+                nextBannerImage = upload.url
+                setBannerImage(nextBannerImage)
+                setBannerPreview(nextBannerImage)
+                setBannerFile(null)
+            } catch (error) {
                 setSaving(false)
-                toast.error(upload.err ?? "Failed to upload banner image")
+                toast.error(
+                    error instanceof Error
+                        ? error.message
+                        : "Failed to upload banner image"
+                )
                 return
             }
-
-            nextBannerImage = upload.url
-            setBannerImage(nextBannerImage)
-            setBannerPreview(nextBannerImage)
-            setBannerFile(null)
         }
 
         const payload: Record<string, unknown> = {}
@@ -329,22 +331,28 @@ export function ProfileAction({
         )
     }
 
-    function toggleFollow() {
-        // basically to see if the user is following or not, and then flip to opposite for the function call.
+    async function toggleFollow() {
         const nextFollowing = !following
 
-        startTransition(async () => {
-            try {
-                const res = await setFollowing(username, nextFollowing)
-                setLocalFollowing(res.following)
-                // cool toaster thing
-                toast.success(
-                    `You ${res.following ? "followed" : "unfollowed"} ${username}`
-                )
-            } catch {
-                toast.error("Something went wrong")
-            }
-        })
+        try {
+            const res = nextFollowing
+                ? await followMutation.mutateAsync({ handle: username })
+                : await unfollowMutation.mutateAsync({ handle: username })
+            setLocalFollowing(res.following)
+            toast.success(
+                `You ${res.following ? "followed" : "unfollowed"} ${username}`
+            )
+            await Promise.all([
+                utils.users.byHandle.invalidate({ handle: username }),
+                utils.users.followers.invalidate({ handle: username }),
+                utils.users.following.invalidate(),
+                utils.users.suggested.invalidate(),
+                utils.posts.feed.invalidate(),
+            ])
+            router.refresh()
+        } catch {
+            toast.error("Something went wrong")
+        }
     }
 
     return (

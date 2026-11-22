@@ -17,8 +17,8 @@
 "use client"
 
 // Libraries
-import axios from "axios"
 import { useState, useRef, useEffect } from "react"
+import { trpc } from "@/lib/trpc"
 
 // Components
 import { ArrowUp } from "lucide-react"
@@ -84,6 +84,8 @@ export function Dm({
     const [draft, setDraft] = useState("")
     const bottomRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
+    const utils = trpc.useUtils()
+    const sendMutation = trpc.dms.send.useMutation()
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "auto" })
@@ -91,12 +93,18 @@ export function Dm({
 
     async function send() {
         const message = draft.trim()
+        if (!message) return
         setDraft("")
-        const res = await axios.post(`/api/dms/${other.username}`, {
+        const dm = await sendMutation.mutateAsync({
+            handle: other.username,
             message,
         })
-        const dm = (await res.data.data) as Dm
         setMessages((prev) => [...prev, dm])
+        await Promise.all([
+            utils.dms.messages.invalidate({ handle: other.username }),
+            utils.dms.conversations.invalidate(),
+            utils.me.get.invalidate(),
+        ])
     }
 
     return (

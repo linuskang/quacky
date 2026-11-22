@@ -16,13 +16,13 @@
 
 "use client"
 
-import axios from "axios"
 import { toast } from "sonner"
 import { useParams } from "next/navigation"
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Flag, ArrowLeft } from "lucide-react"
+import { trpc } from "@/lib/trpc"
 
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout"
 import { SearchBar } from "@/components/search-bar"
@@ -40,65 +40,50 @@ import { Textarea } from "@/components/ui/textarea"
 import Loading from "@/components/loading"
 import { useTimeAgo, useFormattedDate } from "@/client/utils"
 
-interface Short {
-    id: string
-    description: string | null
-    url: string
-    flagged: boolean
-    createdAt: string
-    user: {
-        id: string
-        username: string
-        name: string
-        image: string
-    }
-}
-
 export default function Page() {
     const params = useParams()
-    const id = params.id as string
+    const id = String(params.id ?? "")
+    const utils = trpc.useUtils()
 
-    const [short, setShort] = useState<Short>()
-    const [load, setLoad] = useState(false)
+    const {
+        data: short,
+        isLoading: load,
+        isError,
+    } = trpc.shorts.byId.useQuery({ id }, { enabled: Boolean(id) })
 
     const timeAgo = useTimeAgo(short?.createdAt ?? "")
     const postedAt = useFormattedDate(short?.createdAt ?? "")
 
     const [reportOpen, setReportOpen] = useState(false)
     const [reportReason, setReportReason] = useState("")
-    const [reportPending, setReportPending] = useState(false)
 
-    useEffect(() => {
-        async function fetchShort() {
-            setLoad(true)
-            try {
-                const res = await axios.get(`/api/shorts/${id}`)
-                setShort(res.data)
-            } catch {
-                toast.error("Short not found")
-            } finally {
-                setLoad(false)
-            }
-        }
-        fetchShort()
-    }, [id])
-
-    async function reportShort() {
-        setReportPending(true)
-        try {
-            await axios.post(`/api/shorts/${id}/report`, {
-                reason: reportReason,
-            })
+    const reportMutation = trpc.shorts.report.useMutation({
+        onSuccess: async () => {
             toast.success(
                 "Report submitted. Thank you for helping us keep the community safe."
             )
             setReportOpen(false)
             setReportReason("")
-        } catch {
+            await Promise.all([
+                utils.shorts.byId.invalidate({ id }),
+                utils.shorts.list.invalidate(),
+            ])
+        },
+        onError: () => {
             toast.error("Something went wrong. Please try again later.")
-        } finally {
-            setReportPending(false)
+        },
+    })
+
+    const reportPending = reportMutation.isPending
+
+    useEffect(() => {
+        if (isError) {
+            toast.error("Short not found")
         }
+    }, [isError])
+
+    function reportShort() {
+        reportMutation.mutate({ id, reason: reportReason })
     }
 
     return (

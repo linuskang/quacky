@@ -16,10 +16,8 @@
 
 "use client"
 
-import { useEffect, useState } from "react"
 import Image from "next/image"
-import { BadgeCheck } from "lucide-react"
-import { Admin } from "@/components/icons"
+import { trpc } from "@/lib/trpc"
 import type { User } from "@/types"
 
 type MentionUser = Omit<User, "role"> & {
@@ -56,38 +54,13 @@ export function useMentionSuggestions({
     onChange: (value: string) => void
     onCaretChange: (caret: number) => void
 }) {
-    const [users, setUsers] = useState<MentionUser[]>([])
     const match = getMentionMatch(value, caret)
     const query = match?.query ?? null
 
-    useEffect(() => {
-        if (query === null) {
-            return
-        }
-
-        const controller = new AbortController()
-
-        void fetch(`/api/users/mentions?q=${encodeURIComponent(query)}`, {
-            signal: controller.signal,
-        })
-            .then(async (res) => {
-                if (!res.ok) return []
-
-                const data = (await res.json()) as { users?: MentionUser[] }
-                return data.users ?? []
-            })
-            .then(setUsers)
-            .catch((error) => {
-                if (
-                    error instanceof DOMException &&
-                    error.name === "AbortError"
-                )
-                    return
-                setUsers([])
-            })
-
-        return () => controller.abort()
-    }, [query])
+    const { data } = trpc.users.mentions.useQuery(
+        { query: query ?? "" },
+        { enabled: query !== null }
+    )
 
     function selectUser(username: string) {
         const currentMatch = getMentionMatch(value, caret)
@@ -98,10 +71,9 @@ export function useMentionSuggestions({
 
         onChange(nextValue)
         onCaretChange(currentMatch.start + mention.length)
-        setUsers([])
     }
 
-    const visibleUsers = match ? users : []
+    const visibleUsers: MentionUser[] = match ? (data?.users ?? []) : []
 
     return {
         open: visibleUsers.length > 0,

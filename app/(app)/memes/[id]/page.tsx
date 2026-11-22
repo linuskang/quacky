@@ -17,12 +17,12 @@
 "use client"
 
 // Libraries
-import axios from "axios"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { toast } from "sonner"
 import Image from "next/image"
 import Link from "next/link"
 import { useParams } from "next/navigation"
+import { trpc } from "@/lib/trpc"
 
 // Components
 import { PageLayout, PageCenter } from "@/components/page-layout"
@@ -30,65 +30,39 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowBigUp, ArrowBigDown } from "lucide-react"
 
-// Types
-type Meme = {
-    id: string
-    imgUrl: string
-    author: {
-        id: string
-        username: string
-        image: string
-        name: string
-        verified: boolean
-    }
-    createdAt: string
-    upvotes: number
-    downvotes: number
-    score: number
-    me: "UPVOTE" | "DOWNVOTE" | null
-}
-
 export default function Page() {
     const { id } = useParams<{ id: string }>()
-    const [meme, setMeme] = useState<Meme | null>(null)
-    const [loading, setLoading] = useState(true)
-    const [voting, setVoting] = useState(false)
+    const utils = trpc.useUtils()
+
+    const {
+        data: meme,
+        isLoading: loading,
+        isError,
+    } = trpc.memes.byId.useQuery({ id }, { enabled: Boolean(id) })
+
+    const voteMutation = trpc.memes.vote.useMutation({
+        onSuccess: async () => {
+            await Promise.all([
+                utils.memes.byId.invalidate({ id }),
+                utils.memes.list.invalidate(),
+            ])
+        },
+        onError: () => {
+            toast.error("Failed to vote on meme")
+        },
+    })
+
+    const voting = voteMutation.isPending
 
     useEffect(() => {
-        void (async () => {
-            try {
-                const res = await axios.get(`/api/memes/${id}`)
-                setMeme(res.data.data)
-            } catch {
-                toast.error("Failed to fetch meme")
-            } finally {
-                setLoading(false)
-            }
-        })()
-    }, [id])
-
-    async function vote(type: "UPVOTE" | "DOWNVOTE") {
-        if (!meme) return
-
-        try {
-            setVoting(true)
-            const res = await axios.post(`/api/memes/${meme.id}/vote`, { type })
-            setMeme((current) =>
-                current
-                    ? {
-                        ...current,
-                        upvotes: res.data.data.upvotes,
-                        downvotes: res.data.data.downvotes,
-                        score: res.data.data.score,
-                        me: res.data.data.vote,
-                    }
-                    : null
-            )
-        } catch {
-            toast.error("Failed to vote on meme")
-        } finally {
-            setVoting(false)
+        if (isError) {
+            toast.error("Failed to fetch meme")
         }
+    }, [isError])
+
+    function vote(type: "UPVOTE" | "DOWNVOTE") {
+        if (!meme) return
+        voteMutation.mutate({ id: meme.id, type })
     }
 
     return (

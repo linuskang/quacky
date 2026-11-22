@@ -20,7 +20,10 @@ import { PageLayout, PageCenter } from "@/components/page-layout"
 import { playfairDisplay } from "@/lib/fonts"
 import { Title } from "@/components/text"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
+import { useState, type FormEvent } from "react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { trpc } from "@/lib/trpc"
 import {
     Dialog,
     DialogContent,
@@ -31,6 +34,25 @@ import {
 
 export default function Page() {
     const [showUpload, setShowUpload] = useState(false)
+    const router = useRouter()
+    const utils = trpc.useUtils()
+    const createShortMutation = trpc.shorts.create.useMutation({
+        onSuccess: async (data) => {
+            setShowUpload(false)
+            toast.success("Short uploaded!")
+            await utils.shorts.list.invalidate()
+            router.push(`/shorts/${data.shortId}`)
+        },
+        onError: (err) => {
+            toast.error(err.message || "Failed to upload short")
+        },
+    })
+
+    function handleUpload(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        const formData = new FormData(event.currentTarget)
+        createShortMutation.mutate(formData)
+    }
 
     return (
         <PageLayout>
@@ -54,11 +76,7 @@ export default function Page() {
                                 community.
                             </DialogDescription>
                         </DialogHeader>
-                        <form
-                            action="/api/shorts"
-                            method="POST"
-                            encType="multipart/form-data"
-                        >
+                        <form onSubmit={handleUpload}>
                             <input
                                 type="file"
                                 name="video"
@@ -70,8 +88,14 @@ export default function Page() {
                                 name="description"
                                 placeholder="Description"
                             />
-                            <Button type="submit" className="mt-4 w-full">
-                                Upload
+                            <Button
+                                type="submit"
+                                className="mt-4 w-full"
+                                disabled={createShortMutation.isPending}
+                            >
+                                {createShortMutation.isPending
+                                    ? "Uploading..."
+                                    : "Upload"}
                             </Button>
                         </form>
                     </DialogContent>

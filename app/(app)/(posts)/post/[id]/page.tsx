@@ -17,10 +17,10 @@
 "use client"
 
 // Libraries
-import axios from "axios"
 import { toast } from "sonner"
 import { useParams } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
+import { trpc } from "@/lib/trpc"
 
 // Components
 import { PostCard } from "@/components/posts/post"
@@ -31,14 +31,22 @@ import { CommentList } from "@/components/comment"
 import Loading from "@/components/loading"
 
 // Types
-import type { Post, User } from "@/types"
+import type { User } from "@/types"
 
 export default function Page() {
     const params = useParams()
-    const id = params.id
+    const id = String(params.id ?? "")
 
-    const [post, setPost] = useState<Post>()
-    const [load, setLoad] = useState(false)
+    const { data: post, isLoading: load, isError } = trpc.posts.byId.useQuery(
+        { id },
+        { enabled: Boolean(id) }
+    )
+
+    useEffect(() => {
+        if (isError) {
+            toast.error("Post not found")
+        }
+    }, [isError])
 
     const relevantUsers: User[] = post
         ? Array.from(
@@ -52,22 +60,6 @@ export default function Page() {
               ).values()
           )
         : []
-
-    useEffect(() => {
-        async function fetchPost() {
-            setLoad(true)
-            try {
-                await axios.get(`/api/posts/${id}`).then((res) => {
-                    setPost(res.data)
-                })
-            } catch {
-                toast.error("Post not found")
-            } finally {
-                setLoad(false)
-            }
-        }
-        fetchPost()
-    }, [id])
 
     return (
         <PageLayout>

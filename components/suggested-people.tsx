@@ -16,12 +16,12 @@
 
 "use client"
 
-import { useEffect, useState, useTransition } from "react"
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { BadgeCheck } from "lucide-react"
 import { Admin, BotBadge, VerifiedBadge } from "@/components/icons"
 import { toast } from "sonner"
+import { trpc } from "@/lib/trpc"
 
 import { Button } from "@/components/ui/button"
 
@@ -38,25 +38,25 @@ type SuggestedUser = {
 
 function SuggestedPerson({ user }: { user: SuggestedUser }) {
     const [following, setFollowing] = useState(false)
-    const [pending, startTransition] = useTransition()
+    const utils = trpc.useUtils()
+    const followMutation = trpc.users.follow.useMutation({
+        onSuccess: async () => {
+            setFollowing(true)
+            toast.success(`You followed ${user.username}`)
+            await Promise.all([
+                utils.users.byHandle.invalidate({ handle: user.username }),
+                utils.posts.feed.invalidate(),
+            ])
+        },
+        onError: () => {
+            toast.error("Something went wrong")
+        },
+    })
+
+    const pending = followMutation.isPending
 
     function followUser() {
-        startTransition(async () => {
-            try {
-                const res = await fetch(`/api/user/${user.username}/follow`, {
-                    method: "POST",
-                })
-
-                if (!res.ok) {
-                    throw new Error("Failed to follow user")
-                }
-
-                setFollowing(true)
-                toast.success(`You followed ${user.username}`)
-            } catch {
-                toast.error("Something went wrong")
-            }
-        })
+        followMutation.mutate({ handle: user.username })
     }
 
     return (
@@ -106,24 +106,7 @@ function SuggestedPerson({ user }: { user: SuggestedUser }) {
 }
 
 export function SuggestedPeopleFeedCard() {
-    const [users, setUsers] = useState<SuggestedUser[]>([])
-
-    useEffect(() => {
-        let cancelled = false
-
-        fetch("/api/users/suggested", { cache: "no-store" })
-            .then((res) => (res.ok ? res.json() : []))
-            .then((data: SuggestedUser[]) => {
-                if (!cancelled) {
-                    setUsers(data)
-                }
-            })
-            .catch(() => undefined)
-
-        return () => {
-            cancelled = true
-        }
-    }, [])
+    const { data: users = [] } = trpc.users.suggested.useQuery()
 
     if (users.length === 0) {
         return null

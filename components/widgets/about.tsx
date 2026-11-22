@@ -21,29 +21,15 @@ import {
     WidgetSecondaryHeader,
     WidgetContent,
 } from "@/components/widgets/widget"
-import { useState, useEffect } from "react"
+import { trpc } from "@/lib/trpc"
 
 export function AboutWidget() {
-    const [members, setMembers] = useState<number | null>(null)
-    const [posts, setPosts] = useState<number | null>(null)
-    const [name, setName] = useState<string | null>(null)
-    const [description, setDescription] = useState<string | null>(null)
-    const [version, setVersion] = useState<string | null>(null)
-
-    useEffect(() => {
-        fetch("/api/meta")
-            .then((response) => response.json())
-            .then((data) => {
-                setMembers(data.stats.users)
-                setPosts(data.stats.posts)
-                setName(data.org.name)
-                setDescription(data.org.description)
-                setVersion(data.version)
-            })
-            .catch((error) => {
-                console.error("Error fetching about data:", error)
-            })
-    }, [])
+    const { data } = trpc.meta.get.useQuery()
+    const members = data?.stats.users ?? null
+    const posts = data?.stats.posts ?? null
+    const name = data?.org.name ?? null
+    const description = data?.org.description ?? null
+    const version = data?.version ?? null
     return (
         <Widget>
             <WidgetSecondaryHeader>

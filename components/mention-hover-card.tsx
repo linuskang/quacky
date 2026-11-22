@@ -17,13 +17,12 @@
 "use client"
 
 // Libraries
-import axios from "axios"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { trpc } from "@/lib/trpc"
 
 // Components
-import { BadgeCheck } from "lucide-react"
 import { Admin, BotBadge, VerifiedBadge } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import {
@@ -33,57 +32,14 @@ import {
 } from "@/components/ui/hover-card"
 import Loading from "./loading"
 
-// Types
-type MentionProfile = {
-    name: string
-    username: string
-    image?: string
-    verified?: boolean
-    role?: string | null
-    bio?: string | null
-    banned?: boolean | null
-}
-
 export function MentionHoverCard({ username }: { username: string }) {
     const [open, setOpen] = useState(false)
-    const [profile, setProfile] = useState<MentionProfile | null>(null)
-    const [loadedUsername, setLoadedUsername] = useState<string | null>(null)
-    const [error, setError] = useState<{
-        username: string
-        message: string
-    } | null>(null)
 
-    useEffect(() => {
-        if (!open || loadedUsername === username) return
-
-        const controller = new AbortController()
-
-        async function fetchProfile() {
-            await axios
-                .get(`/api/user/${username}`, {
-                    signal: controller.signal,
-                })
-                .then((res) => {
-                    setProfile(res.data as MentionProfile)
-                    setLoadedUsername(username)
-                })
-        }
-
-        fetchProfile().catch((error) => {
-            if (
-                controller.signal.aborted ||
-                (axios.isCancel(error) && error?.code === "ERR_CANCELED")
-            )
-                return
-
-            setError({ username, message: "User not found" })
-        })
-
-        return () => controller.abort()
-    }, [loadedUsername, open, username])
-
-    const currentProfile = loadedUsername === username ? profile : null
-    const currentError = error?.username === username ? error.message : null
+    const { data: currentProfile, isError } = trpc.users.byHandle.useQuery(
+        { handle: username },
+        { enabled: open }
+    )
+    const currentError = isError ? "User not found" : null
 
     return (
         <HoverCard
@@ -107,7 +63,7 @@ export function MentionHoverCard({ username }: { username: string }) {
                         <div className="flex items-start gap-3">
                             <Image
                                 src={
-                                    currentProfile.image ??
+                                    ("image" in currentProfile && currentProfile.image) ||
                                     "/default-avatar.png"
                                 }
                                 alt={currentProfile.name}
@@ -121,18 +77,18 @@ export function MentionHoverCard({ username }: { username: string }) {
                                     <span className="truncate text-sm font-semibold text-primary">
                                         {currentProfile.name}
                                     </span>
-                                    {currentProfile.verified && (
+                                    {"verified" in currentProfile && currentProfile.verified && (
                                         <VerifiedBadge />
                                     )}
-                                    {currentProfile.role?.toLowerCase() === "admin" && <Admin />}
-                                    {currentProfile.role?.toLowerCase() === "bot" && <BotBadge />}
+                                    {"role" in currentProfile && currentProfile.role?.toLowerCase() === "admin" && <Admin />}
+                                    {"role" in currentProfile && currentProfile.role?.toLowerCase() === "bot" && <BotBadge />}
                                 </div>
                                 <div className="truncate text-sm font-medium text-muted-foreground">
                                     @{currentProfile.username}
                                 </div>
                             </div>
                         </div>
-                        {currentProfile.bio && (
+                        {"bio" in currentProfile && currentProfile.bio && (
                             <p className="line-clamp-3 text-sm text-muted-foreground">
                                 {currentProfile.bio}
                             </p>

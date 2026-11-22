@@ -17,10 +17,10 @@
 "use client"
 
 // Libraries
-import axios from "axios"
 import { toast } from "sonner"
 import { authClient } from "@/client/auth"
 import { useState } from "react"
+import { trpc } from "@/lib/trpc"
 
 // Components
 import { Widget, WidgetContent, WidgetSecondaryHeader } from "./widget"
@@ -35,6 +35,8 @@ export default function RelevantPeople({ users }: { users: User[] }) {
     const { data: session } = authClient.useSession()
     const [followedUsers, setFollowedUsers] = useState<string[]>([])
     const [pendingUsers, setPendingUsers] = useState<string[]>([])
+    const utils = trpc.useUtils()
+    const followMutation = trpc.users.follow.useMutation()
 
     if (!session) return null
 
@@ -44,9 +46,14 @@ export default function RelevantPeople({ users }: { users: User[] }) {
         setPendingUsers((users) => [...users, handle])
 
         try {
-            await axios.post(`/api/user/${handle}/follow`)
+            await followMutation.mutateAsync({ handle })
             setFollowedUsers((users) => [...users, handle])
             toast.success("Followed user")
+            await Promise.all([
+                utils.users.byHandle.invalidate({ handle }),
+                utils.users.suggested.invalidate(),
+                utils.posts.feed.invalidate(),
+            ])
         } catch {
             toast.error("Something went wrong")
         } finally {

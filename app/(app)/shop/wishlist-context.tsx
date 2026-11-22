@@ -16,14 +16,8 @@
 
 "use client"
 
-import {
-    createContext,
-    useContext,
-    useEffect,
-    useState,
-    useCallback,
-} from "react"
-import axios from "axios"
+import { createContext, useContext, useCallback, useMemo } from "react"
+import { trpc } from "@/lib/trpc"
 
 type WishlistItem = {
     id: string
@@ -48,28 +42,16 @@ type WishlistContextType = {
 const WishlistContext = createContext<WishlistContextType | null>(null)
 
 export function WishlistProvider({ children }: { children: React.ReactNode }) {
-    const [items, setItems] = useState<WishlistItem[]>([])
-    const [points, setPoints] = useState(0)
-    const [loading, setLoading] = useState(true)
+    const utils = trpc.useUtils()
+    const { data, isLoading: loading } = trpc.shop.wishlistList.useQuery()
+    const addMutation = trpc.shop.wishlistAdd.useMutation()
+    const removeMutation = trpc.shop.wishlistRemove.useMutation()
 
-    useEffect(() => {
-        axios
-            .get("/api/shop/wishlist")
-            .then((res) => {
-                const data = res.data.data
-                if (data && Array.isArray(data.items)) {
-                    setItems(data.items)
-                    setPoints(data.points ?? 0)
-                } else {
-                    setItems(data ?? [])
-                }
-            })
-            .catch(() => {
-                setItems([])
-                setPoints(0)
-            })
-            .finally(() => setLoading(false))
-    }, [])
+    const items: WishlistItem[] = useMemo(
+        () => data?.items ?? [],
+        [data?.items]
+    )
+    const points = data?.points ?? 0
 
     const isWishlisted = useCallback(
         (itemId: string) => items.some((entry) => entry.itemId === itemId),
@@ -83,18 +65,14 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
             )
 
             if (currentlyWishlisted) {
-                await axios.delete("/api/shop/wishlist", {
-                    data: { itemId },
-                })
-                setItems((prev) =>
-                    prev.filter((entry) => entry.itemId !== itemId)
-                )
+                await removeMutation.mutateAsync({ itemId })
             } else {
-                const res = await axios.post("/api/shop/wishlist", { itemId })
-                setItems((prev) => [...prev, res.data.data])
+                await addMutation.mutateAsync({ itemId })
             }
+
+            await utils.shop.wishlistList.invalidate()
         },
-        [items]
+        [items, addMutation, removeMutation, utils]
     )
 
     return (

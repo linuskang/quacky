@@ -17,12 +17,12 @@
 "use client"
 
 // Libraries
-import axios from "axios"
 import { startTransition, useEffect, useState } from "react"
 import { toast } from "sonner"
+import { trpc } from "@/lib/trpc"
 
 // Components
-import { PostList } from "@/components/posts/post"
+import { InfinitePostList } from "@/components/posts/infinite-post-list"
 import { Composer } from "@/components/composer"
 import { Tabs } from "@/components/posts/post-tabs"
 import { PageLayout, PageCenter, PageRight } from "@/components/page-layout"
@@ -37,22 +37,43 @@ import { authClient } from "@/client/auth"
 import Link from "next/link"
 
 // Types
-import type { Post } from "@/types"
 import { RngWidget } from "@/components/widgets/rng"
 
 const tabs = [
     { name: "Recent", id: "recent" },
     { name: "Following", id: "following" },
     { name: "Popular", id: "popular" },
-]
+] as const
+
+type FeedTab = (typeof tabs)[number]["id"]
 
 export default function Page() {
-    const [activeTab, setActiveTab] = useState("recent")
-    const [posts, setPosts] = useState<Post[]>([])
-    const [loading, setLoading] = useState(true)
+    const [activeTab, setActiveTab] = useState<FeedTab>("recent")
     const [isNewUser, setIsNewUser] = useState(false)
     const { data: session } = authClient.useSession()
     const createdAt = session?.user.createdAt
+
+    const {
+        data,
+        isLoading: loading,
+        isError,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+    } = trpc.posts.feed.useInfiniteQuery(
+        { tab: activeTab, limit: 15 },
+        {
+            getNextPageParam: (lastPage) => lastPage.nextCursor,
+        }
+    )
+
+    const posts = data?.pages.flatMap((page) => page.items) ?? []
+
+    useEffect(() => {
+        if (isError) {
+            toast.error("Something went wrong")
+        }
+    }, [isError])
 
     useEffect(() => {
         const nextIsNewUser = createdAt
@@ -62,31 +83,6 @@ export default function Page() {
 
         startTransition(() => setIsNewUser(nextIsNewUser))
     }, [createdAt])
-
-    useEffect(() => {
-        async function loadPosts() {
-            setLoading(true)
-            try {
-                const endpoints: Record<string, string> = {
-                    recent: "/api/posts",
-                    following: "/api/posts/following",
-                    popular: "/api/posts/popular",
-                }
-
-                await axios.get(endpoints[activeTab]).then((res) => {
-                    setPosts(res.data)
-                })
-            } catch (error) {
-                console.error(error)
-                toast.error("Something went wrong")
-                setPosts([])
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        loadPosts()
-    }, [activeTab])
 
     return (
         <PageLayout>
@@ -103,15 +99,18 @@ export default function Page() {
                 )}
                 <Composer />
                 <Tabs
-                    tabs={tabs}
+                    tabs={[...tabs]}
                     activeTab={activeTab}
-                    onSelect={setActiveTab}
+                    onSelect={(tab) => setActiveTab(tab as FeedTab)}
                 />
                 {loading ? (
                     <Loading />
                 ) : (
-                    <PostList
+                    <InfinitePostList
                         posts={posts}
+                        hasNextPage={Boolean(hasNextPage)}
+                        isFetchingNextPage={isFetchingNextPage}
+                        fetchNextPage={fetchNextPage}
                         afterFirst={
                             activeTab == "recent" && <SuggestedPeopleFeedCard /> // jank i know lmao
                         }

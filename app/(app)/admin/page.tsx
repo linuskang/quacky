@@ -16,7 +16,6 @@
 
 "use client"
 
-import axios from "axios"
 import { PageLayout, PageCenter } from "@/components/page-layout"
 import { useState, useSyncExternalStore } from "react"
 import { Title, Description } from "@/components/text"
@@ -24,6 +23,7 @@ import { authClient } from "@/client/auth"
 import { redirect } from "next/navigation"
 import { toast } from "sonner"
 import Loading from "../loading"
+import { trpc } from "@/lib/trpc"
 import { Button } from "@/components/ui/button"
 import {
     Card,
@@ -52,7 +52,25 @@ export default function Page() {
     const [newUserEmail, setNewUserEmail] = useState("")
     const [newUserRole, setNewUserRole] = useState<"admin" | "user">("user")
     const [newUserUsername, setNewUserUsername] = useState("")
-    const [creating, setCreating] = useState(false)
+    const utils = trpc.useUtils()
+    const inviteMutation = trpc.admin.invite.useMutation({
+        onSuccess: async (res) => {
+            toast.success(
+                "User created successfully. New password: " + res.tempPassword
+            )
+            setNewUserName("")
+            setNewUserEmail("")
+            setNewUserUsername("")
+            await Promise.all([
+                utils.admin.usersList.invalidate(),
+                utils.meta.get.invalidate(),
+            ])
+        },
+        onError: () => {
+            toast.error("Failed to create user.")
+        },
+    })
+    const creating = inviteMutation.isPending
 
     if (!hydrated || isPending) return <Loading />
 
@@ -71,29 +89,17 @@ export default function Page() {
         )
     }
 
-    async function createUser() {
-        setCreating(true)
+    function createUser() {
         if (!newUserName || !newUserEmail || !newUserRole || !newUserUsername) {
-            setCreating(false)
             return
         }
 
-        try {
-            const res = await axios.post("/api/admin/invite", {
-                email: newUserEmail,
-                role: newUserRole,
-                displayName: newUserName,
-                username: newUserUsername,
-            })
-            toast.success(
-                "User created successfully. New password: " +
-                res.data.tempPassword
-            )
-        } catch {
-            toast.error("Failed to create user.")
-        } finally {
-            setCreating(false)
-        }
+        inviteMutation.mutate({
+            email: newUserEmail,
+            role: newUserRole,
+            displayName: newUserName,
+            username: newUserUsername,
+        })
     }
     return (
         <PageLayout>

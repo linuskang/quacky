@@ -1,50 +1,35 @@
 "use client";
 
-import axios from "axios";
 import { PageLayout } from "@/components/page-layout";
-import { useEffect, useState } from "react";
 import Loading from "@/components/loading";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-
-type Order = {
-    id: string;
-    status: "PENDING" | "FULFILLED" | "REJECTED";
-    quantity: number;
-    createdAt: string;
-    item: {
-        id: string;
-        name: string;
-        description: string;
-        imageUrl: string;
-        price: number;
-        stock: number;
-        category: string;
-        available: boolean;
-        featured: boolean;
-    };
-    user: {
-        id: string;
-        username: string;
-        email: string;
-    };
-}
+import { trpc } from "@/lib/trpc";
 
 export default function AdminOrdersPage() {
+    const utils = trpc.useUtils();
+    const { data: pendingOrders = [], isLoading: loading } =
+        trpc.admin.ordersList.useQuery();
 
-    const [pendingOrders, setPendingOrders] = useState<Order[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    async function loadPendingOrders() {
-        axios.get("/api/admin/orders")
-            .then((res) => setPendingOrders(res.data.data))
-            .catch((err) => console.error(err))
-            .finally(() => setLoading(false));
-    }
-    useEffect(() => {
-        loadPendingOrders();
-    }, []);
+    const updateOrderMutation = trpc.admin.ordersUpdateStatus.useMutation({
+        onSuccess: async (_data, variables) => {
+            await Promise.all([
+                utils.admin.ordersList.invalidate(),
+                utils.shop.myOrders.invalidate(),
+                utils.shop.list.invalidate(),
+            ]);
+            toast.success(
+                variables.actionOrderStatus === "FULFILLED"
+                    ? `Order ${variables.orderId} marked as fulfilled.`
+                    : `Order ${variables.orderId} rejected.`,
+                { duration: 3000 }
+            );
+        },
+        onError: () => {
+            toast.error("Failed to update order status.");
+        },
+    });
 
     return (
         <PageLayout>
@@ -72,11 +57,12 @@ export default function AdminOrdersPage() {
 
                                 <Button
                                     variant="primary"
-                                    onClick={async () => {
-                                        await axios.post("/api/admin/orders", { orderId: order.id, actionOrderStatus: "FULFILLED" })
-
-                                        loadPendingOrders();
-                                        toast.success(`Order ${order.id} marked as fulfilled.`, { duration: 3000 });
+                                    disabled={updateOrderMutation.isPending}
+                                    onClick={() => {
+                                        updateOrderMutation.mutate({
+                                            orderId: order.id,
+                                            actionOrderStatus: "FULFILLED",
+                                        });
                                     }}
                                 >
                                     Mark as Fulfilled
@@ -84,10 +70,12 @@ export default function AdminOrdersPage() {
 
                                 <Button
                                     variant="destructive"
-                                    onClick={async () => {
-                                        await axios.post("/api/admin/orders", { orderId: order.id, actionOrderStatus: "REJECTED" })
-                                        loadPendingOrders();
-                                        toast.success(`Order ${order.id} rejected.`, { duration: 3000 });
+                                    disabled={updateOrderMutation.isPending}
+                                    onClick={() => {
+                                        updateOrderMutation.mutate({
+                                            orderId: order.id,
+                                            actionOrderStatus: "REJECTED",
+                                        });
                                     }}
                                 >
                                     Reject Order

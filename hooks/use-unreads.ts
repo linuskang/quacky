@@ -16,8 +16,9 @@
 
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { usePathname } from "next/navigation"
+import { trpc } from "@/lib/trpc"
 
 export interface Unreads {
     notifications: number
@@ -25,35 +26,18 @@ export interface Unreads {
     fuzzies: number
 }
 
-export function useUnreads() {
+export function useUnreads(): Unreads {
     const pathname = usePathname()
-    const [unreads, setUnreads] = useState<Unreads>({
-        notifications: 0,
-        dms: 0,
-        fuzzies: 0,
-    })
+    const utils = trpc.useUtils()
+    const { data } = trpc.me.get.useQuery()
 
     useEffect(() => {
-        const controller = new AbortController()
+        void utils.me.get.invalidate()
+    }, [pathname, utils])
 
-        void fetch("/api/me", { signal: controller.signal })
-            .then(async (res) =>
-                res.ok ? ((await res.json()) as { unreads?: Partial<Unreads> }) : null
-            )
-            .then((data) => {
-                if (!data?.unreads) return //tigger was here
-                setUnreads({
-                    notifications: data.unreads.notifications ?? 0,
-                    dms: data.unreads.dms ?? 0,
-                    fuzzies: data.unreads.fuzzies ?? 0,
-                })
-            })
-            .catch((error) => {
-                if (error instanceof DOMException && error.name === "AbortError") return
-            })
-
-        return () => controller.abort()
-    }, [pathname])
-
-    return unreads
+    return {
+        notifications: data?.unreads.notifications ?? 0,
+        dms: data?.unreads.dms ?? 0,
+        fuzzies: data?.unreads.fuzzies ?? 0,
+    }
 }

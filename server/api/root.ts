@@ -1,81 +1,38 @@
-import { z } from "zod";
-import { TRPCError } from "@trpc/server";
-
-import { prisma } from "@/server/prisma";
-import { protectedProcedure, router } from "@/server/api/trpc";
+import { adminRouter } from "@/server/api/routers/admin"
+import { commentsRouter } from "@/server/api/routers/comments"
+import { dmsRouter } from "@/server/api/routers/dms"
+import { fuzziesRouter } from "@/server/api/routers/fuzzies"
+import { meRouter } from "@/server/api/routers/me"
+import { memesRouter } from "@/server/api/routers/memes"
+import { metaRouter } from "@/server/api/routers/meta"
+import { postsRouter } from "@/server/api/routers/posts"
+import { quizRouter } from "@/server/api/routers/quiz"
+import { rngRouter } from "@/server/api/routers/rng"
+import { shopRouter } from "@/server/api/routers/shop"
+import { shortsRouter } from "@/server/api/routers/shorts"
+import { systemRouter } from "@/server/api/routers/system"
+import { uploadRouter } from "@/server/api/routers/upload"
+import { usersRouter } from "@/server/api/routers/users"
+import { createCallerFactory, router } from "@/server/api/trpc"
 
 export const appRouter = router({
-    me: protectedProcedure.query(async ({ ctx }) => {
-        const user = await prisma.user.findUnique({
-            where: { id: ctx.session.user.id },
-            select: {
-                id: true,
-                name: true,
-                username: true,
-                image: true,
-                bio: true,
-            },
-        });
+    meta: metaRouter,
+    me: meRouter,
+    posts: postsRouter,
+    comments: commentsRouter,
+    users: usersRouter,
+    dms: dmsRouter,
+    fuzzies: fuzziesRouter,
+    memes: memesRouter,
+    shorts: shortsRouter,
+    quiz: quizRouter,
+    rng: rngRouter,
+    shop: shopRouter,
+    upload: uploadRouter,
+    admin: adminRouter,
+    system: systemRouter,
+})
 
-        if (!user) {
-            throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
-        }
+export type AppRouter = typeof appRouter
 
-        return user;
-    }),
-
-    userList: protectedProcedure.query(async () => {
-        return prisma.user.findMany({
-            orderBy: { username: "asc" },
-            take: 10,
-            select: {
-                id: true,
-                name: true,
-                username: true,
-                image: true,
-            },
-        });
-    }),
-
-    searchUsers: protectedProcedure
-        .input(
-            z.object({
-                query: z.string().trim().min(1).max(30),
-            })
-        )
-        .query(({ input }) =>
-            prisma.user.findMany({
-                where: {
-                    OR: [
-                        { username: { contains: input.query, mode: "insensitive" } },
-                        { name: { contains: input.query, mode: "insensitive" } },
-                    ],
-                    banned: false,
-                },
-                orderBy: { username: "asc" },
-                take: 10,
-                select: {
-                    id: true,
-                    name: true,
-                    username: true,
-                    image: true,
-                },
-            })
-        ),
-
-    updateBio: protectedProcedure
-        .input(
-            z.object({
-                bio: z.string().trim().max(160),
-            })
-        )
-        .mutation(async ({ ctx, input }) => {
-            return prisma.user.update({
-                where: { id: ctx.session.user.id },
-                data: { bio: input.bio || null },
-                select: { bio: true },
-            });
-        }),
-});
-
-export type AppRouter = typeof appRouter;
+export const createCaller = createCallerFactory(appRouter)

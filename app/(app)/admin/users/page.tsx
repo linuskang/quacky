@@ -1,6 +1,5 @@
 "use client"
 
-import axios from "axios"
 import { authClient } from '@/client/auth'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -9,40 +8,22 @@ import { toast } from 'sonner'
 import Loading from "@/components/loading"
 import Image from "next/image"
 import Link from "next/link"
-
-type User = {
-    id: string
-    name: string
-    image: string
-    email: string
-    username: string
-    role: string
-    verified: boolean
-    createdAt: string
-    updatedAt: string
-    banned: boolean
-}
+import { trpc } from "@/lib/trpc"
 
 export default function Page() {
     const { data: session } = authClient.useSession()
-    const [loading, setLoading] = React.useState(true)
-    const [users, setUsers] = React.useState<User[]>([])
     const [query, setQuery] = React.useState("")
+    const {
+        data: users = [],
+        isLoading: loading,
+        isError,
+    } = trpc.admin.usersList.useQuery(undefined, { enabled: Boolean(session) })
 
     React.useEffect(() => {
-        async function getUsers() {
-            try {
-                await axios.get('/api/admin/users').then((res) => {
-                    setUsers(res.data.data)
-                })
-            } catch {
-                toast.error("somethign went wrong")
-            } finally {
-                setLoading(false)
-            }
+        if (isError) {
+            toast.error("somethign went wrong")
         }
-        getUsers()
-    }, [])
+    }, [isError])
 
     function queryUsers() {
         return users.filter((user) => {

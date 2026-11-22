@@ -16,7 +16,7 @@
 
 "use client"
 
-import { useState, useCallback } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -27,12 +27,12 @@ import {
     DialogClose,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { BadgeCheck } from "lucide-react"
 import { Admin, BotBadge, VerifiedBadge } from "@/components/icons"
 import { toast } from "sonner"
 import type { User } from "@/types"
 import { Button } from "@/components/ui/button"
 import { playfairDisplay } from "@/lib/fonts"
+import { trpc } from "@/lib/trpc"
 
 type DialogType = "following" | "followers" | null
 
@@ -51,42 +51,31 @@ export function FollowCounts({
 }) {
     const [open, setOpen] = useState<DialogType>(null)
     const [search, setSearch] = useState("")
-    const [data, setData] = useState<ApiResponse | null>(null)
-    const [loading, setLoading] = useState(false)
+    const trimmedSearch = search.trim() || undefined
 
-    const fetchData = useCallback(
-        async (type: DialogType, query: string) => {
-            if (!type) return
-
-            setLoading(true)
-            try {
-                const endpoint =
-                    type === "following" ? "following" : "followers"
-                const params = new URLSearchParams()
-                if (query.trim()) params.set("search", query.trim())
-
-                const res = await fetch(
-                    `/api/user/${handle}/${endpoint}?${params.toString()}`
-                )
-                if (!res.ok) {
-                    toast.error(res.statusText)
-                }
-                const json = await res.json()
-                setData(json)
-            } catch {
-                toast.error("something happened")
-            } finally {
-                setLoading(false)
-            }
-        },
-        [handle]
+    const followersQuery = trpc.users.followers.useQuery(
+        { handle, search: trimmedSearch },
+        { enabled: open === "followers" }
     )
+    const followingQuery = trpc.users.following.useQuery(
+        { handle, search: trimmedSearch },
+        { enabled: open === "following" }
+    )
+
+    const activeQuery =
+        open === "following" ? followingQuery : followersQuery
+    const data: ApiResponse | null = activeQuery.data ?? null
+    const loading = activeQuery.isLoading
+
+    useEffect(() => {
+        if (activeQuery.error) {
+            toast.error(activeQuery.error.message || "something happened")
+        }
+    }, [activeQuery.error])
 
     const openDialog = (type: DialogType) => {
         setOpen(type)
         setSearch("")
-        setData(null)
-        fetchData(type, "")
     }
 
     const closeDialog = () => {
@@ -95,8 +84,13 @@ export function FollowCounts({
 
     const handleSearchChange = (value: string) => {
         setSearch(value)
-        if (open) {
-            fetchData(open, value)
+    }
+
+    const refetchActive = () => {
+        if (open === "following") {
+            void followingQuery.refetch()
+        } else if (open === "followers") {
+            void followersQuery.refetch()
         }
     }
 
@@ -131,7 +125,7 @@ export function FollowCounts({
                 loading={loading}
                 onClose={closeDialog}
                 onSearchChange={handleSearchChange}
-                onSearchSubmit={() => open && fetchData(open, search)}
+                onSearchSubmit={refetchActive}
             />
         </>
     )
