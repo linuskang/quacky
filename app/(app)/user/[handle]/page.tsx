@@ -33,12 +33,12 @@ import { Admin, BotBadge, VerifiedBadge } from "@/components/icons"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { requireSession } from "@/server/auth"
 import { getUser } from "@/server/users"
-import { getPostsByUserId } from "@/server/posts"
+import { fetchPostsByUserIdPage } from "@/server/posts"
 import { ProfileAction } from "./action"
+import { ProfilePosts } from "./profile-posts"
 import { PurpleWarning } from "@/components/warning-cards"
 import Link from "next/link"
 import { Markdown } from "@/components/markdown-renderer"
-import { PostList } from "@/components/posts/post"
 import { CommentCard } from "@/components/comment"
 import { getCommentsByUserId } from "@/server/comment"
 import { ReportUser } from "@/components/report"
@@ -75,10 +75,14 @@ export default async function Page({
     const followsYou = user.following.includes(session.user.username)
     const following = user.followers.includes(session.user.username)
 
-    // for dropdowns. pre fetch on load.
-    const posts = canViewPrivateProfile
-        ? await getPostsByUserId(user.id, session)
-        : []
+    // for dropdowns. pre fetch first page on load.
+    const initialPostsPage = canViewPrivateProfile
+        ? await fetchPostsByUserIdPage({
+              userId: user.id,
+              viewerId: session.user.id,
+              limit: 15,
+          })
+        : { items: [], nextCursor: null }
     const replies = canViewPrivateProfile
         ? await getCommentsByUserId(user.id)
         : []
@@ -348,7 +352,10 @@ export default async function Page({
                                         value="posts"
                                         className="w-full p-0 pt-6 text-sm text-muted-foreground"
                                     >
-                                        <PostList posts={posts} />
+                                        <ProfilePosts
+                                            handle={user.username}
+                                            initialPage={initialPostsPage}
+                                        />
                                     </TabsContent>
                                     <TabsContent
                                         value="replies"

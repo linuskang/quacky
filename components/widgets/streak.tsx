@@ -18,6 +18,7 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { trpc } from "@/lib/trpc"
 
 import { Widget, WidgetContent, WidgetPrimaryHeader } from "./widget"
 
@@ -29,16 +30,9 @@ const WEEK_DAYS = [
     { label: "F", key: "fri" },
     { label: "S", key: "sat" },
     { label: "S", key: "sun" },
-]
+] as const
 
 type StreakWeek = Record<(typeof WEEK_DAYS)[number]["key"], boolean>
-
-interface MeResponse {
-    streak?: {
-        current: number
-        week: StreakWeek
-    }
-}
 
 const EMPTY_WEEK: StreakWeek = {
     mon: false,
@@ -68,34 +62,13 @@ function getTimeUntilTomorrow() {
 }
 
 export function StreakWidget() {
-    const [streak, setStreak] = useState({
+    const { data: me } = trpc.me.get.useQuery()
+    const streak = me?.streak ?? {
         current: 0,
         week: EMPTY_WEEK,
-    })
+    }
     const [timeUntilTomorrow, setTimeUntilTomorrow] = useState("--:--:--")
     const [todayIndex, setTodayIndex] = useState<number | null>(null)
-
-    useEffect(() => {
-        let cancelled = false
-        const loadStreak = () => {
-            fetch("/api/me", { cache: "no-store" })
-                .then((res) => (res.ok ? res.json() : null))
-                .then((data: MeResponse | null) => {
-                    if (!cancelled && data?.streak) {
-                        setStreak(data.streak)
-                    }
-                })
-                .catch(() => undefined)
-        }
-
-        loadStreak()
-        window.addEventListener("quacky:check-in", loadStreak)
-
-        return () => {
-            cancelled = true
-            window.removeEventListener("quacky:check-in", loadStreak)
-        }
-    }, [])
 
     useEffect(() => {
         const updateClock = () => {

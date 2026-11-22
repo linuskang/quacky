@@ -17,7 +17,6 @@
 "use client"
 
 // Libraries
-import axios from "axios"
 import { useMemo, useState, useSyncExternalStore } from "react"
 import { authClient } from "@/client/auth"
 import { toast } from "sonner"
@@ -25,6 +24,7 @@ import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
+import { trpc } from "@/lib/trpc"
 
 // Components
 import { Button } from "@/components/ui/button"
@@ -147,6 +147,13 @@ export function PostCard({
     }, [post.id])
 
     const { data: session } = authClient.useSession()
+    const utils = trpc.useUtils()
+    const likeMutation = trpc.posts.like.useMutation()
+    const unlikeMutation = trpc.posts.unlike.useMutation()
+    const repostMutation = trpc.posts.repost.useMutation()
+    const quoteMutation = trpc.posts.quote.useMutation()
+    const bookmarkMutation = trpc.posts.bookmark.useMutation()
+    const unbookmarkMutation = trpc.posts.unbookmark.useMutation()
 
     async function like() {
         const nextLiked = !liked
@@ -155,10 +162,16 @@ export function PostCard({
         setLikes(likes + (nextLiked ? 1 : -1))
         try {
             if (nextLiked) {
-                await axios.post(`/api/posts/${post.id}/like`)
+                await likeMutation.mutateAsync({ id: post.id })
             } else {
-                await axios.delete(`/api/posts/${post.id}/like`)
+                await unlikeMutation.mutateAsync({ id: post.id })
             }
+            await Promise.all([
+                utils.posts.feed.invalidate(),
+                utils.posts.byUser.invalidate(),
+                utils.posts.byId.invalidate({ id: post.id }),
+                utils.comments.byId.invalidate(),
+            ])
         } catch {
             setLiked(liked)
             setLikes(likes)
@@ -170,9 +183,15 @@ export function PostCard({
 
     async function repost() {
         try {
-            await axios.post(`/api/posts/repost`, {
+            await repostMutation.mutateAsync({
                 postId: post.id,
             })
+            await Promise.all([
+                utils.posts.feed.invalidate(),
+                utils.posts.byUser.invalidate(),
+                utils.posts.byId.invalidate({ id: post.id }),
+                utils.comments.byId.invalidate(),
+            ])
             toast.success("Reposted")
         } catch {
             toast.error("Something went wrong")
@@ -185,11 +204,19 @@ export function PostCard({
         const content = quoteContent.trim()
         setQuotePending(true)
         try {
-            await axios.post(`/api/posts/quote`, {
+            await quoteMutation.mutateAsync({
                 postId: post.id,
                 content,
             })
+            await Promise.all([
+                utils.posts.feed.invalidate(),
+                utils.posts.byUser.invalidate(),
+                utils.posts.byId.invalidate({ id: post.id }),
+                utils.comments.byId.invalidate(),
+                utils.meta.trending.invalidate(),
+            ])
             toast.success("Quote reposted")
+            setQuoteContent("")
         } catch {
             toast.error("Something went wrong")
         } finally {
@@ -204,10 +231,18 @@ export function PostCard({
         setBookmarked(nextBookmarked)
         try {
             if (nextBookmarked) {
-                await axios.post(`/api/posts/${post.id}/bookmark`)
+                await bookmarkMutation.mutateAsync({ id: post.id })
             } else {
-                await axios.delete(`/api/posts/${post.id}/bookmark`)
+                await unbookmarkMutation.mutateAsync({ id: post.id })
             }
+            await Promise.all([
+                utils.posts.feed.invalidate(),
+                utils.posts.byUser.invalidate(),
+                utils.posts.byId.invalidate({ id: post.id }),
+                utils.comments.byId.invalidate(),
+                utils.me.bookmarks.invalidate(),
+            ])
+            router.refresh()
         } catch {
             setBookmarked(bookmarked)
             toast.error("Something went wrong")

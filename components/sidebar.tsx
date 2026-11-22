@@ -20,7 +20,8 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { exo2, playfairDisplay } from "@/lib/fonts"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
+import { trpc } from "@/lib/trpc"
 
 import {
     Home,
@@ -64,10 +65,6 @@ type Unreads = {
     fuzzies: number
 }
 
-type MeResponse = {
-    unreads?: Partial<Unreads>
-}
-
 function UnreadBadge({ count }: { count?: number }) {
     if (!count) return null
 
@@ -80,40 +77,17 @@ function UnreadBadge({ count }: { count?: number }) {
 
 export function Sidebar({ session }: Props) {
     const pathname = usePathname()
-    const [unreads, setUnreads] = useState<Unreads>({
-        notifications: 0,
-        dms: 0,
-        fuzzies: 0,
-    })
+    const utils = trpc.useUtils()
+    const { data: me } = trpc.me.get.useQuery()
+    const unreads: Unreads = {
+        notifications: me?.unreads.notifications ?? 0,
+        dms: me?.unreads.dms ?? 0,
+        fuzzies: me?.unreads.fuzzies ?? 0,
+    }
 
     useEffect(() => {
-        const controller = new AbortController()
-
-        void fetch("/api/me", { signal: controller.signal })
-            .then(async (res) => {
-                if (!res.ok) return null
-                return (await res.json()) as MeResponse
-            })
-            .then((data) => {
-                if (!data?.unreads) return
-
-                setUnreads({
-                    notifications: data.unreads.notifications ?? 0,
-                    dms: data.unreads.dms ?? 0,
-                    fuzzies: data.unreads.fuzzies ?? 0,
-                })
-            })
-            .catch((error) => {
-                if (
-                    error instanceof DOMException &&
-                    error.name === "AbortError"
-                ) {
-                    return
-                }
-            })
-
-        return () => controller.abort()
-    }, [pathname])
+        void utils.me.get.invalidate()
+    }, [pathname, utils])
 
     const items = [
         { href: "/", label: "home", icon: Home },

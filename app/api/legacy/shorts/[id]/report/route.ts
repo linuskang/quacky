@@ -21,14 +21,17 @@ import { prisma } from "@/server/prisma"
 import { env } from "@/env"
 import { chat, NotificationService } from "@/server/helpers"
 
-export async function POST(req: NextRequest) {
+export async function POST(
+    req: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
     const session = await getSession()
 
     if (!session) {
         return new NextResponse("Unauthorised", { status: 401 })
     }
 
-    const shortId = req.nextUrl.pathname.split("/")[3]
+    const { id: shortId } = await params
 
     const body = (await req.json()) as {
         reason: string

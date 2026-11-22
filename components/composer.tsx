@@ -17,10 +17,11 @@
 "use client"
 
 // Libraries
-import axios from "axios"
 import { useRef, useState, useEffect, useSyncExternalStore } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { trpc } from "@/lib/trpc"
 import { Button } from "@/components/ui/button"
 import { Markdown } from "@/components/markdown-renderer"
 import { getGreeting } from "@/client/utils"
@@ -50,30 +51,24 @@ export function Composer() {
     const [posting, setPosting] = useState(false)
     const [caret, setCaret] = useState(0)
     const [mode, setMode] = useState<"write" | "preview">("write")
-    const [canPost, setCanPost] = useState(false)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
     const previewUrlsRef = useRef<string[]>([])
 
-    useEffect(() => {
-        async function me() {
-            try {
-                await axios.get("/api/me").then((res) => {
-                    if (res.data.canPost) {
-                        setCanPost(true)
-                    } else {
-                        setCanPost(false)
-                    }
-                })
-            } catch {
-                toast.error(
-                    "i couldnt check if you can post! please report this issue to an admin"
-                )
-            }
-        }
+    const router = useRouter()
+    const utils = trpc.useUtils()
+    const { data: me, isError: meError } = trpc.me.get.useQuery()
+    const canPost = me?.canPost ?? false
+    const uploadMutation = trpc.upload.file.useMutation()
+    const createPostMutation = trpc.posts.create.useMutation()
 
-        me()
-    }, [])
+    useEffect(() => {
+        if (meError) {
+            toast.error(
+                "i couldnt check if you can post! please report this issue to an admin"
+            )
+        }
+    }, [meError])
 
     const { data: session } = authClient.useSession()
     const hasContent = content.trim().length > 0 || attachments.length > 0
@@ -107,12 +102,7 @@ export function Composer() {
                 const formData = new FormData()
                 formData.append("file", attachment)
 
-                const uploadRes = await fetch("/api/upload", {
-                    method: "POST",
-                    body: formData,
-                })
-
-                const upload = await uploadRes.json()
+                const upload = await uploadMutation.mutateAsync(formData)
 
                 assets.push({
                     name: upload.name,
@@ -121,10 +111,19 @@ export function Composer() {
                 })
             }
 
-            await axios.post("/api/posts", {
+            await createPostMutation.mutateAsync({
                 content,
                 attachments: assets,
             })
+
+            await Promise.all([
+                utils.posts.feed.invalidate(),
+                utils.posts.byUser.invalidate(),
+                utils.meta.trending.invalidate(),
+                utils.meta.get.invalidate(),
+                utils.me.get.invalidate(),
+            ])
+            router.refresh()
 
             toast.success("Post created!")
         } catch {

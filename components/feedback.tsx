@@ -17,10 +17,10 @@
 "use client"
 
 // Libraries
-import axios from "axios"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import Image from "next/image"
 import { toast } from "sonner"
+import { trpc } from "@/lib/trpc"
 
 // Components
 import { Patrick_Hand } from "next/font/google"
@@ -76,29 +76,31 @@ export function Feedback() {
     const [visual, setVisual] = useState(0)
     const [comments, setComments] = useState("")
 
-    async function sendFeedback() {
-        const data = {
-            usability,
-            satisfaction,
-            recommend,
-            visual,
-            comments,
-        }
-
-        try {
-            await axios.post("/api/feedback-portal", data)
-
+    const feedbackMutation = trpc.meta.feedback.useMutation({
+        onSuccess: () => {
             toast.success("Feedback sent! Thank you for trying out Quacky.")
-        } catch {
+        },
+        onError: () => {
             toast.error("Something blew up.try again later please")
-        } finally {
+        },
+        onSettled: () => {
             setUsability(0)
             setSatisfaction(0)
             setRecommend(0)
             setVisual(0)
             setComments("")
             setOpen(false)
-        }
+        },
+    })
+
+    function sendFeedback() {
+        feedbackMutation.mutate({
+            usability,
+            satisfaction,
+            recommend,
+            visual,
+            comments,
+        })
     }
 
     return (

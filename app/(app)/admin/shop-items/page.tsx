@@ -1,13 +1,13 @@
 "use client"
 
-import axios from "axios"
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react"
+import { useEffect, useState, useSyncExternalStore } from "react"
 import { toast } from "sonner"
 
 import Loading from "../../loading"
 import { authClient } from "@/client/auth"
+import { trpc } from "@/lib/trpc"
 import { PageCenter, PageLayout } from "@/components/page-layout"
 import {
     ShopItemForm,
@@ -51,26 +51,26 @@ export default function AdminShopItemsPage() {
         () => true,
         () => false
     )
-    const [items, setItems] = useState<ShopItem[]>([])
     const [form, setForm] = useState<ItemForm>(emptyForm)
     const [editingId, setEditingId] = useState<string | null>(null)
-    const [loading, setLoading] = useState(true)
+    const utils = trpc.useUtils()
 
-    const loadItems = useCallback(async () => {
-        try {
-            const response = await axios.get("/api/admin/shop-items")
-            setItems(response.data.data ?? [])
-        } catch {
-            toast.error("Could not load shop items.")
-        } finally {
-            setLoading(false)
-        }
-    }, [])
+    const isAdmin = hydrated && !isPending && session?.user.role === "admin"
+    const {
+        data: items = [],
+        isLoading: loading,
+        isError,
+    } = trpc.admin.shopItemsList.useQuery(undefined, { enabled: isAdmin })
+
+    const createItemMutation = trpc.admin.shopItemsCreate.useMutation()
+    const updateItemMutation = trpc.admin.shopItemsUpdate.useMutation()
+    const deleteItemMutation = trpc.admin.shopItemsDelete.useMutation()
 
     useEffect(() => {
-        if (!hydrated || isPending || session?.user.role !== "admin") return
-        void Promise.resolve().then(loadItems)
-    }, [hydrated, isPending, loadItems, session])
+        if (isError) {
+            toast.error("Could not load shop items.")
+        }
+    }, [isError])
 
     if (!hydrated || isPending) return <Loading />
     if (!session) redirect("/auth/login")
@@ -112,18 +112,21 @@ export default function AdminShopItemsPage() {
     async function saveItem(values: ShopItemFormValues) {
         try {
             if (editingId) {
-                await axios.patch("/api/admin/shop-items", {
+                await updateItemMutation.mutateAsync({
                     id: editingId,
                     ...values,
                 })
                 toast.success("Shop item updated.")
             } else {
-                await axios.post("/api/admin/shop-items", values)
+                await createItemMutation.mutateAsync(values)
                 toast.success("Shop item created.")
             }
             resetForm()
-            setLoading(true)
-            await loadItems()
+            await Promise.all([
+                utils.admin.shopItemsList.invalidate(),
+                utils.shop.list.invalidate(),
+                utils.shop.byId.invalidate(),
+            ])
         } catch {
             toast.error("Could not save shop item.")
         }
@@ -135,9 +138,13 @@ export default function AdminShopItemsPage() {
         }
 
         try {
-            await axios.delete("/api/admin/shop-items", { data: { id: item.id } })
-            setItems((current) => current.filter(({ id }) => id !== item.id))
+            await deleteItemMutation.mutateAsync({ id: item.id })
             if (editingId === item.id) resetForm()
+            await Promise.all([
+                utils.admin.shopItemsList.invalidate(),
+                utils.shop.list.invalidate(),
+                utils.shop.byId.invalidate({ id: item.id }),
+            ])
             toast.success("Shop item deleted.")
         } catch {
             toast.error("Could not delete shop item.")

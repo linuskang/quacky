@@ -917,17 +917,18 @@ const paths = Object.fromEntries(
             })
         )
 
-        return [route.path, operations]
+        const legacyPath = route.path.replace(/^\/api\//, "/api/legacy/")
+        return [legacyPath, operations]
     })
 )
 
 export const openApiDocument = {
     openapi: "3.1.0",
     info: {
-        title: "Quacky API",
+        title: "Quacky Legacy API",
         version: "0.2.0",
         description:
-            "HTTP API for Quacky. Authentication endpoints under /api/auth are intentionally omitted.",
+            "Legacy HTTP REST API for Quacky mounted under /api/legacy. New endpoints are served via tRPC at /api/trpc (documented at /api/docs). Authentication endpoints under /api/auth are intentionally omitted.",
     },
     servers: [{ url: "/", description: "Current server" }],
     tags: [...new Set(routes.map((route) => route.tag))].map((name) => ({

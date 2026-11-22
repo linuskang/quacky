@@ -20,11 +20,7 @@
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { authClient } from "@/client/auth"
-import {
-    subscribeUser,
-    unsubscribeUser,
-    sendNotificationToMe,
-} from "@/components/pwa-actions"
+import { trpc } from "@/lib/trpc"
 
 // Components
 import { CircleCheck, CircleX } from "lucide-react"
@@ -58,6 +54,9 @@ function urlBase64ToUint8Array(base64String: string) {
 
 export default function Page() {
     const { data: session } = authClient.useSession()
+    const pushSubscribeMutation = trpc.me.pushSubscribe.useMutation()
+    const pushUnsubscribeMutation = trpc.me.pushUnsubscribe.useMutation()
+    const pushTestMutation = trpc.me.pushTest.useMutation()
     const [subscription, setSubscription] = useState<PushSubscription | null>(
         null
     )
@@ -140,8 +139,11 @@ export default function Page() {
                 userVisibleOnly: true,
                 applicationServerKey: urlBase64ToUint8Array(publicKey),
             })
-            const serializedSub = JSON.parse(JSON.stringify(sub))
-            await subscribeUser(serializedSub)
+            const serializedSub = JSON.parse(JSON.stringify(sub)) as {
+                endpoint: string
+                keys: { auth: string; p256dh: string }
+            }
+            await pushSubscribeMutation.mutateAsync(serializedSub)
             setSubscription(sub)
             toast.success("Push notifications enabled for this device.")
         } catch {
@@ -153,14 +155,18 @@ export default function Page() {
         if (!subscription) return
 
         await subscription.unsubscribe()
-        await unsubscribeUser(subscription.endpoint)
+        await pushUnsubscribeMutation.mutateAsync({
+            endpoint: subscription.endpoint,
+        })
         setSubscription(null)
         toast.success("Push notifications disabled for this device.")
     }
 
     async function sendTestNotification() {
         try {
-            await sendNotificationToMe("This is a test notification from Quacky!")
+            await pushTestMutation.mutateAsync({
+                message: "This is a test notification from Quacky!",
+            })
             toast.success("Test notification sent!")
         } catch {
             toast.error("Failed to send test notification.")

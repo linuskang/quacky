@@ -2,35 +2,17 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect, useState } from "react"
 
 import {
     Widget,
     WidgetContent,
     WidgetSecondaryHeader,
 } from "@/components/widgets/widget"
-
-type LeaderboardUser = {
-    username: string
-    name: string
-    image: string
-    points: number
-}
+import { trpc } from "@/lib/trpc"
 
 export function LeaderboardWidget() {
-    const [users, setUsers] = useState<LeaderboardUser[]>([])
-
-    useEffect(() => {
-        fetch("/api/leaderboard")
-            .then(async (response) => {
-                if (!response.ok) return
-                const data = (await response.json()) as {
-                    users: LeaderboardUser[]
-                }
-                setUsers(data.users)
-            })
-            .catch(() => undefined)
-    }, [])
+    const { data } = trpc.meta.leaderboard.useQuery()
+    const users = data?.users ?? []
 
     return (
         <Widget>

@@ -17,31 +17,12 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
 import { TrendingUp } from "lucide-react"
 import { Widget, WidgetContent, WidgetSecondaryHeader } from "./widget"
-
-type TrendingHashtag = {
-    tag: string
-    count: number
-}
+import { trpc } from "@/lib/trpc"
 
 export function TrendingWidget() {
-    const [hashtags, setHashtags] = useState<TrendingHashtag[]>([])
-
-    useEffect(() => {
-        const fetchTrending = async () => {
-            const res = await fetch("/api/trending")
-
-            if (!res.ok) {
-                return
-            }
-
-            setHashtags(await res.json())
-        }
-
-        fetchTrending()
-    }, [])
+    const { data: hashtags = [] } = trpc.meta.trending.useQuery()
 
     return (
         <Widget>

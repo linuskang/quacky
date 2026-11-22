@@ -1,9 +1,9 @@
 "use client"
 
-import axios from "axios"
 import Image from "next/image"
 import { useRef, useState, type ChangeEvent } from "react"
 import { useFormContext, useWatch } from "react-hook-form"
+import { trpc } from "@/lib/trpc"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -37,35 +37,27 @@ function ImageUpload() {
     const { control, setValue } = useFormContext<ShopItemFormValues>()
     const imageUrl = useWatch({ control, name: "imageUrl" })
     const fileInputRef = useRef<HTMLInputElement>(null)
-    const [uploading, setUploading] = useState(false)
     const [uploadError, setUploadError] = useState("")
+    const uploadMutation = trpc.upload.file.useMutation()
+    const uploading = uploadMutation.isPending
 
     async function handleFile(event: ChangeEvent<HTMLInputElement>) {
         const file = event.target.files?.[0]
         if (!file) return
 
-        setUploading(true)
         setUploadError("")
         try {
             const formData = new FormData()
             formData.append("file", file)
-            const response = await axios.post("/api/upload", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            })
+            const response = await uploadMutation.mutateAsync(formData)
 
-            if (response.status !== 200) {
-                setUploadError("Upload failed")
-                return
-            }
-
-            setValue("imageUrl", response.data.url, {
+            setValue("imageUrl", response.url, {
                 shouldDirty: true,
                 shouldValidate: true,
             })
         } catch {
             setUploadError("Upload failed")
         } finally {
-            setUploading(false)
             event.target.value = ""
         }
     }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { toast } from "sonner"
 
 import { Input } from "@/components/ui/input"
@@ -10,53 +10,29 @@ import {
     WidgetContent,
     WidgetSecondaryHeader,
 } from "@/components/widgets/widget"
+import { trpc } from "@/lib/trpc"
 
 export function ParentEmailWidget() {
-    const [parentEmail, setParentEmail] = useState<string | null>(null)
     const [email, setEmail] = useState("")
-    const [loading, setLoading] = useState(true)
-    const [saving, setSaving] = useState(false)
+    const utils = trpc.useUtils()
+    const { data, isLoading: loading } = trpc.me.parentEmailGet.useQuery()
+    const parentEmail = data?.parentEmail ?? null
 
-    useEffect(() => {
-        fetch("/api/parent-email")
-            .then(async (response) => {
-                if (!response.ok) return
-                const data = (await response.json()) as {
-                    parentEmail: string | null
-                }
-                setParentEmail(data.parentEmail)
-            })
-            .catch(() => undefined)
-            .finally(() => setLoading(false))
-    }, [])
-
-    async function saveParentEmail() {
-        setSaving(true)
-
-        try {
-            const response = await fetch("/api/parent-email", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ parentEmail: email }),
-            })
-            const data = (await response.json()) as {
-                parentEmail?: string
-                error?: string
-            }
-
-            if (!response.ok) {
-                toast.error(data.error ?? "Could not save parent email")
-                return
-            }
-
-            setParentEmail(data.parentEmail ?? email)
+    const saveMutation = trpc.me.parentEmailSet.useMutation({
+        onSuccess: async () => {
             setEmail("")
             toast.success("Parent email saved")
-        } catch {
-            toast.error("Could not save parent email")
-        } finally {
-            setSaving(false)
-        }
+            await utils.me.parentEmailGet.invalidate()
+        },
+        onError: (err) => {
+            toast.error(err.message || "Could not save parent email")
+        },
+    })
+
+    const saving = saveMutation.isPending
+
+    function saveParentEmail() {
+        saveMutation.mutate({ parentEmail: email })
     }
 
     return (

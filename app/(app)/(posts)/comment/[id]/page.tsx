@@ -17,10 +17,10 @@
 "use client"
 
 // Libraries
-import axios from "axios"
 import { toast } from "sonner"
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { useParams } from "next/navigation"
+import { trpc } from "@/lib/trpc"
 
 // Components
 import Loading from "@/components/loading"
@@ -31,51 +31,29 @@ import RelevantPeople from "@/components/widgets/relevant-people"
 
 import { CommentCard, CommentList } from "@/components/comment"
 
-// Types
-import type { Comment, Post, User } from "@/types"
-
-type CommentData = {
-    data: {
-        relevantUsers: User[]
-        comment: Comment & {
-            post: Post
-            comments: Comment[]
-        }
-    }
-}
-
 export default function Page() {
     const params = useParams()
-    const id = params.id
+    const id = String(params.id ?? "")
 
-    const [res, setRes] = useState<CommentData>()
-    const [loading, setLoading] = useState(true)
+    const { data, isLoading: loading, isError } = trpc.comments.byId.useQuery(
+        { id },
+        { enabled: Boolean(id) }
+    )
 
     useEffect(() => {
-        async function fetchComment() {
-            setLoading(true)
-
-            try {
-                await axios.get(`/api/comments/${id}`).then((res) => {
-                    setRes(res.data)
-                })
-            } catch {
-                toast.error("Comment not found")
-            } finally {
-                setLoading(false)
-            }
+        if (isError) {
+            toast.error("Comment not found")
         }
-        fetchComment()
-    }, [id])
+    }, [isError])
 
     return (
         <PageLayout>
             <PageCenter>
                 {loading && <Loading />}
-                {res && (
+                {data && (
                     <div>
                         <div className="mb-2 flex w-full max-w-lg flex-col gap-2">
-                            <CommentCard comment={res.data.comment} />
+                            <CommentCard comment={data.comment} />
                             <div className="flex h-16 items-center pl-10">
                                 <div className="relative flex h-full items-center justify-center border-l-2 border-dotted border-border">
                                     <span className="px-4 text-sm font-semibold text-muted-foreground">
@@ -83,18 +61,18 @@ export default function Page() {
                                     </span>
                                 </div>
                             </div>
-                            <PostCard post={res.data.comment.post} />
+                            <PostCard post={data.comment.post} />
                         </div>
                         <CommentList
-                            comments={res.data.comment.comments}
-                            postId={res.data.comment.post.id}
+                            comments={data.comment.comments}
+                            postId={data.comment.post.id}
                         />
                     </div>
                 )}
             </PageCenter>
             <PageRight>
                 <SearchBar />
-                {res && <RelevantPeople users={res.data.relevantUsers} />}
+                {data && <RelevantPeople users={data.relevantUsers} />}
             </PageRight>
         </PageLayout>
     )

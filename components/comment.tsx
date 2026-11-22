@@ -23,7 +23,7 @@ import { useTimeAgo } from "@/client/utils"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { useRef, useState, useEffect } from "react"
-import axios from "axios"
+import { trpc } from "@/lib/trpc"
 
 // Components
 import { BadgeCheck, SendHorizontal, MoreHorizontal, Lock } from "lucide-react"
@@ -92,10 +92,32 @@ export function CommentList({
 }
 
 export function Reply({ postId }: { postId: string }) {
+    const router = useRouter()
     const [content, setContent] = useState("")
-    const [canComment, setCanComment] = useState(false)
     const [caret, setCaret] = useState(0)
     const inputRef = useRef<HTMLInputElement>(null)
+    const utils = trpc.useUtils()
+    const { data: me, isError: meError } = trpc.me.get.useQuery()
+    const canComment = me?.canComment ?? false
+
+    const createCommentMutation = trpc.comments.create.useMutation({
+        onSuccess: async () => {
+            setContent("")
+            toast.success("Comment created!")
+            await Promise.all([
+                utils.posts.byId.invalidate({ id: postId }),
+                utils.comments.byId.invalidate(),
+                utils.posts.feed.invalidate(),
+                utils.posts.byUser.invalidate(),
+                utils.me.get.invalidate(),
+            ])
+            router.refresh()
+        },
+        onError: () => {
+            toast.error("Failed to create comment")
+        },
+    })
+
     const mentions = useMentionSuggestions({
         value: content,
         caret,
@@ -110,26 +132,17 @@ export function Reply({ postId }: { postId: string }) {
     })
 
     useEffect(() => {
-        async function getMe() {
-            try {
-                await axios.get("/api/me").then((res) => {
-                    setCanComment(res.data.canComment)
-                })
-            } catch {
-                toast.error("something went wrong, i think the server blew up")
-            }
+        if (meError) {
+            toast.error("something went wrong, i think the server blew up")
         }
+    }, [meError])
 
-        getMe()
-    }, [])
-
-    async function comment() {
-        await axios.post(`/api/posts/${postId}/comment`, {
+    function comment() {
+        if (createCommentMutation.isPending) return
+        createCommentMutation.mutate({
+            postId,
             content,
         })
-
-        setContent("")
-        toast.success("Comment created!")
     }
 
     return (
@@ -165,7 +178,8 @@ export function Reply({ postId }: { postId: string }) {
                                 onClick={comment}
                                 disabled={
                                     content.trim().length == 0 ||
-                                    content.length > 100
+                                    content.length > 100 ||
+                                    createCommentMutation.isPending
                                 }
                             >
                                 <SendHorizontal className="!size-5 text-foreground" />
@@ -203,27 +217,34 @@ export function Reply({ postId }: { postId: string }) {
 export function CommentCard({ comment }: { comment: Comment }) {
     const router = useRouter()
     const [reportOpen, setReportOpen] = useState(false)
-    const [delPending, setDelPending] = useState(false)
     const [showFlaggedContent, setShowFlaggedContent] = useState(false)
     const { data: session } = authClient.useSession()
+    const utils = trpc.useUtils()
+    const deleteCommentMutation = trpc.comments.delete.useMutation({
+        onSuccess: async () => {
+            toast.success("Comment deleted.")
+            await Promise.all([
+                utils.posts.byId.invalidate({ id: comment.postId }),
+                utils.comments.byId.invalidate(),
+                utils.posts.feed.invalidate(),
+                utils.posts.byUser.invalidate(),
+                utils.me.get.invalidate(),
+            ])
+            router.refresh()
+        },
+        onError: () => {
+            toast.error("Something went wrong.")
+        },
+    })
+    const delPending = deleteCommentMutation.isPending
     const timeAgo = useTimeAgo(comment.createdAt)
     const canDelete =
         session &&
         (session.user.username === comment.author.username ||
             session.user.role === "admin")
 
-    async function delComment() {
-        setDelPending(true)
-        try {
-            await axios.delete(`/api/comments/${comment.id}`)
-
-            toast.success("Comment deleted.")
-            router.refresh()
-        } catch {
-            toast.error("Something went wrong.")
-        } finally {
-            setDelPending(false)
-        }
+    function delComment() {
+        deleteCommentMutation.mutate({ id: comment.id })
     }
 
     return (
@@ -317,7 +338,7 @@ export function CommentCard({ comment }: { comment: Comment }) {
                         </span>
 
                         <ReportAbuse
-                            url={`/api/comments/${comment.id}/report`}
+                            target={{ type: "comment", id: comment.id }}
                             open={reportOpen}
                             onOpen={setReportOpen}
                         />

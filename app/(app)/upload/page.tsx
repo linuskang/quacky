@@ -18,30 +18,34 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { trpc } from "@/lib/trpc"
 
 export default function UploadPage() {
     const [file, setFile] = useState<File | null>(null)
     const [result, setResult] = useState("")
-    const [pending, setPending] = useState(false)
+    const uploadMutation = trpc.upload.file.useMutation()
+    const pending = uploadMutation.isPending
 
     async function upload() {
         if (!file) return
 
-        setPending(true)
         setResult("")
 
         const formData = new FormData()
         formData.append("file", file)
 
-        const res = await fetch("/api/upload", {
-            method: "POST",
-            body: formData,
-        })
-
-        const data = await res.json()
-
-        setResult(JSON.stringify(data, null, 2))
-        setPending(false)
+        try {
+            const data = await uploadMutation.mutateAsync(formData)
+            setResult(JSON.stringify(data, null, 2))
+        } catch (error) {
+            setResult(
+                JSON.stringify(
+                    { error: error instanceof Error ? error.message : "Upload failed" },
+                    null,
+                    2
+                )
+            )
+        }
     }
 
     return (

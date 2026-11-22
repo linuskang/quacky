@@ -17,12 +17,12 @@
 "use client"
 
 // Libraries
-import axios from "axios"
 import Image from "next/image"
 import { toast } from "sonner"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { authClient } from "@/client/auth"
+import { trpc } from "@/lib/trpc"
 
 // Components
 import Loading from "@/components/loading"
@@ -115,8 +115,11 @@ const questions = [
 ]
 
 export default function Page() {
-    const { data: session, isPending } = authClient.useSession()
-    const [hasCheckedIn, setHasCheckedIn] = useState(false)
+    const { isPending } = authClient.useSession()
+    const utils = trpc.useUtils()
+    const { data: me } = trpc.me.get.useQuery()
+    const checkInMutation = trpc.me.checkIn.useMutation()
+    const hasCheckedIn = me?.hasCheckedIn ?? false
 
     const {
         control,
@@ -134,23 +137,16 @@ export default function Page() {
         },
     })
 
-    useEffect(() => {
-        axios.get("/api/me").then((res) => {
-            const data = res.data
-            if (data.hasCheckedIn) {
-                setHasCheckedIn(true)
-            }
-        })
-    }, [session])
-
     const onSubmit = async (data: CheckInFormData) => {
         try {
-            await axios.post("/api/check-in", data)
+            await checkInMutation.mutateAsync(data)
             toast.success(
                 "Thanks for checking in today! Come back tomorrow to submit another review."
             )
-            setHasCheckedIn(true)
-            window.dispatchEvent(new Event("quacky:check-in"))
+            await Promise.all([
+                utils.me.get.invalidate(),
+                utils.meta.leaderboard.invalidate(),
+            ])
             reset()
         } catch {
             toast.error("Something went wrong. sorry!")

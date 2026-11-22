@@ -16,60 +16,24 @@
 
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { BadgeCheck } from "lucide-react"
 import { Admin, BotBadge, VerifiedBadge } from "@/components/icons"
 import { SearchBar } from "@/components/search-bar"
-import type { User } from "@/types"
-
-type SearchUser = Omit<User, "role"> & {
-    role: string | null
-}
+import { trpc } from "@/lib/trpc"
 
 export function DmUserSearch() {
     const router = useRouter()
     const [query, setQuery] = useState("")
-    const [users, setUsers] = useState<SearchUser[]>([])
+    const trimmedQuery = query.trim()
 
-    useEffect(() => {
-        const trimmedQuery = query.trim()
+    const { data } = trpc.users.mentions.useQuery(
+        { query: trimmedQuery },
+        { enabled: Boolean(trimmedQuery) }
+    )
 
-        if (!trimmedQuery) {
-            return
-        }
-
-        const controller = new AbortController()
-
-        void fetch(
-            `/api/users/mentions?q=${encodeURIComponent(trimmedQuery)}`,
-            {
-                signal: controller.signal,
-            }
-        )
-            .then(async (res) => {
-                if (!res.ok) return []
-
-                const data = (await res.json()) as { users?: SearchUser[] }
-                return data.users ?? []
-            })
-            .then(setUsers)
-            .catch((error) => {
-                if (
-                    error instanceof DOMException &&
-                    error.name === "AbortError"
-                ) {
-                    return
-                }
-
-                setUsers([])
-            })
-
-        return () => controller.abort()
-    }, [query])
-
-    const visibleUsers = query.trim() ? users : []
+    const visibleUsers = trimmedQuery ? (data?.users ?? []) : []
 
     return (
         <div className="relative w-full">

@@ -17,12 +17,12 @@
 "use client"
 
 // Libraries
-import axios from "axios"
 import { useParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
+import { trpc } from "@/lib/trpc"
 
 // Components
 import { Button } from "@/components/ui/button"
@@ -46,68 +46,67 @@ interface Question {
 
 export default function Page() {
     const params = useParams()
+    const slug = String(params.slug ?? "")
     const router = useRouter()
-    const [questions, setQuestions] = useState<Question[]>([])
+    const utils = trpc.useUtils()
     const [answers, setAnswers] = useState<Record<number, string>>({})
     const [wrongQuestions, setWrongQuestions] = useState<number[]>([])
     const [feedback, setFeedback] = useState<Record<number, string>>({})
-    const [loading, setLoading] = useState(true)
-    const [submitting, setSubmitting] = useState(false)
-    const [meta, setMeta] = useState<{
-        name: string
-        description: string
-        theory?: string
-    }>({
+
+    const {
+        data: quizData,
+        isLoading: loading,
+        isError,
+    } = trpc.quiz.bySlug.useQuery(
+        { id: slug },
+        { enabled: Boolean(slug), refetchOnWindowFocus: false }
+    )
+
+    const submitMutation = trpc.quiz.submit.useMutation()
+    const submitting = submitMutation.isPending
+
+    const questions: Question[] = quizData?.questions ?? []
+    const meta = quizData?.meta ?? {
         name: "",
         description: "",
-    })
+    }
 
     useEffect(() => {
-        async function fetchQuestions() {
-            setLoading(true)
-            try {
-                const response = await axios.get(`/api/quiz/${params.slug}`)
-                setQuestions(response.data.questions)
-                setMeta(response.data.meta)
-            } catch {
-                toast.error("something blew up. sorry.")
-            } finally {
-                setLoading(false)
-            }
+        if (isError) {
+            toast.error("something blew up. sorry.")
         }
-
-        fetchQuestions()
-    }, [params.slug])
+    }, [isError])
 
     async function submitQuiz() {
-        setSubmitting(true)
-
         try {
-            await axios.post(`/api/quiz/${params.slug}`, answers)
+            const stringAnswers = Object.fromEntries(
+                Object.entries(answers).map(([key, val]) => [String(key), val])
+            )
+            const result = await submitMutation.mutateAsync({
+                id: slug,
+                answers: stringAnswers,
+            })
+
+            if (!result.passed) {
+                setWrongQuestions(result.wrong)
+                setFeedback(result.feedback)
+                toast.error(
+                    `Incorrect answers for questions: ${result.wrong.join(", ")}`
+                )
+                return
+            }
+
+            await Promise.all([
+                utils.me.get.invalidate(),
+                utils.quiz.list.invalidate(),
+            ])
+
             toast.success(
-                `congrats! you passed the quiz and unlocked the ${params.slug} module. redirecting...`
+                `congrats! you passed the quiz and unlocked the ${slug} module. redirecting...`
             )
             router.push("/quiz")
-        } catch (error) {
-            if (axios.isAxiosError(error) && error.response?.status === 400) {
-                const data = error.response.data as {
-                    wrong?: number[]
-                    feedback?: Record<number, string>
-                }
-                const wrong = data.wrong
-
-                if (wrong && wrong.length > 0) {
-                    setWrongQuestions(wrong)
-                    setFeedback(data.feedback ?? {})
-                    toast.error(
-                        `Incorrect answers for questions: ${wrong.join(", ")}`
-                    )
-                    return
-                }
-            }
+        } catch {
             toast.error("something blew up. please try later.")
-        } finally {
-            setSubmitting(false)
         }
     }
 

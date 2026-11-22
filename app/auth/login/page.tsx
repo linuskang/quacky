@@ -21,9 +21,9 @@ import { authClient } from "@/client/auth"
 import Link from "next/link"
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
-import axios from "axios"
 import { toast } from "sonner"
 import Loading from "@/components/loading"
+import { trpc } from "@/lib/trpc"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -36,25 +36,15 @@ function LoginForm() {
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
-    const [orgName, setOrgName] = useState("")
-    const [bannermsg, setBannerMsg] = useState("")
-    const [loadingMsg, setLoadingMsg] = useState(true)
+    const { data: meta, isLoading: loadingMsg, isError } = trpc.meta.get.useQuery()
+    const orgName = meta?.org.name ?? ""
+    const bannermsg = meta?.org.loginBannerMsg ?? ""
 
     useEffect(() => {
-        const fetchMsg = async () => {
-            try {
-                await axios.get("/api/meta").then((res) => {
-                    setBannerMsg(res.data.org.loginBannerMsg)
-                    setOrgName(res.data.org.name)
-                })
-            } catch {
-                toast.error("somethign blew up. please try again later.")
-            } finally {
-                setLoadingMsg(false)
-            }
+        if (isError) {
+            toast.error("somethign blew up. please try again later.")
         }
-        fetchMsg()
-    }, [])
+    }, [isError])
 
     async function login(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()

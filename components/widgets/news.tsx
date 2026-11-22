@@ -16,10 +16,10 @@
 
 "use client"
 
-import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
+import { trpc } from "@/lib/trpc"
 
 function normalizeArray<T>(value: T | T[] | undefined): T[] {
     if (value === undefined || value === null) {
@@ -100,31 +100,8 @@ function extractItems(parsedData: unknown): NewsItem[] {
 }
 
 export function NewsWidget() {
-    const [items, setItems] = useState<NewsItem[]>([])
-    const [loading, setLoading] = useState(true)
-
-    useEffect(() => {
-        async function fetchNews() {
-            try {
-                const res = await fetch("/api/news")
-
-                if (!res.ok) {
-                    return
-                }
-
-                const json = (await res.json()) as {
-                    parsedData?: unknown
-                }
-                setItems(extractItems(json.parsedData))
-            } catch {
-                // silently fail; widget stays empty
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        fetchNews()
-    }, [])
+    const { data, isLoading: loading } = trpc.meta.news.useQuery()
+    const items = extractItems(data?.parsedData)
 
     if (loading) {
         return (

@@ -20,8 +20,18 @@
 // Sources:
 // https://doi.org/10.1145/3757327
 
-import { fetchPosts } from "@/server/posts"
+import { fetchPosts, fetchPostsPage } from "@/server/posts"
 import { prisma } from "@/server/prisma"
+
+function deterministicSkew(seed: string): number {
+    let hash = 2166136261
+    for (let i = 0; i < seed.length; i++) {
+        hash ^= seed.charCodeAt(i)
+        hash = Math.imul(hash, 16777619)
+    }
+    const unit = (hash >>> 0) / 0xffffffff
+    return unit * 0.1 - 0.05
+}
 
 export default class Algorithms {
     // this function takes in all posts and sorts them
@@ -32,6 +42,7 @@ export default class Algorithms {
         // fetch all posts that are non-flagged and
         // where the author is not banned.
         const posts = await fetchPosts({ userId })
+        const bucket = Math.floor(Date.now() / (1000 * 60 * 15))
         // create the scored posts array
         const scored = posts.map((post) => {
             // calculate hours since created
@@ -94,13 +105,12 @@ export default class Algorithms {
                 score,
             }
         })
-        // add a little randomness to post positioning
-        // to prevent identical popular feeds and
-        // return the results.
+        // add a little deterministic variation per 15-minute window
+        // so popular feeds stay lively while remaining stable across pages.
         return scored
             .map((post) => {
                 // -5% to +5% variations
-                const skew = Math.random() * 0.1 - 0.05
+                const skew = deterministicSkew(`${post.id}:${userId}:${bucket}`)
                 // return the posts with score
                 return {
                     ...post,
@@ -108,6 +118,24 @@ export default class Algorithms {
                 }
             })
             .sort((a, b) => b.score - a.score)
+    }
+
+    static async popularPage(
+        userId: string,
+        limit: number,
+        cursor?: string | null
+    ) {
+        const parsedOffset = cursor ? Number.parseInt(cursor, 10) : 0
+        const offset =
+            Number.isFinite(parsedOffset) && parsedOffset > 0
+                ? parsedOffset
+                : 0
+        const ranked = await this.popular(userId)
+        const items = ranked.slice(offset, offset + limit)
+        const nextCursor =
+            offset + limit < ranked.length ? String(offset + limit) : null
+
+        return { items, nextCursor }
     }
 
     static async forYou(userId: string) {
@@ -135,6 +163,28 @@ export default class Algorithms {
             return post.repostOf
                 ? followingIds.has(post.repostOf.author.id ?? "")
                 : false
+        })
+    }
+
+    static async followingPage(
+        userId: string,
+        limit: number,
+        cursor?: string | null
+    ) {
+        const following = await prisma.follow.findMany({
+            where: {
+                userId,
+            },
+            select: {
+                followId: true,
+            },
+        })
+
+        return fetchPostsPage({
+            userId,
+            authorIds: following.map((follow) => follow.followId),
+            limit,
+            cursor,
         })
     }
 }

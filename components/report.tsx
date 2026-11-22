@@ -29,8 +29,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Flag } from "lucide-react"
-import axios from "axios"
 import { toast } from "sonner"
+import { trpc } from "@/lib/trpc"
 
 type Props = {
     offenderHandle: string
@@ -38,27 +38,33 @@ type Props = {
 
 export function ReportUser({ offenderHandle }: Props) {
     const [reportReason, setReportReason] = useState("")
-    const [reportPending, setReportPending] = useState(false)
     const [open, setOpen] = useState(false)
+    const utils = trpc.useUtils()
 
-    async function reportabuse() {
-        setReportPending(true)
-
-        try {
-            await axios.post(`/api/user/${offenderHandle}/report`, {
-                reason: reportReason,
-            })
-
+    const reportMutation = trpc.users.report.useMutation({
+        onSuccess: async () => {
             toast.success(
                 "Report submitted. Thank you for helping us keep the community safe."
             )
             setOpen(false)
             setReportReason("")
-        } catch {
+            await Promise.all([
+                utils.users.byHandle.invalidate({ handle: offenderHandle }),
+                utils.me.get.invalidate(),
+            ])
+        },
+        onError: () => {
             toast.error("uh oh, something went wrong. Please try again later.")
-        } finally {
-            setReportPending(false)
-        }
+        },
+    })
+
+    const reportPending = reportMutation.isPending
+
+    function reportabuse() {
+        reportMutation.mutate({
+            handle: offenderHandle,
+            reason: reportReason,
+        })
     }
 
     return (

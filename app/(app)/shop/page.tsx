@@ -16,8 +16,8 @@
 
 "use client"
 
-import { useEffect, useState } from "react"
-import axios from "axios"
+import { useState } from "react"
+import { trpc } from "@/lib/trpc"
 
 import { Title, Subtitle } from "@/components/text"
 import { SearchBar } from "@/components/search-bar"
@@ -67,27 +67,14 @@ const categories: CategoryData[] = [
 ]
 
 export default function Shop() {
-    const [items, setItems] = useState<ItemWithCreatedAt[]>([])
-    const [loading, setLoading] = useState(true)
     const [now] = useState(() => Date.now())
-
-    useEffect(() => {
-        axios
-            .get("/api/shop")
-            .then((res) => {
-                const rawItems: ShopApiItem[] = res.data.items ?? []
-                const points: number = res.data.points ?? 0
-
-                setItems(
-                    rawItems.map((item) => ({
-                        ...item,
-                        sufficient: points >= item.price,
-                    }))
-                )
-            })
-            .catch(() => setItems([]))
-            .finally(() => setLoading(false))
-    }, [])
+    const { data, isLoading: loading } = trpc.shop.list.useQuery()
+    const rawItems: ShopApiItem[] = data?.items ?? []
+    const points: number = data?.points ?? 0
+    const items: ItemWithCreatedAt[] = rawItems.map((item) => ({
+        ...item,
+        sufficient: points >= item.price,
+    }))
 
     const newItems = [
         ...items.filter(

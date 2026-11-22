@@ -22,6 +22,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { toast } from "sonner"
 import { Check } from "lucide-react"
+import { trpc } from "@/lib/trpc"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -97,33 +98,19 @@ export default function Page() {
     const [agreed, setAgreed] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
-    const [rules, setRules] = useState<
-        { title: string; description: string }[]
-    >([])
-    const [orgName, setOrgName] = useState("")
-    const [loadingAssets, setLoadingAssets] = useState(true)
+    const {
+        data: meta,
+        isLoading: loadingAssets,
+        error: metaError,
+    } = trpc.meta.get.useQuery()
+    const rules = meta?.org.rules ?? []
+    const orgName = meta?.org.name ?? ""
 
     useEffect(() => {
-        async function loadMeta() {
-            try {
-                const res = await fetch("/api/meta")
-                const data = await res.json()
-
-                setRules(data.org.rules)
-                setOrgName(data.org.name)
-            } catch (err) {
-                toast.error(
-                    err instanceof Error
-                        ? err.message
-                        : "Failed to load metadata."
-                )
-            } finally {
-                setLoadingAssets(false)
-            }
+        if (metaError) {
+            toast.error(metaError.message || "Failed to load metadata.")
         }
-
-        loadMeta()
-    }, [])
+    }, [metaError])
 
     const createAccount = async (e: React.FormEvent) => {
         e.preventDefault()

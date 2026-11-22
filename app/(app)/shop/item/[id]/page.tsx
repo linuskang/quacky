@@ -16,24 +16,11 @@
 
 "use client"
 
-import axios from "axios"
-
 import { Button } from "@/components/ui/button"
-
-type ShopItem = {
-    id: string
-    name: string
-    description: string
-    imageUrl: string
-    price: number
-    stock: number
-    category: string
-    available: boolean
-    featured: boolean
-}
+import { trpc } from "@/lib/trpc"
 
 import { PageLayout, PageCenter } from "@/components/page-layout"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Loading from "@/components/loading"
 import Image from "next/image"
@@ -46,68 +33,42 @@ import { Label } from "@/components/ui/label"
 const MAX_PER_ORDER = 10
 
 export default function Shop() {
-    const [shopItem, setShopItem] = useState<ShopItem | null>(null)
-    const [balance, setBalance] = useState<number | null>(0)
     const [quantity, setQuantity] = useState(1)
-    const [buying, setBuying] = useState(false)
-    const [loading, setLoading] = useState(true)
     const params = useParams()
+    const id = String(params.id ?? "")
     const router = useRouter()
+    const utils = trpc.useUtils()
 
-    useEffect(() => {
-        let cancelled = false
+    const { data: shopItem, isLoading: itemLoading } = trpc.shop.byId.useQuery(
+        { id },
+        { enabled: Boolean(id) }
+    )
+    const { data: me, isLoading: meLoading } = trpc.me.get.useQuery()
 
-        async function load() {
-            try {
-                const [itemResponse, balanceResponse] = await Promise.all([
-                    axios.get(`/api/shop/${params.id}`),
-                    axios.get("/api/me"),
-                ])
-
-                if (!cancelled) {
-                    setShopItem(
-                        itemResponse.status === 200
-                            ? itemResponse.data
-                            : null
-                    )
-                    setBalance(
-                        balanceResponse.status === 200
-                            ? balanceResponse.data.balance
-                            : null
-                    )
-                }
-            } catch {
-                if (!cancelled) {
-                    setShopItem(null)
-                    setBalance(null)
-                }
-            } finally {
-                if (!cancelled) setLoading(false)
-            }
-        }
-
-        void load()
-
-        return () => {
-            cancelled = true
-        }
-    }, [params.id])
-
-    async function buy() {
-        if (!shopItem) return
-
-        setBuying(true)
-        try {
-            await axios.post(`/api/shop/${shopItem.id}/purchase`, {
-                quantity,
-            })
+    const purchaseMutation = trpc.shop.purchase.useMutation({
+        onSuccess: async () => {
             toast.success("Purchase complete!")
-            window.location.href = `/shop/my-orders`
-        } catch {
+            await Promise.all([
+                utils.shop.list.invalidate(),
+                utils.shop.byId.invalidate({ id }),
+                utils.shop.myOrders.invalidate(),
+                utils.shop.wishlistList.invalidate(),
+                utils.me.get.invalidate(),
+            ])
+            router.push("/shop/my-orders")
+        },
+        onError: () => {
             toast.error("Something went wrong. Please try again.")
-        } finally {
-            setBuying(false)
-        }
+        },
+    })
+
+    const loading = itemLoading || meLoading
+    const balance = me?.balance ?? null
+    const buying = purchaseMutation.isPending
+
+    function buy() {
+        if (!shopItem) return
+        purchaseMutation.mutate({ id: shopItem.id, quantity })
     }
 
     if (loading) {

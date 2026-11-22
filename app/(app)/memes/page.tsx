@@ -17,11 +17,11 @@
 "use client"
 
 // Libraries
-import axios from "axios"
 import { ChangeEvent, useEffect, useState } from "react"
 import { toast } from "sonner"
 import Image from "next/image"
 import Link from "next/link"
+import { trpc } from "@/lib/trpc"
 
 // Components
 import { PageLayout, PageCenter } from "@/components/page-layout"
@@ -47,62 +47,30 @@ import { ReportAbuse } from "@/components/report-abuse"
 import { MoreHorizontal, ArrowBigUp, ArrowBigDown } from "lucide-react"
 import { Form } from "@/components/ui/form"
 
-// Types
-type Meme = {
-    id: string
-    imgUrl: string
-    author: {
-        id: string
-        username: string
-        image: string
-        name: string
-        verified: boolean
-    }
-    createdAt: string
-    upvotes: number
-    downvotes: number
-    score: number
-    me: "UPVOTE" | "DOWNVOTE" | null
-}
-
 export default function Page() {
-    const [memes, setMemes] = useState<Meme[]>([])
     const [open, setOpen] = useState(false)
     const [file, setFile] = useState<File | null>(null)
     const [previewUrl, setPreviewUrl] = useState("")
-    const [loading, setLoading] = useState(true)
-    const [posting, setPosting] = useState(false)
     const [voting, setVoting] = useState<string | null>(null)
     const [reportingMemeId, setReportingMemeId] = useState<string | null>(null)
-    async function fetchMemes() {
-        const res = await axios.get("/api/memes")
-        const memeDetails = await Promise.all(
-            res.data.data.map((meme: Meme) =>
-                axios
-                    .get(`/api/memes/${meme.id}`)
-                    .then((detail) => detail.data.data)
-            )
-        )
+    const utils = trpc.useUtils()
 
-        return memeDetails
-    }
+    const {
+        data: memes = [],
+        isLoading: loading,
+        isError: memesError,
+    } = trpc.memes.list.useQuery()
 
-    async function refresh() {
-        try {
-            setMemes(await fetchMemes())
-        } catch {
-            toast.error("Failed to fetch memes")
-        } finally {
-            setLoading(false)
-        }
-    }
+    const uploadMutation = trpc.upload.file.useMutation()
+    const createMemeMutation = trpc.memes.create.useMutation()
+    const voteMutation = trpc.memes.vote.useMutation()
+    const posting = uploadMutation.isPending || createMemeMutation.isPending
 
     useEffect(() => {
-        fetchMemes()
-            .then((memeDetails) => setMemes(memeDetails))
-            .catch(() => toast.error("Failed to fetch memes"))
-            .finally(() => setLoading(false))
-    }, [])
+        if (memesError) {
+            toast.error("Failed to fetch memes")
+        }
+    }, [memesError])
 
     useEffect(() => {
         return () => {
@@ -131,26 +99,14 @@ export default function Page() {
         setPreviewUrl(URL.createObjectURL(selected))
     }
 
-
     async function vote(memeId: string, type: "UPVOTE" | "DOWNVOTE") {
         try {
             setVoting(memeId)
-
-            const res = await axios.post(`/api/memes/${memeId}/vote`, { type })
-
-            setMemes((current) =>
-                current.map((meme) =>
-                    meme.id === memeId
-                        ? {
-                            ...meme,
-                            upvotes: res.data.data.upvotes,
-                            downvotes: res.data.data.downvotes,
-                            score: res.data.data.score,
-                            me: res.data.data.vote,
-                        }
-                        : meme
-                )
-            )
+            await voteMutation.mutateAsync({ id: memeId, type })
+            await Promise.all([
+                utils.memes.list.invalidate(),
+                utils.memes.byId.invalidate({ id: memeId }),
+            ])
         } catch {
             toast.error("Failed to vote on meme")
         } finally {
@@ -193,26 +149,25 @@ export default function Page() {
                                     }
 
                                     try {
-                                        setPosting(true)
-
                                         const formData = new FormData()
                                         formData.append("file", selectedFile)
 
-                                        const uploadedImage = await axios.post("/api/upload", formData)
-                                        await axios.post("/api/memes", {
-                                            image: uploadedImage.data.url,
+                                        const uploadedImage =
+                                            await uploadMutation.mutateAsync(
+                                                formData
+                                            )
+                                        await createMemeMutation.mutateAsync({
+                                            image: uploadedImage.url,
                                         })
 
                                         setFile(null)
                                         setPreviewUrl("")
                                         setOpen(false)
 
-                                        refresh()
+                                        await utils.memes.list.invalidate()
                                         toast.success("Meme uploaded successfully")
                                     } catch {
                                         toast.error("Failed to upload meme")
-                                    } finally {
-                                        setPosting(false)
                                     }
                                 }}
                             >
@@ -405,10 +360,10 @@ export default function Page() {
                     </div>
                 )}
                 <ReportAbuse
-                    url={
+                    target={
                         reportingMemeId
-                            ? `/api/memes/${reportingMemeId}/report`
-                            : ""
+                            ? { type: "meme", id: reportingMemeId }
+                            : null
                     }
                     open={reportingMemeId !== null}
                     onOpen={(reportOpen) => {
