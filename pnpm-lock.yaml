@@ -293,8 +293,8 @@ importers:
         specifier: 19.2.8
         version: 19.2.8(react@19.2.8)
       react-hook-form:
-        specifier: ^7.91.0
-        version: 7.91.0(@types/react@19.2.17)(react@19.2.8)
+        specifier: ^7.92.0
+        version: 7.92.0(@types/react@19.2.17)(react@19.2.8)
       react-markdown:
         specifier: ^10.1.0
         version: 10.1.0(@types/react@19.2.17)(react@19.2.8)
@@ -4779,8 +4779,8 @@ packages:
     peerDependencies:
       react: ^19.2.8
 
-  react-hook-form@7.91.0:
-    resolution: {integrity: sha512-5BEBUnCBwa28AFXYTYmOaB/+CSpJ/+CWVASHEvIGUzFdHyUiPHeRhG7r5hOZ8nZi0yP7pbHdFNXO/p31EKTJFQ==}
+  react-hook-form@7.92.0:
+    resolution: {integrity: sha512-O5ILyY5fYHN7N13Pfxpe55KboyNFsJdM03BHpshQkClJd8raugiAUGY7VjifITrfhVxyx81ko25azXCoayhf1w==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       '@types/react': '*'
@@ -10295,7 +10295,7 @@ snapshots:
       react: 19.2.8
       scheduler: 0.27.0
 
-  react-hook-form@7.91.0(@types/react@19.2.17)(react@19.2.8):
+  react-hook-form@7.92.0(@types/react@19.2.17)(react@19.2.8):
     dependencies:
       react: 19.2.8
     optionalDependencies:
