@@ -29,7 +29,7 @@ function getAI() {
             // For the official quacky deployment for https://quacky.space, I've switched to using the OpenAI API directly
             // Opencode removed the ability for users to use the API directly without a session.
 
-            // baseURL: env.AI_URL,
+            baseURL: env.AI_URL,
         })
     }
     return ai
@@ -96,7 +96,6 @@ function followContent() {
 function pushBody(content: string) {
     return content.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
 }
-
 
 // NotificationService is deprecated after 0.0.2
 // Now using v2 functions in notification.ts, which also accounts for Push notifications after PWA release.
@@ -166,6 +165,4 @@ export class NotificationService {
             },
         })
     }
-
-
 }
