@@ -42,7 +42,7 @@ type FormContextValue = {
 const FormContext = React.createContext<FormContextValue | null>(null)
 
 function useHeadlessForm() {
-    const context = React.use(FormContext)
+    const context = React.useContext(FormContext)
 
     if (!context) {
         throw new Error("Form components must be used inside <Form>.")
