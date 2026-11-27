@@ -14,11 +14,10 @@
 // Linus Kang, 2026
 // Work is licensed under the CC BY-NC 4.0 license.
 
-
 // (c) 2026 Linus - github/linuskang/up
 
-import webpush from 'web-push'
-import { prisma } from '@/server/prisma'
+import * as webpush from "web-push"
+import { prisma } from "@/server/prisma"
 import { env } from "@/env"
 
 // lzy load
@@ -34,12 +33,10 @@ function setup() {
 
 // v2
 export async function send(userId: string, actorId: string, content: string) {
-
-
     const actor = await prisma.user.findUnique({
         where: {
             id: actorId,
-        }
+        },
     })
 
     if (!actor) {
@@ -51,7 +48,7 @@ export async function send(userId: string, actorId: string, content: string) {
             userId,
             actorId,
             content,
-        }
+        },
     })
 
     sendPushNotification(userId, {
@@ -66,8 +63,8 @@ export async function send(userId: string, actorId: string, content: string) {
 export async function sendPushNotification(
     userId: string,
     payload: {
-        title: string,
-        body: string,
+        title: string
+        body: string
         url?: string
     }
 ) {
@@ -76,7 +73,7 @@ export async function sendPushNotification(
     const user = await prisma.user.findUnique({
         where: {
             id: userId,
-        }
+        },
     })
 
     if (!user) {
@@ -98,8 +95,8 @@ export async function sendPushNotification(
     const body = JSON.stringify({
         title: payload.title,
         body: payload.body,
-        icon: '/android-chrome-192x192.png',
-        badge: '/android-chrome-192x192.png',
+        icon: "/android-chrome-192x192.png",
+        badge: "/android-chrome-192x192.png",
         url: payload.url,
     })
 
@@ -122,7 +119,7 @@ export async function sendPushNotification(
     for (let i = 0; i < res.length; i++) {
         const result = res[i]
         if (!result) continue
-        if (result.status === 'rejected') {
+        if (result.status === "rejected") {
             await prisma.pushSubscription.delete({
                 where: { id: subscriptions[i].id },
             })
@@ -157,9 +154,9 @@ export async function broadcastPushNotification(payload: {
         const body = JSON.stringify({
             title: payload.title,
             body: payload.body,
-            icon: '/android-chrome-192x192.png',
-            badge: '/android-chrome-192x192.png',
-            url: payload.url ?? '/notifications',
+            icon: "/android-chrome-192x192.png",
+            badge: "/android-chrome-192x192.png",
+            url: payload.url ?? "/notifications",
         })
 
         const res = await Promise.allSettled(
@@ -179,7 +176,7 @@ export async function broadcastPushNotification(payload: {
 
         for (let i = 0; i < res.length; i++) {
             const result = res[i]
-            if (result && result.status === 'rejected') {
+            if (result && result.status === "rejected") {
                 await prisma.pushSubscription
                     .delete({
                         where: { id: subscriptions[i].id },
